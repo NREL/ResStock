@@ -12853,9 +12853,6 @@ Level,Parameter,Option,Saturation
 7,Insulation Slab,"2ft R5 Perimeter, Vertical",0.0182109
 7,Insulation Slab,"2ft R10 Perimeter, Vertical",0.0279472
 7,Insulation Slab,"R10 Whole Slab, Horizontal",0
-7,Misc Well Pump,None,0.882694
-7,Misc Well Pump,Typical Efficiency,0.117306
-7,Misc Well Pump,Void,0
 8,Income RECS2015,<20000,0.130155
 8,Income RECS2015,20000-39999,0.156104
 8,Income RECS2015,40000-59999,0.137785

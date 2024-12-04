@@ -250,10 +250,8 @@ Level,Parameter,Option,Saturation
 0,Misc Hot Tub Spa,Natural Gas,0.25
 0,Misc Hot Tub Spa,None,0.25
 0,Misc Hot Tub Spa,Other Fuel,0.25
-0,Misc Well Pump,High Efficiency,0.25
-0,Misc Well Pump,National Average,0.25
-0,Misc Well Pump,None,0.25
-0,Misc Well Pump,Typical Efficiency,0.25
+0,Misc Well Pump,None,0.5
+0,Misc Well Pump,Typical Efficiency,0.5
 0,Natural Ventilation,None,0.5
 0,Natural Ventilation,"Cooling Season, 7 days/wk",0.5
 0,Neighbors,2,0.166667
