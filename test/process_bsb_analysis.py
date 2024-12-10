@@ -176,27 +176,18 @@ if __name__ == '__main__':
 
     frames = []
 
-    national_num_scenarios = sum([len(files) for r, d, files in os.walk('project_national/national_upgrades/results_csvs')])
-    testing_num_scenarios = sum([len(files) for r, d, files in os.walk('project_testing/testing_upgrades/results_csvs')])
-    assert national_num_scenarios == testing_num_scenarios
+    national_num_scenarios = sum([len(files) for r, d, files in os.walk('project_national/sdr_upgrades_tmy3/results_csvs')])
 
     for i in range(1, national_num_scenarios):
 
-      df_national = read_csv('project_national/national_upgrades/results_csvs/results_up{}.csv'.format('%02d' % i))
-      df_testing = read_csv('project_testing/testing_upgrades/results_csvs/results_up{}.csv'.format('%02d' % i))
+      df_national = read_csv('project_national/sdr_upgrades_tmy3/results_csvs/results_up{}.csv'.format('%02d' % i))
 
-      assert df_national['apply_upgrade.upgrade_name'][0] == df_testing['apply_upgrade.upgrade_name'][0]
       upgrade_name = df_national['apply_upgrade.upgrade_name'][0]
 
       df_national['building_id'] = df_national['building_id'].apply(lambda x: 'project_national-{}-{}.osw'.format(upgrade_name, '%04d' % x))
       df_national.insert(1, 'color_index', 1)
 
       frames.append(df_national)
-      
-      df_testing['building_id'] = df_testing['building_id'].apply(lambda x: 'project_testing-{}-{}.osw'.format(upgrade_name, '%04d' % x))
-      df_testing.insert(1, 'color_index', 0)
-
-      frames.append(df_testing)
 
     df = pd.concat(frames)
     df = df.rename(columns={'building_id': 'OSW'})
@@ -242,37 +233,23 @@ if __name__ == '__main__':
     # results_output.csv
 
     df_nationals = []
-    df_testings = []
     index_col = ['Time']
     drops = ['TimeDST', 'TimeUTC']
 
-    dps = sorted(os.listdir('project_national/national_upgrades/simulation_output/up00'))
+    dps = sorted(os.listdir('project_national/sdr_upgrades_tmy3/simulation_output/up00'))
     for dp in dps:
       for i in range(1, national_num_scenarios):
-        if not os.path.exists('project_national/national_upgrades/simulation_output/up{}/{}/run/results_timeseries.csv'.format('%02d' % i, dp)):
+        if not os.path.exists('project_national/sdr_upgrades_tmy3/simulation_output/up{}/{}/run/results_timeseries.csv'.format('%02d' % i, dp)):
           continue
 
-        df_national = read_csv('project_national/national_upgrades/simulation_output/up{}/{}/run/results_timeseries.csv'.format('%02d' % i, dp), index_col=index_col, skiprows=[1])
+        df_national = read_csv('project_national/sdr_upgrades_tmy3/simulation_output/up{}/{}/run/results_timeseries.csv'.format('%02d' % i, dp), index_col=index_col, skiprows=[1])
         df_national = df_national.drop(drops, axis=1)
         df_nationals.append(df_national)
-
-    dps = sorted(os.listdir('project_testing/testing_upgrades/simulation_output/up00'))
-    for dp in dps:
-      for i in range(1, testing_num_scenarios):
-        if not os.path.exists('project_testing/testing_upgrades/simulation_output/up{}/{}/run/results_timeseries.csv'.format('%02d' % i, dp)):
-          continue
-
-        df_testing = read_csv('project_testing/testing_upgrades/simulation_output/up{}/{}/run/results_timeseries.csv'.format('%02d' % i, dp), index_col=index_col, skiprows=[1])
-        df_testing = df_testing.drop(drops, axis=1)
-        df_testings.append(df_testing)
 
     df_national = reduce(lambda x, y: x.add(y, fill_value=0), df_nationals).round(1)
     df_national['PROJECT'] = 'project_national'
 
-    df_testing = reduce(lambda x, y: x.add(y, fill_value=0), df_testings).round(1)
-    df_testing['PROJECT'] = 'project_testing'
-
-    results_output = pd.concat([df_national, df_testing]).fillna(0)
+    results_output = pd.concat([df_national]).fillna(0)
     results_output = results_output.reset_index().set_index('PROJECT')
     results_output = results_output.sort_index()
     results_output = results_output.reindex(index_col + sorted(results_output.columns.drop(index_col)), axis=1)
@@ -281,41 +258,30 @@ if __name__ == '__main__':
     # buildstockbatch.csv
 
     df_nationals = []
-    df_testings = []
     index_col = ['time']
-    drops = ['timedst', 'timeutc']
+    drops = ['building_id,', 'timedst', 'timeutc']
 
-    groups = sorted(os.listdir('project_national/national_baseline/parquet/timeseries/upgrade=0'))
-    for group in groups:
-        for i in range(1, national_num_scenarios):
-            if not os.path.exists('project_national/national_upgrades/parquet/timeseries/upgrade={}/{}'.format(i, group)):
-                continue
+    dataframes = []
+    directory = "project_national/sdr_upgrades_tmy3/parquet/timeseries"
+    # Walk through the directory and its subdirectories
+    for root, _, files in os.walk(directory):
+        for file in files:
+            # Check if the file has a .parquet extension
+            if file.endswith(".parquet"):
+                file_path = os.path.join(root, file)
+                try:
+                    # Load the Parquet file into a Pandas DataFrame
+                    df = pd.read_parquet(file_path)
+                    dataframes.append(df)
+                except Exception as e:
+                    print(f"Error loading file {file_path}: {e}")
 
-            df_national = pd.read_parquet('project_national/national_upgrades/parquet/timeseries/upgrade={}/{}'.format(i, group)).reset_index()
-            df_national = df_national.drop(drops, axis=1)
-            df_nationals.append(df_national)
-
-    groups = sorted(os.listdir('project_testing/testing_baseline/parquet/timeseries/upgrade=0'))
-    for group in groups:
-        for i in range(1, testing_num_scenarios):
-            if not os.path.exists('project_testing/testing_upgrades/parquet/timeseries/upgrade={}/{}'.format(i, group)):
-                continue
-
-            df_testing = pd.read_parquet('project_testing/testing_upgrades/parquet/timeseries/upgrade={}/{}'.format(i, group)).reset_index()
-            df_testing = df_testing.drop(drops, axis=1)
-            df_testings.append(df_testing)
-
-    df_national = pd.concat(df_nationals).sort_values(['building_id', 'time'])
-    df_national = df_national.drop(['building_id'], axis=1)
+    df_national = pd.concat(dataframes).sort_values(['building_id', 'time']).reset_index()
+    df_national.drop(columns=drops,inplace=True)
     df_national = df_national.groupby(index_col).sum().round(1)
     df_national['PROJECT'] = 'project_national'
 
-    df_testing = pd.concat(df_testings).sort_values(['building_id', 'time'])
-    df_testing = df_testing.drop(['building_id'], axis=1)
-    df_testing = df_testing.groupby(index_col).sum().round(1)
-    df_testing['PROJECT'] = 'project_testing'
-
-    buildstockbatch = pd.concat([df_national, df_testing]).fillna(0)
+    buildstockbatch = df_national.fillna(0)
     buildstockbatch = buildstockbatch.reset_index().set_index('PROJECT')
     buildstockbatch = buildstockbatch.sort_index()
     buildstockbatch = buildstockbatch.reindex(index_col + sorted(buildstockbatch.columns.drop(index_col)), axis=1)

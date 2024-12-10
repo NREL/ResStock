@@ -6,6 +6,22 @@ Development Changelog
     :released: pending
 
     .. change::
+        :tags: feature, characteristics
+        :pullreq: 1325
+        :tickets: resstock-estimation 437
+
+        **Date**: 2024-11-19
+
+        Title:
+        Well pump distribution using AHS
+
+        Description:
+        Use 2017-2019 AHS data to create Misc Well Pump distribution (~11% nationally) with respect to geography/urbanity, building type, and foundation type. Previously well pump was randomly assigned via a manually created distribution.
+
+        resstock-estimation: `pull request 437 <https://github.com/NREL/resstock-estimation/pull/437>`_
+
+        Assignees: Lixi Liu
+
         :tags: characteristics, pool heater
         :pullreq: 1324
 

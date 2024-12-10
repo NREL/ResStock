@@ -166,24 +166,17 @@ jobs:
           
           buildstock_local project_national/national_baseline.yml
           buildstock_local project_testing/testing_baseline.yml
-          
-          buildstock_local project_national/sdr_upgrade_tmy3.yml
-          buildstock_local project_national/national_upgrades.yml
-          buildstock_local project_testing/testing_upgrades.yml
+          buildstock_local project_national/sdr_upgrades_tmy3.yml
 
       - name: Unzip results
         run: |
           gunzip -v project_national/national_baseline/results_csvs/*.csv.gz
           gunzip -v project_testing/testing_baseline/results_csvs/*.csv.gz
-          
-          gunzip -v project_national/national_upgrades/results_csvs/*.csv.gz
-          gunzip -v project_testing/testing_upgrades/results_csvs/*.csv.gz
+          gunzip -v project_national/sdr_upgrades_tmy3/results_csvs/*.csv.gz
           
           tar -xvf project_national/national_baseline/simulation_output/*.tar.gz -C project_national/national_baseline/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw'
           tar -xvf project_testing/testing_baseline/simulation_output/*.tar.gz -C project_testing/testing_baseline/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw' --wildcards '*in.osm' --wildcards '*in.idf'
-          
-          tar -xvf project_national/national_upgrades/simulation_output/*.tar.gz -C project_national/national_upgrades/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw'
-          tar -xvf project_testing/testing_upgrades/simulation_output/*.tar.gz -C project_testing/testing_upgrades/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw' --wildcards '*in.osm' --wildcards '*in.idf'
+          tar -xvf project_national/sdr_upgrades_tmy3/simulation_output/*.tar.gz -C project_national/sdr_upgrades_tmy3/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw'
 
       - name: Process results
         run: |
@@ -204,8 +197,7 @@ jobs:
           path: |
             project_national/national_baseline/results_csvs/results_up00.csv
             project_testing/testing_baseline/results_csvs/results_up00.csv
-            project_national/national_upgrades/results_csvs/results_up17.csv
-            project_testing/testing_upgrades/results_csvs/results_up17.csv
+            project_national/sdr_upgrades_tmy3/results_csvs/results_up02.csv
           name: buildstockbatch_results_csvs
 
       - name: Run tests

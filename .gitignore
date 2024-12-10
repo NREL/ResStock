@@ -6,7 +6,6 @@
 /project_national/national_upgrades
 /project_national/sdr_upgrades_tmy3
 /project_testing/testing_baseline
-/project_testing/testing_upgrades
 /resources/buildstock.csv
 /project_*/**/*.csv
 !/project_*/resources/source_report.csv

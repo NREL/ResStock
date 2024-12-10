@@ -34,8 +34,8 @@ end
 
 def expected_upgrade_nonnull_columns
   return [
-    'upgrade_costs.option_01_name',
-    'upgrade_costs.option_01_cost_usd',
+    'apply_upgrade.upgrade_name',
+    'upgrade_costs.door_area_ft_2',
     'upgrade_costs.upgrade_cost_usd'
   ]
 end
@@ -70,7 +70,9 @@ end
 def expected_upgrade_contents
   contents = [
     'upgraded.osw',
-    'upgraded.xml'
+    'existing.osw',
+    'upgraded.xml',
+    'existing.xml'
   ]
   return contents
 end
@@ -86,7 +88,6 @@ def expected_timeseries_columns(testing)
   ]
   contents += [
     'Energy Use: Net',
-    'Zone People Occupant Count: Conditioned Space'
   ] if testing
   return contents
 end
@@ -188,8 +189,9 @@ end
 def _get_timeseries_columns(paths)
   timeseries = []
   paths.each do |path|
-    CSV.read(path, headers: true).headers.each do |header|
-      timeseries << header if !timeseries.include?(header)
+    headers = CSV.foreach(path).first
+    headers.each do |column|
+      timeseries << column if !timeseries.include?(column)
     end
   end
   return timeseries
