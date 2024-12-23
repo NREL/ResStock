@@ -2,7 +2,7 @@
 
 # Collection of methods related to hot water use and appliances.
 module HotWaterAndAppliances
-  # TODO
+  # Adds HPXML HotWaterDistribution, WaterFixtures, and Appliances to the OpenStudio model.
   #
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param model [OpenStudio::Model::Model] OpenStudio Model object
@@ -11,10 +11,9 @@ module HotWaterAndAppliances
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param hpxml_header [HPXML::Header] HPXML Header object (one per HPXML file)
   # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
-  # @param plantloop_map [TODO] TODO
-  # @return [TODO] TODO
+  # @param plantloop_map [Hash] Map of HPXML System ID => OpenStudio PlantLoop objects
+  # @return [nil]
   def self.apply(runner, model, weather, spaces, hpxml_bldg, hpxml_header, schedules_file, plantloop_map)
-    @runner = runner
     cfa = hpxml_bldg.building_construction.conditioned_floor_area
     ncfl = hpxml_bldg.building_construction.number_of_conditioned_floors
     has_uncond_bsmnt = hpxml_bldg.has_location(HPXML::LocationBasementUnconditioned)
@@ -57,7 +56,7 @@ module HotWaterAndAppliances
     # Clothes washer energy
     if not clothes_washer.nil?
       cw_space = Geometry.get_space_from_location(clothes_washer.location, spaces)
-      cw_annual_kwh, cw_frac_sens, cw_frac_lat, cw_gpd = calc_clothes_washer_energy_gpd(eri_version, nbeds, clothes_washer, cw_space.nil?, n_occ)
+      cw_annual_kwh, cw_frac_sens, cw_frac_lat, cw_gpd = calc_clothes_washer_energy_gpd(runner, eri_version, nbeds, clothes_washer, cw_space.nil?, n_occ)
 
       # Create schedule
       cw_power_schedule = nil
@@ -82,13 +81,24 @@ module HotWaterAndAppliances
       end
 
       cw_space = conditioned_space if cw_space.nil? # appliance is outdoors, so we need to assign the equipment to an arbitrary space
-      add_electric_equipment(model, cw_object_name, cw_space, cw_design_level_w, cw_frac_sens, cw_frac_lat, cw_power_schedule)
+
+      Model.add_electric_equipment(
+        model,
+        name: cw_object_name,
+        end_use: cw_object_name,
+        space: cw_space,
+        design_level: cw_design_level_w,
+        frac_radiant: 0.6 * cw_frac_sens,
+        frac_latent: cw_frac_lat,
+        frac_lost: 1 - cw_frac_sens - cw_frac_lat,
+        schedule: cw_power_schedule
+      )
     end
 
     # Clothes dryer energy
     if not clothes_dryer.nil?
       cd_space = Geometry.get_space_from_location(clothes_dryer.location, spaces)
-      cd_annual_kwh, cd_annual_therm, cd_frac_sens, cd_frac_lat = calc_clothes_dryer_energy(eri_version, nbeds, clothes_dryer, clothes_washer, cd_space.nil?, n_occ)
+      cd_annual_kwh, cd_annual_therm, cd_frac_sens, cd_frac_lat = calc_clothes_dryer_energy(runner, eri_version, nbeds, clothes_dryer, clothes_washer, cd_space.nil?, n_occ)
 
       # Create schedule
       cd_schedule = nil
@@ -115,14 +125,36 @@ module HotWaterAndAppliances
       end
 
       cd_space = conditioned_space if cd_space.nil? # appliance is outdoors, so we need to assign the equipment to an arbitrary space
-      add_electric_equipment(model, cd_obj_name, cd_space, cd_design_level_e, cd_frac_sens, cd_frac_lat, cd_schedule)
-      add_other_equipment(model, cd_obj_name, cd_space, cd_design_level_f, cd_frac_sens, cd_frac_lat, cd_schedule, clothes_dryer.fuel_type)
+
+      Model.add_electric_equipment(
+        model,
+        name: cd_obj_name,
+        end_use: cd_obj_name,
+        space: cd_space,
+        design_level: cd_design_level_e,
+        frac_radiant: 0.6 * cd_frac_sens,
+        frac_latent: cd_frac_lat,
+        frac_lost: 1 - cd_frac_sens - cd_frac_lat,
+        schedule: cd_schedule
+      )
+      Model.add_other_equipment(
+        model,
+        name: cd_obj_name,
+        end_use: cd_obj_name,
+        space: cd_space,
+        design_level: cd_design_level_f,
+        frac_radiant: 0.6 * cd_frac_sens,
+        frac_latent: cd_frac_lat,
+        frac_lost: 1 - cd_frac_sens - cd_frac_lat,
+        schedule: cd_schedule,
+        fuel_type: clothes_dryer.fuel_type
+      )
     end
 
     # Dishwasher energy
     if not dishwasher.nil?
       dw_space = Geometry.get_space_from_location(dishwasher.location, spaces)
-      dw_annual_kwh, dw_frac_sens, dw_frac_lat, dw_gpd = calc_dishwasher_energy_gpd(eri_version, nbeds, dishwasher, dw_space.nil?, n_occ)
+      dw_annual_kwh, dw_frac_sens, dw_frac_lat, dw_gpd = calc_dishwasher_energy_gpd(runner, eri_version, nbeds, dishwasher, dw_space.nil?, n_occ)
 
       # Create schedule
       dw_power_schedule = nil
@@ -147,97 +179,128 @@ module HotWaterAndAppliances
       end
 
       dw_space = conditioned_space if dw_space.nil? # appliance is outdoors, so we need to assign the equipment to an arbitrary space
-      add_electric_equipment(model, dw_obj_name, dw_space, dw_design_level_w, dw_frac_sens, dw_frac_lat, dw_power_schedule)
+
+      Model.add_electric_equipment(
+        model,
+        name: dw_obj_name,
+        end_use: dw_obj_name,
+        space: dw_space,
+        design_level: dw_design_level_w,
+        frac_radiant: 0.6 * dw_frac_sens,
+        frac_latent: dw_frac_lat,
+        frac_lost: 1 - dw_frac_sens - dw_frac_lat,
+        schedule: dw_power_schedule
+      )
     end
 
     # Refrigerator(s) energy
     hpxml_bldg.refrigerators.each do |refrigerator|
-      rf_space, rf_schedule = Geometry.get_space_or_schedule_from_location(refrigerator.location, model, spaces)
-      rf_annual_kwh, rf_frac_sens, rf_frac_lat = calc_fridge_or_freezer_energy(refrigerator, rf_space.nil?)
+      rf_space, rf_loc_schedule = Geometry.get_space_or_schedule_from_location(refrigerator.location, model, spaces)
+      rf_annual_kwh, rf_frac_sens, rf_frac_lat = calc_fridge_or_freezer_energy(runner, refrigerator, rf_space.nil?)
 
       # Create schedule
-      fridge_schedule = nil
-      fridge_col_name = refrigerator.primary_indicator ? SchedulesFile::Columns[:Refrigerator].name : SchedulesFile::Columns[:ExtraRefrigerator].name
-      fridge_obj_name = Constants::ObjectTypeRefrigerator
+      rf_schedule = nil
+      rf_col_name = refrigerator.primary_indicator ? SchedulesFile::Columns[:Refrigerator].name : SchedulesFile::Columns[:ExtraRefrigerator].name
+      rf_obj_name = Constants::ObjectTypeRefrigerator
       if not schedules_file.nil?
-        fridge_design_level = schedules_file.calc_design_level_from_annual_kwh(col_name: fridge_col_name, annual_kwh: rf_annual_kwh)
-        fridge_schedule = schedules_file.create_schedule_file(model, col_name: fridge_col_name, schedule_type_limits_name: EPlus::ScheduleTypeLimitsFraction)
+        rf_design_level = schedules_file.calc_design_level_from_annual_kwh(col_name: rf_col_name, annual_kwh: rf_annual_kwh)
+        rf_schedule = schedules_file.create_schedule_file(model, col_name: rf_col_name, schedule_type_limits_name: EPlus::ScheduleTypeLimitsFraction)
       end
-      if fridge_schedule.nil?
-        fridge_unavailable_periods = Schedule.get_unavailable_periods(runner, fridge_col_name, hpxml_header.unavailable_periods)
+      if rf_schedule.nil?
+        rf_unavailable_periods = Schedule.get_unavailable_periods(runner, rf_col_name, hpxml_header.unavailable_periods)
 
         # if both weekday_fractions/weekend_fractions/monthly_multipliers and constant_coefficients/temperature_coefficients provided, ignore the former
         if !refrigerator.constant_coefficients.nil? && !refrigerator.temperature_coefficients.nil?
-          fridge_design_level = UnitConversions.convert(rf_annual_kwh / 8760.0, 'kW', 'W')
-          fridge_schedule = fridge_or_freezer_coefficients_schedule(model, fridge_col_name, fridge_obj_name, refrigerator, rf_space, rf_schedule, fridge_unavailable_periods)
+          rf_design_level = UnitConversions.convert(rf_annual_kwh / 8760.0, 'kW', 'W')
+          rf_schedule = get_fridge_or_freezer_coefficients_schedule(model, rf_col_name, rf_obj_name, refrigerator, rf_space, rf_loc_schedule, rf_unavailable_periods)
         elsif !refrigerator.weekday_fractions.nil? && !refrigerator.weekend_fractions.nil? && !refrigerator.monthly_multipliers.nil?
-          fridge_weekday_sch = refrigerator.weekday_fractions
-          fridge_weekend_sch = refrigerator.weekend_fractions
-          fridge_monthly_sch = refrigerator.monthly_multipliers
+          rf_weekday_sch = refrigerator.weekday_fractions
+          rf_weekend_sch = refrigerator.weekend_fractions
+          rf_monthly_sch = refrigerator.monthly_multipliers
 
-          fridge_schedule_obj = MonthWeekdayWeekendSchedule.new(model, fridge_obj_name + ' schedule', fridge_weekday_sch, fridge_weekend_sch, fridge_monthly_sch, EPlus::ScheduleTypeLimitsFraction, unavailable_periods: fridge_unavailable_periods)
-          fridge_design_level = fridge_schedule_obj.calc_design_level_from_daily_kwh(rf_annual_kwh / 365.0)
-          fridge_schedule = fridge_schedule_obj.schedule
+          rf_schedule_obj = MonthWeekdayWeekendSchedule.new(model, rf_obj_name + ' schedule', rf_weekday_sch, rf_weekend_sch, rf_monthly_sch, EPlus::ScheduleTypeLimitsFraction, unavailable_periods: rf_unavailable_periods)
+          rf_design_level = rf_schedule_obj.calc_design_level_from_daily_kwh(rf_annual_kwh / 365.0)
+          rf_schedule = rf_schedule_obj.schedule
         end
       else
-        runner.registerWarning("Both '#{fridge_col_name}' schedule file and weekday fractions provided; the latter will be ignored.") if !refrigerator.weekday_fractions.nil?
-        runner.registerWarning("Both '#{fridge_col_name}' schedule file and weekend fractions provided; the latter will be ignored.") if !refrigerator.weekend_fractions.nil?
-        runner.registerWarning("Both '#{fridge_col_name}' schedule file and monthly multipliers provided; the latter will be ignored.") if !refrigerator.monthly_multipliers.nil?
-        runner.registerWarning("Both '#{fridge_col_name}' schedule file and constant coefficients provided; the latter will be ignored.") if !refrigerator.constant_coefficients.nil?
-        runner.registerWarning("Both '#{fridge_col_name}' schedule file and temperature coefficients provided; the latter will be ignored.") if !refrigerator.temperature_coefficients.nil?
+        runner.registerWarning("Both '#{rf_col_name}' schedule file and weekday fractions provided; the latter will be ignored.") if !refrigerator.weekday_fractions.nil?
+        runner.registerWarning("Both '#{rf_col_name}' schedule file and weekend fractions provided; the latter will be ignored.") if !refrigerator.weekend_fractions.nil?
+        runner.registerWarning("Both '#{rf_col_name}' schedule file and monthly multipliers provided; the latter will be ignored.") if !refrigerator.monthly_multipliers.nil?
+        runner.registerWarning("Both '#{rf_col_name}' schedule file and constant coefficients provided; the latter will be ignored.") if !refrigerator.constant_coefficients.nil?
+        runner.registerWarning("Both '#{rf_col_name}' schedule file and temperature coefficients provided; the latter will be ignored.") if !refrigerator.temperature_coefficients.nil?
       end
 
       rf_space = conditioned_space if rf_space.nil? # appliance is outdoors, so we need to assign the equipment to an arbitrary space
 
-      add_electric_equipment(model, fridge_obj_name, rf_space, fridge_design_level, rf_frac_sens, rf_frac_lat, fridge_schedule)
+      Model.add_electric_equipment(
+        model,
+        name: rf_obj_name,
+        end_use: rf_obj_name,
+        space: rf_space,
+        design_level: rf_design_level,
+        frac_radiant: 0.6 * rf_frac_sens,
+        frac_latent: rf_frac_lat,
+        frac_lost: 1 - rf_frac_sens - rf_frac_lat,
+        schedule: rf_schedule
+      )
     end
 
     # Freezer(s) energy
     hpxml_bldg.freezers.each do |freezer|
-      fz_space, fz_schedule = Geometry.get_space_or_schedule_from_location(freezer.location, model, spaces)
-      fz_annual_kwh, fz_frac_sens, fz_frac_lat = calc_fridge_or_freezer_energy(freezer, fz_space.nil?)
+      fz_space, fz_loc_schedule = Geometry.get_space_or_schedule_from_location(freezer.location, model, spaces)
+      fz_annual_kwh, fz_frac_sens, fz_frac_lat = calc_fridge_or_freezer_energy(runner, freezer, fz_space.nil?)
 
       # Create schedule
-      freezer_schedule = nil
-      freezer_col_name = SchedulesFile::Columns[:Freezer].name
-      freezer_obj_name = Constants::ObjectTypeFreezer
+      fz_schedule = nil
+      fz_col_name = SchedulesFile::Columns[:Freezer].name
+      fz_obj_name = Constants::ObjectTypeFreezer
       if not schedules_file.nil?
-        freezer_design_level = schedules_file.calc_design_level_from_annual_kwh(col_name: freezer_col_name, annual_kwh: fz_annual_kwh)
-        freezer_schedule = schedules_file.create_schedule_file(model, col_name: freezer_col_name, schedule_type_limits_name: EPlus::ScheduleTypeLimitsFraction)
+        fz_design_level = schedules_file.calc_design_level_from_annual_kwh(col_name: fz_col_name, annual_kwh: fz_annual_kwh)
+        fz_schedule = schedules_file.create_schedule_file(model, col_name: fz_col_name, schedule_type_limits_name: EPlus::ScheduleTypeLimitsFraction)
       end
-      if freezer_schedule.nil?
-        freezer_unavailable_periods = Schedule.get_unavailable_periods(runner, freezer_col_name, hpxml_header.unavailable_periods)
+      if fz_schedule.nil?
+        fz_unavailable_periods = Schedule.get_unavailable_periods(runner, fz_col_name, hpxml_header.unavailable_periods)
 
         # if both weekday_fractions/weekend_fractions/monthly_multipliers and constant_coefficients/temperature_coefficients provided, ignore the former
         if !freezer.constant_coefficients.nil? && !freezer.temperature_coefficients.nil?
-          freezer_design_level = UnitConversions.convert(fz_annual_kwh / 8760.0, 'kW', 'W')
-          freezer_schedule = fridge_or_freezer_coefficients_schedule(model, freezer_col_name, freezer_obj_name, freezer, fz_space, fz_schedule, freezer_unavailable_periods)
+          fz_design_level = UnitConversions.convert(fz_annual_kwh / 8760.0, 'kW', 'W')
+          fz_schedule = get_fridge_or_freezer_coefficients_schedule(model, fz_col_name, fz_obj_name, freezer, fz_space, fz_loc_schedule, fz_unavailable_periods)
         elsif !freezer.weekday_fractions.nil? && !freezer.weekend_fractions.nil? && !freezer.monthly_multipliers.nil?
-          freezer_weekday_sch = freezer.weekday_fractions
-          freezer_weekend_sch = freezer.weekend_fractions
-          freezer_monthly_sch = freezer.monthly_multipliers
+          fz_weekday_sch = freezer.weekday_fractions
+          fz_weekend_sch = freezer.weekend_fractions
+          fz_monthly_sch = freezer.monthly_multipliers
 
-          freezer_schedule_obj = MonthWeekdayWeekendSchedule.new(model, freezer_obj_name + ' schedule', freezer_weekday_sch, freezer_weekend_sch, freezer_monthly_sch, EPlus::ScheduleTypeLimitsFraction, unavailable_periods: freezer_unavailable_periods)
-          freezer_design_level = freezer_schedule_obj.calc_design_level_from_daily_kwh(fz_annual_kwh / 365.0)
-          freezer_schedule = freezer_schedule_obj.schedule
+          fz_schedule_obj = MonthWeekdayWeekendSchedule.new(model, fz_obj_name + ' schedule', fz_weekday_sch, fz_weekend_sch, fz_monthly_sch, EPlus::ScheduleTypeLimitsFraction, unavailable_periods: fz_unavailable_periods)
+          fz_design_level = fz_schedule_obj.calc_design_level_from_daily_kwh(fz_annual_kwh / 365.0)
+          fz_schedule = fz_schedule_obj.schedule
         end
       else
-        runner.registerWarning("Both '#{freezer_col_name}' schedule file and weekday fractions provided; the latter will be ignored.") if !freezer.weekday_fractions.nil?
-        runner.registerWarning("Both '#{freezer_col_name}' schedule file and weekend fractions provided; the latter will be ignored.") if !freezer.weekend_fractions.nil?
-        runner.registerWarning("Both '#{freezer_col_name}' schedule file and monthly multipliers provided; the latter will be ignored.") if !freezer.monthly_multipliers.nil?
-        runner.registerWarning("Both '#{freezer_col_name}' schedule file and constant coefficients provided; the latter will be ignored.") if !freezer.constant_coefficients.nil?
-        runner.registerWarning("Both '#{freezer_col_name}' schedule file and temperature coefficients provided; the latter will be ignored.") if !freezer.temperature_coefficients.nil?
+        runner.registerWarning("Both '#{fz_col_name}' schedule file and weekday fractions provided; the latter will be ignored.") if !freezer.weekday_fractions.nil?
+        runner.registerWarning("Both '#{fz_col_name}' schedule file and weekend fractions provided; the latter will be ignored.") if !freezer.weekend_fractions.nil?
+        runner.registerWarning("Both '#{fz_col_name}' schedule file and monthly multipliers provided; the latter will be ignored.") if !freezer.monthly_multipliers.nil?
+        runner.registerWarning("Both '#{fz_col_name}' schedule file and constant coefficients provided; the latter will be ignored.") if !freezer.constant_coefficients.nil?
+        runner.registerWarning("Both '#{fz_col_name}' schedule file and temperature coefficients provided; the latter will be ignored.") if !freezer.temperature_coefficients.nil?
       end
 
       fz_space = conditioned_space if fz_space.nil? # appliance is outdoors, so we need to assign the equipment to an arbitrary space
 
-      add_electric_equipment(model, freezer_obj_name, fz_space, freezer_design_level, fz_frac_sens, fz_frac_lat, freezer_schedule)
+      Model.add_electric_equipment(
+        model,
+        name: fz_obj_name,
+        end_use: fz_obj_name,
+        space: fz_space,
+        design_level: fz_design_level,
+        frac_radiant: 0.6 * fz_frac_sens,
+        frac_latent: fz_frac_lat,
+        frac_lost: 1 - fz_frac_sens - fz_frac_lat,
+        schedule: fz_schedule
+      )
     end
 
     # Cooking Range energy
     if not cooking_range.nil?
       cook_space = Geometry.get_space_from_location(cooking_range.location, spaces)
-      cook_annual_kwh, cook_annual_therm, cook_frac_sens, cook_frac_lat = calc_range_oven_energy(nbeds_eq, cooking_range, oven, cook_space.nil?)
+      cook_annual_kwh, cook_annual_therm, cook_frac_sens, cook_frac_lat = calc_range_oven_energy(runner, nbeds_eq, cooking_range, oven, cook_space.nil?)
 
       # Create schedule
       cook_schedule = nil
@@ -264,8 +327,30 @@ module HotWaterAndAppliances
       end
 
       cook_space = conditioned_space if cook_space.nil? # appliance is outdoors, so we need to assign the equipment to an arbitrary space
-      add_electric_equipment(model, cook_obj_name, cook_space, cook_design_level_e, cook_frac_sens, cook_frac_lat, cook_schedule)
-      add_other_equipment(model, cook_obj_name, cook_space, cook_design_level_f, cook_frac_sens, cook_frac_lat, cook_schedule, cooking_range.fuel_type)
+
+      Model.add_electric_equipment(
+        model,
+        name: cook_obj_name,
+        end_use: cook_obj_name,
+        space: cook_space,
+        design_level: cook_design_level_e,
+        frac_radiant: 0.6 * cook_frac_sens,
+        frac_latent: cook_frac_lat,
+        frac_lost: 1 - cook_frac_sens - cook_frac_lat,
+        schedule: cook_schedule
+      )
+      Model.add_other_equipment(
+        model,
+        name: cook_obj_name,
+        end_use: cook_obj_name,
+        space: cook_space,
+        design_level: cook_design_level_f,
+        frac_radiant: 0.6 * cook_frac_sens,
+        frac_latent: cook_frac_lat,
+        frac_lost: 1 - cook_frac_sens - cook_frac_lat,
+        schedule: cook_schedule,
+        fuel_type: cooking_range.fuel_type
+      )
     end
 
     if hpxml_bldg.hot_water_distributions.size > 0
@@ -277,13 +362,13 @@ module HotWaterAndAppliances
         if fixtures.any? { |wf| wf.count.nil? }
           showerheads = fixtures.select { |wf| wf.water_fixture_type == HPXML::WaterFixtureTypeShowerhead }
           if showerheads.size > 0
-            frac_low_flow_showerheads = showerheads.select { |wf| wf.low_flow }.size / Float(showerheads.size)
+            frac_low_flow_showerheads = showerheads.count { |wf| wf.low_flow } / Float(showerheads.size)
           else
             frac_low_flow_showerheads = 0.0
           end
           faucets = fixtures.select { |wf| wf.water_fixture_type == HPXML::WaterFixtureTypeFaucet }
           if faucets.size > 0
-            frac_low_flow_faucets = faucets.select { |wf| wf.low_flow }.size / Float(faucets.size)
+            frac_low_flow_faucets = faucets.count { |wf| wf.low_flow } / Float(faucets.size)
           else
             frac_low_flow_faucets = 0.0
           end
@@ -302,7 +387,7 @@ module HotWaterAndAppliances
       avg_setpoint_temp = 0.0 # WH Setpoint: Weighted average by fraction DHW load served
       hpxml_bldg.water_heating_systems.each do |water_heating_system|
         wh_setpoint = water_heating_system.temperature
-        wh_setpoint = Waterheater.get_default_hot_water_temperature(eri_version) if wh_setpoint.nil? # using detailed schedules
+        wh_setpoint = Defaults.get_water_heater_temperature(eri_version) if wh_setpoint.nil? # using detailed schedules
         avg_setpoint_temp += wh_setpoint * water_heating_system.fraction_dhw_load_served
       end
       daily_wh_inlet_temperatures = calc_water_heater_daily_inlet_temperatures(weather, nbeds_eq, hot_water_distribution, frac_low_flow_fixtures)
@@ -318,10 +403,13 @@ module HotWaterAndAppliances
       schedule_tmains = OpenStudio::Model::ScheduleInterval.fromTimeSeries(time_series_tmains, model).get
       schedule_tmains.setName('mains temperature schedule')
       model.getSiteWaterMainsTemperature.setTemperatureSchedule(schedule_tmains)
-      mw_temp_schedule = OpenStudio::Model::ScheduleConstant.new(model)
-      mw_temp_schedule.setName('mixed water temperature schedule')
-      mw_temp_schedule.setValue(UnitConversions.convert(t_mix, 'F', 'C'))
-      Schedule.set_schedule_type_limits(model, mw_temp_schedule, EPlus::ScheduleTypeLimitsTemperature)
+
+      mw_temp_schedule = Model.add_schedule_constant(
+        model,
+        name: 'mixed water temperature schedule',
+        value: UnitConversions.convert(t_mix, 'F', 'C'),
+        limits: EPlus::ScheduleTypeLimitsTemperature
+      )
 
       # Create schedule
       fixtures_schedule = nil
@@ -364,11 +452,26 @@ module HotWaterAndAppliances
         end
 
         # Fixtures (showers, sinks, baths)
-        add_water_use_equipment(model, fixtures_obj_name, fx_peak_flow * gpd_frac * non_solar_fraction, fixtures_schedule, water_use_connections[water_heating_system.id], unit_multiplier, mw_temp_schedule)
+        Model.add_water_use_equipment(
+          model,
+          name: fixtures_obj_name,
+          end_use: fixtures_obj_name,
+          peak_flow_rate: unit_multiplier * fx_peak_flow * gpd_frac * non_solar_fraction,
+          flow_rate_schedule: fixtures_schedule,
+          water_use_connections: water_use_connections[water_heating_system.id],
+          target_temperature_schedule: mw_temp_schedule
+        )
 
         # Distribution waste (primary driven by fixture draws)
-        waste_obj_name = Constants::ObjectTypeDistributionWaste
-        add_water_use_equipment(model, waste_obj_name, dist_water_peak_flow * gpd_frac * non_solar_fraction, fixtures_schedule, water_use_connections[water_heating_system.id], unit_multiplier, mw_temp_schedule)
+        Model.add_water_use_equipment(
+          model,
+          name: Constants::ObjectTypeDistributionWaste,
+          end_use: Constants::ObjectTypeDistributionWaste,
+          peak_flow_rate: unit_multiplier * dist_water_peak_flow * gpd_frac * non_solar_fraction,
+          flow_rate_schedule: fixtures_schedule,
+          water_use_connections: water_use_connections[water_heating_system.id],
+          target_temperature_schedule: mw_temp_schedule
+        )
 
         # Recirculation pump
         recirc_pump_annual_kwh = get_hwdist_recirc_pump_energy(hot_water_distribution, fixtures_usage_multiplier, nbeds)
@@ -396,8 +499,18 @@ module HotWaterAndAppliances
             runner.registerWarning("Both '#{recirc_pump_col_name}' schedule file and monthly multipliers provided; the latter will be ignored.") if !hot_water_distribution.recirculation_pump_monthly_multipliers.nil?
           end
           if recirc_pump_design_level * gpd_frac != 0
-            cnt = model.getElectricEquipments.select { |e| e.endUseSubcategory.start_with? Constants::ObjectTypeHotWaterRecircPump }.size # Ensure unique meter for each water heater
-            recirc_pump = add_electric_equipment(model, "#{Constants::ObjectTypeHotWaterRecircPump}#{cnt + 1}", conditioned_space, recirc_pump_design_level * gpd_frac, 0.0, 0.0, recirc_pump_sch)
+            cnt = model.getElectricEquipments.count { |e| e.endUseSubcategory.start_with? Constants::ObjectTypeHotWaterRecircPump } # Ensure unique meter for each water heater
+            recirc_pump = Model.add_electric_equipment(
+              model,
+              name: "#{Constants::ObjectTypeHotWaterRecircPump}#{cnt + 1}",
+              end_use: "#{Constants::ObjectTypeHotWaterRecircPump}#{cnt + 1}",
+              space: conditioned_space,
+              design_level: recirc_pump_design_level * gpd_frac,
+              frac_radiant: 0,
+              frac_latent: 0,
+              frac_lost: 1,
+              schedule: recirc_pump_sch
+            )
             recirc_pump.additionalProperties.setFeature('HPXML_ID', water_heating_system.id) # Used by reporting measure
           end
         end
@@ -424,7 +537,16 @@ module HotWaterAndAppliances
             cw_peak_flow = cw_schedule_obj.calc_design_level_from_daily_gpm(cw_gpd)
             water_cw_schedule = cw_schedule_obj.schedule
           end
-          add_water_use_equipment(model, cw_object_name, cw_peak_flow * gpd_frac * non_solar_fraction, water_cw_schedule, water_use_connections[water_heating_system.id], unit_multiplier)
+
+          Model.add_water_use_equipment(
+            model,
+            name: cw_object_name,
+            end_use: cw_object_name,
+            peak_flow_rate: unit_multiplier * cw_peak_flow * gpd_frac * non_solar_fraction,
+            flow_rate_schedule: water_cw_schedule,
+            water_use_connections: water_use_connections[water_heating_system.id],
+            target_temperature_schedule: nil
+          )
         end
       end
 
@@ -451,26 +573,28 @@ module HotWaterAndAppliances
         dw_peak_flow = dw_schedule_obj.calc_design_level_from_daily_gpm(dw_gpd)
         water_dw_schedule = dw_schedule_obj.schedule
       end
-      add_water_use_equipment(model, dw_obj_name, dw_peak_flow * gpd_frac * non_solar_fraction, water_dw_schedule, water_use_connections[water_heating_system.id], unit_multiplier)
+
+      Model.add_water_use_equipment(
+        model,
+        name: dw_obj_name,
+        end_use: dw_obj_name,
+        peak_flow_rate: unit_multiplier * dw_peak_flow * gpd_frac * non_solar_fraction,
+        flow_rate_schedule: water_dw_schedule,
+        water_use_connections: water_use_connections[water_heating_system.id],
+        target_temperature_schedule: nil
+      )
     end
   end
 
-  # TODO
+  # Calculates cooking range/oven annual energy use.
   #
-  # @return [TODO] TODO
-  def self.get_range_oven_default_values()
-    return { is_induction: false,
-             is_convection: false }
-  end
-
-  # TODO
-  #
+  # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param nbeds_eq [Integer] Number of bedrooms (or equivalent bedrooms, as adjusted by the number of occupants) in the dwelling unit
-  # @param cooking_range [TODO] TODO
-  # @param oven [TODO] TODO
-  # @param is_outside [TODO] TODO
-  # @return [TODO] TODO
-  def self.calc_range_oven_energy(nbeds_eq, cooking_range, oven, is_outside = false)
+  # @param cooking_range [HPXML::CookingRange] The HPXML cooking range of interest
+  # @param oven [HPXML::Oven] The HPXML oven of interest
+  # @param is_outside [Boolean] Whether the appliance is located outside the dwelling unit
+  # @return [Array<Double, Double, Double, Double>] Annual electricity use (kWh), annual fuel use (therm), sensible/latent fractions
+  def self.calc_range_oven_energy(runner, nbeds_eq, cooking_range, oven, is_outside = false)
     if cooking_range.is_induction
       burner_ef = 0.91
     else
@@ -506,8 +630,8 @@ module HotWaterAndAppliances
       frac_lat = 0.0
     end
 
-    if not @runner.nil?
-      @runner.registerWarning('Negative energy use calculated for cooking range/oven; this may indicate incorrect ENERGY GUIDE label inputs.') if (annual_kwh < 0) || (annual_therm < 0)
+    if not runner.nil?
+      runner.registerWarning('Negative energy use calculated for cooking range/oven; this may indicate incorrect ENERGY GUIDE label inputs.') if (annual_kwh < 0) || (annual_therm < 0)
     end
     annual_kwh = 0.0 if annual_kwh < 0
     annual_therm = 0.0 if annual_therm < 0
@@ -515,37 +639,16 @@ module HotWaterAndAppliances
     return annual_kwh, annual_therm, frac_sens, frac_lat
   end
 
-  # TODO
+  # Calculates dishwasher annual energy use and daily hot water use.
   #
-  # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
-  # @return [TODO] TODO
-  def self.get_dishwasher_default_values(eri_version)
-    if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2019A')
-      return { rated_annual_kwh: 467.0, # kWh/yr
-               label_electric_rate: 0.12, # $/kWh
-               label_gas_rate: 1.09, # $/therm
-               label_annual_gas_cost: 33.12, # $
-               label_usage: 4.0, # cyc/week
-               place_setting_capacity: 12.0 }
-    else
-      return { rated_annual_kwh: 467.0, # kWh/yr
-               label_electric_rate: 999, # unused
-               label_gas_rate: 999, # unused
-               label_annual_gas_cost: 999, # unused
-               label_usage: 999, # unused
-               place_setting_capacity: 12.0 }
-    end
-  end
-
-  # TODO
-  #
+  # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
-  # @param dishwasher [TODO] TODO
-  # @param is_outside [TODO] TODO
+  # @param dishwasher [HPXML::Dishwasher] The HPXML dishwasher of interest
+  # @param is_outside [Boolean] Whether the appliance is located outside the dwelling unit
   # @param n_occ [Double] Number of occupants in the dwelling unit
-  # @return [TODO] TODO
-  def self.calc_dishwasher_energy_gpd(eri_version, nbeds, dishwasher, is_outside = false, n_occ = nil)
+  # @return [Array<Double, Double, Double, Double>] Annual electricity use (kWh), sensible/latent fractions, hot water use (gal/day)
+  def self.calc_dishwasher_energy_gpd(runner, eri_version, nbeds, dishwasher, is_outside = false, n_occ = nil)
     if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2019A')
       if dishwasher.rated_annual_kwh.nil?
         dishwasher.rated_annual_kwh = calc_dishwasher_annual_kwh_from_ef(dishwasher.energy_factor)
@@ -587,9 +690,9 @@ module HotWaterAndAppliances
       frac_lat = 0.0
     end
 
-    if not @runner.nil?
-      @runner.registerWarning('Negative energy use calculated for dishwasher; this may indicate incorrect ENERGY GUIDE label inputs.') if annual_kwh < 0
-      @runner.registerWarning('Negative hot water use calculated for dishwasher; this may indicate incorrect ENERGY GUIDE label inputs.') if gpd < 0
+    if not runner.nil?
+      runner.registerWarning('Negative energy use calculated for dishwasher; this may indicate incorrect ENERGY GUIDE label inputs.') if annual_kwh < 0
+      runner.registerWarning('Negative hot water use calculated for dishwasher; this may indicate incorrect ENERGY GUIDE label inputs.') if gpd < 0
     end
     annual_kwh = 0.0 if annual_kwh < 0
     gpd = 0.0 if gpd < 0
@@ -597,73 +700,35 @@ module HotWaterAndAppliances
     return annual_kwh, frac_sens, frac_lat, gpd
   end
 
-  # TODO
+  # Converts dishwasher rated annual use (kWh) to energy factor (EF).
   #
-  # @param annual_kwh [TODO] TODO
-  # @return [TODO] TODO
+  # @param annual_kwh [Double] Rated annual kWh
+  # @return [Double] Energy factor
   def self.calc_dishwasher_ef_from_annual_kwh(annual_kwh)
+    # Per ANSI/RESNET/ICC 301
     return 215.0 / annual_kwh
   end
 
-  # TODO
+  # Converts dishwasher energy factor (EF) to rated annual use (kWh).
   #
-  # @param ef [TODO] TODO
-  # @return [TODO] TODO
+  # @param ef [Double] Energy factor
+  # @return [Double] Rated annual use (kWh)
   def self.calc_dishwasher_annual_kwh_from_ef(ef)
+    # Per ANSI/RESNET/ICC 301
     return 215.0 / ef
   end
 
-  # TODO
+  # Calculates clothes dryer annual energy use.
   #
-  # @param nbeds [Integer] Number of bedrooms in the dwelling unit
-  # @return [TODO] TODO
-  def self.get_refrigerator_default_values(nbeds)
-    return { rated_annual_kwh: 637.0 + 18.0 * nbeds } # kWh/yr
-  end
-
-  # TODO
-  #
-  # @return [TODO] TODO
-  def self.get_extra_refrigerator_default_values
-    return { rated_annual_kwh: 243.6 } # kWh/yr
-  end
-
-  # TODO
-  #
-  # @return [TODO] TODO
-  def self.get_freezer_default_values
-    return { rated_annual_kwh: 319.8 } # kWh/yr
-  end
-
-  # TODO
-  #
-  # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
-  # @param fuel_type [TODO] TODO
-  # @return [TODO] TODO
-  def self.get_clothes_dryer_default_values(eri_version, fuel_type)
-    if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2019A')
-      return { combined_energy_factor: 3.01 }
-    else
-      if fuel_type == HPXML::FuelTypeElectricity
-        return { combined_energy_factor: 2.62,
-                 control_type: HPXML::ClothesDryerControlTypeTimer }
-      else
-        return { combined_energy_factor: 2.32,
-                 control_type: HPXML::ClothesDryerControlTypeTimer }
-      end
-    end
-  end
-
-  # TODO
-  #
+  # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
-  # @param clothes_dryer [TODO] TODO
-  # @param clothes_washer [TODO] TODO
-  # @param is_outside [TODO] TODO
+  # @param clothes_dryer [HPXML::ClothesDryer] The HPXML clothes dryer of interest
+  # @param clothes_washer [HPXML::ClothesWasher] The related HPXML clothes washer, which affects dryer use
+  # @param is_outside [Boolean] Whether the appliance is located outside the dwelling unit
   # @param n_occ [Double] Number of occupants in the dwelling unit
-  # @return [TODO] TODO
-  def self.calc_clothes_dryer_energy(eri_version, nbeds, clothes_dryer, clothes_washer, is_outside = false, n_occ = nil)
+  # @return [Array<Double, Double, Double, Double>] Annual electricity use (kWh), annual fuel use (therm), sensible/latent fractions
+  def self.calc_clothes_dryer_energy(runner, eri_version, nbeds, clothes_dryer, clothes_washer, is_outside = false, n_occ = nil)
     if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2019A')
       if clothes_dryer.combined_energy_factor.nil?
         clothes_dryer.combined_energy_factor = calc_clothes_dryer_cef_from_ef(clothes_dryer.energy_factor)
@@ -722,8 +787,8 @@ module HotWaterAndAppliances
       frac_lat = 0.0
     end
 
-    if not @runner.nil?
-      @runner.registerWarning('Negative energy use calculated for clothes dryer; this may indicate incorrect ENERGY GUIDE label inputs.') if (annual_kwh < 0) || (annual_therm < 0)
+    if not runner.nil?
+      runner.registerWarning('Negative energy use calculated for clothes dryer; this may indicate incorrect ENERGY GUIDE label inputs.') if (annual_kwh < 0) || (annual_therm < 0)
     end
     annual_kwh = 0.0 if annual_kwh < 0
     annual_therm = 0.0 if annual_therm < 0
@@ -731,55 +796,32 @@ module HotWaterAndAppliances
     return annual_kwh, annual_therm, frac_sens, frac_lat
   end
 
-  # TODO
+  # Converts clothes dryer energy factor (EF) to combined energy factor (CEF).
   #
-  # @param ef [TODO] TODO
-  # @return [TODO] TODO
+  # @param ef [Double] Energy factor
+  # @return [Double] Combined energy factor
   def self.calc_clothes_dryer_cef_from_ef(ef)
     return ef / 1.15 # Interpretation on ANSI/RESNET/ICC 301-2014 Clothes Dryer CEF
   end
 
-  # TODO
+  # Converts clothes dryer combined energy factor (CEF) to energy factor (EF).
   #
-  # @param cef [TODO] TODO
-  # @return [TODO] TODO
+  # @param cef [Double] Combined energy factor
+  # @return [Double] Energy factor
   def self.calc_clothes_dryer_ef_from_cef(cef)
     return cef * 1.15 # Interpretation on ANSI/RESNET/ICC 301-2014 Clothes Dryer CEF
   end
 
-  # TODO
+  # Calculates clothes washer annual energy use and daily hot water use.
   #
-  # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
-  # @return [TODO] TODO
-  def self.get_clothes_washer_default_values(eri_version)
-    if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2019A')
-      return { integrated_modified_energy_factor: 1.0, # ft3/(kWh/cyc)
-               rated_annual_kwh: 400.0, # kWh/yr
-               label_electric_rate: 0.12, # $/kWh
-               label_gas_rate: 1.09, # $/therm
-               label_annual_gas_cost: 27.0, # $
-               capacity: 3.0, # ft^3
-               label_usage: 6.0 } # cyc/week
-    else
-      return { integrated_modified_energy_factor: 0.331, # ft3/(kWh/cyc)
-               rated_annual_kwh: 704.0, # kWh/yr
-               label_electric_rate: 0.08, # $/kWh
-               label_gas_rate: 0.58, # $/therm
-               label_annual_gas_cost: 23.0, # $
-               capacity: 2.874, # ft^3
-               label_usage: 999 } # unused
-    end
-  end
-
-  # TODO
-  #
+  # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
-  # @param clothes_washer [TODO] TODO
-  # @param is_outside [TODO] TODO
+  # @param clothes_washer [HPXML::ClothesWasher] The HPXML clothes washer of interest
+  # @param is_outside [Boolean] Whether the appliance is located outside the dwelling unit
   # @param n_occ [Double] Number of occupants in the dwelling unit
-  # @return [TODO] TODO
-  def self.calc_clothes_washer_energy_gpd(eri_version, nbeds, clothes_washer, is_outside = false, n_occ = nil)
+  # @return [Array<Double, Double, Double, Double>] Annual electricity use (kWh), sensible/latent fractions, hot water use (gal/day)
+  def self.calc_clothes_washer_energy_gpd(runner, eri_version, nbeds, clothes_washer, is_outside = false, n_occ = nil)
     if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2019A')
       gas_h20 = 0.3914 # (gal/cyc) per (therm/y)
       elec_h20 = 0.0178 # (gal/cyc) per (kWh/y)
@@ -817,9 +859,9 @@ module HotWaterAndAppliances
       frac_lat = 0.0
     end
 
-    if not @runner.nil?
-      @runner.registerWarning('Negative energy use calculated for clothes washer; this may indicate incorrect ENERGY GUIDE label inputs.') if annual_kwh < 0
-      @runner.registerWarning('Negative hot water use calculated for clothes washer; this may indicate incorrect ENERGY GUIDE label inputs.') if gpd < 0
+    if not runner.nil?
+      runner.registerWarning('Negative energy use calculated for clothes washer; this may indicate incorrect ENERGY GUIDE label inputs.') if annual_kwh < 0
+      runner.registerWarning('Negative hot water use calculated for clothes washer; this may indicate incorrect ENERGY GUIDE label inputs.') if gpd < 0
     end
     annual_kwh = 0.0 if annual_kwh < 0
     gpd = 0.0 if gpd < 0
@@ -827,28 +869,29 @@ module HotWaterAndAppliances
     return annual_kwh, frac_sens, frac_lat, gpd
   end
 
-  # TODO
+  # Converts clothes washer modified energy factor (MEF) to integrated modified energy factor (IMEF).
   #
-  # @param mef [TODO] TODO
-  # @return [TODO] TODO
+  # @param mef [Double] Modified energy factor
+  # @return [Double] Integrated modified energy factor
   def self.calc_clothes_washer_imef_from_mef(mef)
     return (mef - 0.503) / 0.95 # Interpretation on ANSI/RESNET 301-2014 Clothes Washer IMEF
   end
 
-  # TODO
+  # Converts clothes washer integrated modified energy factor (IMEF) to modified energy factor (MEF).
   #
-  # @param imef [TODO] TODO
-  # @return [TODO] TODO
+  # @param mef [Double] Modified energy factor
+  # @return [Double] Integrated modified energy factor
   def self.calc_clothes_washer_mef_from_imef(imef)
     return 0.503 + 0.95 * imef # Interpretation on ANSI/RESNET 301-2014 Clothes Washer IMEF
   end
 
-  # TODO
+  # Calculates refrigerator annual energy use.
   #
-  # @param fridge_or_freezer [TODO] TODO
-  # @param is_outside [TODO] TODO
-  # @return [TODO] TODO
-  def self.calc_fridge_or_freezer_energy(fridge_or_freezer, is_outside = false)
+  # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param fridge_or_freezer [HPXML::Refrigerator or HPXML::Freezer] The HPXML refrigerator/freezer of interest
+  # @param is_outside [Boolean] Whether the appliance is located outside the dwelling unit
+  # @return [Array<Double, Double, Double>] Annual electricity use (kWh), sensible/latent fractions
+  def self.calc_fridge_or_freezer_energy(runner, fridge_or_freezer, is_outside = false)
     # Get values
     annual_kwh = fridge_or_freezer.rated_annual_kwh
     annual_kwh *= fridge_or_freezer.usage_multiplier
@@ -860,55 +903,73 @@ module HotWaterAndAppliances
       frac_lat = 0.0
     end
 
-    if not @runner.nil?
-      @runner.registerWarning('Negative energy use calculated for refrigerator; this may indicate incorrect ENERGY GUIDE label inputs.') if annual_kwh < 0
+    if not runner.nil?
+      runner.registerWarning('Negative energy use calculated for refrigerator; this may indicate incorrect ENERGY GUIDE label inputs.') if annual_kwh < 0
     end
     annual_kwh = 0.0 if annual_kwh < 0
 
     return annual_kwh, frac_sens, frac_lat
   end
 
-  # TODO
+  # Returns an EMS-actuated schedule in which the hourly refrigerator energy use is calculated
+  # based on the temperature of the ambient space using the schedule coefficients.
   #
   # @param model [OpenStudio::Model::Model] OpenStudio Model object
-  # @param col_name [TODO] TODO
+  # @param col_name [String] The column header of the detailed schedule
   # @param obj_name [String] Name for the OpenStudio object
-  # @param fridge_or_freezer [TODO] TODO
-  # @param loc_space [TODO] TODO
-  # @param loc_schedule [TODO] TODO
+  # @param fridge_or_freezer [HPXML::Refrigerator or HPXML::Freezer] The HPXML refrigerator/freezer of interest
+  # @param loc_space [OpenStudio::Model::Space] The space where the refrigerator/freezer is located
+  # @param loc_schedule [OpenStudio::Model::ScheduleConstant] The temperature schedule for where the refrigerator/freezer is located, if not in a space
   # @param unavailable_periods [HPXML::UnavailablePeriods] Object that defines periods for, e.g., power outages or vacancies
-  # @return [TODO] TODO
-  def self.fridge_or_freezer_coefficients_schedule(model, col_name, obj_name, fridge_or_freezer, loc_space, loc_schedule, unavailable_periods)
+  # @return [OpenStudio::Model::ScheduleConstant] EMS-actuated refrigerator schedule
+  def self.get_fridge_or_freezer_coefficients_schedule(model, col_name, obj_name, fridge_or_freezer, loc_space, loc_schedule, unavailable_periods)
     # Create availability sensor
     if not unavailable_periods.empty?
       avail_sch = ScheduleConstant.new(model, col_name, 1.0, EPlus::ScheduleTypeLimitsFraction, unavailable_periods: unavailable_periods)
 
-      availability_sensor = OpenStudio::Model::EnergyManagementSystemSensor.new(model, 'Schedule Value')
-      availability_sensor.setName("#{col_name} availability s")
-      availability_sensor.setKeyName(avail_sch.schedule.name.to_s)
+      availability_sensor = Model.add_ems_sensor(
+        model,
+        name: "#{col_name} availability s",
+        output_var_or_meter_name: 'Schedule Value',
+        key_name: avail_sch.schedule.name
+      )
     end
 
-    schedule = OpenStudio::Model::ScheduleConstant.new(model)
-    schedule.setName(obj_name + ' schedule')
+    schedule = Model.add_schedule_constant(
+      model,
+      name: "#{obj_name} schedule",
+      value: nil
+    )
 
     if not loc_space.nil?
-      temperature_sensor = OpenStudio::Model::EnergyManagementSystemSensor.new(model, 'Zone Mean Air Temperature')
-      temperature_sensor.setName(obj_name + ' tin s')
-      temperature_sensor.setKeyName(loc_space.thermalZone.get.name.to_s)
+      temperature_sensor = Model.add_ems_sensor(
+        model,
+        name: "#{obj_name} tin s",
+        output_var_or_meter_name: 'Zone Mean Air Temperature',
+        key_name: loc_space.thermalZone.get.name
+      )
     elsif not loc_schedule.nil?
-      temperature_sensor = OpenStudio::Model::EnergyManagementSystemSensor.new(model, 'Schedule Value')
-      temperature_sensor.setName(obj_name + ' tin s')
-      temperature_sensor.setKeyName(loc_schedule.name.to_s)
+      temperature_sensor = Model.add_ems_sensor(
+        model,
+        name: "#{obj_name} tin s",
+        output_var_or_meter_name: 'Schedule Value',
+        key_name: loc_schedule.name
+      )
     end
 
-    schedule_actuator = OpenStudio::Model::EnergyManagementSystemActuator.new(schedule, *EPlus::EMSActuatorScheduleConstantValue)
-    schedule_actuator.setName("#{schedule.name} act")
+    schedule_actuator = Model.add_ems_actuator(
+      name: "#{schedule.name} act",
+      model_object: schedule,
+      comp_type_and_control: EPlus::EMSActuatorScheduleConstantValue
+    )
 
     constant_coefficients = fridge_or_freezer.constant_coefficients.split(',').map { |i| i.to_f }
     temperature_coefficients = fridge_or_freezer.temperature_coefficients.split(',').map { |i| i.to_f }
 
-    schedule_program = OpenStudio::Model::EnergyManagementSystemProgram.new(model)
-    schedule_program.setName("#{schedule.name} program")
+    schedule_program = Model.add_ems_program(
+      model,
+      name: "#{schedule.name} program"
+    )
     schedule_program.addLine("Set Tin = #{temperature_sensor.name}*(9.0/5.0)+32.0") # C to F
     schedule_program.addLine("Set #{schedule_actuator.name} = 0")
     constant_coefficients.zip(temperature_coefficients).each_with_index do |constant_temperature, i|
@@ -924,158 +985,22 @@ module HotWaterAndAppliances
     end
     schedule_program.addLine('EndIf')
 
-    schedule_pcm = OpenStudio::Model::EnergyManagementSystemProgramCallingManager.new(model)
-    schedule_pcm.setName("#{schedule.name} program calling manager")
-    schedule_pcm.setCallingPoint('BeginZoneTimestepAfterInitHeatBalance')
-    schedule_pcm.addProgram(schedule_program)
+    Model.add_ems_program_calling_manager(
+      model,
+      name: "#{schedule.name} program calling manager",
+      calling_point: 'BeginZoneTimestepAfterInitHeatBalance',
+      ems_programs: [schedule_program]
+    )
 
     return schedule
   end
 
-  # TODO
-  #
-  # @param has_uncond_bsmnt [TODO] TODO
-  # @param has_cond_bsmnt [TODO] TODO
-  # @param cfa [Double] Conditioned floor area in the dwelling unit (ft2)
-  # @param ncfl [Double] Total number of conditioned floors in the dwelling unit
-  # @return [TODO] TODO
-  def self.get_default_std_pipe_length(has_uncond_bsmnt, has_cond_bsmnt, cfa, ncfl)
-    # ANSI/RESNET 301-2014 Addendum A-2015
-    # Amendment on Domestic Hot Water (DHW) Systems
-    bsmnt = 0
-    if has_uncond_bsmnt && (not has_cond_bsmnt)
-      bsmnt = 1
-    end
-
-    return 2.0 * (cfa / ncfl)**0.5 + 10.0 * ncfl + 5.0 * bsmnt # Eq. 4.2-13 (refPipeL)
-  end
-
-  # TODO
-  #
-  # @param std_pipe_length [TODO] TODO
-  # @return [TODO] TODO
-  def self.get_default_recirc_loop_length(std_pipe_length)
-    # ANSI/RESNET 301-2014 Addendum A-2015
-    # Amendment on Domestic Hot Water (DHW) Systems
-    return 2.0 * std_pipe_length - 20.0 # Eq. 4.2-17 (refLoopL)
-  end
-
-  # TODO
-  #
-  # @return [TODO] TODO
-  def self.get_default_recirc_branch_loop_length()
-    return 10.0 # ft
-  end
-
-  # TODO
-  #
-  # @return [TODO] TODO
-  def self.get_default_recirc_pump_power()
-    return 50.0 # Watts
-  end
-
-  # TODO
-  #
-  # @return [TODO] TODO
-  def self.get_default_shared_recirc_pump_power()
-    # From ANSI/RESNET 301-2019 Equation 4.2-15b
-    pump_horsepower = 0.25
-    motor_efficiency = 0.85
-    pump_kw = pump_horsepower * 0.746 / motor_efficiency
-    return UnitConversions.convert(pump_kw, 'kW', 'W')
-  end
-
-  # TODO
-  #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
-  # @param obj_name [String] Name for the OpenStudio object
-  # @param space [OpenStudio::Model::Space] an OpenStudio::Model::Space object
-  # @param design_level_w [TODO] TODO
-  # @param frac_sens [TODO] TODO
-  # @param frac_lat [TODO] TODO
-  # @param schedule [TODO] TODO
-  # @return [TODO] TODO
-  def self.add_electric_equipment(model, obj_name, space, design_level_w, frac_sens, frac_lat, schedule)
-    return if design_level_w == 0.0
-
-    ee_def = OpenStudio::Model::ElectricEquipmentDefinition.new(model)
-    ee = OpenStudio::Model::ElectricEquipment.new(ee_def)
-    ee.setName(obj_name)
-    ee.setEndUseSubcategory(obj_name)
-    ee.setSpace(space)
-    ee_def.setName(obj_name)
-    ee_def.setDesignLevel(design_level_w)
-    ee_def.setFractionRadiant(0.6 * frac_sens)
-    ee_def.setFractionLatent(frac_lat)
-    ee_def.setFractionLost(1.0 - frac_sens - frac_lat)
-    ee.setSchedule(schedule)
-
-    return ee
-  end
-
-  # TODO
-  #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
-  # @param obj_name [String] Name for the OpenStudio object
-  # @param space [OpenStudio::Model::Space] an OpenStudio::Model::Space object
-  # @param design_level_w [TODO] TODO
-  # @param frac_sens [TODO] TODO
-  # @param frac_lat [TODO] TODO
-  # @param schedule [TODO] TODO
-  # @param fuel_type [TODO] TODO
-  # @return [TODO] TODO
-  def self.add_other_equipment(model, obj_name, space, design_level_w, frac_sens, frac_lat, schedule, fuel_type)
-    return if design_level_w == 0.0 # Negative values intentionally allowed, e.g. for water sensible
-
-    oe_def = OpenStudio::Model::OtherEquipmentDefinition.new(model)
-    oe = OpenStudio::Model::OtherEquipment.new(oe_def)
-    oe.setName(obj_name)
-    oe.setEndUseSubcategory(obj_name)
-    oe.setFuelType(EPlus.fuel_type(fuel_type))
-    oe.setSpace(space)
-    oe_def.setName(obj_name)
-    oe_def.setDesignLevel(design_level_w)
-    oe_def.setFractionRadiant(0.6 * frac_sens)
-    oe_def.setFractionLatent(frac_lat)
-    oe_def.setFractionLost(1.0 - frac_sens - frac_lat)
-    oe.setSchedule(schedule)
-
-    return oe
-  end
-
-  # TODO
-  #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
-  # @param obj_name [String] Name for the OpenStudio object
-  # @param peak_flow [TODO] TODO
-  # @param schedule [TODO] TODO
-  # @param water_use_connections [TODO] TODO
-  # @param unit_multiplier [Integer] Number of similar dwelling units
-  # @param mw_temp_schedule [TODO] TODO
-  # @return [TODO] TODO
-  def self.add_water_use_equipment(model, obj_name, peak_flow, schedule, water_use_connections, unit_multiplier, mw_temp_schedule = nil)
-    wu_def = OpenStudio::Model::WaterUseEquipmentDefinition.new(model)
-    wu = OpenStudio::Model::WaterUseEquipment.new(wu_def)
-    wu.setName(obj_name)
-    wu_def.setName(obj_name)
-    # Not in a thermal zone, so needs to be explicitly multiplied
-    wu_def.setPeakFlowRate(peak_flow * unit_multiplier)
-    wu_def.setEndUseSubcategory(obj_name)
-    wu.setFlowRateFractionSchedule(schedule)
-    if not mw_temp_schedule.nil?
-      wu_def.setTargetTemperatureSchedule(mw_temp_schedule)
-    end
-    water_use_connections.addWaterUseEquipment(wu)
-
-    return wu
-  end
-
-  # TODO
+  # Calculates Drain Water Heat Recovery (DWHR) factors per ANSI/RESNET/ICC 301.
   #
   # @param nbeds_eq [Integer] Number of bedrooms (or equivalent bedrooms, as adjusted by the number of occupants) in the dwelling unit
-  # @param hot_water_distribution [TODO] TODO
-  # @param frac_low_flow_fixtures [TODO] TODO
-  # @return [TODO] TODO
+  # @param hot_water_distribution [HPXML::HotWaterDistribution] The HPXML hot water distribution system of interest
+  # @param frac_low_flow_fixtures [Double] The fraction of fixtures considered low-flow
+  # @return [Array<Double, Double, Double, Double, Double>] Effectiveness (frac), fraction of water impacted by DWHR, piping loss coefficient, location factor, fixture factor
   def self.get_dwhr_factors(nbeds_eq, hot_water_distribution, frac_low_flow_fixtures)
     # ANSI/RESNET 301-2014 Addendum A-2015
     # Amendment on Domestic Hot Water (DHW) Systems
@@ -1109,16 +1034,18 @@ module HotWaterAndAppliances
     return eff_adj, iFrac, plc, locF, fixF
   end
 
-  # TODO
+  # Calculates daily water heater inlet temperatures, which includes an adjustment if
+  # there is a drain water heat recovery device.
   #
   # @param weather [WeatherFile] Weather object containing EPW information
   # @param nbeds_eq [Integer] Number of bedrooms (or equivalent bedrooms, as adjusted by the number of occupants) in the dwelling unit
-  # @param hot_water_distribution [TODO] TODO
-  # @param frac_low_flow_fixtures [TODO] TODO
-  # @return [TODO] TODO
+  # @param hot_water_distribution [HPXML::HotWaterDistribution] The HPXML hot water distribution system of interest
+  # @param frac_low_flow_fixtures [Double] The fraction of fixtures considered low-flow
+  # @return [Array<Double>] Daily water heater inlet temperatures (F)
   def self.calc_water_heater_daily_inlet_temperatures(weather, nbeds_eq, hot_water_distribution, frac_low_flow_fixtures)
     wh_temps_daily = weather.data.MainsDailyTemps.dup
     if (not hot_water_distribution.dwhr_efficiency.nil?)
+      # Per ANSI/RESNET/ICC 301
       dwhr_eff_adj, dwhr_iFrac, dwhr_plc, dwhr_locF, dwhr_fixF = get_dwhr_factors(nbeds_eq, hot_water_distribution, frac_low_flow_fixtures)
       # Adjust inlet temperatures
       dwhr_inT = 97.0 # F
@@ -1128,35 +1055,39 @@ module HotWaterAndAppliances
       end
     else
       for day in 0..wh_temps_daily.size - 1
-        wh_temps_daily[day] = (wh_temps_daily[day]).round(3)
+        wh_temps_daily[day] = wh_temps_daily[day].round(3)
       end
     end
 
     return wh_temps_daily
   end
 
-  # TODO
+  # Calculates the daily mixed water adjustment fractions. These fractions convert from
+  # gallons of mixed water to gallons of hot water that needs to be served by the water heater.
   #
-  # @param daily_wh_inlet_temperatures [TODO] TODO
-  # @param tHot [TODO] TODO
-  # @param tMix [TODO] TODO
-  # @return [TODO] TODO
-  def self.calc_mixed_water_daily_fractions(daily_wh_inlet_temperatures, tHot, tMix)
-    adjFmix = []
+  # @param daily_wh_inlet_temperatures [Array<Double>] Daily water heater inlet temperatures (F)
+  # @param t_set [Double] Water heater setpoint temperature (F)
+  # @param t_use [Double] Temperature of mixed water at fixtures (F)
+  # @return [Array<Double>] Daily mixed water adjustment fractions
+  def self.calc_mixed_water_daily_fractions(daily_wh_inlet_temperatures, t_set, t_use)
+    # Per ANSI/RESNET/ICC 301
+    adj_f_mix = []
     for day in 0..daily_wh_inlet_temperatures.size - 1
-      adjFmix << (1.0 - ((tHot - tMix) / (tHot - daily_wh_inlet_temperatures[day]))).round(4)
+      adj_f_mix << (1.0 - ((t_set - t_use) / (t_set - daily_wh_inlet_temperatures[day]))).round(4)
     end
 
-    return adjFmix
+    return adj_f_mix
   end
 
-  # TODO
+  # Calculates annual energy use for a recirculation (or shared recirculation) hot water
+  # distribution system.
   #
-  # @param hot_water_distribution [TODO] TODO
-  # @param fixtures_usage_multiplier [TODO] TODO
+  # @param hot_water_distribution [HPXML::HotWaterDistribution] The HPXML hot water distribution system of interest
+  # @param fixtures_usage_multiplier [Double] Occupant usage multiplier
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
-  # @return [TODO] TODO
+  # @return [Double] Annual electricity use (kWh)
   def self.get_hwdist_recirc_pump_energy(hot_water_distribution, fixtures_usage_multiplier, nbeds)
+    # Per ANSI/RESNET/ICC 301
     dist_pump_annual_kwh = 0.0
 
     # Annual electricity consumption factor for hot water recirculation system pumps
@@ -1201,24 +1132,25 @@ module HotWaterAndAppliances
     return dist_pump_annual_kwh
   end
 
-  # TODO
+  # Calculates the fixtures effectiveness due to the presence of low-flow fixtures.
   #
-  # @param frac_low_flow_fixtures [TODO] TODO
-  # @return [TODO] TODO
+  # @param frac_low_flow_fixtures [Double] The fraction of fixtures considered low-flow
+  # @return [Double] Effectiveness (frac)
   def self.get_fixtures_effectiveness(frac_low_flow_fixtures)
+    # ANSI/RESNET/ICC 301 specifies 0.95 if all shower/faucet fixtures are low-flow (<= 2 gal/min)
     f_eff = 1.0 - 0.05 * frac_low_flow_fixtures
     return f_eff
   end
 
-  # TODO
+  # Calculates water fixtures mixed (not hot) water use.
   #
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
-  # @param frac_low_flow_fixtures [TODO] TODO
-  # @param daily_mw_fractions [TODO] TODO
-  # @param fixtures_usage_multiplier [TODO] TODO
+  # @param frac_low_flow_fixtures [Double] The fraction of fixtures considered low-flow
+  # @param daily_mw_fractions [Array<Double>] Daily mixed water adjustment fractions
+  # @param fixtures_usage_multiplier [Double] Occupant usage multiplier
   # @param n_occ [Double] Number of occupants in the dwelling unit
-  # @return [TODO] TODO
+  # @return [Double] Mixed water use (gal/day)
   def self.get_fixtures_gpd(eri_version, nbeds, frac_low_flow_fixtures, daily_mw_fractions, fixtures_usage_multiplier = 1.0, n_occ = nil)
     if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2014A')
       # ANSI/RESNET 301-2014 Addendum A-2015
@@ -1238,19 +1170,19 @@ module HotWaterAndAppliances
     end
   end
 
-  # TODO
+  # Calculates the equivalent daily mixed (not hot) water use associated with the distribution system.
   #
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
-  # @param has_uncond_bsmnt [TODO] TODO
-  # @param has_cond_bsmnt [TODO] TODO
+  # @param has_uncond_bsmnt [Boolean] Whether the dwelling unit has an unconditioned basement
+  # @param has_cond_bsmnt [Boolean] Whether the dwelling unit has a conditioned basement
   # @param cfa [Double] Conditioned floor area in the dwelling unit (ft2)
   # @param ncfl [Double] Total number of conditioned floors in the dwelling unit
-  # @param hot_water_distribution [TODO] TODO
-  # @param frac_low_flow_fixtures [TODO] TODO
-  # @param fixtures_usage_multiplier [TODO] TODO
+  # @param hot_water_distribution [HPXML::HotWaterDistribution] The HPXML hot water distribution system of interest
+  # @param frac_low_flow_fixtures [Double] The fraction of fixtures considered low-flow
+  # @param fixtures_usage_multiplier [Double] Occupant usage multiplier
   # @param n_occ [Double] Number of occupants in the dwelling unit
-  # @return [TODO] TODO
+  # @return [Double] Mixed water use (gal/day)
   def self.get_dist_waste_gpd(eri_version, nbeds, has_uncond_bsmnt, has_cond_bsmnt, cfa, ncfl, hot_water_distribution,
                               frac_low_flow_fixtures, fixtures_usage_multiplier = 1.0, n_occ = nil)
     if Constants::ERIVersions.index(eri_version) <= Constants::ERIVersions.index('2014')
@@ -1284,7 +1216,7 @@ module HotWaterAndAppliances
     if hot_water_distribution.system_type == HPXML::DHWDistTypeRecirc
       p_ratio = hot_water_distribution.recirculation_branch_piping_length / 10.0
     elsif hot_water_distribution.system_type == HPXML::DHWDistTypeStandard
-      ref_pipe_l = get_default_std_pipe_length(has_uncond_bsmnt, has_cond_bsmnt, cfa, ncfl)
+      ref_pipe_l = Defaults.get_std_pipe_length(has_uncond_bsmnt, has_cond_bsmnt, cfa, ncfl)
       p_ratio = hot_water_distribution.standard_piping_length / ref_pipe_l
     end
 
@@ -1303,26 +1235,5 @@ module HotWaterAndAppliances
     mw_gpd = f_eff * (o_w_gpd + s_w_gpd * wd_eff) # Eq. 4.2-11
 
     return mw_gpd * fixtures_usage_multiplier
-  end
-
-  # TODO
-  #
-  # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
-  # @return [TODO] TODO
-  def self.get_default_extra_refrigerator_and_freezer_locations(hpxml_bldg)
-    extra_refrigerator_location_hierarchy = [HPXML::LocationGarage,
-                                             HPXML::LocationBasementUnconditioned,
-                                             HPXML::LocationBasementConditioned,
-                                             HPXML::LocationConditionedSpace]
-
-    extra_refrigerator_location = nil
-    extra_refrigerator_location_hierarchy.each do |location|
-      if hpxml_bldg.has_location(location)
-        extra_refrigerator_location = location
-        break
-      end
-    end
-
-    return extra_refrigerator_location
   end
 end

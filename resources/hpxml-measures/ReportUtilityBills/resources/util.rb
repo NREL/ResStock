@@ -15,27 +15,17 @@ end
 # Object that stores collections of fixed monthly rates, marginal rates, real-time rates, minimum monthly/annual charges, net metering and feed-in tariff information, and detailed tariff file information.
 class UtilityRate
   def initialize()
-    @fixedmonthlycharge = nil
-    @flatratebuy = 0.0
-    @realtimeprice = nil
-
-    @minmonthlycharge = 0.0
-    @minannualcharge = nil
-
-    @net_metering_excess_sellback_type = nil
-    @net_metering_user_excess_sellback_rate = nil
-
-    @feed_in_tariff_rate = nil
-
-    @energyratestructure = []
-    @energyweekdayschedule = []
-    @energyweekendschedule = []
+    @flat_rate = 0.0
+    @min_charge_monthly = 0.0
+    @energy_rate_structure = []
+    @energy_weekday_schedule = []
+    @energy_weekend_schedule = []
   end
-  attr_accessor(:fixedmonthlycharge, :flatratebuy, :realtimeprice,
-                :minmonthlycharge, :minannualcharge,
+  attr_accessor(:fixed_charge_monthly, :fixed_charge_daily, :flat_rate, :real_time_prices,
+                :min_charge_monthly, :min_charge_annual,
                 :net_metering_excess_sellback_type, :net_metering_user_excess_sellback_rate,
                 :feed_in_tariff_rate,
-                :energyratestructure, :energyweekdayschedule, :energyweekendschedule)
+                :energy_rate_structure, :energy_weekday_schedule, :energy_weekend_schedule)
 end
 
 # Object that stores collections of monthly/annual/total fixed/energy charges, as well as monthly/annual production credit.
@@ -44,13 +34,12 @@ class UtilityBill
     @annual_energy_charge = 0.0
     @annual_fixed_charge = 0.0
     @annual_total = 0.0
+    @annual_production_credit = 0.0
 
     @monthly_energy_charge = [0.0] * 12
     @monthly_fixed_charge = [0.0] * 12
     @monthly_total = [0.0] * 12
-
     @monthly_production_credit = [0] * 12
-    @annual_production_credit = 0.0
   end
   attr_accessor(:annual_energy_charge, :annual_fixed_charge, :annual_total,
                 :monthly_energy_charge, :monthly_fixed_charge, :monthly_total,
@@ -82,7 +71,7 @@ module CalculateUtilityBill
       if is_production && fuel_type == FT::Elec && rate.feed_in_tariff_rate
         monthly_fuel_cost[month_ix] = fuel_time_series[month] * rate.feed_in_tariff_rate
       else
-        monthly_fuel_cost[month_ix] = fuel_time_series[month] * rate.flatratebuy
+        monthly_fuel_cost[month_ix] = fuel_time_series[month] * rate.flat_rate
       end
 
       if fuel_type == FT::Elec
@@ -97,10 +86,9 @@ module CalculateUtilityBill
         bill.monthly_production_credit[month_ix] = monthly_fuel_cost[month_ix]
       else
         bill.monthly_energy_charge[month_ix] = monthly_fuel_cost[month_ix]
-        if not rate.fixedmonthlycharge.nil?
-          prorate_fraction = calculate_monthly_prorate(header, month_ix + 1)
-          bill.monthly_fixed_charge[month_ix] = rate.fixedmonthlycharge * prorate_fraction
-        end
+        monthly_charge = rate.fixed_charge_monthly.to_f
+        monthly_charge += rate.fixed_charge_daily.to_f * Calendar.num_days_in_months(header.sim_calendar_year)[month_ix]
+        bill.monthly_fixed_charge[month_ix] = monthly_charge * calculate_monthly_prorate(header, month_ix + 1)
       end
     end
 
@@ -149,14 +137,14 @@ module CalculateUtilityBill
     elec_month = [0] * 12
     net_elec_month = [0] * 12
 
-    if !rate.realtimeprice.nil?
+    if !rate.real_time_prices.nil?
       num_periods = 0
       num_tiers = 0
     else
-      num_periods = rate.energyratestructure.size
-      num_tiers = rate.energyratestructure.map { |period| period.size }.max
+      num_periods = rate.energy_rate_structure.size
+      num_tiers = rate.energy_rate_structure.map { |period| period.size }.max
 
-      rate.energyratestructure.each do |period|
+      rate.energy_rate_structure.each do |period|
         period.each do |tier|
           tier[:rate] += tier[:adj] if tier.keys.include?(:adj)
         end
@@ -186,15 +174,15 @@ module CalculateUtilityBill
         net_elec_month[month] += net_elec_hour
       end
 
-      if !rate.realtimeprice.nil?
+      if !rate.real_time_prices.nil?
         # Real-Time Pricing
-        bill.monthly_energy_charge[month] += elec_hour * rate.realtimeprice[hour]
+        bill.monthly_energy_charge[month] += elec_hour * rate.real_time_prices[hour]
 
         if has_production
           if rate.feed_in_tariff_rate
             production_fit_month[month] += pv_hour * rate.feed_in_tariff_rate
           else
-            net_monthly_energy_charge[month] += net_elec_hour * rate.realtimeprice[hour]
+            net_monthly_energy_charge[month] += net_elec_hour * rate.real_time_prices[hour]
           end
         end
 
@@ -203,14 +191,14 @@ module CalculateUtilityBill
 
         if (num_periods != 0) || (num_tiers != 0)
           if (1..5).to_a.include?(today.wday) # weekday
-            sched_rate = rate.energyweekdayschedule[month][hour_day]
+            sched_rate = rate.energy_weekday_schedule[month][hour_day]
           else # weekend
-            sched_rate = rate.energyweekendschedule[month][hour_day]
+            sched_rate = rate.energy_weekend_schedule[month][hour_day]
           end
         end
 
         if (num_periods > 1) || (num_tiers > 1) # tiered or TOU
-          tiers = rate.energyratestructure[sched_rate]
+          tiers = rate.energy_rate_structure[sched_rate]
 
           if num_tiers > 1
 
@@ -248,7 +236,7 @@ module CalculateUtilityBill
             bill.monthly_energy_charge[month] += elec_hour * tiers[0][:rate]
           end
         else # not tiered or TOU
-          bill.monthly_energy_charge[month] += elec_hour * rate.energyratestructure[0][0][:rate]
+          bill.monthly_energy_charge[month] += elec_hour * rate.energy_rate_structure[0][0][:rate]
         end
 
         if has_production
@@ -302,7 +290,7 @@ module CalculateUtilityBill
                 net_monthly_energy_charge[month] += net_elec_hour * tiers[0][:rate]
               end
             else # not tiered or TOU
-              net_monthly_energy_charge[month] += net_elec_hour * rate.energyratestructure[0][0][:rate]
+              net_monthly_energy_charge[month] += net_elec_hour * rate.energy_rate_structure[0][0][:rate]
             end
           end
         end
@@ -311,11 +299,9 @@ module CalculateUtilityBill
       next unless hour_day == 23 # last hour of the day
 
       if Calendar.day_end_months(year).include?(today.yday)
-        if not rate.fixedmonthlycharge.nil?
-          # If the run period doesn't span the entire month, prorate the fixed charges
-          prorate_fraction = calculate_monthly_prorate(header, month + 1)
-          bill.monthly_fixed_charge[month] = rate.fixedmonthlycharge * prorate_fraction
-        end
+        monthly_charge = rate.fixed_charge_monthly.to_f
+        monthly_charge += rate.fixed_charge_daily.to_f * Calendar.num_days_in_months(header.sim_calendar_year)[month]
+        bill.monthly_fixed_charge[month] = monthly_charge * calculate_monthly_prorate(header, month + 1)
 
         if (num_periods > 1) || (num_tiers > 1) # tiered or TOU
 
@@ -323,9 +309,9 @@ module CalculateUtilityBill
             frac_elec_period = [0] * num_periods
             for period in 0..num_periods - 1
               frac_elec_period[period] = elec_period[period] / elec_month[month]
-              for t in 0..rate.energyratestructure[period].size - 1
+              for t in 0..rate.energy_rate_structure[period].size - 1
                 if t < elec_tier.size
-                  bill.monthly_energy_charge[month] += rate.energyratestructure[period][t][:rate] * frac_elec_period[period] * elec_tier[t]
+                  bill.monthly_energy_charge[month] += rate.energy_rate_structure[period][t][:rate] * frac_elec_period[period] * elec_tier[t]
                 end
               end
             end
@@ -343,9 +329,9 @@ module CalculateUtilityBill
               net_frac_elec_period = [0] * num_periods
               for period in 0..num_periods - 1
                 net_frac_elec_period[period] = net_elec_period[period] / net_elec_month[month]
-                for t in 0..rate.energyratestructure[period].size - 1
+                for t in 0..rate.energy_rate_structure[period].size - 1
                   if t < net_elec_tier.size
-                    net_monthly_energy_charge[month] += rate.energyratestructure[period][t][:rate] * net_frac_elec_period[period] * net_elec_tier[t]
+                    net_monthly_energy_charge[month] += rate.energy_rate_structure[period][t][:rate] * net_frac_elec_period[period] * net_elec_tier[t]
                   end
                 end
               end
@@ -374,7 +360,7 @@ module CalculateUtilityBill
 
     if has_production && !rate.feed_in_tariff_rate # Net metering calculations
 
-      annual_payments, monthly_min_charges, end_of_year_bill_credit = apply_min_charges(bill.monthly_fixed_charge, net_monthly_energy_charge, rate.minannualcharge, rate.minmonthlycharge)
+      annual_payments, monthly_min_charges, end_of_year_bill_credit = apply_min_charges(bill.monthly_fixed_charge, net_monthly_energy_charge, rate.min_charge_annual, rate.min_charge_monthly)
       end_of_year_bill_credit, excess_sellback = apply_excess_sellback(end_of_year_bill_credit, rate.net_metering_excess_sellback_type, rate.net_metering_user_excess_sellback_rate, net_elec_month.sum(0.0))
 
       annual_total_charge_with_pv = annual_payments + end_of_year_bill_credit - excess_sellback
@@ -385,16 +371,16 @@ module CalculateUtilityBill
       end
 
     else # Either no PV or PV with FIT
-      if rate.minannualcharge.nil?
+      if rate.min_charge_annual.nil?
         for m in 0..11
           monthly_bill = bill.monthly_energy_charge[m] + bill.monthly_fixed_charge[m]
-          if monthly_bill < rate.minmonthlycharge
-            bill.monthly_fixed_charge[m] += (rate.minmonthlycharge - monthly_bill)
+          if monthly_bill < rate.min_charge_monthly
+            bill.monthly_fixed_charge[m] += (rate.min_charge_monthly - monthly_bill)
           end
         end
       else
-        if annual_total_charge < rate.minannualcharge
-          bill.monthly_fixed_charge[11] += (rate.minannualcharge - annual_total_charge)
+        if annual_total_charge < rate.min_charge_annual
+          bill.monthly_fixed_charge[11] += (rate.min_charge_annual - annual_total_charge)
         end
       end
     end
@@ -513,21 +499,22 @@ def process_usurdb(filepath)
   require 'json'
   require 'zip'
 
-  skip_keywords = true
-  keywords = ['lighting',
-              'lights',
-              'private light',
-              'yard light',
-              'security light',
-              'lumens',
-              'watt hps',
-              'incandescent',
-              'halide',
-              'lamps',
-              '[partial]',
-              'rider',
-              'irrigation',
-              'grain']
+  skip_keywords = [
+    'lighting',
+    'lights',
+    'private light',
+    'yard light',
+    'security light',
+    'lumens',
+    'watt hps',
+    'incandescent',
+    'halide',
+    'lamps',
+    '[partial]',
+    'rider',
+    'irrigation',
+    'grain'
+  ]
 
   puts 'Parsing CSV...'
   rates = CSV.read(filepath, headers: true)
@@ -540,16 +527,16 @@ def process_usurdb(filepath)
   rates.each do |rate|
     # rates to skip
     next if rate['sector'] != 'Residential'
-    next if !rate['enddate'].nil?
-    next if keywords.any? { |x| rate['name'].downcase.include?(x) } && skip_keywords
+    next if !rate['enddate'].nil? # Exclude rates that no longer apply
+    next if skip_keywords.any? { |x| rate['name'].downcase.include?(x) }
 
-    # fixed charges
-    if ['$/day', '$/year'].include?(rate['fixedchargeunits'])
+    # unhandled fixed charge units
+    if (not ['$/day', '$/month'].include?(rate['fixedchargeunits'])) && (rate['fixedchargefirstmeter'].to_f > 0)
       next
     end
 
-    # min charges
-    if ['$/day'].include?(rate['minchargeunits'])
+    # unhandled min charge units
+    if (not ['$/month', '$/year'].include?(rate['minchargeunits'])) && (rate['mincharge'].to_f > 0)
       next
     end
 
@@ -614,16 +601,16 @@ def process_usurdb(filepath)
     next if rate['energyweekdayschedule'].nil? || rate['energyweekendschedule'].nil? || rate['energyratestructure'].nil?
 
     # ignore rates without a "rate" key
-    next if rate['energyratestructure'].collect { |r| r.collect { |s| s.keys.include?('rate') } }.flatten.any? { |t| !t }
+    next if rate['energyratestructure'].collect { |r| r.collect { |s| !s.keys.include?('rate') } }.flatten.any?
 
     # ignore rates with negative "rate" value
-    next if rate['energyratestructure'].collect { |r| r.collect { |s| s['rate'] >= 0 } }.flatten.any? { |t| !t }
+    next if rate['energyratestructure'].collect { |r| r.collect { |s| s['rate'] < 0 } }.flatten.any?
 
     # ignore rates with a "sell" key
     next if rate['energyratestructure'].collect { |r| r.collect { |s| s.keys } }.flatten.uniq.include?('sell')
 
-    # set rate units to 'kWh'
-    rate['energyratestructure'].collect { |r| r.collect { |s| s['unit'] = 'kWh' } }
+    # ignore rates where max usage is provided but max units are not 'kWh'
+    next if rate['energyratestructure'].collect { |r| r.collect { |s| s['unit'] != 'kWh' && s.keys.include?('max') } }.flatten.any?
 
     residential_rates << { 'items' => [rate] }
   end
@@ -634,7 +621,7 @@ def process_usurdb(filepath)
   rates_dir = File.dirname(filepath)
   zippath = File.join(rates_dir, 'openei_rates.zip')
   FileUtils.rm(zippath)
-  zipcontents = []
+  ratepaths = []
   Zip::File.open(zippath, create: true) do |zipfile|
     residential_rates.each do |residential_rate|
       utility = valid_filename(residential_rate['items'][0]['utility'])
@@ -649,16 +636,16 @@ def process_usurdb(filepath)
         json = JSON.pretty_generate(residential_rate)
         f.write(json)
       end
-      zipname = File.basename(ratepath)
-      next if zipcontents.include?(zipname)
+      next if ratepaths.include?(ratepath)
 
-      zipfile.add(zipname, ratepath)
-      zipcontents << zipname
+      zipfile.add(File.basename(ratepath), ratepath)
+      ratepaths << ratepath
     end
   end
 
-  num_rates_actual = Dir[File.join(rates_dir, '*.json')].count
-  FileUtils.rm(Dir[File.join(rates_dir, '*.json')])
+  ratepaths.each do |ratepath|
+    FileUtils.rm(ratepath)
+  end
 
-  return num_rates_actual
+  return ratepaths.count
 end

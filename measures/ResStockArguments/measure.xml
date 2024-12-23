@@ -3,13 +3,13 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments</name>
   <uid>c984bb9e-4ac4-4930-a399-9d23f8f6936a</uid>
-  <version_id>d67a956d-0c18-479a-8d76-520e1e39e737</version_id>
-  <version_modified>2024-10-14T21:52:16Z</version_modified>
+  <version_id>34d420bd-393b-4bb8-9671-5a919054d3e2</version_id>
+  <version_modified>2024-11-08T15:53:02Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArguments</class_name>
   <display_name>ResStock Arguments</display_name>
   <description>Measure that pre-processes the arguments passed to the BuildResidentialHPXML and BuildResidentialScheduleFile measures.</description>
-  <modeler_description>Passes in all ResStockArguments arguments from the options lookup, processes them, and then registers values to the runner to be used by other measures.</modeler_description>
+  <modeler_description>Passes in all arguments from the options lookup, processes them, and then registers values to the runner to be used by other measures.</modeler_description>
   <arguments>
     <argument>
       <name>simulation_control_daylight_saving_enabled</name>
@@ -672,15 +672,6 @@
       <required>true</required>
       <model_dependent>false</model_dependent>
       <default_value>8</default_value>
-    </argument>
-    <argument>
-      <name>geometry_unit_height_above_grade</name>
-      <display_name>Geometry: Unit Height Above Grade</display_name>
-      <description>Describes the above-grade height of apartment units on upper floors or homes above ambient or belly-and-wing foundations. It is defined as the height of the lowest conditioned floor above grade and is used to calculate the wind speed for the infiltration model. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-building-construction'&gt;HPXML Building Construction&lt;/a&gt;) is used.</description>
-      <type>String</type>
-      <units>ft</units>
-      <required>false</required>
-      <model_dependent>false</model_dependent>
     </argument>
     <argument>
       <name>geometry_garage_width</name>
@@ -4479,7 +4470,7 @@
     <argument>
       <name>water_heater_tank_volume</name>
       <display_name>Water Heater: Tank Volume</display_name>
-      <description>Nominal volume of water heater tank. Only applies to storage water heater, heat pump water heater, and space-heating boiler with storage tank. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage'&gt;Conventional Storage&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump'&gt;Heat Pump&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#combi-boiler-w-storage'&gt;Combi Boiler w/ Storage&lt;/a&gt;) is used.</description>
+      <description>Nominal volume of water heater tank. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage'&gt;Conventional Storage&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump'&gt;Heat Pump&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#combi-boiler-w-storage'&gt;Combi Boiler w/ Storage&lt;/a&gt;) is used.</description>
       <type>String</type>
       <units>gal</units>
       <required>false</required>
@@ -4556,7 +4547,16 @@
     <argument>
       <name>water_heater_heating_capacity</name>
       <display_name>Water Heater: Heating Capacity</display_name>
-      <description>Heating capacity. Only applies to storage water heater. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage'&gt;Conventional Storage&lt;/a&gt;) is used.</description>
+      <description>Heating capacity. Only applies to storage water heater and heat pump water heater (compressor). If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage'&gt;Conventional Storage&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump'&gt;Heat Pump&lt;/a&gt;) is used.</description>
+      <type>String</type>
+      <units>Btu/hr</units>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>water_heater_backup_heating_capacity</name>
+      <display_name>Water Heater: Backup Heating Capacity</display_name>
+      <description>Backup heating capacity for a heat pump water heater. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump'&gt;Heat Pump&lt;/a&gt;) is used.</description>
       <type>String</type>
       <units>Btu/hr</units>
       <required>false</required>
@@ -7684,7 +7684,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>2141A583</checksum>
+      <checksum>44A63A00</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -7701,13 +7701,13 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>003048B1</checksum>
+      <checksum>C85AA9D8</checksum>
     </file>
     <file>
       <filename>constants.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>F035A1F3</checksum>
+      <checksum>67C6AB5F</checksum>
     </file>
     <file>
       <filename>resstock_arguments_test.rb</filename>

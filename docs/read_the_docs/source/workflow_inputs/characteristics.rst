@@ -35182,7 +35182,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - None
-     - 24%
+     - 23%
      - Percent
      - 0
      - 0
@@ -35342,7 +35342,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - None
-     - 24%
+     - 23%
      - conditioned space
      - auto
      - auto
@@ -36439,12 +36439,6 @@ Arguments
      - Double
      -
      - Average distance from the floor to the ceiling.
-   * - ``geometry_unit_height_above_grade``
-     - false
-     - ft
-     - Double
-     - auto
-     - Describes the above-grade height of apartment units on upper floors or homes above ambient or belly-and-wing foundations. It is defined as the height of the lowest conditioned floor above grade and is used to calculate the wind speed for the infiltration model. If not provided, the OS-HPXML default (see `HPXML Building Construction <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-building-construction>`_) is used.
 
 Options
 *******
@@ -36461,38 +36455,32 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - ``geometry_unit_type``
      - ``geometry_unit_aspect_ratio``
      - ``geometry_average_ceiling_height``
-     - ``geometry_unit_height_above_grade``
 
    * - Mobile Home
      - 6.2%
      - manufactured home
      - 1.8
      - 8
-     - auto
    * - Multi-Family with 2 - 4 Units
      - 8%
      - apartment unit
      - 0.5556
      - 8
-     - auto
    * - Multi-Family with 5+ Units
      - 18%
      - apartment unit
      - 0.5556
      - 8
-     - auto
    * - Single-Family Attached
      - 5.9%
      - single-family attached
      - 0.5556
      - 8
-     - auto
    * - Single-Family Detached
      - 61%
      - single-family detached
      - 1.8
      - 8
-     - auto
 
 .. _geometry_floor_area:
 
@@ -38364,10 +38352,10 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - ``hvac_blower_fan_watts_per_cfm``
 
    * - No
-     - 24%
+     - 23%
      - auto
    * - Yes
-     - 76%
+     - 77%
      - auto
    * - Void
      - 0%
@@ -39265,7 +39253,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Boiler, 76% AFUE
-     - 0.89%
+     - 0.83%
      - Boiler
      - 0.76
      - auto
@@ -39310,7 +39298,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Boiler, 80% AFUE
-     - 3.3%
+     - 3.2%
      - Boiler
      - 0.8
      - auto
@@ -39355,7 +39343,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Boiler, 90% AFUE
-     - 0.49%
+     - 0.48%
      - Boiler
      - 0.9
      - auto
@@ -39625,7 +39613,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Wall/Floor Furnace, 68% AFUE
-     - 2.8%
+     - 2.9%
      - WallFurnace
      - 0.68
      - auto
@@ -39715,7 +39703,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - MSHP, SEER 29.3, 14 HSPF
-     - 0.015%
+     - 0.014%
      - none
      - 0
      - auto
@@ -40005,7 +39993,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
    * - Fuel Oil Fuel Furnace
      - 2.8%
    * - Fuel Oil Fuel Wall/Floor Furnace
-     - 0.29%
+     - 0.3%
    * - Fuel Oil Shared Heating
      - 0.51%
    * - Natural Gas Fuel Boiler
@@ -40019,7 +40007,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
    * - None
      - 1.1%
    * - Other Fuel Fuel Boiler
-     - 0.46%
+     - 0.45%
    * - Other Fuel Fuel Furnace
      - 0.24%
    * - Other Fuel Fuel Wall/Floor Furnace
@@ -40035,7 +40023,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
    * - Propane Shared Heating
      - 0.16%
    * - Void
-     - 0.00039%
+     - 0%
 
 .. _hvac_secondary_heating_efficiency:
 
@@ -42248,7 +42236,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 1.1%
      - 3
    * - 3 months
-     - 0.36%
+     - 0.35%
      - 90
    * - Never
      - 96%
@@ -47494,6 +47482,14 @@ Source
 
 - \U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
 
+- \the California Energy Commision 2019 Residential Appliance Saturation Study (RASS) microdata.
+
+
+Assumption
+**********
+
+- \Within electric pool heaters, proportion of heat pump electric pool heating vs. non-heat pump electric pool heating was derived from RASS 2019.
+
 
 Arguments
 *********
@@ -47550,8 +47546,14 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - ``pool_heater_annual_therm``
      - ``pool_heater_usage_multiplier``
 
+   * - Electric Heat Pump
+     - 0.13%
+     - heat pump
+     - auto
+     - 0
+     - 1.0
    * - Electricity
-     - 0.7%
+     - 0.57%
      - electric resistance
      - auto
      - 0
@@ -62768,7 +62770,7 @@ Arguments
      - gal
      - Double
      - auto
-     - Nominal volume of water heater tank. Only applies to storage water heater, heat pump water heater, and space-heating boiler with storage tank. If not provided, the OS-HPXML default (see `Conventional Storage <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage>`_, `Heat Pump <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump>`_, `Combi Boiler w/ Storage <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#combi-boiler-w-storage>`_) is used.
+     - Nominal volume of water heater tank. If not provided, the OS-HPXML default (see `Conventional Storage <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage>`_, `Heat Pump <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump>`_, `Combi Boiler w/ Storage <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#combi-boiler-w-storage>`_) is used.
    * - ``water_heater_efficiency_type``
      - true
      - 
@@ -62798,7 +62800,13 @@ Arguments
      - Btu/hr
      - Double
      - auto
-     - Heating capacity. Only applies to storage water heater. If not provided, the OS-HPXML default (see `Conventional Storage <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage>`_) is used.
+     - Heating capacity. Only applies to storage water heater and heat pump water heater (compressor). If not provided, the OS-HPXML default (see `Conventional Storage <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage>`_, `Heat Pump <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump>`_) is used.
+   * - ``water_heater_backup_heating_capacity``
+     - false
+     - Btu/hr
+     - Double
+     - auto
+     - Backup heating capacity for a heat pump water heater. If not provided, the OS-HPXML default (see `Heat Pump <https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump>`_) is used.
    * - ``water_heater_standby_loss``
      - false
      - F/hr
@@ -62868,6 +62876,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - ``water_heater_usage_bin``
      - ``water_heater_recovery_efficiency``
      - ``water_heater_heating_capacity``
+     - ``water_heater_backup_heating_capacity``
      - ``water_heater_standby_loss``
      - ``water_heater_jacket_rvalue``
      - ``water_heater_setpoint_temperature``
@@ -62887,6 +62896,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - 0
      - auto
+     - auto
      - 0
      - 0
      - 125
@@ -62904,6 +62914,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 3.35
      - auto
      - 0
+     - auto
      - auto
      - 0
      - 0
@@ -62923,6 +62934,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - 0
      - auto
+     - auto
      - 0
      - 0
      - 125
@@ -62940,6 +62952,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.95
      - auto
      - 0
+     - auto
      - auto
      - 0
      - 0
@@ -62959,6 +62972,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - 0
      - auto
+     - auto
      - 0
      - 0
      - 125
@@ -62977,6 +62991,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - 0
      - auto
+     - auto
      - 0
      - 0
      - 125
@@ -62986,7 +63001,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - FIXME Fuel Oil Indirect
-     - 0.69%
+     - 0.68%
      - storage water heater
      - fuel oil
      - auto
@@ -62994,6 +63009,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.62
      - auto
      - 0.78
+     - auto
      - auto
      - 0
      - 0
@@ -63013,6 +63029,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - 0.9
      - auto
+     - auto
      - 0
      - 0
      - 125
@@ -63022,7 +63039,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Oil Standard
-     - 1.4%
+     - 1.3%
      - storage water heater
      - fuel oil
      - auto
@@ -63030,6 +63047,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.62
      - auto
      - 0.78
+     - auto
      - auto
      - 0
      - 0
@@ -63049,6 +63067,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - 0.78
      - auto
+     - auto
      - 0
      - 0
      - 125
@@ -63066,6 +63085,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.59
      - auto
      - 0.76
+     - auto
      - auto
      - 0
      - 0
@@ -63085,6 +63105,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - 0
      - auto
+     - auto
      - 0
      - 0
      - 125
@@ -63102,6 +63123,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.59
      - auto
      - 0.76
+     - auto
      - auto
      - 0
      - 0
@@ -63121,6 +63143,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - 0.78
      - auto
+     - auto
      - 0
      - 0
      - 125
@@ -63139,6 +63162,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - 0.76
      - auto
+     - auto
      - 0
      - 0
      - 125
@@ -63156,6 +63180,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.82
      - auto
      - 0
+     - auto
      - auto
      - 0
      - 0

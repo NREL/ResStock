@@ -5,7 +5,7 @@ require_relative '../../HPXMLtoOpenStudio/resources/calendar'
 require_relative '../../HPXMLtoOpenStudio/resources/constants'
 require_relative '../../HPXMLtoOpenStudio/resources/energyplus'
 require_relative '../../HPXMLtoOpenStudio/resources/hpxml'
-require_relative '../../HPXMLtoOpenStudio/resources/hpxml_defaults'
+require_relative '../../HPXMLtoOpenStudio/resources/defaults'
 require_relative '../../HPXMLtoOpenStudio/resources/minitest_helper'
 require_relative '../../HPXMLtoOpenStudio/resources/schedules'
 require_relative '../../HPXMLtoOpenStudio/resources/unit_conversions'
@@ -80,8 +80,8 @@ class ReportUtilityBillsTest < Minitest::Test
 
     # Check for presence of fuels once
     has_fuel = @hpxml_bldg.has_fuels(@hpxml.to_doc)
-    HPXMLDefaults.apply_header(@hpxml_header, @hpxml_bldg, nil)
-    HPXMLDefaults.apply_utility_bill_scenarios(nil, @hpxml_header, @hpxml_bldg, has_fuel)
+    Defaults.apply_header(@hpxml_header, @hpxml_bldg, nil)
+    Defaults.apply_utility_bill_scenarios(nil, @hpxml_header, @hpxml_bldg, has_fuel)
 
     @root_path = File.absolute_path(File.join(File.dirname(__FILE__), '..', '..'))
     @sample_files_path = File.join(@root_path, 'workflow', 'sample_files')
@@ -288,10 +288,10 @@ class ReportUtilityBillsTest < Minitest::Test
     # Check that we can successfully look up "auto" rates for every state and every fuel type.
     Constants::StateCodesMap.keys.each do |state_code|
       fuel_types.each do |fuel_type|
-        flatratebuy, average_rate = UtilityBills.get_rates_from_eia_data(nil, state_code, fuel_type, 1) # fixed_charge > 0 ensures marginal_rate != average_rate
-        refute_nil(flatratebuy)
+        marginal_rate, average_rate = UtilityBills.get_rates_from_eia_data(nil, state_code, fuel_type, 1) # fixed_charge > 0 ensures marginal_rate != average_rate
+        refute_nil(marginal_rate)
         if [HPXML::FuelTypeElectricity, HPXML::FuelTypeNaturalGas].include? fuel_type
-          assert_operator(flatratebuy, :<, average_rate)
+          assert_operator(marginal_rate, :<, average_rate)
         else
           assert_nil(average_rate)
         end
@@ -300,10 +300,10 @@ class ReportUtilityBillsTest < Minitest::Test
 
     # Check that we can successfully look up "auto" rates for the US too.
     fuel_types.each do |fuel_type|
-      flatratebuy, average_rate = UtilityBills.get_rates_from_eia_data(nil, 'US', fuel_type, 1) # fixed_charge > 0 ensures marginal_rate != average_rate
-      refute_nil(flatratebuy)
+      marginal_rate, average_rate = UtilityBills.get_rates_from_eia_data(nil, 'US', fuel_type, 1) # fixed_charge > 0 ensures marginal_rate != average_rate
+      refute_nil(marginal_rate)
       if [HPXML::FuelTypeElectricity, HPXML::FuelTypeNaturalGas].include? fuel_type
-        assert_operator(flatratebuy, :<, average_rate)
+        assert_operator(marginal_rate, :<, average_rate)
       else
         assert_nil(average_rate)
       end
@@ -322,10 +322,10 @@ class ReportUtilityBillsTest < Minitest::Test
     # Check that we can successfully provide rates for every state and every fuel type.
     Constants::StateCodesMap.keys.each do |state_code|
       fuel_types.each do |fuel_type|
-        flatratebuy, average_rate = UtilityBills.get_rates_from_eia_data(nil, state_code, fuel_type, 1, marginal_rate) # fixed_charge > 0 ensures marginal_rate != average_rate
-        assert_equal(flatratebuy, marginal_rate)
+        marginal_rate, average_rate = UtilityBills.get_rates_from_eia_data(nil, state_code, fuel_type, 1, marginal_rate) # fixed_charge > 0 ensures marginal_rate != average_rate
+        assert_equal(marginal_rate, marginal_rate)
         if [HPXML::FuelTypeElectricity, HPXML::FuelTypeNaturalGas].include? fuel_type
-          assert_operator(flatratebuy, :<, average_rate)
+          assert_operator(marginal_rate, :<, average_rate)
         else
           assert_nil(average_rate)
         end
@@ -334,10 +334,10 @@ class ReportUtilityBillsTest < Minitest::Test
 
     # Check that we can successfully provide rates for the US too.
     fuel_types.each do |fuel_type|
-      flatratebuy, average_rate = UtilityBills.get_rates_from_eia_data(nil, 'US', fuel_type, 1, marginal_rate) # fixed_charge > 0 ensures marginal_rate != average_rate
-      assert_equal(flatratebuy, marginal_rate)
+      marginal_rate, average_rate = UtilityBills.get_rates_from_eia_data(nil, 'US', fuel_type, 1, marginal_rate) # fixed_charge > 0 ensures marginal_rate != average_rate
+      assert_equal(marginal_rate, marginal_rate)
       if [HPXML::FuelTypeElectricity, HPXML::FuelTypeNaturalGas].include? fuel_type
-        assert_operator(flatratebuy, :<, average_rate)
+        assert_operator(marginal_rate, :<, average_rate)
       else
         assert_nil(average_rate)
       end
@@ -377,7 +377,7 @@ class ReportUtilityBillsTest < Minitest::Test
     hpxml = HPXML.new(hpxml_path: File.join(@sample_files_path, 'base.xml'))
     hpxml.header.utility_bill_scenarios.add(name: 'Test 1', elec_tariff_filepath: '../../ReportUtilityBills/tests/Invalid Fixed Charge Units.json')
     XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
-    expected_warnings = ['Fixed charge units must be $/month.']
+    expected_warnings = ['Unsupported fixed charge units ($/year)']
     actual_bills, _actual_monthly_bills = _test_measure(expected_warnings: expected_warnings)
     assert_nil(actual_bills)
   end
@@ -387,7 +387,7 @@ class ReportUtilityBillsTest < Minitest::Test
     hpxml = HPXML.new(hpxml_path: File.join(@sample_files_path, 'base.xml'))
     hpxml.header.utility_bill_scenarios.add(name: 'Test 1', elec_tariff_filepath: '../../ReportUtilityBills/tests/Invalid Min Charge Units.json')
     XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
-    expected_warnings = ['Min charge units must be either $/month or $/year.']
+    expected_warnings = ['Unsupported min charge units ($/day)']
     actual_bills, _actual_monthly_bills = _test_measure(expected_warnings: expected_warnings)
     assert_nil(actual_bills)
   end
@@ -397,7 +397,7 @@ class ReportUtilityBillsTest < Minitest::Test
     hpxml = HPXML.new(hpxml_path: File.join(@sample_files_path, 'base.xml'))
     hpxml.header.utility_bill_scenarios.add(name: 'Test 1', elec_tariff_filepath: '../../ReportUtilityBills/tests/Contains Demand Charges.json')
     XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
-    expected_warnings = ['Demand charges are not currently supported when calculating detailed utility bills.']
+    expected_warnings = ['Demand charges are not currently supported']
     actual_bills, _actual_monthly_bills = _test_measure(expected_warnings: expected_warnings)
     assert_nil(actual_bills)
   end
@@ -407,7 +407,7 @@ class ReportUtilityBillsTest < Minitest::Test
     hpxml = HPXML.new(hpxml_path: File.join(@sample_files_path, 'base.xml'))
     hpxml.header.utility_bill_scenarios.add(name: 'Test 1', elec_tariff_filepath: '../../ReportUtilityBills/tests/Missing Required Fields.json')
     XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
-    expected_warnings = ['Tariff file must contain energyweekdayschedule, energyweekendschedule, and energyratestructure fields.']
+    expected_warnings = ['Tariff file must contain energyweekdayschedule, energyweekendschedule, and energyratestructure fields']
     actual_bills, _actual_monthly_bills = _test_measure(expected_warnings: expected_warnings)
     assert_nil(actual_bills)
   end
@@ -466,6 +466,16 @@ class ReportUtilityBillsTest < Minitest::Test
     @hpxml_header.utility_bill_scenarios[-1].elec_tariff_filepath = '../../ReportUtilityBills/resources/detailed_rates/Sample Flat Rate.json'
     utility_bill_scenario = @hpxml_header.utility_bill_scenarios[0]
     actual_bills, actual_monthly_bills = _bill_calcs(@fuels_pv_none_detailed, @hpxml_header, @hpxml.buildings, utility_bill_scenario)
+    expected_bills = _get_expected_bills(@expected_bills)
+    _check_bills(expected_bills, actual_bills)
+    _check_monthly_bills(actual_bills, actual_monthly_bills)
+  end
+
+  def test_detailed_flat_pv_none_fixed_daily_charge
+    @hpxml_header.utility_bill_scenarios[-1].elec_tariff_filepath = '../../ReportUtilityBills/resources/detailed_rates/Sample Flat Rate Fixed Daily Charge.json'
+    utility_bill_scenario = @hpxml_header.utility_bill_scenarios[0]
+    actual_bills, actual_monthly_bills = _bill_calcs(@fuels_pv_none_detailed, @hpxml_header, @hpxml.buildings, utility_bill_scenario)
+    @expected_bills['Test: Electricity: Fixed (USD)'] = 91.25
     expected_bills = _get_expected_bills(@expected_bills)
     _check_bills(expected_bills, actual_bills)
     _check_monthly_bills(actual_bills, actual_monthly_bills)
@@ -1205,8 +1215,8 @@ class ReportUtilityBillsTest < Minitest::Test
     args = { output_format: 'csv', include_annual_bills: true, include_monthly_bills: true, register_annual_bills: true, register_monthly_bills: true }
 
     utility_rates, utility_bills = @measure.setup_utility_outputs()
-    monthly_fee = @measure.get_monthly_fee(utility_bill_scenario, hpxml_buildings)
-    @measure.get_utility_rates(@hpxml_path, fuels, utility_rates, utility_bill_scenario, monthly_fee)
+    pv_monthly_fee = @measure.get_pv_monthly_fee(utility_bill_scenario, hpxml_buildings)
+    @measure.get_utility_rates(@hpxml_path, fuels, utility_rates, utility_bill_scenario, pv_monthly_fee)
     @measure.get_utility_bills(fuels, utility_rates, utility_bills, utility_bill_scenario, header)
 
     # Annual

@@ -47,6 +47,7 @@ module UnitConversions
     ['ton', 'kbtu/hr'] => 12.0,
     ['ton', 'w'] => 3516.85284207,
     ['w', 'btu/hr'] => 3.412141633127942,
+    ['kw', 'btu/hr'] => 3412.141633127942,
     ['kbtu/hr', 'kw'] => 0.2930710701722222,
 
     # Power Flux

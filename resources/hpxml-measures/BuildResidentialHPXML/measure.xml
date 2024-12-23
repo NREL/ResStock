@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>build_residential_hpxml</name>
   <uid>a13a8983-2b01-4930-8af2-42030b6e4233</uid>
-  <version_id>73cdd978-05a9-42cb-9497-b54a64ac8de4</version_id>
-  <version_modified>2024-09-24T01:38:37Z</version_modified>
+  <version_id>6024806a-1640-4c75-86e4-d00329c89e3a</version_id>
+  <version_modified>2024-10-31T22:43:54Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>BuildResidentialHPXML</class_name>
   <display_name>HPXML Builder</display_name>
@@ -4624,7 +4624,7 @@
     <argument>
       <name>water_heater_tank_volume</name>
       <display_name>Water Heater: Tank Volume</display_name>
-      <description>Nominal volume of water heater tank. Only applies to storage water heater, heat pump water heater, and space-heating boiler with storage tank. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage'&gt;Conventional Storage&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump'&gt;Heat Pump&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#combi-boiler-w-storage'&gt;Combi Boiler w/ Storage&lt;/a&gt;) is used.</description>
+      <description>Nominal volume of water heater tank. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage'&gt;Conventional Storage&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump'&gt;Heat Pump&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#combi-boiler-w-storage'&gt;Combi Boiler w/ Storage&lt;/a&gt;) is used.</description>
       <type>Double</type>
       <units>gal</units>
       <required>false</required>
@@ -4696,7 +4696,16 @@
     <argument>
       <name>water_heater_heating_capacity</name>
       <display_name>Water Heater: Heating Capacity</display_name>
-      <description>Heating capacity. Only applies to storage water heater. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage'&gt;Conventional Storage&lt;/a&gt;) is used.</description>
+      <description>Heating capacity. Only applies to storage water heater and heat pump water heater (compressor). If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#conventional-storage'&gt;Conventional Storage&lt;/a&gt;, &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump'&gt;Heat Pump&lt;/a&gt;) is used.</description>
+      <type>Double</type>
+      <units>Btu/hr</units>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>water_heater_backup_heating_capacity</name>
+      <display_name>Water Heater: Backup Heating Capacity</display_name>
+      <description>Backup heating capacity for a heat pump water heater. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#heat-pump'&gt;Heat Pump&lt;/a&gt;) is used.</description>
       <type>Double</type>
       <units>Btu/hr</units>
       <required>false</required>
@@ -7518,7 +7527,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>CA7DF69B</checksum>
+      <checksum>25110074</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -7535,7 +7544,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>B0FD0124</checksum>
+      <checksum>79912FCC</checksum>
     </file>
     <file>
       <filename>constants.rb</filename>
@@ -7547,55 +7556,13 @@
       <filename>geometry.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>F80359E3</checksum>
-    </file>
-    <file>
-      <filename>extra_files/base-mf.xml</filename>
-      <filetype>xml</filetype>
-      <usage_type>test</usage_type>
-      <checksum>06C3D0DD</checksum>
-    </file>
-    <file>
-      <filename>extra_files/base-mf2.xml</filename>
-      <filetype>xml</filetype>
-      <usage_type>test</usage_type>
-      <checksum>04582640</checksum>
-    </file>
-    <file>
-      <filename>extra_files/base-sfa.xml</filename>
-      <filetype>xml</filetype>
-      <usage_type>test</usage_type>
-      <checksum>16ED9F15</checksum>
-    </file>
-    <file>
-      <filename>extra_files/base-sfa2.xml</filename>
-      <filetype>xml</filetype>
-      <usage_type>test</usage_type>
-      <checksum>1B60C132</checksum>
-    </file>
-    <file>
-      <filename>extra_files/base-sfa3.xml</filename>
-      <filetype>xml</filetype>
-      <usage_type>test</usage_type>
-      <checksum>DD9CD517</checksum>
-    </file>
-    <file>
-      <filename>extra_files/base-sfd.xml</filename>
-      <filetype>xml</filetype>
-      <usage_type>test</usage_type>
-      <checksum>79463062</checksum>
-    </file>
-    <file>
-      <filename>extra_files/base-sfd2.xml</filename>
-      <filetype>xml</filetype>
-      <usage_type>test</usage_type>
-      <checksum>9FC7FBA9</checksum>
+      <checksum>E50F00EB</checksum>
     </file>
     <file>
       <filename>test_build_residential_hpxml.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>39A3D88B</checksum>
+      <checksum>04146810</checksum>
     </file>
   </files>
 </measure>

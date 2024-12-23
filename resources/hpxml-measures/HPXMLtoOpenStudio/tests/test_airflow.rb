@@ -377,15 +377,40 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     vent_fan = hpxml_bldg.ventilation_fans.find { |f| f.used_for_whole_building_ventilation }
     vent_fan_cfm = vent_fan.oa_unit_flow_rate
     vent_fan_power = vent_fan.fan_power
-    vent_fan_mins = vent_fan.hours_in_operation / 24.0 * 60.0
+    vent_fan_operation = vent_fan.hours_in_operation / 24.0
 
     # Check infiltration/ventilation program
     program_values = get_ems_values(model.getEnergyManagementSystemPrograms, "#{Constants::ObjectTypeInfiltration} program")
-    assert_in_epsilon(vent_fan_cfm, UnitConversions.convert(program_values['cfis_Q_duct_oa'].sum, 'm^3/s', 'cfm'), 0.01)
+    assert_in_epsilon(vent_fan_cfm, UnitConversions.convert(program_values['oa_cfm_ah'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(0.0, UnitConversions.convert(program_values['QWHV_sup'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(0.0, UnitConversions.convert(program_values['QWHV_exh'].sum, 'm^3/s', 'cfm'), 0.01)
-    assert_in_epsilon(vent_fan_power, program_values['cfis_fan_w'].sum, 0.01)
-    assert_in_epsilon(vent_fan_mins, program_values['cfis_t_min_hr_open'].sum, 0.01)
+    assert_in_epsilon(vent_fan_power, program_values['ah_fan_w'].sum, 0.01)
+    assert_in_epsilon(vent_fan_operation, program_values['f_operation'].sum, 0.01)
+    assert_in_epsilon(0.0, UnitConversions.convert(program_values['Qrange'].sum, 'm^3/s', 'cfm'), 0.01)
+    assert_in_epsilon(0.0, UnitConversions.convert(program_values['Qbath'].sum, 'm^3/s', 'cfm'), 0.01)
+    # Load actuators
+    assert_equal(1, get_oed_for_ventilation(model, "#{Constants::ObjectTypeMechanicalVentilationHouseFan} sensible load").size)
+    assert_equal(1, get_oed_for_ventilation(model, "#{Constants::ObjectTypeMechanicalVentilationHouseFan} latent load").size)
+  end
+
+  def test_mechanical_ventilation_cfis_pthp
+    args_hash = {}
+    args_hash['hpxml_path'] = File.absolute_path(File.join(@sample_files_path, 'base-hvac-pthp-cfis.xml'))
+    model, _hpxml, hpxml_bldg = _test_measure(args_hash)
+
+    # Get HPXML values
+    vent_fan = hpxml_bldg.ventilation_fans.find { |f| f.used_for_whole_building_ventilation }
+    vent_fan_cfm = vent_fan.oa_unit_flow_rate
+    vent_fan_power = vent_fan.fan_power
+    vent_fan_operation = vent_fan.hours_in_operation / 24.0
+
+    # Check infiltration/ventilation program
+    program_values = get_ems_values(model.getEnergyManagementSystemPrograms, "#{Constants::ObjectTypeInfiltration} program")
+    assert_in_epsilon(vent_fan_cfm, UnitConversions.convert(program_values['oa_cfm_ah'].sum, 'm^3/s', 'cfm'), 0.01)
+    assert_in_epsilon(0.0, UnitConversions.convert(program_values['QWHV_sup'].sum, 'm^3/s', 'cfm'), 0.01)
+    assert_in_epsilon(0.0, UnitConversions.convert(program_values['QWHV_exh'].sum, 'm^3/s', 'cfm'), 0.01)
+    assert_in_epsilon(vent_fan_power, program_values['ah_fan_w'].sum, 0.01)
+    assert_in_epsilon(vent_fan_operation, program_values['f_operation'].sum, 0.01)
     assert_in_epsilon(0.0, UnitConversions.convert(program_values['Qrange'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(0.0, UnitConversions.convert(program_values['Qbath'].sum, 'm^3/s', 'cfm'), 0.01)
     # Load actuators
@@ -401,20 +426,18 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     # Get HPXML values
     vent_fan = hpxml_bldg.ventilation_fans.find { |f| f.used_for_whole_building_ventilation }
     vent_fan_cfm = vent_fan.oa_unit_flow_rate
-    vent_fan_power = vent_fan.fan_power
-    vent_fan_mins = vent_fan.hours_in_operation / 24.0 * 60.0
+    vent_fan_operation = vent_fan.hours_in_operation / 24.0
     suppl_vent_fan_cfm = vent_fan.cfis_supplemental_fan.oa_unit_flow_rate
     suppl_vent_fan_power = vent_fan.cfis_supplemental_fan.fan_power
 
     # Check infiltration/ventilation program
     program_values = get_ems_values(model.getEnergyManagementSystemPrograms, "#{Constants::ObjectTypeInfiltration} program")
-    assert_in_epsilon(vent_fan_cfm, UnitConversions.convert(program_values['cfis_Q_duct_oa'].sum, 'm^3/s', 'cfm'), 0.01)
-    assert_in_epsilon(suppl_vent_fan_cfm, UnitConversions.convert(program_values['cfis_suppl_Q_oa'].sum, 'm^3/s', 'cfm'), 0.01)
+    assert_in_epsilon(vent_fan_cfm, UnitConversions.convert(program_values['oa_cfm_ah'].sum, 'm^3/s', 'cfm'), 0.01)
+    assert_in_epsilon(suppl_vent_fan_cfm, UnitConversions.convert(program_values['oa_cfm_suppl'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(0.0, UnitConversions.convert(program_values['QWHV_sup'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(0.0, UnitConversions.convert(program_values['QWHV_exh'].sum, 'm^3/s', 'cfm'), 0.01)
-    assert_in_epsilon(vent_fan_power, program_values['cfis_fan_w'].sum, 0.01)
-    assert_in_epsilon(suppl_vent_fan_power, program_values['cfis_suppl_fan_w'].sum, 0.01)
-    assert_in_epsilon(vent_fan_mins, program_values['cfis_t_min_hr_open'].sum, 0.01)
+    assert_in_epsilon(suppl_vent_fan_power, program_values['suppl_fan_w'].sum, 0.01)
+    assert_in_epsilon(vent_fan_operation, program_values['f_operation'].sum, 0.01)
     assert_in_epsilon(0.0, UnitConversions.convert(program_values['Qrange'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(0.0, UnitConversions.convert(program_values['Qbath'].sum, 'm^3/s', 'cfm'), 0.01)
     # Load actuators
@@ -498,8 +521,8 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     vent_fan_power_ervhrv = vent_fan_ervhrv.map { |f| f.average_unit_fan_power }.sum(0.0)
     vent_fan_cfis = whole_fans.select { |f| f.fan_type == HPXML::MechVentTypeCFIS }
     vent_fan_cfm_cfis = vent_fan_cfis.map { |f| f.oa_unit_flow_rate }.sum(0.0)
-    vent_fan_power_cfis = vent_fan_cfis.map { |f| f.fan_power }.sum(0.0)
-    vent_fan_mins_cfis = vent_fan_cfis.map { |f| f.hours_in_operation / 24.0 * 60.0 }.sum(0.0)
+    vent_fan_power_cfis = vent_fan_cfis.select { |f| f.cfis_addtl_runtime_operating_mode == HPXML::CFISModeAirHandler }.map { |f| f.fan_power }.sum(0.0)
+    vent_fan_operation_cfis = vent_fan_cfis.map { |f| f.hours_in_operation / 24.0 }.sum(0.0)
 
     # total mech vent fan power excluding cfis
     total_mechvent_pow = vent_fan_power_sup + vent_fan_power_exh + vent_fan_power_bal + vent_fan_power_ervhrv
@@ -513,12 +536,12 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     assert_in_epsilon(vent_fan_cfm_exh + vent_fan_cfm_bal + vent_fan_cfm_ervhrv, UnitConversions.convert(program_values['QWHV_exh'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(kitchen_fan_cfm, UnitConversions.convert(program_values['Qrange'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(bath_fan_cfm, UnitConversions.convert(program_values['Qbath'].sum, 'm^3/s', 'cfm'), 0.01)
-    assert_in_epsilon(vent_fan_cfm_cfis, UnitConversions.convert(program_values['cfis_Q_duct_oa'].sum, 'm^3/s', 'cfm'), 0.01)
+    assert_in_epsilon(vent_fan_cfm_cfis, UnitConversions.convert(program_values['oa_cfm_ah'].sum, 'm^3/s', 'cfm'), 0.01)
     # Fan power/load implementation
     assert_equal(1, get_eed_for_ventilation(model, Constants::ObjectTypeMechanicalVentilationHouseFan).size)
     assert_in_epsilon(total_mechvent_pow, get_eed_for_ventilation(model, Constants::ObjectTypeMechanicalVentilationHouseFan)[0].designLevel.get, 0.01)
     assert_in_epsilon(fraction_heat_lost, get_eed_for_ventilation(model, Constants::ObjectTypeMechanicalVentilationHouseFan)[0].fractionLost, 0.01)
-    assert_in_epsilon(vent_fan_power_cfis, program_values['cfis_fan_w'].sum, 0.01)
+    assert_in_epsilon(vent_fan_power_cfis, program_values['ah_fan_w'].sum, 0.01)
     range_fan_eeds = get_eed_for_ventilation(model, Constants::ObjectTypeMechanicalVentilationRangeFan)
     assert_equal(2, range_fan_eeds.size)
     assert_in_epsilon(kitchen_fan_power, range_fan_eeds.map { |f| f.designLevel.get }.sum(0.0), 0.01)
@@ -530,7 +553,7 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     assert_in_epsilon(1.0, bath_fan_eeds[0].fractionLost, 0.01)
     assert_in_epsilon(1.0, bath_fan_eeds[1].fractionLost, 0.01)
     # CFIS minutes
-    assert_in_epsilon(vent_fan_mins_cfis, program_values['cfis_t_min_hr_open'].sum, 0.01)
+    assert_in_epsilon(vent_fan_operation_cfis, program_values['f_operation'].sum, 0.01)
     # Load actuators
     assert_equal(1, get_oed_for_ventilation(model, "#{Constants::ObjectTypeMechanicalVentilationHouseFan} sensible load").size)
     assert_equal(1, get_oed_for_ventilation(model, "#{Constants::ObjectTypeMechanicalVentilationHouseFan} latent load").size)
@@ -559,7 +582,7 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     # CFIS
     vent_fans_cfm_oa_cfis = hpxml_bldg.ventilation_fans.select { |f| f.fan_type == HPXML::MechVentTypeCFIS }.map { |f| f.oa_unit_flow_rate }.sum(0.0)
     vent_fans_pow_cfis = hpxml_bldg.ventilation_fans.select { |f| f.fan_type == HPXML::MechVentTypeCFIS }.map { |f| f.unit_fan_power }.sum(0.0)
-    vent_fans_mins_cfis = hpxml_bldg.ventilation_fans.select { |f| f.fan_type == HPXML::MechVentTypeCFIS }.map { |f| f.hours_in_operation / 24.0 * 60.0 }.sum(0.0)
+    vent_fans_mins_cfis = hpxml_bldg.ventilation_fans.select { |f| f.fan_type == HPXML::MechVentTypeCFIS }.map { |f| f.hours_in_operation / 24.0 }.sum(0.0)
 
     # Load and energy eed
     assert_equal(1, get_oed_for_ventilation(model, "#{Constants::ObjectTypeMechanicalVentilationHouseFan} sensible load").size)
@@ -575,9 +598,9 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     program_values = get_ems_values(model.getEnergyManagementSystemPrograms, "#{Constants::ObjectTypeInfiltration} program")
     assert_in_epsilon((vent_fans_cfm_oa_preheat_sup + vent_fans_cfm_oa_preheat_bal + vent_fans_cfm_oa_preheat_ervhrv), UnitConversions.convert(program_values['Qpreheat'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon((vent_fans_cfm_oa_precool_sup + vent_fans_cfm_oa_precool_bal + vent_fans_cfm_oa_precool_ervhrv), UnitConversions.convert(program_values['Qprecool'].sum, 'm^3/s', 'cfm'), 0.01)
-    assert_in_epsilon(vent_fans_pow_cfis, program_values['cfis_fan_w'].sum, 0.01)
-    assert_in_epsilon(vent_fans_mins_cfis, program_values['cfis_t_min_hr_open'].sum, 0.01)
-    assert_in_epsilon(vent_fans_cfm_oa_cfis, UnitConversions.convert(program_values['cfis_Q_duct_oa'].sum, 'm^3/s', 'cfm'), 0.01)
+    assert_in_epsilon(vent_fans_pow_cfis, program_values['ah_fan_w'].sum, 0.01)
+    assert_in_epsilon(vent_fans_mins_cfis, program_values['f_operation'].sum, 0.01)
+    assert_in_epsilon(vent_fans_cfm_oa_cfis, UnitConversions.convert(program_values['oa_cfm_ah'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(vent_fans_cfm_tot_sup + vent_fans_cfm_tot_ervhrvbal, UnitConversions.convert(program_values['QWHV_sup'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(vent_fans_cfm_tot_exh + vent_fans_cfm_tot_ervhrvbal, UnitConversions.convert(program_values['QWHV_exh'].sum, 'm^3/s', 'cfm'), 0.01)
     assert_in_epsilon(0, UnitConversions.convert(program_values['Qrange'].sum, 'm^3/s', 'cfm'), 0.01)
@@ -830,18 +853,18 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     f_rect_return = 1.0
 
     # Supply, uninsulated
-    effective_r = Airflow.get_duct_effective_r_value(0.0, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationNone, f_rect_supply)
+    effective_r = Defaults.get_duct_effective_r_value(0.0, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationNone, f_rect_supply)
     assert_equal(1.7, effective_r)
 
     # Return, uninsulated
-    effective_r = Airflow.get_duct_effective_r_value(0.0, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationNone, f_rect_return)
+    effective_r = Defaults.get_duct_effective_r_value(0.0, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationNone, f_rect_return)
     assert_equal(1.7, effective_r)
 
     # Supply, not buried
     { 4.2 => 4.53,
       6.0 => 5.73,
       8.0 => 6.94 }.each do |nominal_r, expected_r|
-      effective_r = Airflow.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationNone, f_rect_supply)
+      effective_r = Defaults.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationNone, f_rect_supply)
       assert_in_epsilon(expected_r, effective_r, 0.1)
     end
 
@@ -849,7 +872,7 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     { 4.2 => 5.20,
       6.0 => 7.00,
       8.0 => 9.00 }.each do |nominal_r, expected_r|
-      effective_r = Airflow.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationNone, f_rect_return)
+      effective_r = Defaults.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationNone, f_rect_return)
       assert_in_epsilon(expected_r, effective_r, 0.1)
     end
 
@@ -860,7 +883,7 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     { 4.2 => 6.8,
       6.0 => 8.6,
       8.0 => 9.3 }.each do |nominal_r, expected_r|
-      effective_r = Airflow.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationPartial, f_rect_supply)
+      effective_r = Defaults.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationPartial, f_rect_supply)
       assert_in_epsilon(expected_r, effective_r, 0.1)
     end
 
@@ -868,7 +891,7 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     { 4.2 => 10.1,
       6.0 => 12.6,
       8.0 => 15.1 }.each do |nominal_r, expected_r|
-      effective_r = Airflow.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationPartial, f_rect_return)
+      effective_r = Defaults.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationPartial, f_rect_return)
       assert_in_epsilon(expected_r, effective_r, 0.1)
     end
 
@@ -876,7 +899,7 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     { 4.2 => 9.9,
       6.0 => 11.7,
       8.0 => 13.3 }.each do |nominal_r, expected_r|
-      effective_r = Airflow.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationFull, f_rect_supply)
+      effective_r = Defaults.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationFull, f_rect_supply)
       assert_in_epsilon(expected_r, effective_r, 0.1)
     end
 
@@ -884,7 +907,7 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     { 4.2 => 14.3,
       6.0 => 16.7,
       8.0 => 19.2 }.each do |nominal_r, expected_r|
-      effective_r = Airflow.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationFull, f_rect_return)
+      effective_r = Defaults.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationFull, f_rect_return)
       assert_in_epsilon(expected_r, effective_r, 0.1)
     end
 
@@ -892,7 +915,7 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     { 4.2 => 16.0,
       6.0 => 17.3,
       8.0 => 18.4 }.each do |nominal_r, expected_r|
-      effective_r = Airflow.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationDeep, f_rect_supply)
+      effective_r = Defaults.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeSupply, HPXML::DuctBuriedInsulationDeep, f_rect_supply)
       assert_in_epsilon(expected_r, effective_r, 0.1)
     end
 
@@ -900,7 +923,7 @@ class HPXMLtoOpenStudioAirflowTest < Minitest::Test
     { 4.2 => 22.8,
       6.0 => 24.7,
       8.0 => 26.6 }.each do |nominal_r, expected_r|
-      effective_r = Airflow.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationDeep, f_rect_return)
+      effective_r = Defaults.get_duct_effective_r_value(nominal_r, HPXML::DuctTypeReturn, HPXML::DuctBuriedInsulationDeep, f_rect_return)
       assert_in_epsilon(expected_r, effective_r, 0.1)
     end
   end

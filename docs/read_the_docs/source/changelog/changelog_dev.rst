@@ -1,26 +1,23 @@
 =====================
 Development Changelog
 =====================
-
 .. changelog::
-    :version: v3.4.0
+    :version: v3.5.0
     :released: pending
 
     .. change::
+        :tags: characteristics, pool heater
+        :pullreq: 1324
 
-        :tags: bugfix, characteristics
-        :pullreq: 1265
-        :tickets: 1236
-
-        **Date**: 2024-08-06
+        **Date**: 2024-12-3
 
         Title:
-        Fix Hot Water Fixtures multipliers
+        Add heat pump pool heaters
 
         Description:
-        Mean-shift hot water usage multipliers distribution by increasing weighted average from 0.8 to 1.0 in Hot Water Fixtures.tsv.
+        Add heat pump pool heaters to baseline.
 
-        Assignees: Lixi Liu
+        resstock-estimation: `pull request 436 <https://github.com/NREL/resstock-estimation/pull/436>`_
 
         :tags: workflow, infiltration, bugfix
         :pullreq: 1257
@@ -116,3 +113,4 @@ Development Changelog
         Assignees: Joe Robertson, Rajendra Adhikari
 
         GitHub: `pull request 929 <https://github.com/NREL/resstock/pull/929>`_   
+        Assignees: Janet Reyna

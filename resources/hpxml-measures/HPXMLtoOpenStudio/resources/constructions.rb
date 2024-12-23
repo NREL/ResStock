@@ -1605,157 +1605,6 @@ module Constructions
 
   # TODO
   #
-  # @param roof_type [TODO] TODO
-  # @param solar_absorptance [TODO] TODO
-  # @return [TODO] TODO
-  def self.get_default_roof_color(roof_type, solar_absorptance)
-    map = get_roof_color_and_solar_absorptance_map
-    color_map = {}
-    map.each do |key, value|
-      next unless key[1] == roof_type
-
-      color_map[key[0]] = value
-    end
-    color = color_map.min_by { |_k, v| (v - solar_absorptance).abs }[0]
-    return color
-  end
-
-  # TODO
-  #
-  # @param roof_type [TODO] TODO
-  # @param color [TODO] TODO
-  # @return [TODO] TODO
-  def self.get_default_roof_solar_absorptance(roof_type, color)
-    map = get_roof_color_and_solar_absorptance_map
-    return map[[color, roof_type]]
-  end
-
-  # TODO
-  #
-  # @param solar_absorptance [TODO] TODO
-  # @return [TODO] TODO
-  def self.get_default_wall_color(solar_absorptance)
-    map = get_wall_color_and_solar_absorptance_map
-    color = map.min_by { |_k, v| (v - solar_absorptance).abs }[0]
-    return color
-  end
-
-  # TODO
-  #
-  # @param color [TODO] TODO
-  # @return [TODO] TODO
-  def self.get_default_wall_solar_absorptance(color)
-    map = get_wall_color_and_solar_absorptance_map
-    return map[color]
-  end
-
-  # TODO
-  #
-  # @param window_or_skylight [TODO] TODO
-  # @param type [TODO] TODO
-  # @return [TODO] TODO
-  def self.get_default_window_skylight_ufactor_shgc(window_or_skylight, type)
-    if window_or_skylight.glass_layers == HPXML::WindowLayersSinglePane
-      n_panes = 1
-    elsif window_or_skylight.glass_layers == HPXML::WindowLayersDoublePane
-      n_panes = 2
-    elsif window_or_skylight.glass_layers == HPXML::WindowLayersTriplePane
-      n_panes = 3
-    elsif window_or_skylight.glass_layers == HPXML::WindowLayersGlassBlock
-      return [0.6, 0.6] # From https://www.federalregister.gov/documents/2016/06/17/2016-13547/energy-conservation-standards-for-manufactured-housing
-    end
-
-    if [HPXML::WindowFrameTypeAluminum,
-        HPXML::WindowFrameTypeMetal].include? window_or_skylight.frame_type
-      is_metal_frame = true
-    elsif [HPXML::WindowFrameTypeWood,
-           HPXML::WindowFrameTypeVinyl,
-           HPXML::WindowFrameTypeFiberglass].include? window_or_skylight.frame_type
-      is_metal_frame = false
-    else
-      fail "Unexpected #{type.downcase} frame type."
-    end
-
-    if [HPXML::WindowGlassTypeClear,
-        HPXML::WindowGlassTypeReflective].include? window_or_skylight.glass_type
-      glass_type = 'clear'
-    elsif [HPXML::WindowGlassTypeTinted,
-           HPXML::WindowGlassTypeTintedReflective].include? window_or_skylight.glass_type
-      glass_type = 'tinted'
-    elsif [HPXML::WindowGlassTypeLowE,
-           HPXML::WindowGlassTypeLowEHighSolarGain].include? window_or_skylight.glass_type
-      glass_type = 'low_e_insulating'
-    elsif [HPXML::WindowGlassTypeLowELowSolarGain].include? window_or_skylight.glass_type
-      glass_type = 'low_e_solar_control'
-    else
-      fail "Unexpected #{type.downcase} glass type."
-    end
-
-    if window_or_skylight.glass_layers == HPXML::WindowLayersSinglePane
-      gas_fill = 'none'
-    elsif [HPXML::WindowGasAir].include? window_or_skylight.gas_fill
-      gas_fill = 'air'
-    elsif [HPXML::WindowGasArgon,
-           HPXML::WindowGasKrypton,
-           HPXML::WindowGasXenon,
-           HPXML::WindowGasNitrogen,
-           HPXML::WindowGasOther].include? window_or_skylight.gas_fill
-      gas_fill = 'gas'
-    else
-      fail "Unexpected #{type.downcase} gas type."
-    end
-
-    # Lookup values
-    # From http://hes-documentation.lbl.gov/calculation-methodology/calculation-of-energy-consumption/heating-and-cooling-calculation/building-envelope/window-skylight-construction-types
-    key = [is_metal_frame, window_or_skylight.thermal_break, n_panes, glass_type, gas_fill]
-    if type.downcase == 'window'
-      vals = { [true, false, 1, 'clear', 'none'] => [1.27, 0.75], # Single-pane, clear, aluminum frame
-               [false, nil, 1, 'clear', 'none'] => [0.89, 0.64], # Single-pane, clear, wood or vinyl frame
-               [true, false, 1, 'tinted', 'none'] => [1.27, 0.64], # Single-pane, tinted, aluminum frame
-               [false, nil, 1, 'tinted', 'none'] => [0.89, 0.54], # Single-pane, tinted, wood or vinyl frame
-               [true, false, 2, 'clear', 'air'] => [0.81, 0.67], # Double-pane, clear, aluminum frame
-               [true, true, 2, 'clear', 'air'] => [0.60, 0.67], # Double-pane, clear, aluminum frame w/ thermal break
-               [false, nil, 2, 'clear', 'air'] => [0.51, 0.56], # Double-pane, clear, wood or vinyl frame
-               [true, false, 2, 'tinted', 'air'] => [0.81, 0.55], # Double-pane, tinted, aluminum frame
-               [true, true, 2, 'tinted', 'air'] => [0.60, 0.55], # Double-pane, tinted, aluminum frame w/ thermal break
-               [false, nil, 2, 'tinted', 'air'] => [0.51, 0.46], # Double-pane, tinted, wood or vinyl frame
-               [false, nil, 2, 'low_e_insulating', 'air'] => [0.42, 0.52], # Double-pane, insulating low-E, wood or vinyl frame
-               [true, true, 2, 'low_e_insulating', 'gas'] => [0.47, 0.62], # Double-pane, insulating low-E, argon gas fill, aluminum frame w/ thermal break
-               [false, nil, 2, 'low_e_insulating', 'gas'] => [0.39, 0.52], # Double-pane, insulating low-E, argon gas fill, wood or vinyl frame
-               [true, false, 2, 'low_e_solar_control', 'air'] => [0.67, 0.37], # Double-pane, solar-control low-E, aluminum frame
-               [true, true, 2, 'low_e_solar_control', 'air'] => [0.47, 0.37], # Double-pane, solar-control low-E, aluminum frame w/ thermal break
-               [false, nil, 2, 'low_e_solar_control', 'air'] => [0.39, 0.31], # Double-pane, solar-control low-E, wood or vinyl frame
-               [false, nil, 2, 'low_e_solar_control', 'gas'] => [0.36, 0.31], # Double-pane, solar-control low-E, argon gas fill, wood or vinyl frame
-               [false, nil, 3, 'low_e_insulating', 'gas'] => [0.27, 0.31] }[key] # Triple-pane, insulating low-E, argon gas fill, wood or vinyl frame
-    elsif type.downcase == 'skylight'
-      vals = { [true, false, 1, 'clear', 'none'] => [1.98, 0.75], # Single-pane, clear, aluminum frame
-               [false, nil, 1, 'clear', 'none'] => [1.47, 0.64], # Single-pane, clear, wood or vinyl frame
-               [true, false, 1, 'tinted', 'none'] => [1.98, 0.64], # Single-pane, tinted, aluminum frame
-               [false, nil, 1, 'tinted', 'none'] => [1.47, 0.54], # Single-pane, tinted, wood or vinyl frame
-               [true, false, 2, 'clear', 'air'] => [1.30, 0.67], # Double-pane, clear, aluminum frame
-               [true, true, 2, 'clear', 'air'] => [1.10, 0.67], # Double-pane, clear, aluminum frame w/ thermal break
-               [false, nil, 2, 'clear', 'air'] => [0.84, 0.56], # Double-pane, clear, wood or vinyl frame
-               [true, false, 2, 'tinted', 'air'] => [1.30, 0.55], # Double-pane, tinted, aluminum frame
-               [true, true, 2, 'tinted', 'air'] => [1.10, 0.55], # Double-pane, tinted, aluminum frame w/ thermal break
-               [false, nil, 2, 'tinted', 'air'] => [0.84, 0.46], # Double-pane, tinted, wood or vinyl frame
-               [false, nil, 2, 'low_e_insulating', 'air'] => [0.74, 0.52], # Double-pane, insulating low-E, wood or vinyl frame
-               [true, true, 2, 'low_e_insulating', 'gas'] => [0.95, 0.62], # Double-pane, insulating low-E, argon gas fill, aluminum frame w/ thermal break
-               [false, nil, 2, 'low_e_insulating', 'gas'] => [0.68, 0.52], # Double-pane, insulating low-E, argon gas fill, wood or vinyl frame
-               [true, false, 2, 'low_e_solar_control', 'air'] => [1.17, 0.37], # Double-pane, solar-control low-E, aluminum frame
-               [true, true, 2, 'low_e_solar_control', 'air'] => [0.98, 0.37], # Double-pane, solar-control low-E, aluminum frame w/ thermal break
-               [false, nil, 2, 'low_e_solar_control', 'air'] => [0.71, 0.31], # Double-pane, solar-control low-E, wood or vinyl frame
-               [false, nil, 2, 'low_e_solar_control', 'gas'] => [0.65, 0.31], # Double-pane, solar-control low-E, argon gas fill, wood or vinyl frame
-               [false, nil, 3, 'low_e_insulating', 'gas'] => [0.47, 0.31] }[key] # Triple-pane, insulating low-E, argon gas fill, wood or vinyl frame
-    else
-      fail 'Unexpected type.'
-    end
-    return vals if not vals.nil?
-
-    fail "Could not lookup UFactor and SHGC for #{type.downcase} '#{window_or_skylight.id}'."
-  end
-
-  # TODO
-  #
   # @return [TODO] TODO
   def self.get_roof_color_and_solar_absorptance_map
     return { # asphalt or fiberglass shingles
@@ -2125,13 +1974,14 @@ module Constructions
   # @return [TODO] TODO
   def self.create_insulation_material(model, name, rvalue)
     rigid_mat = BaseMaterial.InsulationRigid
-    mat = OpenStudio::Model::StandardOpaqueMaterial.new(model)
-    mat.setName(name)
-    mat.setRoughness('Rough')
-    mat.setThickness(UnitConversions.convert(rvalue * rigid_mat.k_in, 'in', 'm'))
-    mat.setConductivity(UnitConversions.convert(rigid_mat.k_in, 'Btu*in/(hr*ft^2*R)', 'W/(m*K)'))
-    mat.setDensity(UnitConversions.convert(rigid_mat.rho, 'lbm/ft^3', 'kg/m^3'))
-    mat.setSpecificHeat(UnitConversions.convert(rigid_mat.cp, 'Btu/(lbm*R)', 'J/(kg*K)'))
+    mat = Model.add_opaque_material(
+      model,
+      name: name,
+      thickness: UnitConversions.convert(rvalue * rigid_mat.k_in, 'in', 'm'),
+      conductivity: UnitConversions.convert(rigid_mat.k_in, 'Btu*in/(hr*ft^2*R)', 'W/(m*K)'),
+      density: UnitConversions.convert(rigid_mat.rho, 'lbm/ft^3', 'kg/m^3'),
+      specific_heat: UnitConversions.convert(rigid_mat.cp, 'Btu/(lbm*R)', 'J/(kg*K)')
+    )
     return mat
   end
 
@@ -2251,9 +2101,12 @@ module Constructions
       if shading_schedules[sf_values].nil?
         sch_name = "trans schedule winter=#{sf_winter} summer=#{sf_summer}"
         if sf_values.flatten.uniq.size == 1
-          sf_sch = OpenStudio::Model::ScheduleConstant.new(model)
-          sf_sch.setValue(sf_values[0][0])
-          sf_sch.setName(sch_name)
+          sf_sch = Model.add_schedule_constant(
+            model,
+            name: sch_name,
+            value: sf_values[0][0],
+            limits: EPlus::ScheduleTypeLimitsFraction
+          )
         else
           sf_sch = HourlyByDaySchedule.new(model, sch_name, sf_values, sf_values, EPlus::ScheduleTypeLimitsFraction, false).schedule
         end
@@ -3034,9 +2887,11 @@ class Construction
     materials = construct_materials(model)
 
     # Create OpenStudio construction and assign to surface
-    constr = OpenStudio::Model::Construction.new(model)
-    constr.setName(@name)
-    constr.setLayers(materials)
+    constr = Model.add_construction(
+      model,
+      name: @name,
+      layers: materials
+    )
     revconstr = nil
 
     # Assign constructions to surfaces
@@ -3267,53 +3122,24 @@ class Construction
   # @param material [TODO] TODO
   # @return [TODO] TODO
   def create_os_material(model, material)
-    name = material.name
-    tolerance = 0.0001
     if material.is_a? GlazingMaterial
-      # Material already exists?
-      model.getSimpleGlazings.each do |mat|
-        next if !mat.name.to_s.start_with?(material.name)
-        next if (mat.uFactor - UnitConversions.convert(material.ufactor, 'Btu/(hr*ft^2*F)', 'W/(m^2*K)')).abs > tolerance
-        next if (mat.solarHeatGainCoefficient - material.shgc).abs > tolerance
-
-        return mat
-      end
-
-      # New material
-      mat = OpenStudio::Model::SimpleGlazing.new(model)
-      mat.setName(name)
-      mat.setUFactor(UnitConversions.convert(material.ufactor, 'Btu/(hr*ft^2*F)', 'W/(m^2*K)'))
-      mat.setSolarHeatGainCoefficient(material.shgc)
+      mat = Model.add_simple_glazing(
+        model,
+        name: material.name,
+        ufactor: UnitConversions.convert(material.ufactor, 'Btu/(hr*ft^2*F)', 'W/(m^2*K)'),
+        shgc: material.shgc
+      )
     else
-      # Material already exists?
-      model.getStandardOpaqueMaterials.each do |mat|
-        next if !mat.name.to_s.start_with?(material.name)
-        next if mat.roughness.downcase.to_s != 'rough'
-        next if (mat.thickness - UnitConversions.convert(material.thick_in, 'in', 'm')).abs > tolerance
-        next if (mat.conductivity - UnitConversions.convert(material.k, 'Btu/(hr*ft*R)', 'W/(m*K)')).abs > tolerance
-        next if (mat.density - UnitConversions.convert(material.rho, 'lbm/ft^3', 'kg/m^3')).abs > tolerance
-        next if (mat.specificHeat - UnitConversions.convert(material.cp, 'Btu/(lbm*R)', 'J/(kg*K)')).abs > tolerance
-        next if (mat.thermalAbsorptance - material.tAbs.to_f).abs > tolerance
-        next if (mat.solarAbsorptance - material.sAbs.to_f).abs > tolerance
-
-        return mat
-      end
-
-      # New material
-      mat = OpenStudio::Model::StandardOpaqueMaterial.new(model)
-      mat.setName(name)
-      mat.setRoughness('Rough')
-      mat.setThickness(UnitConversions.convert(material.thick_in, 'in', 'm'))
-      mat.setConductivity(UnitConversions.convert(material.k, 'Btu/(hr*ft*R)', 'W/(m*K)'))
-      mat.setDensity(UnitConversions.convert(material.rho, 'lbm/ft^3', 'kg/m^3'))
-      mat.setSpecificHeat(UnitConversions.convert(material.cp, 'Btu/(lbm*R)', 'J/(kg*K)'))
-      if not material.tAbs.nil?
-        mat.setThermalAbsorptance(material.tAbs)
-      end
-      if not material.sAbs.nil?
-        mat.setSolarAbsorptance(material.sAbs)
-        mat.setVisibleAbsorptance(material.sAbs)
-      end
+      mat = Model.add_opaque_material(
+        model,
+        name: material.name,
+        thickness: UnitConversions.convert(material.thick_in, 'in', 'm'),
+        conductivity: UnitConversions.convert(material.k, 'Btu/(hr*ft*R)', 'W/(m*K)'),
+        density: UnitConversions.convert(material.rho, 'lbm/ft^3', 'kg/m^3'),
+        specific_heat: UnitConversions.convert(material.cp, 'Btu/(lbm*R)', 'J/(kg*K)'),
+        thermal_abs: material.tAbs,
+        solar_abs: material.sAbs
+      )
     end
     return mat
   end

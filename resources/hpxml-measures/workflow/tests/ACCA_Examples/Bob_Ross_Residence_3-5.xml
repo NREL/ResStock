@@ -1175,22 +1175,29 @@
                   <DuctType>supply</DuctType>
                   <DuctInsulationRValue>8.0</DuctInsulationRValue>
                   <DuctLocation>attic - vented</DuctLocation>
-                  <DuctSurfaceArea>301.0</DuctSurfaceArea>
+                  <FractionDuctArea>1.0</FractionDuctArea>
                 </Ducts>
                 <Ducts>
                   <SystemIdentifier id='Ducts2'/>
                   <DuctType>return</DuctType>
                   <DuctInsulationRValue>8.0</DuctInsulationRValue>
                   <DuctLocation>attic - vented</DuctLocation>
-                  <DuctSurfaceArea>93.0</DuctSurfaceArea>
+                  <FractionDuctArea>1.0</FractionDuctArea>
                 </Ducts>
                 <extension>
                   <ManualJInputs>
                     <BlowerFanHeatBtuh>1707.0</BlowerFanHeatBtuh>
+                    <DefaultTableDuctLoad>
+                      <TableNumber>7C-R</TableNumber>
+                      <LookupFloorArea>2400.0</LookupFloorArea>
+                      <LeakageLevel>default sealed</LeakageLevel>
+                      <InsulationRValue>8.0</InsulationRValue>
+                    </DefaultTableDuctLoad>
                   </ManualJInputs>
                 </extension>
               </AirDistribution>
             </DistributionSystemType>
+            <ConditionedFloorAreaServed>4800.0</ConditionedFloorAreaServed>
           </HVACDistribution>
         </HVAC>
         <MechanicalVentilation>

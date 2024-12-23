@@ -102,7 +102,7 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
 
     # Require full annual simulation if PV
     if !(@hpxml_header.sim_begin_month == 1 && @hpxml_header.sim_begin_day == 1 && @hpxml_header.sim_end_month == 12 && @hpxml_header.sim_end_day == 31)
-      if @hpxml_buildings.select { |hpxml_bldg| !hpxml_bldg.pv_systems.empty? }.size > 0
+      if @hpxml_buildings.count { |hpxml_bldg| !hpxml_bldg.pv_systems.empty? } > 0
         warnings << 'A full annual simulation is required for calculating utility bills for homes with PV.'
       end
     end
@@ -179,7 +179,7 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
     @hpxml_header = hpxml.header
     @hpxml_buildings = hpxml.buildings
     if @hpxml_header.utility_bill_scenarios.has_detailed_electric_rates
-      uses_unit_multipliers = @hpxml_buildings.select { |hpxml_bldg| hpxml_bldg.building_construction.number_of_units > 1 }.size > 0
+      uses_unit_multipliers = @hpxml_buildings.count { |hpxml_bldg| hpxml_bldg.building_construction.number_of_units > 1 } > 0
       if uses_unit_multipliers || (@hpxml_buildings.size > 1 && hpxml.header.whole_sfa_or_mf_building_sim)
         return result
       end
@@ -203,9 +203,9 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
     has_fuel[HPXML::FuelTypeElectricity] = true
 
     # Has production
-    has_pv = @hpxml_buildings.select { |hpxml_bldg| !hpxml_bldg.pv_systems.empty? }.size > 0
+    has_pv = @hpxml_buildings.count { |hpxml_bldg| !hpxml_bldg.pv_systems.empty? } > 0
     has_battery = @model.getElectricLoadCenterStorageLiIonNMCBatterys.size > 0 # has modeled battery
-    has_generator = @hpxml_buildings.select { |hpxml_bldg| !hpxml_bldg.generators.empty? }.size > 0
+    has_generator = @hpxml_buildings.count { |hpxml_bldg| !hpxml_bldg.generators.empty? } > 0
 
     # Fuel outputs
     fuels.each do |(fuel_type, is_production), fuel|
@@ -270,7 +270,7 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
     @hpxml_header = hpxml.header
     @hpxml_buildings = hpxml.buildings
     if @hpxml_header.utility_bill_scenarios.has_detailed_electric_rates
-      uses_unit_multipliers = @hpxml_buildings.select { |hpxml_bldg| hpxml_bldg.building_construction.number_of_units > 1 }.size > 0
+      uses_unit_multipliers = @hpxml_buildings.count { |hpxml_bldg| hpxml_bldg.building_construction.number_of_units > 1 } > 0
       if uses_unit_multipliers
         runner.registerWarning('Cannot currently calculate utility bills based on detailed electric rates for an HPXML with unit multipliers.')
         return false
@@ -328,10 +328,10 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
       utility_rates, utility_bills = setup_utility_outputs()
 
       # Get PV monthly fee
-      monthly_fee = get_monthly_fee(utility_bill_scenario, @hpxml_buildings)
+      pv_monthly_fee = get_pv_monthly_fee(utility_bill_scenario, @hpxml_buildings)
 
       # Get utility rates
-      warnings = get_utility_rates(hpxml_path, fuels, utility_rates, utility_bill_scenario, monthly_fee, num_units)
+      warnings = get_utility_rates(hpxml_path, fuels, utility_rates, utility_bill_scenario, pv_monthly_fee, num_units)
       if register_warnings(runner, warnings)
         next
       end
@@ -352,26 +352,26 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
     return true
   end
 
-  # Get the monthly grid connection fee.
+  # Get the PV monthly grid connection fee.
   #
   # @param bill_scenario [HPXML::UtilityBillScenario] HPXML Utility Bill Scenario object
   # @param hpxml_buildings [HPXML::Buildings] HPXML Buildings object
   # @return [Double] the sum of the monthly grid connection fees ($) across HPXML Buildings
-  def get_monthly_fee(bill_scenario, hpxml_buildings)
-    monthly_fee = 0.0
+  def get_pv_monthly_fee(bill_scenario, hpxml_buildings)
+    pv_monthly_fee = 0.0
     if not bill_scenario.pv_monthly_grid_connection_fee_dollars_per_kw.nil?
       hpxml_buildings.each do |hpxml_bldg|
         hpxml_bldg.pv_systems.each do |pv_system|
           max_power_output_kW = UnitConversions.convert(pv_system.max_power_output, 'W', 'kW')
-          monthly_fee += bill_scenario.pv_monthly_grid_connection_fee_dollars_per_kw * max_power_output_kW
-          monthly_fee *= hpxml_bldg.building_construction.number_of_units if !hpxml_bldg.building_construction.number_of_units.nil?
+          pv_monthly_fee += bill_scenario.pv_monthly_grid_connection_fee_dollars_per_kw * max_power_output_kW
+          pv_monthly_fee *= hpxml_bldg.building_construction.number_of_units if !hpxml_bldg.building_construction.number_of_units.nil?
         end
       end
     elsif not bill_scenario.pv_monthly_grid_connection_fee_dollars.nil?
-      monthly_fee = bill_scenario.pv_monthly_grid_connection_fee_dollars
+      pv_monthly_fee = bill_scenario.pv_monthly_grid_connection_fee_dollars
     end
 
-    return monthly_fee
+    return pv_monthly_fee
   end
 
   # Get monthly timestamps for reporting.
@@ -535,20 +535,22 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
   # @param fuels [Hash] Fuel type, is_production => Fuel object
   # @param utility_rates [Hash] Fuel Type => UtilityRate object
   # @param bill_scenario [HPXML::UtilityBillScenario] HPXML Utility Bill Scenario object
-  # @param monthly_fee [Double] the sum of the monthly grid connection fees ($) across HPXML Buildings
+  # @param pv_monthly_fee [Double] the sum of the monthly grid connection fees ($) across HPXML Buildings
   # @param num_units [Integer] total number of units represented by the HPXML file
   # @return [Array<String>] array of warnings
-  def get_utility_rates(hpxml_path, fuels, utility_rates, bill_scenario, monthly_fee, num_units = 1)
+  def get_utility_rates(hpxml_path, fuels, utility_rates, bill_scenario, pv_monthly_fee, num_units = 1)
     warnings = []
     utility_rates.each do |fuel_type, rate|
       next if fuels[[fuel_type, false]].timeseries.sum == 0
 
       if fuel_type == FT::Elec
         if bill_scenario.elec_tariff_filepath.nil?
-          rate.fixedmonthlycharge = bill_scenario.elec_fixed_charge
-          rate.flatratebuy = bill_scenario.elec_marginal_rate
+          rate.fixed_charge_monthly = bill_scenario.elec_fixed_charge
+          rate.flat_rate = bill_scenario.elec_marginal_rate
         else
           require 'json'
+
+          tariff_name = File.basename(bill_scenario.elec_tariff_filepath)
 
           filepath = FilePath.check_path(bill_scenario.elec_tariff_filepath,
                                          File.dirname(hpxml_path),
@@ -558,56 +560,54 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
           tariff = tariff[:items][0]
           fields = tariff.keys
 
-          rate.fixedmonthlycharge = 0.0
-          if fields.include?(:fixedchargeunits)
+          rate.fixed_charge_monthly = 0.0
+          rate.fixed_charge_daily = 0.0
+          if fields.include?(:fixedchargeunits) && tariff[:fixedchargefirstmeter].to_f > 0
             if tariff[:fixedchargeunits] == '$/month'
-              rate.fixedmonthlycharge += tariff[:fixedchargefirstmeter] if fields.include?(:fixedchargefirstmeter)
-              rate.fixedmonthlycharge += tariff[:fixedchargeeaaddl] if fields.include?(:fixedchargeeaaddl)
+              rate.fixed_charge_monthly += tariff[:fixedchargefirstmeter].to_f
+            elsif tariff[:fixedchargeunits] == '$/day'
+              rate.fixed_charge_daily += tariff[:fixedchargefirstmeter].to_f
             else
-              warnings << 'Fixed charge units must be $/month.'
+              warnings << "#{tariff_name}: Unsupported fixed charge units (#{tariff[:fixedchargeunits]}); utility bills will not be calculated."
             end
           end
 
-          if fields.include?(:minchargeunits)
+          if fields.include?(:minchargeunits) && tariff[:mincharge].to_f > 0
             if tariff[:minchargeunits] == '$/month'
-              rate.minmonthlycharge = tariff[:mincharge] if fields.include?(:mincharge)
+              rate.min_charge_monthly = tariff[:mincharge].to_f
             elsif tariff[:minchargeunits] == '$/year'
-              rate.minannualcharge = tariff[:mincharge] if fields.include?(:mincharge)
+              rate.min_charge_annual = tariff[:mincharge].to_f
             else
-              warnings << 'Min charge units must be either $/month or $/year.'
+              warnings << "#{tariff_name}: Unsupported min charge units (#{tariff[:minchargeunits]}); utility bills will not be calculated."
             end
           end
 
           if fields.include?(:realtimepricing)
-            rate.realtimeprice = tariff[:realtimepricing]
+            rate.real_time_prices = tariff[:realtimepricing]
 
           else
             if !fields.include?(:energyweekdayschedule) || !fields.include?(:energyweekendschedule) || !fields.include?(:energyratestructure)
-              warnings << 'Tariff file must contain energyweekdayschedule, energyweekendschedule, and energyratestructure fields.'
+              warnings << "#{tariff_name}: Tariff file must contain energyweekdayschedule, energyweekendschedule, and energyratestructure fields; utility bills will not be calculated."
             end
 
             if fields.include?(:demandweekdayschedule) || fields.include?(:demandweekendschedule) || fields.include?(:demandratestructure) || fields.include?(:flatdemandstructure)
-              warnings << 'Demand charges are not currently supported when calculating detailed utility bills.'
+              warnings << "#{tariff_name}: Demand charges are not currently supported; utility bills will not be calculated."
             end
 
-            rate.energyratestructure = tariff[:energyratestructure]
-            rate.energyweekdayschedule = tariff[:energyweekdayschedule]
-            rate.energyweekendschedule = tariff[:energyweekendschedule]
+            rate.energy_rate_structure = tariff[:energyratestructure]
+            rate.energy_weekday_schedule = tariff[:energyweekdayschedule]
+            rate.energy_weekend_schedule = tariff[:energyweekendschedule]
 
-            if rate.energyratestructure.collect { |r| r.collect { |s| s.keys.include?(:rate) } }.flatten.any? { |t| !t }
-              warnings << 'Every tier must contain a rate.'
+            if rate.energy_rate_structure.collect { |r| r.collect { |s| !s.keys.include?(:rate) } }.flatten.any?
+              warnings << "#{tariff_name}: Every tier must contain a rate; utility bills will not be calculated."
             end
 
-            if rate.energyratestructure.collect { |r| r.collect { |s| s.keys } }.flatten.uniq.include?(:sell)
-              warnings << 'No tier may contain a sell key.'
+            if rate.energy_rate_structure.collect { |r| r.collect { |s| s.keys } }.flatten.uniq.include?(:sell)
+              warnings << "#{tariff_name}: Tariffs with sell rates are not currently supported; utility bills will not be calculated."
             end
 
-            if rate.energyratestructure.collect { |r| r.collect { |s| s.keys.include?(:unit) } }.flatten.any? { |t| !t }
-              warnings << 'Every tier must contain a unit'
-            end
-
-            if rate.energyratestructure.collect { |r| r.collect { |s| s[:unit] == 'kWh' } }.flatten.any? { |t| !t }
-              warnings << 'All rates must be in units of kWh.'
+            if rate.energy_rate_structure.collect { |r| r.collect { |s| s[:unit] != 'kWh' && s.keys.include?(:max) } }.flatten.any?
+              warnings << "#{tariff_name}: Only max usage units of kWh are currently supported; utility bills will not be calculated."
             end
           end
         end
@@ -619,32 +619,33 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
         # Feed-In Tariff
         rate.feed_in_tariff_rate = bill_scenario.pv_feed_in_tariff_rate if bill_scenario.pv_compensation_type == HPXML::PVCompensationTypeFeedInTariff
       elsif fuel_type == FT::Gas
-        rate.fixedmonthlycharge = bill_scenario.natural_gas_fixed_charge
-        rate.flatratebuy = bill_scenario.natural_gas_marginal_rate
+        rate.fixed_charge_monthly = bill_scenario.natural_gas_fixed_charge
+        rate.flat_rate = bill_scenario.natural_gas_marginal_rate
       elsif fuel_type == FT::Oil
-        rate.fixedmonthlycharge = bill_scenario.fuel_oil_fixed_charge
-        rate.flatratebuy = bill_scenario.fuel_oil_marginal_rate
+        rate.fixed_charge_monthly = bill_scenario.fuel_oil_fixed_charge
+        rate.flat_rate = bill_scenario.fuel_oil_marginal_rate
       elsif fuel_type == FT::Propane
-        rate.fixedmonthlycharge = bill_scenario.propane_fixed_charge
-        rate.flatratebuy = bill_scenario.propane_marginal_rate
+        rate.fixed_charge_monthly = bill_scenario.propane_fixed_charge
+        rate.flat_rate = bill_scenario.propane_marginal_rate
       elsif fuel_type == FT::WoodCord
-        rate.fixedmonthlycharge = bill_scenario.wood_fixed_charge
-        rate.flatratebuy = bill_scenario.wood_marginal_rate
+        rate.fixed_charge_monthly = bill_scenario.wood_fixed_charge
+        rate.flat_rate = bill_scenario.wood_marginal_rate
       elsif fuel_type == FT::WoodPellets
-        rate.fixedmonthlycharge = bill_scenario.wood_pellets_fixed_charge
-        rate.flatratebuy = bill_scenario.wood_pellets_marginal_rate
+        rate.fixed_charge_monthly = bill_scenario.wood_pellets_fixed_charge
+        rate.flat_rate = bill_scenario.wood_pellets_marginal_rate
       elsif fuel_type == FT::Coal
-        rate.fixedmonthlycharge = bill_scenario.coal_fixed_charge
-        rate.flatratebuy = bill_scenario.coal_marginal_rate
+        rate.fixed_charge_monthly = bill_scenario.coal_fixed_charge
+        rate.flat_rate = bill_scenario.coal_marginal_rate
       end
-      rate.fixedmonthlycharge *= num_units if !rate.fixedmonthlycharge.nil?
+      rate.fixed_charge_monthly *= num_units if !rate.fixed_charge_monthly.nil?
+      rate.fixed_charge_daily *= num_units if !rate.fixed_charge_daily.nil?
 
-      warnings << "Could not find a marginal #{fuel_type} rate." if rate.flatratebuy.nil?
+      warnings << "Could not find a marginal #{fuel_type} rate." if rate.flat_rate.nil?
 
       # Grid connection fee
       next unless fuel_type == FT::Elec
 
-      rate.fixedmonthlycharge += monthly_fee
+      rate.fixed_charge_monthly += pv_monthly_fee
     end
     return warnings
   end

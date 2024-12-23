@@ -1358,22 +1358,22 @@ class BuildResidentialHPXMLTest < Minitest::Test
     # check warnings/errors
     if not expected_errors.nil?
       expected_errors.each do |expected_error|
-        if runner.result.stepErrors.select { |s| s.include?(expected_error) }.size <= 0
+        if runner.result.stepErrors.count { |s| s.include?(expected_error) } <= 0
           runner.result.stepErrors.each do |s|
             puts "ERROR: #{s}"
           end
         end
-        assert(runner.result.stepErrors.select { |s| s.include?(expected_error) }.size > 0)
+        assert(runner.result.stepErrors.count { |s| s.include?(expected_error) } > 0)
       end
     end
     if not expected_warnings.nil?
       expected_warnings.each do |expected_warning|
-        if runner.result.stepWarnings.select { |s| s.include?(expected_warning) }.size <= 0
+        if runner.result.stepWarnings.count { |s| s.include?(expected_warning) } <= 0
           runner.result.stepWarnings.each do |s|
             puts "WARNING: #{s}"
           end
         end
-        assert(runner.result.stepWarnings.select { |s| s.include?(expected_warning) }.size > 0)
+        assert(runner.result.stepWarnings.count { |s| s.include?(expected_warning) } > 0)
       end
     end
   end

@@ -327,13 +327,6 @@
               <HeatingCapacity>36000.0</HeatingCapacity>
               <CoolingCapacity>0.0</CoolingCapacity>
               <CoolingSensibleHeatFraction>0.73</CoolingSensibleHeatFraction>
-              <BackupType>integrated</BackupType>
-              <BackupSystemFuel>electricity</BackupSystemFuel>
-              <BackupAnnualHeatingEfficiency>
-                <Units>Percent</Units>
-                <Value>1.0</Value>
-              </BackupAnnualHeatingEfficiency>
-              <BackupHeatingCapacity>36000.0</BackupHeatingCapacity>
               <FractionHeatLoadServed>1.0</FractionHeatLoadServed>
               <FractionCoolLoadServed>0.0</FractionCoolLoadServed>
               <AnnualCoolingEfficiency>
@@ -345,7 +338,7 @@
                 <Value>3.6</Value>
               </AnnualHeatingEfficiency>
               <extension>
-                <PumpPowerWattsPerTon>30.0</PumpPowerWattsPerTon>
+                <PumpPowerWattsPerTon>100.0</PumpPowerWattsPerTon>
               </extension>
             </HeatPump>
           </HVACPlant>

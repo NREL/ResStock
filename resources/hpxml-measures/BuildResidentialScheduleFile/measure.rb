@@ -259,7 +259,7 @@ class BuildResidentialScheduleFile < OpenStudio::Measure::ModelMeasure
   # @param weather [WeatherFile] Weather object containing EPW information
   # @param args [Hash] Map of :argument_name => value
   def get_generator_inputs(hpxml_bldg, weather, args)
-    state_code = HPXMLDefaults.get_default_state_code(hpxml_bldg.state_code, weather)
+    state_code = Defaults.get_state_code(hpxml_bldg.state_code, weather)
     if Constants::StateCodesMap.keys.include?(state_code)
       args[:state] = state_code
     else
@@ -275,9 +275,9 @@ class BuildResidentialScheduleFile < OpenStudio::Measure::ModelMeasure
     end
     args[:geometry_num_occupants] = Float(Integer(args[:geometry_num_occupants]))
 
-    args[:time_zone_utc_offset] = HPXMLDefaults.get_default_time_zone(hpxml_bldg.time_zone_utc_offset, weather)
-    args[:latitude] = HPXMLDefaults.get_default_latitude(hpxml_bldg.latitude, weather)
-    args[:longitude] = HPXMLDefaults.get_default_longitude(hpxml_bldg.longitude, weather)
+    args[:time_zone_utc_offset] = Defaults.get_time_zone(hpxml_bldg.time_zone_utc_offset, weather)
+    args[:latitude] = Defaults.get_latitude(hpxml_bldg.latitude, weather)
+    args[:longitude] = Defaults.get_longitude(hpxml_bldg.longitude, weather)
   end
 end
 
