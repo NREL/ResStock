@@ -10,7 +10,7 @@ weather_files_path: kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIPS
 # weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
 
 sampler:
-  type: residential_quota_downselect
+  type: residential_quota
   args:
     n_datapoints: 1000
 
