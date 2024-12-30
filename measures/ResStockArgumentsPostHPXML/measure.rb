@@ -34,7 +34,7 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
     args << arg
 
     # Add args for flexibility inputs. Use hours format for the duration and minutes for the random offset. Offsets are degree F.
-    arg = OpenStudio::Measure::OSArgument.makeIntegerArgument('loadflex_peak_duration_hours', false)
+    arg = OpenStudio::Measure::OSArgument.makeDoubleArgument('loadflex_peak_duration_hours', false)
     arg.setDisplayName('Load Flexibility: Peak Duration (hours)')
     arg.setDescription('Duration of the peak period in hours.')
     arg.setDefaultValue(0)
@@ -46,7 +46,7 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
     arg.setDefaultValue(0)
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument.makeIntegerArgument('loadflex_pre_peak_duration_hours', false)
+    arg = OpenStudio::Measure::OSArgument.makeDoubleArgument('loadflex_pre_peak_duration_hours', false)
     arg.setDisplayName('Load Flexibility: Pre-Peak Duration (hours)')
     arg.setDescription('Duration of the pre-peak period in hours.')
     arg.setDefaultValue(0)
@@ -61,7 +61,7 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
     arg = OpenStudio::Measure::OSArgument.makeIntegerArgument('loadflex_random_shift_minutes', false)
     arg.setDisplayName('Load Flexibility: Random Shift (minutes)')
     arg.setDescription('Number of minutes to randomly shift the peak period. If minutes less than timestep, will be assumed to be 0.')
-    arg.setDefaultValue(30)
+    arg.setDefaultValue(0)
     args << arg
 
     arg = OpenStudio::Measure::OSArgument::makeStringArgument('output_csv_path', false)
@@ -154,9 +154,9 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
     max_random_shift_steps = (args[:loadflex_random_shift_minutes] / minutes_per_step).to_i
     random_shift_steps = rand(-max_random_shift_steps..max_random_shift_steps)
     FlexibilityInputs.new(
-      peak_duration_steps: args[:loadflex_peak_duration_hours] * 60 / minutes_per_step,
+      peak_duration_steps: (args[:loadflex_peak_duration_hours] * 60 / minutes_per_step).to_i,
       peak_offset: args[:loadflex_peak_offset],
-      pre_peak_duration_steps: args[:loadflex_pre_peak_duration_hours] * 60 / minutes_per_step,
+      pre_peak_duration_steps: (args[:loadflex_pre_peak_duration_hours] * 60 / minutes_per_step).to_i,
       pre_peak_offset: args[:loadflex_pre_peak_offset],
       random_shift_steps: random_shift_steps
     )
