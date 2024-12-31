@@ -14,7 +14,7 @@ baseline:
 sampler:
   type: residential_quota
   args:
-    n_datapoints: 10 # For CI
+    n_datapoints: 2 # For CI
     # n_datapoints: 550000 # For production run
 
 # NREL High Performance Computing machine configuration
@@ -112,12 +112,15 @@ workflow_generator:
     # Other reporting measures to run
     reporting_measures:
       - measure_dir_name: QOIReport
+      - measure_dir_name: ServerDirectoryCleanup # tack this on so we can save some disk space (when using debug: true)
 
     # Files to keep
     server_directory_cleanup:
-      retain_in_idf: false
+      retain_in_idf: true
       retain_schedules_csv: true
       retain_in_osm: true
+
+    debug: true
 
 ### -- Upgrades --
 # Standard Data Release - Residential
@@ -138,7 +141,7 @@ upgrades:
           - HVAC Shared Efficiencies|Fan Coil Heating and Cooling, Fuel
           - HVAC Shared Efficiencies|Fan Coil Cooling Only
         - and:
-          - Geometry Building Type Height|Multifamily with 5+ units, 8+ stories
+          - Geometry Building Type Height|Multi-Family with 5+ Units, 8+ Stories
 
     options:
         ### -- ENERGY STAR ASHP applies to all dwellings with ducts

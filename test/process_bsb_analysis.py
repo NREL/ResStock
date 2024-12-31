@@ -259,7 +259,7 @@ if __name__ == '__main__':
 
     df_nationals = []
     index_col = ['time']
-    drops = ['building_id,', 'timedst', 'timeutc']
+    drops = ['building_id', 'timedst', 'timeutc']
 
     dataframes = []
     directory = "project_national/sdr_upgrades_tmy3/parquet/timeseries"
