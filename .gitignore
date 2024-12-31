@@ -4,8 +4,14 @@
 /measures/UpgradeCosts/tests/*.xml
 /project_national/national_baseline
 /project_national/national_upgrades
-/project_national/sdr_upgrades_tmy3
+/project_national/sdr_upgrades_tmy3*
 /project_testing/testing_baseline
+/project_testing/testing_upgrades
+/national_baseline
+/national_upgrades
+/testing_baseline
+/testing_upgrades
+/sdr_upgrades_tmy3*
 /resources/buildstock.csv
 /project_*/**/*.csv
 !/project_*/resources/source_report.csv

@@ -31,8 +31,9 @@ jobs:
       - name: Upload formatted options_lookup 
         uses: actions/upload-artifact@v4
         with:
-          path: resources/options_lookup.tsv
           name: options_lookup
+          path: resources/options_lookup.tsv
+          if-no-files-found: error
 
   unit-tests:
     runs-on: ubuntu-22.04
@@ -69,14 +70,16 @@ jobs:
       - name: Upload feature samples
         uses: actions/upload-artifact@v4
         with:
-          path: resources/buildstock.csv
           name: feature_samples
+          path: resources/buildstock.csv
+          if-no-files-found: error
 
       - name: Store code coverage
         uses: actions/upload-artifact@v4
         with:
-          path: coverage
           name: coverage
+          path: coverage
+          if-no-files-found: error
 
   analysis-tests:
     runs-on: ubuntu-22.04
@@ -108,7 +111,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: resources
-          name: options_lookup
+          name: options_lookup          
 
       - name: Generate precomputed buildstocks
         run: |
@@ -121,18 +124,19 @@ jobs:
       - name: Upload precomputed buildstocks
         uses: actions/upload-artifact@v4
         with:
-          path: test/tests_yml_files/yml_precomputed*/buildstock*.csv
           name: precomputed_buildstocks
+          path: test/tests_yml_files/yml_precomputed*/buildstock*.csv
+          if-no-files-found: error
 
       - name: Upload run_analysis.rb results
         uses: actions/upload-artifact@v4
         with:
+          name: run_analysis_results_csvs
           path: |
             project_national/results-Baseline.csv
             project_testing/results-Baseline.csv
-            project_national/results-PackageUpgrade.csv
-            project_testing/results-PackageUpgrade.csv
-          name: run_analysis_results_csvs
+            sdr_upgrades_tmy3/results-EnvelopeOnlyLightTouchEnvelope.csv # TODO
+          if-no-files-found: error
 
   integration-tests:
     runs-on: ubuntu-22.04
@@ -186,19 +190,21 @@ jobs:
       - name: Upload integration results
         uses: actions/upload-artifact@v4
         with:
+          name: feature_results
           path: |
             baseline
             upgrades
-          name: feature_results
+          if-no-files-found: error
 
       - name: Upload buildstockbatch results
         uses: actions/upload-artifact@v4
         with:
+          name: buildstockbatch_results_csvs
           path: |
             project_national/national_baseline/results_csvs/results_up00.csv
             project_testing/testing_baseline/results_csvs/results_up00.csv
-            project_national/sdr_upgrades_tmy3/results_csvs/results_up02.csv
-          name: buildstockbatch_results_csvs
+            project_national/sdr_upgrades_tmy3/results_csvs/results_up016.csv
+            if-no-files-found: error
 
       - name: Run tests
         run: |
@@ -246,8 +252,9 @@ jobs:
       - name: Upload base results
         uses: actions/upload-artifact@v4
         with:
-          path: test/base_results
           name: base_results
+          path: test/base_results
+          if-no-files-found: error
 
       - uses: actions/checkout@v4
         with:
@@ -301,8 +308,9 @@ jobs:
       - name: Upload comparisons
         uses: actions/upload-artifact@v4
         with:
-          path: test/base_results/comparisons
           name: comparisons
+          path: test/base_results/comparisons
+          if-no-files-found: error
 
   update-results:
     runs-on: ubuntu-22.04
@@ -356,6 +364,7 @@ jobs:
         with:
           name: documentation
           path: docs/read_the_docs/_build/html/
+          if-no-files-found: error
 
       - name: Commit latest results
         shell: bash        
