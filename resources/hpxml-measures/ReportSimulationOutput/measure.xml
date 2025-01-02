@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>report_simulation_output</name>
   <uid>df9d170c-c21a-4130-866d-0d46b06073fd</uid>
-  <version_id>45020aa1-777a-42a7-a2c4-dc502713e6e2</version_id>
-  <version_modified>2024-12-11T00:56:32Z</version_modified>
+  <version_id>14bebc33-9ebc-45a1-aa06-d05fb1979ac5</version_id>
+  <version_modified>2024-12-31T04:53:50Z</version_modified>
   <xml_checksum>9BF1E6AC</xml_checksum>
   <class_name>ReportSimulationOutput</class_name>
   <display_name>HPXML Simulation Output Report</display_name>
@@ -324,25 +324,6 @@
       </choices>
     </argument>
     <argument>
-      <name>include_annual_vehicle_outputs</name>
-      <display_name>Generate Annual Output: Vehicles</display_name>
-      <description>Generates annual vehicle outputs.</description>
-      <type>Boolean</type>
-      <required>false</required>
-      <model_dependent>false</model_dependent>
-      <default_value>true</default_value>
-      <choices>
-        <choice>
-          <value>true</value>
-          <display_name>true</display_name>
-        </choice>
-        <choice>
-          <value>false</value>
-          <display_name>false</display_name>
-        </choice>
-      </choices>
-    </argument>
-    <argument>
       <name>timeseries_frequency</name>
       <display_name>Timeseries Reporting Frequency</display_name>
       <description>The frequency at which to report timeseries output data. Using 'none' will disable timeseries outputs.</description>
@@ -643,25 +624,6 @@
       <name>include_timeseries_resilience</name>
       <display_name>Generate Timeseries Output: Resilience</display_name>
       <description>Generates timeseries resilience outputs.</description>
-      <type>Boolean</type>
-      <required>false</required>
-      <model_dependent>false</model_dependent>
-      <default_value>false</default_value>
-      <choices>
-        <choice>
-          <value>true</value>
-          <display_name>true</display_name>
-        </choice>
-        <choice>
-          <value>false</value>
-          <display_name>false</display_name>
-        </choice>
-      </choices>
-    </argument>
-    <argument>
-      <name>include_timeseries_vehicle_outputs</name>
-      <display_name>Generate Timeseries Output: Vehicles</display_name>
-      <description>Generates timeseries vehicle outputs.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -1574,6 +1536,13 @@
       <model_dependent>false</model_dependent>
     </output>
     <output>
+      <name>unmet_hours_driving_hr</name>
+      <display_name>unmet_hours_driving_hr</display_name>
+      <short_name>unmet_hours_driving_hr</short_name>
+      <type>Double</type>
+      <model_dependent>false</model_dependent>
+    </output>
+    <output>
       <name>peak_electricity_winter_total_w</name>
       <display_name>peak_electricity_winter_total_w</display_name>
       <short_name>peak_electricity_winter_total_w</short_name>
@@ -1923,20 +1892,6 @@
       <type>Double</type>
       <model_dependent>false</model_dependent>
     </output>
-    <output>
-      <name>vehicle_electric_vehicle_discharging_m_btu</name>
-      <display_name>vehicle_electric_vehicle_discharging_m_btu</display_name>
-      <short_name>vehicle_electric_vehicle_discharging_m_btu</short_name>
-      <type>Double</type>
-      <model_dependent>false</model_dependent>
-    </output>
-    <output>
-      <name>vehicle_unmet_driving_hours_hr</name>
-      <display_name>vehicle_unmet_driving_hours_hr</display_name>
-      <short_name>vehicle_unmet_driving_hours_hr</short_name>
-      <type>Double</type>
-      <model_dependent>false</model_dependent>
-    </output>
   </outputs>
   <provenances />
   <tags>
@@ -1964,7 +1919,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>E6589B00</checksum>
+      <checksum>3F24E13F</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -1981,13 +1936,13 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>9127BF3C</checksum>
+      <checksum>3C91AA89</checksum>
     </file>
     <file>
       <filename>test_report_sim_output.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>5E6DA2B4</checksum>
+      <checksum>2D8F9B97</checksum>
     </file>
   </files>
 </measure>

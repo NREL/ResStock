@@ -4499,23 +4499,10 @@ The round trip efficiency of the lithium ion battery. If not provided, the OS-HP
 
 **Electric Vehicle: Present**
 
-Whether there is an electric vehicle battery present. Cannot be included if an electric vehicle is modeled as a plug load as specified by the `misc_plug_loads_vehicle_present` argument.
+Whether there is an electric vehicle battery present. If the `misc_plug_loads_vehicle_present` argument is true, this argument is superseded and vehicle charging will be modeled as a plug load only.
 
 - **Name:** ``ev_battery_present``
 - **Type:** ``Boolean``
-
-- **Required:** ``false``
-
-<br/>
-
-**Electric Vehicle: Rated Battery Power Output**
-
-The rated power output of the EV battery. If not provided, the OS-HPXML default is used.
-
-- **Name:** ``ev_battery_discharge_power``
-- **Type:** ``Double``
-
-- **Units:** ``W``
 
 - **Required:** ``false``
 
@@ -5654,7 +5641,7 @@ Multiplier on the well pump energy usage that can reflect, e.g., high/low usage 
 
 **Misc Plug Loads: Vehicle Present**
 
-Whether there is an electric vehicle. Cannot be included if an electric vehicle is modeled as a battery as specified by the `ev_battery_present` argument.
+Whether there is an electric vehicle. Specifying this argument will model EV charging as a plug load and take precendence over the `ev_battery_present` argument.
 
 - **Name:** ``misc_plug_loads_vehicle_present``
 - **Type:** ``Boolean``

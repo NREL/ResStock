@@ -408,20 +408,6 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     if hpxml_header.apply_ashrae140_assumptions.nil?
       hpxml_header.apply_ashrae140_assumptions = false
     end
-
-    if not hpxml_bldg.building_occupancy.number_of_residents.nil?
-      # If zero occupants, ensure end uses of interest are zeroed out
-      if (hpxml_bldg.building_occupancy.number_of_residents == 0) && (not hpxml_header.apply_ashrae140_assumptions)
-        hpxml_header.unavailable_periods.add(column_name: 'Vacancy',
-                                             begin_month: hpxml_header.sim_begin_month,
-                                             begin_day: hpxml_header.sim_begin_day,
-                                             begin_hour: 0,
-                                             end_month: hpxml_header.sim_end_month,
-                                             end_day: hpxml_header.sim_end_day,
-                                             end_hour: 24,
-                                             natvent_availability: HPXML::ScheduleUnavailable)
-      end
-    end
   end
 end
 

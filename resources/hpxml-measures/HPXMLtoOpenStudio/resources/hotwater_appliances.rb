@@ -21,8 +21,8 @@ module HotWaterAndAppliances
     fixtures_usage_multiplier = hpxml_bldg.water_heating.water_fixtures_usage_multiplier
     conditioned_space = spaces[HPXML::LocationConditionedSpace]
     nbeds = hpxml_bldg.building_construction.number_of_bedrooms
-    nbeds_eq = hpxml_bldg.building_construction.additional_properties.equivalent_number_of_bedrooms
     n_occ = hpxml_bldg.building_occupancy.number_of_residents
+    unit_type = hpxml_bldg.building_construction.residential_facility_type
     eri_version = hpxml_header.eri_calculation_version
     unit_multiplier = hpxml_bldg.building_construction.number_of_units
 
@@ -56,7 +56,7 @@ module HotWaterAndAppliances
     # Clothes washer energy
     if not clothes_washer.nil?
       cw_space = Geometry.get_space_from_location(clothes_washer.location, spaces)
-      cw_annual_kwh, cw_frac_sens, cw_frac_lat, cw_gpd = calc_clothes_washer_energy_gpd(runner, eri_version, nbeds, clothes_washer, cw_space.nil?, n_occ)
+      cw_annual_kwh, cw_frac_sens, cw_frac_lat, cw_gpd = calc_clothes_washer_energy_gpd(runner, eri_version, nbeds, n_occ, clothes_washer, cw_space.nil?)
 
       # Create schedule
       cw_power_schedule = nil
@@ -98,7 +98,7 @@ module HotWaterAndAppliances
     # Clothes dryer energy
     if not clothes_dryer.nil?
       cd_space = Geometry.get_space_from_location(clothes_dryer.location, spaces)
-      cd_annual_kwh, cd_annual_therm, cd_frac_sens, cd_frac_lat = calc_clothes_dryer_energy(runner, eri_version, nbeds, clothes_dryer, clothes_washer, cd_space.nil?, n_occ)
+      cd_annual_kwh, cd_annual_therm, cd_frac_sens, cd_frac_lat = calc_clothes_dryer_energy(runner, eri_version, nbeds, n_occ, clothes_dryer, clothes_washer, cd_space.nil?)
 
       # Create schedule
       cd_schedule = nil
@@ -154,7 +154,7 @@ module HotWaterAndAppliances
     # Dishwasher energy
     if not dishwasher.nil?
       dw_space = Geometry.get_space_from_location(dishwasher.location, spaces)
-      dw_annual_kwh, dw_frac_sens, dw_frac_lat, dw_gpd = calc_dishwasher_energy_gpd(runner, eri_version, nbeds, dishwasher, dw_space.nil?, n_occ)
+      dw_annual_kwh, dw_frac_sens, dw_frac_lat, dw_gpd = calc_dishwasher_energy_gpd(runner, eri_version, nbeds, n_occ, dishwasher, dw_space.nil?)
 
       # Create schedule
       dw_power_schedule = nil
@@ -300,7 +300,7 @@ module HotWaterAndAppliances
     # Cooking Range energy
     if not cooking_range.nil?
       cook_space = Geometry.get_space_from_location(cooking_range.location, spaces)
-      cook_annual_kwh, cook_annual_therm, cook_frac_sens, cook_frac_lat = calc_range_oven_energy(runner, nbeds_eq, cooking_range, oven, cook_space.nil?)
+      cook_annual_kwh, cook_annual_therm, cook_frac_sens, cook_frac_lat = calc_range_oven_energy(runner, nbeds, n_occ, unit_type, cooking_range, oven, cook_space.nil?)
 
       # Create schedule
       cook_schedule = nil
@@ -390,7 +390,7 @@ module HotWaterAndAppliances
         wh_setpoint = Defaults.get_water_heater_temperature(eri_version) if wh_setpoint.nil? # using detailed schedules
         avg_setpoint_temp += wh_setpoint * water_heating_system.fraction_dhw_load_served
       end
-      daily_wh_inlet_temperatures = calc_water_heater_daily_inlet_temperatures(weather, nbeds_eq, hot_water_distribution, frac_low_flow_fixtures)
+      daily_wh_inlet_temperatures = calc_water_heater_daily_inlet_temperatures(weather, nbeds, n_occ, unit_type, hot_water_distribution, frac_low_flow_fixtures)
       daily_wh_inlet_temperatures_c = daily_wh_inlet_temperatures.map { |t| UnitConversions.convert(t, 'F', 'C') }
       daily_mw_fractions = calc_mixed_water_daily_fractions(daily_wh_inlet_temperatures, avg_setpoint_temp, t_mix)
 
@@ -589,12 +589,21 @@ module HotWaterAndAppliances
   # Calculates cooking range/oven annual energy use.
   #
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-  # @param nbeds_eq [Integer] Number of bedrooms (or equivalent bedrooms, as adjusted by the number of occupants) in the dwelling unit
+  # @param nbeds [Integer] Number of bedrooms in the dwelling unit
+  # @param n_occ [Double] Number of occupants in the dwelling unit
+  # @param unit_type [String] Type of dwelling unit (HXPML::ResidentialTypeXXX)
   # @param cooking_range [HPXML::CookingRange] The HPXML cooking range of interest
   # @param oven [HPXML::Oven] The HPXML oven of interest
   # @param is_outside [Boolean] Whether the appliance is located outside the dwelling unit
   # @return [Array<Double, Double, Double, Double>] Annual electricity use (kWh), annual fuel use (therm), sensible/latent fractions
-  def self.calc_range_oven_energy(runner, nbeds_eq, cooking_range, oven, is_outside = false)
+  def self.calc_range_oven_energy(runner, nbeds, n_occ, unit_type, cooking_range, oven, is_outside = false)
+    if n_occ == 0
+      # Operational calculation w/ zero occupants, zero out energy use
+      return 0.0, 0.0, 0.0, 0.0
+    end
+
+    nbeds_eq = Defaults.get_equivalent_nbeds(nbeds, n_occ, unit_type)
+
     if cooking_range.is_induction
       burner_ef = 0.91
     else
@@ -644,11 +653,16 @@ module HotWaterAndAppliances
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
+  # @param n_occ [Double] Number of occupants in the dwelling unit
   # @param dishwasher [HPXML::Dishwasher] The HPXML dishwasher of interest
   # @param is_outside [Boolean] Whether the appliance is located outside the dwelling unit
-  # @param n_occ [Double] Number of occupants in the dwelling unit
   # @return [Array<Double, Double, Double, Double>] Annual electricity use (kWh), sensible/latent fractions, hot water use (gal/day)
-  def self.calc_dishwasher_energy_gpd(runner, eri_version, nbeds, dishwasher, is_outside = false, n_occ = nil)
+  def self.calc_dishwasher_energy_gpd(runner, eri_version, nbeds, n_occ, dishwasher, is_outside = false)
+    if n_occ == 0
+      # Operational calculation w/ zero occupants, zero out energy use
+      return 0.0, 0.0, 0.0, 0.0
+    end
+
     if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2019A')
       if dishwasher.rated_annual_kwh.nil?
         dishwasher.rated_annual_kwh = calc_dishwasher_annual_kwh_from_ef(dishwasher.energy_factor)
@@ -725,12 +739,17 @@ module HotWaterAndAppliances
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
+  # @param n_occ [Double] Number of occupants in the dwelling unit
   # @param clothes_dryer [HPXML::ClothesDryer] The HPXML clothes dryer of interest
   # @param clothes_washer [HPXML::ClothesWasher] The related HPXML clothes washer, which affects dryer use
   # @param is_outside [Boolean] Whether the appliance is located outside the dwelling unit
-  # @param n_occ [Double] Number of occupants in the dwelling unit
   # @return [Array<Double, Double, Double, Double>] Annual electricity use (kWh), annual fuel use (therm), sensible/latent fractions
-  def self.calc_clothes_dryer_energy(runner, eri_version, nbeds, clothes_dryer, clothes_washer, is_outside = false, n_occ = nil)
+  def self.calc_clothes_dryer_energy(runner, eri_version, nbeds, n_occ, clothes_dryer, clothes_washer, is_outside = false)
+    if n_occ == 0
+      # Operational calculation w/ zero occupants, zero out energy use
+      return 0.0, 0.0, 0.0, 0.0
+    end
+
     if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2019A')
       if clothes_dryer.combined_energy_factor.nil?
         clothes_dryer.combined_energy_factor = calc_clothes_dryer_cef_from_ef(clothes_dryer.energy_factor)
@@ -827,11 +846,16 @@ module HotWaterAndAppliances
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
+  # @param n_occ [Double] Number of occupants in the dwelling unit
   # @param clothes_washer [HPXML::ClothesWasher] The HPXML clothes washer of interest
   # @param is_outside [Boolean] Whether the appliance is located outside the dwelling unit
-  # @param n_occ [Double] Number of occupants in the dwelling unit
   # @return [Array<Double, Double, Double, Double>] Annual electricity use (kWh), sensible/latent fractions, hot water use (gal/day)
-  def self.calc_clothes_washer_energy_gpd(runner, eri_version, nbeds, clothes_washer, is_outside = false, n_occ = nil)
+  def self.calc_clothes_washer_energy_gpd(runner, eri_version, nbeds, n_occ, clothes_washer, is_outside = false)
+    if n_occ == 0
+      # Operational calculation w/ zero occupants, zero out energy use
+      return 0.0, 0.0, 0.0, 0.0
+    end
+
     if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2019A')
       gas_h20 = 0.3914 # (gal/cyc) per (therm/y)
       elec_h20 = 0.0178 # (gal/cyc) per (kWh/y)
@@ -1056,11 +1080,19 @@ module HotWaterAndAppliances
   # there is a drain water heat recovery device.
   #
   # @param weather [WeatherFile] Weather object containing EPW information
-  # @param nbeds_eq [Integer] Number of bedrooms (or equivalent bedrooms, as adjusted by the number of occupants) in the dwelling unit
+  # @param nbeds [Integer] Number of bedrooms in the dwelling unit
+  # @param n_occ [Double] Number of occupants in the dwelling unit
+  # @param unit_type [String] Type of dwelling unit (HXPML::ResidentialTypeXXX)
   # @param hot_water_distribution [HPXML::HotWaterDistribution] The HPXML hot water distribution system of interest
   # @param frac_low_flow_fixtures [Double] The fraction of fixtures considered low-flow
   # @return [Array<Double>] Daily water heater inlet temperatures (F)
-  def self.calc_water_heater_daily_inlet_temperatures(weather, nbeds_eq, hot_water_distribution, frac_low_flow_fixtures)
+  def self.calc_water_heater_daily_inlet_temperatures(weather, nbeds, n_occ, unit_type, hot_water_distribution, frac_low_flow_fixtures)
+    if n_occ == 0
+      # Operational calculation w/ zero occupants
+      nbeds_eq = 0
+    else
+      nbeds_eq = Defaults.get_equivalent_nbeds(nbeds, n_occ, unit_type)
+    end
     wh_temps_daily = weather.data.MainsDailyTemps.dup
     if (not hot_water_distribution.dwhr_efficiency.nil?)
       # Per ANSI/RESNET/ICC 301

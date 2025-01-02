@@ -189,17 +189,6 @@ Generates annual resilience outputs.
 
 <br/>
 
-**Generate Annual Output: Vehicles**
-
-Generates annual vehicle outputs.
-
-- **Name:** ``include_annual_vehicle_outputs``
-- **Type:** ``Boolean``
-
-- **Required:** ``false``
-
-<br/>
-
 **Timeseries Reporting Frequency**
 
 The frequency at which to report timeseries output data. Using 'none' will disable timeseries outputs.
@@ -372,17 +361,6 @@ Generates timeseries weather data.
 Generates timeseries resilience outputs.
 
 - **Name:** ``include_timeseries_resilience``
-- **Type:** ``Boolean``
-
-- **Required:** ``false``
-
-<br/>
-
-**Generate Timeseries Output: Vehicles**
-
-Generates timeseries vehicle outputs.
-
-- **Name:** ``include_timeseries_vehicle_outputs``
 - **Type:** ``Boolean``
 
 - **Required:** ``false``
@@ -706,6 +684,8 @@ All possible measure outputs are listed below. Actual outputs depend on measure 
 
 - ``unmet_hours_cooling_hr``
 
+- ``unmet_hours_driving_hr``
+
 - ``peak_electricity_winter_total_w``
 
 - ``peak_electricity_summer_total_w``
@@ -805,9 +785,5 @@ All possible measure outputs are listed below. Actual outputs depend on measure 
 - ``hot_water_distribution_waste_gal``
 
 - ``resilience_battery_hr``
-
-- ``vehicle_electric_vehicle_discharging_m_btu``
-
-- ``vehicle_unmet_driving_hours_hr``
 
 

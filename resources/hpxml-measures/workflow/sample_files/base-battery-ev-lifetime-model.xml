@@ -518,7 +518,6 @@
                     <Units>kWh</Units>
                     <Value>80.0</Value>
                   </UsableCapacity>
-                  <RatedPowerOutput>6000.0</RatedPowerOutput>
                   <extension>
                     <LifetimeModel>KandlerSmith</LifetimeModel>
                   </extension>

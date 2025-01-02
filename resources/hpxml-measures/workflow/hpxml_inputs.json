@@ -1014,7 +1014,6 @@
     "parent_hpxml": "sample_files/base-battery-ev-no-charger.xml",
     "ev_battery_capacity": 100,
     "ev_battery_usable_capacity": 80,
-    "ev_battery_discharge_power": 6000,
     "ev_miles_per_year": 10000,
     "ev_hours_per_week": 14,
     "ev_energy_efficiency": 0.25,
@@ -1025,6 +1024,10 @@
   "sample_files/base-battery-ev-scheduled.xml": {
     "parent_hpxml": "sample_files/base-battery-ev.xml",
     "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/battery-ev.csv"
+  },
+  "sample_files/base-battery-ev-undercharged.xml": {
+    "parent_hpxml": "sample_files/base-battery-ev.xml",
+    "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/battery-ev-low-charge.csv"
   },
   "sample_files/base-battery-ev-lifetime-model.xml": {
     "parent_hpxml": "sample_files/base-battery-ev-scheduled.xml"
@@ -3736,10 +3739,6 @@
   "sample_files/base-residents-0.xml": {
     "parent_hpxml": "sample_files/base.xml",
     "geometry_unit_num_occupants": 0
-  },
-  "sample_files/base-residents-0-runperiod-1-month.xml": {
-    "parent_hpxml": "sample_files/base-residents-0.xml",
-    "simulation_control_run_period": "Feb 1 - Feb 28"
   },
   "sample_files/base-residents-1.xml": {
     "parent_hpxml": "sample_files/base.xml",

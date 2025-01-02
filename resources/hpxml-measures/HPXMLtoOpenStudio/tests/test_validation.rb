@@ -30,6 +30,7 @@ class HPXMLtoOpenStudioValidationTest < Minitest::Test
     File.delete(@tmp_hpxml_path) if File.exist? @tmp_hpxml_path
     File.delete(@tmp_csv_path) if File.exist? @tmp_csv_path
     FileUtils.rm_rf(@tmp_output_path)
+    File.delete(File.join(File.dirname(__FILE__), 'in.schedules.csv')) if File.exist? File.join(File.dirname(__FILE__), 'in.schedules.csv')
     File.delete(File.join(File.dirname(__FILE__), 'results_annual.csv')) if File.exist? File.join(File.dirname(__FILE__), 'results_annual.csv')
     File.delete(File.join(File.dirname(__FILE__), 'results_design_load_details.csv')) if File.exist? File.join(File.dirname(__FILE__), 'results_design_load_details.csv')
   end
@@ -1835,7 +1836,8 @@ class HPXMLtoOpenStudioValidationTest < Minitest::Test
                                                                                   "Both 'permanent_spa_heater' schedule file and monthly multipliers provided; the latter will be ignored."],
                               'schedule-file-and-weekday-weekend-multipliers-ev' => ["Both schedule file and weekday fractions provided for 'ev_battery_charging' and 'ev_battery_discharging'; weekday fractions will be ignored.",
                                                                                      "Both schedule file and weekend fractions provided for 'ev_battery_charging' and 'ev_battery_discharging'; weekend fractions will be ignored.",
-                                                                                     "Both schedule file and monthly multipliers provided for 'ev_battery_charging' and 'ev_battery_discharging'; monthly multipliers will be ignored."],
+                                                                                     "Both schedule file and monthly multipliers provided for 'ev_battery_charging' and 'ev_battery_discharging'; monthly multipliers will be ignored.",
+                                                                                     'Electric vehicle hours per week inputted (14.0) do not match the hours per week calculated from the discharging schedule (21.0). The inputted hours per week value will be ignored.'],
                               'schedule-file-and-refrigerators-freezer-coefficients' => ["Both 'refrigerator' schedule file and constant coefficients provided; the latter will be ignored.",
                                                                                          "Both 'refrigerator' schedule file and temperature coefficients provided; the latter will be ignored.",
                                                                                          "Both 'extra_refrigerator' schedule file and constant coefficients provided; the latter will be ignored.",

@@ -1284,6 +1284,10 @@ module HVAC
   # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
   # @return [nil]
   def self.apply_ceiling_fans(runner, model, spaces, weather, hpxml_bldg, hpxml_header, schedules_file)
+    if hpxml_bldg.building_occupancy.number_of_residents == 0
+      # Operational calculation w/ zero occupants, zero out energy use
+      return
+    end
     return if hpxml_bldg.ceiling_fans.size == 0
 
     ceiling_fan = hpxml_bldg.ceiling_fans[0]
@@ -1382,7 +1386,7 @@ module HVAC
     end
 
     if cooling_sch.nil?
-      clg_wd_setpoints, clg_we_setpoints = get_cooling_setpoints(hvac_control, has_ceiling_fan, year, weather, onoff_thermostat_ddb)
+      clg_wd_setpoints, clg_we_setpoints = get_cooling_setpoints(hpxml_bldg, hvac_control, has_ceiling_fan, year, weather, onoff_thermostat_ddb)
     else
       runner.registerWarning("Both '#{SchedulesFile::Columns[:CoolingSetpoint].name}' schedule file and cooling setpoint temperature provided; the latter will be ignored.") if !hvac_control.cooling_setpoint_temp.nil?
     end
@@ -1511,13 +1515,14 @@ module HVAC
 
   # TODO
   #
+  # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param [HPXML::HVACControl] The HPXML HVAC control of interest
   # @param has_ceiling_fan [TODO] TODO
   # @param year [Integer] the calendar year
   # @param weather [WeatherFile] Weather object containing EPW information
   # @param offset_db [Double] On-off thermostat deadband (F)
   # @return [TODO] TODO
-  def self.get_cooling_setpoints(hvac_control, has_ceiling_fan, year, weather, offset_db)
+  def self.get_cooling_setpoints(hpxml_bldg, hvac_control, has_ceiling_fan, year, weather, offset_db)
     num_days = Calendar.num_days_in_year(year)
 
     if hvac_control.weekday_cooling_setpoints.nil? || hvac_control.weekend_cooling_setpoints.nil?
@@ -1543,8 +1548,9 @@ module HVAC
       clg_we_setpoints = hvac_control.weekend_cooling_setpoints.split(',').map { |i| Float(i) }
       clg_we_setpoints = [clg_we_setpoints] * num_days
     end
+
     # Apply cooling setpoint offset due to ceiling fan?
-    if has_ceiling_fan
+    if has_ceiling_fan && hpxml_bldg.building_occupancy.number_of_residents != 0 # If operational calculation w/ zero occupants, exclude ceiling fan setpoint adjustment
       clg_ceiling_fan_offset = hvac_control.ceiling_fan_cooling_setpoint_temp_offset
       if not clg_ceiling_fan_offset.nil?
         months = Defaults.get_ceiling_fan_months(weather)

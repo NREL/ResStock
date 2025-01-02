@@ -236,7 +236,7 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
     end
     # Battery with no schedule
     hpxml_bldg.vehicles.each do |vehicle|
-      next unless vehicle.vehicle_type == Constants::ObjectTypeBatteryElectricVehicle
+      next unless vehicle.vehicle_type == HPXML::VehicleTypeBEV
       next unless hpxml_bldg.header.schedules_filepaths.empty?
       next unless not vehicle.ev_charger_idref.nil?
       next if message.include? 'Electric vehicle battery specified with no charging/discharging schedule provided; battery will not be modeled.'
@@ -245,7 +245,7 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
     end
     # Battery with no charger
     hpxml_bldg.vehicles.each do |vehicle|
-      next unless vehicle.vehicle_type == Constants::ObjectTypeBatteryElectricVehicle
+      next unless vehicle.vehicle_type == HPXML::VehicleTypeBEV
       next unless vehicle.ev_charger_idref.nil?
       next if message.include? 'Electric vehicle specified with no charger provided; battery will not be modeled.'
 
@@ -1314,15 +1314,11 @@ def _write_hers_hvac_results(all_results, test_results_csv)
   all_results = all_results.sort_by { |k, _v| k.downcase }.to_h
   hvac_energy = {}
   CSV.open(test_results_csv, 'w') do |csv|
-    csv << ['Test Case', 'HVAC (kWh or therm)', 'HVAC Fan (kWh)']
+    csv << ['Test Case', 'Heat/Cool Energy (MBtu)', 'Fan Energy (MBtu)']
     all_results.each do |xml, results|
       csv << [xml, results[0], results[1]]
       test_name = File.basename(xml, File.extname(xml))
-      if xml.include?('HVAC2a') || xml.include?('HVAC2b')
-        hvac_energy[test_name] = results[0] / 10.0 + results[1] / 293.08
-      else
-        hvac_energy[test_name] = results[0] + results[1]
-      end
+      hvac_energy[test_name] = results[0] + results[1]
     end
   end
   puts "Wrote results to #{test_results_csv}."
@@ -1335,20 +1331,11 @@ def _write_hers_dse_results(all_results, test_results_csv)
   all_results = all_results.sort_by { |k, _v| k.downcase }.to_h
   dhw_energy = {}
   CSV.open(test_results_csv, 'w') do |csv|
-    csv << ['Test Case', 'Heat/Cool (kWh or therm)', 'HVAC Fan (kWh)']
+    csv << ['Test Case', 'Heat/Cool Energy (MBtu)', 'Fan Energy (MBtu)']
     all_results.each do |xml, results|
-      next unless ['HVAC3a.xml', 'HVAC3e.xml'].include? xml
-
       csv << [xml, results[0], results[1]]
       test_name = File.basename(xml, File.extname(xml))
-      dhw_energy[test_name] = results[0] / 10.0 + results[1] / 293.08
-    end
-    all_results.each do |xml, results|
-      next if ['HVAC3a.xml', 'HVAC3e.xml'].include? xml
-
-      csv << [xml, results[0], results[1]]
-      test_name = File.basename(xml, File.extname(xml))
-      dhw_energy[test_name] = results[0] / 10.0 + results[1] / 293.08
+      dhw_energy[test_name] = results[0] + results[1]
     end
   end
   puts "Wrote results to #{test_results_csv}."
@@ -1361,10 +1348,10 @@ def _write_hers_hot_water_results(all_results, test_results_csv)
   all_results = all_results.sort_by { |k, _v| k.downcase }.to_h
   dhw_energy = {}
   CSV.open(test_results_csv, 'w') do |csv|
-    csv << ['Test Case', 'DHW Energy (therms)', 'Recirc Pump (kWh)']
+    csv << ['Test Case', 'DHW Energy (MBtu)', 'Pump Energy (MBtu)']
     all_results.each do |xml, result|
       wh_energy, recirc_energy = result
-      csv << [xml, (wh_energy * 10.0).round(1), (recirc_energy * 293.08).round(1)]
+      csv << [xml, wh_energy, recirc_energy]
       test_name = File.basename(xml, File.extname(xml))
       dhw_energy[test_name] = wh_energy + recirc_energy
     end
@@ -1383,15 +1370,15 @@ end
 
 def _get_simulation_hvac_energy_results(results, is_heat, is_electric_heat)
   if not is_heat
-    hvac = UnitConversions.convert(results["End Use: #{FT::Elec}: #{EUT::Cooling} (MBtu)"], 'MBtu', 'kwh').round(2)
-    hvac_fan = UnitConversions.convert(results["End Use: #{FT::Elec}: #{EUT::CoolingFanPump} (MBtu)"], 'MBtu', 'kwh').round(2)
+    hvac = results["End Use: #{FT::Elec}: #{EUT::Cooling} (MBtu)"].round(2)
+    hvac_fan = results["End Use: #{FT::Elec}: #{EUT::CoolingFanPump} (MBtu)"].round(2)
   else
     if is_electric_heat
-      hvac = UnitConversions.convert(results["End Use: #{FT::Elec}: #{EUT::Heating} (MBtu)"], 'MBtu', 'kwh').round(2)
+      hvac = results["End Use: #{FT::Elec}: #{EUT::Heating} (MBtu)"].round(2)
     else
-      hvac = UnitConversions.convert(results["End Use: #{FT::Gas}: #{EUT::Heating} (MBtu)"], 'MBtu', 'therm').round(2)
+      hvac = results["End Use: #{FT::Gas}: #{EUT::Heating} (MBtu)"].round(2)
     end
-    hvac_fan = UnitConversions.convert(results["End Use: #{FT::Elec}: #{EUT::HeatingFanPump} (MBtu)"], 'MBtu', 'kwh').round(2)
+    hvac_fan = results["End Use: #{FT::Elec}: #{EUT::HeatingFanPump} (MBtu)"].round(2)
   end
 
   assert_operator(hvac, :>, 0)

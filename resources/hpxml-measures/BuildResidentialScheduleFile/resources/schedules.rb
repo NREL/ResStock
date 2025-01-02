@@ -623,11 +623,11 @@ class ScheduleGenerator
     return true
   end
 
-  # TODO
+  # Aggregate array values by summing groups of elements.
   #
-  # @param array [TODO] TODO
-  # @param group_size [TODO] TODO
-  # @return [TODO] TODO
+  # @param array [Array] Array of values to aggregate
+  # @param group_size [Integer] Number of consecutive elements to sum together
+  # @return [Array] New array with values aggregated by group_size
   def aggregate_array(array, group_size)
     new_array_size = array.size / group_size
     new_array = [0] * new_array_size
@@ -637,12 +637,12 @@ class ScheduleGenerator
     return new_array
   end
 
-  # TODO
+  # Apply monthly schedule shifts based on weekday/weekend patterns.
   #
-  # @param array [TODO] TODO
-  # @param weekday_monthly_shift_dict [TODO] TODO
-  # @param weekend_monthly_shift_dict [TODO] TODO
-  # @return [TODO] TODO
+  # @param array [Array] Array of minute-level schedule values to shift
+  # @param weekday_monthly_shift_dict [Hash] Map of month name to number of minutes to shift weekday schedules
+  # @param weekend_monthly_shift_dict [Hash] Map of month name to number of minutes to shift weekend schedules
+  # @return [Array] New array with values shifted according to monthly patterns
   def apply_monthly_offsets(array:, weekday_monthly_shift_dict:, weekend_monthly_shift_dict:)
     month_strs = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     new_array = []
@@ -666,11 +666,11 @@ class ScheduleGenerator
     return new_array
   end
 
-  # TODO
+  # Read monthly schedule shift minutes from CSV file for a given state and day type.
   #
-  # @param resources_path [TODO] TODO
-  # @param daytype [TODO] TODO
-  # @return [TODO] TODO
+  # @param resources_path [String] Path to directory containing schedule shift CSV files
+  # @param daytype [String] Type of day ('weekday' or 'weekend') to get shifts for
+  # @return [Hash] Map of month name to number of minutes to shift schedules
   def read_monthly_shift_minutes(resources_path:, daytype:)
     shift_file = resources_path + "/#{daytype}/state_and_monthly_schedule_shift.csv"
     shifts = CSV.read(shift_file)
@@ -682,10 +682,10 @@ class ScheduleGenerator
     return monthly_shifts_dict
   end
 
-  # TODO
+  # Read appliance power distribution data from CSV files.
   #
-  # @param resources_path [TODO] TODO
-  # @return [TODO] TODO
+  # @param resources_path [String] Path to directory containing appliance power distribution CSV files
+  # @return [Hash] Map of appliance name to array containing duration and consumption distributions
   def read_appliance_power_dist(resources_path:)
     activity_names = ['clothes_washer', 'dishwasher', 'clothes_dryer', 'cooking']
     power_dist_map = {}
@@ -701,11 +701,11 @@ class ScheduleGenerator
     return power_dist_map
   end
 
-  # TODO
+  # Sample the duration and power consumption for an appliance event.
   #
-  # @param power_dist_map [TODO] TODO
-  # @param appliance_name [TODO] TODO
-  # @return [TODO] TODO
+  # @param power_dist_map [Hash] Map of appliance name to array containing duration and consumption distributions
+  # @param appliance_name [String] Name of the appliance to sample duration and power for
+  # @return [Array<Integer, Float>] Array containing [duration in 15-min intervals, average power in watts]
   def sample_appliance_duration_power(power_dist_map, appliance_name)
     # returns number number of 15-min interval the appliance runs, and the average 15-min power
     duration_vals, consumption_vals = power_dist_map[appliance_name]
@@ -725,10 +725,10 @@ class ScheduleGenerator
     return [duration, power]
   end
 
-  # TODO
+  # Read activity cluster size probability distributions from CSV files.
   #
-  # @param resources_path [TODO] TODO
-  # @return [TODO] TODO
+  # @param resources_path [String] Path to directory containing activity cluster size probability CSV files
+  # @return [Hash] Map of activity name to array containing cluster size probabilities
   def read_activity_cluster_size_probs(resources_path:)
     activity_names = ['hot_water_clothes_washer', 'hot_water_dishwasher', 'shower']
     cluster_size_prob_map = {}
@@ -741,10 +741,10 @@ class ScheduleGenerator
     return cluster_size_prob_map
   end
 
-  # TODO
+  # Read event duration probability distributions from CSV files.
   #
-  # @param resources_path [TODO] TODO
-  # @return [TODO] TODO
+  # @param resources_path [String] Path to directory containing event duration probability CSV files
+  # @return [Hash] Map of activity name to array containing durations and probabilities
   def read_event_duration_probs(resources_path:)
     activity_names = ['hot_water_clothes_washer', 'hot_water_dishwasher', 'shower']
     event_duration_probabilites_map = {}
@@ -758,10 +758,10 @@ class ScheduleGenerator
     return event_duration_probabilites_map
   end
 
-  # TODO
+  # Read activity duration probability distributions from CSV files.
   #
-  # @param resources_path [TODO] TODO
-  # @return [TODO] TODO
+  # @param resources_path [String] Path to directory containing activity duration probability CSV files
+  # @return [Hash] Map of activity name to array containing durations and probabilities
   def read_activity_duration_prob(resources_path:)
     cluster_types = ['0', '1', '2', '3']
     day_types = ['weekday', 'weekend']
@@ -784,35 +784,35 @@ class ScheduleGenerator
     return activity_duration_prob_map
   end
 
-  # TODO
+  # Sample the number of events in a cluster for a given activity type.
   #
-  # @param cluster_size_prob_map [TODO] TODO
-  # @param activity_type_name [TODO] TODO
-  # @return [TODO] TODO
+  # @param cluster_size_prob_map [Hash] Map of activity name to array of probabilities for different cluster sizes
+  # @param activity_type_name [String] Name of the activity type to sample cluster size for
+  # @return [Integer] Number of events in the cluster (1-based)
   def sample_activity_cluster_size(cluster_size_prob_map, activity_type_name)
     cluster_size_probabilities = cluster_size_prob_map[activity_type_name]
     return weighted_random(cluster_size_probabilities) + 1
   end
 
-  # TODO
+  # Sample a duration for a given event type based on its probability distribution.
   #
-  # @param duration_probabilites_map [TODO] TODO
-  # @param event_type [TODO] TODO
-  # @return [TODO] TODO
+  # @param duration_probabilites_map [Hash] Map of event type to array containing durations and probabilities
+  # @param event_type [String] Type of event to sample duration for (e.g. 'hot_water_clothes_washer')
+  # @return [Float] Duration in minutes for the sampled event
   def sample_event_duration(duration_probabilites_map, event_type)
     durations = duration_probabilites_map[event_type][0]
     probabilities = duration_probabilites_map[event_type][1]
     return durations[weighted_random(probabilities)]
   end
 
-  # TODO
+  # Sample a duration for an activity based on occupant type, activity type, day type and hour.
   #
-  # @param activity_duration_prob_map [TODO] TODO
-  # @param occ_type_id [TODO] TODO
-  # @param activity [TODO] TODO
-  # @param day_type [TODO] TODO
-  # @param hour [TODO] TODO
-  # @return [TODO] TODO
+  # @param activity_duration_prob_map [Hash] Map of activity parameters to arrays containing durations and probabilities
+  # @param occ_type_id [String] Occupant type ID (cluster type)
+  # @param activity [Integer] Activity state number (1=shower, 2=laundry, 3=cooking, 4=dishwashing)
+  # @param day_type [String] Type of day ('weekday' or 'weekend')
+  # @param hour [Integer] Hour of the day (0-23)
+  # @return [Integer] Duration in minutes for the sampled activity
   def sample_activity_duration(activity_duration_prob_map, occ_type_id, activity, day_type, hour)
     # States are: 'sleeping', 'shower', 'laundry', 'cooking', 'dishwashing', 'absent', 'nothingAtHome'
     if hour < 8
@@ -839,10 +839,10 @@ class ScheduleGenerator
     return durations[weighted_random(probabilities)]
   end
 
-  # TODO
+  # Export the generated schedules to a CSV file.
   #
-  # @param schedules_path [TODO] TODO
-  # @return [TODO] TODO
+  # @param schedules_path [String] Path to write the schedules CSV file to
+  # @return [Boolean] Returns true if successful, false if there was an error
   def export(schedules_path:)
     (SchedulesFile::Columns.values.map { |c| c.name } - @column_names).each do |col_to_remove|
       @schedules.delete(col_to_remove)
@@ -870,13 +870,13 @@ class ScheduleGenerator
     return true
   end
 
-  # TODO
+  # Generate a random number from a Gaussian (normal) distribution with the given parameters.
   #
-  # @param mean [TODO] TODO
-  # @param std [TODO] TODO
-  # @param min [TODO] TODO
-  # @param max [TODO] TODO
-  # @return [TODO] TODO
+  # @param mean [Float] The mean (average) value of the distribution
+  # @param std [Float] The standard deviation of the distribution
+  # @param min [Float] The minimum allowed value (defaults to 0.1)
+  # @param max [Float] The maximum allowed value (optional)
+  # @return [Float] A random number drawn from the specified Gaussian distribution, clipped to min/max if specified
   def gaussian_rand(mean, std, min = 0.1, max = nil)
     t = 2 * Math::PI * @prng.rand
     r = Math.sqrt(-2 * Math.log(1 - @prng.rand))
@@ -888,13 +888,13 @@ class ScheduleGenerator
     return x
   end
 
-  # TODO
+  # Sum the activity state values across all occupants at a given time index.
   #
-  # @param all_simulated_values [TODO] TODO
-  # @param activity_index [TODO] TODO
-  # @param time_index [TODO] TODO
-  # @param max_clip [TODO] TODO
-  # @return [TODO] TODO
+  # @param all_simulated_values [Array<Matrix>] Array of matrices containing Markov chain activity states for each occupant
+  # @param activity_index [Integer] Index of the activity state to sum (0=sleeping, 1=shower, etc)
+  # @param time_index [Integer] Time index to sum the activity state values at
+  # @param max_clip [Integer, nil] Optional maximum value to clip the sum to
+  # @return [Integer] Sum of the activity state values across occupants, clipped to max_clip if specified
   def sum_across_occupants(all_simulated_values, activity_index, time_index, max_clip: nil)
     sum = 0
     all_simulated_values.size.times do |i|
@@ -906,9 +906,9 @@ class ScheduleGenerator
     return sum
   end
 
-  # TODO
+  # Get a binary representation of occupant presence at a given time index.
   #
-  # @param all_simulated_values [TODO] The Markov-chain activity array
+  # @param all_simulated_values [Array<Matrix>] Array of matrices containing Markov chain activity states for each occupant
   # @param time_index [int] time index in the array
   # @return [int] The integer whose binary representation indicates the presence of occupants. Bit 0
   # is presence of the first occupant, bit 1 is the presence of the second occupant, etc.
@@ -924,9 +924,9 @@ class ScheduleGenerator
   end
 
   # Define get_ev_occupant_number function
-  # TODO
+  # Determines which occupant will be assigned as the EV driver based on their away hours
   #
-  # @param all_simulated_values [TODO] TODO
+  # @param all_simulated_values [Array<Matrix>] Array of matrices containing Markov chain activity states for each occupant
   def get_ev_occupant_number(all_simulated_values)
     if @hpxml_bldg.vehicles.to_a.empty?
       return 0
@@ -952,22 +952,22 @@ class ScheduleGenerator
     end
   end
 
-  # TODO
+  # Normalize an array by dividing all values by the maximum value.
   #
-  # @param arr [TODO] TODO
-  # @return [TODO] TODO
+  # @param arr [Array] Array of numeric values to normalize
+  # @return [Array] Array with values normalized to between 0 and 1
   def normalize(arr)
     m = arr.max
     arr = arr.map { |a| a / m }
     return arr
   end
 
-  # TODO
+  # Scale lighting schedule values based on occupancy.
   #
-  # @param sch [TODO] TODO
-  # @param minute [TODO] TODO
-  # @param active_occupant_percentage [TODO] TODO
-  # @return [TODO] TODO
+  # @param sch [Array] Array of hourly lighting schedule values
+  # @param minute [Integer] Current minute in simulation
+  # @param active_occupant_percentage [Float] Percentage of occupants that are active (not sleeping/away)
+  # @return [Float] Scaled lighting schedule value based on occupancy
   def scale_lighting_by_occupancy(sch, minute, active_occupant_percentage)
     day_start = minute / 1440
     day_sch = sch[day_start * 24, 24]
@@ -975,26 +975,26 @@ class ScheduleGenerator
     return day_sch.min + (current_val - day_sch.min) * active_occupant_percentage
   end
 
-  # TODO
+  # Get schedule value for current minute based on weekday/weekend schedule and occupancy.
   #
-  # @param weekday_sch [TODO] TODO
-  # @param weekend_sch [TODO] TODO
-  # @param monthly_multiplier [TODO] TODO
-  # @param month [TODO] TODO
-  # @param is_weekday [TODO] TODO
-  # @param minute [TODO] TODO
-  # @param active_occupant_percentage [TODO] TODO
-  # @return [TODO] TODO
+  # @param weekday_sch [Array] Array of hourly schedule values for weekdays
+  # @param weekend_sch [Array] Array of hourly schedule values for weekends
+  # @param monthly_multiplier [Array] Array of monthly multipliers to apply to schedule values
+  # @param month [Integer] Current month (1-12)
+  # @param is_weekday [Boolean] Whether current day is a weekday
+  # @param minute [Integer] Current minute in simulation
+  # @param active_occupant_percentage [Float] Percentage of occupants that are active (not sleeping/away)
+  # @return [Float] Schedule value scaled by occupancy and monthly multiplier
   def get_value_from_daily_sch(weekday_sch, weekend_sch, monthly_multiplier, month, is_weekday, minute, active_occupant_percentage)
     is_weekday ? sch = weekday_sch : sch = weekend_sch
     full_occupancy_current_val = sch[((minute % 1440) / 60).to_i].to_f * monthly_multiplier[month - 1].to_f
     return sch.min + (full_occupancy_current_val - sch.min) * active_occupant_percentage
   end
 
-  # TODO
+  # Randomly select an index based on weighted probabilities.
   #
-  # @param weights [TODO] TODO
-  # @return [TODO] TODO
+  # @param weights [Array<Float>] Array of probability weights that sum to 1
+  # @return [Integer] Randomly selected index based on probability weights
   def weighted_random(weights)
     n = @prng.rand
     cum_weights = 0
@@ -1007,12 +1007,13 @@ class ScheduleGenerator
     return weights.size - 1 # If the prob weight don't sum to n, return last index
   end
 
-  # TODO
+  # Get the Building America lighting schedule based on location and time zone.
   #
-  # @param time_zone_utc_offset [TODO] TODO
-  # @param latitude [TODO] TODO
-  # @param longitude [TODO] TODO
-  # @return [TODO] TODO
+  # @param time_zone_utc_offset [Integer] Offset from UTC in hours
+  # @param latitude [Float] Latitude in degrees
+  # @param longitude [Float] Longitude in degrees
+  # @param schedules_csv_data [Hash] Schedule data from CSV files
+  # @return [Array] Array of hourly lighting schedule values
   def get_building_america_lighting_schedule(time_zone_utc_offset, latitude, longitude, schedules_csv_data)
     # Sunrise and sunset hours
     sunrise_hour = []
@@ -1123,11 +1124,11 @@ class ScheduleGenerator
     return lighting_sch
   end
 
-  # TODO
+  # Generates EV battery charging and discharging schedules based on away schedule and annual driving hours
   #
-  # @param away_schedule [TODO] TODO
-  # @param hours_driven_per_year [TODO] TODO
-  # @return [TODO] TODO
+  # @param away_schedule [Array<Integer>] Array of 0s and 1s indicating when occupants are away (1) or home (0)
+  # @param hours_driven_per_year [Float] Number of hours the EV is driven per year
+  # @return [Array<Array<Integer>>] Two arrays - charging schedule and discharging schedule, each containing 0s and 1s
   def _get_ev_battery_schedule(away_schedule, hours_driven_per_year)
     total_driving_minutes_per_year = (hours_driven_per_year * 60).ceil
     expanded_away_schedule = away_schedule.flat_map { |status| [status] * 15 }
@@ -1172,10 +1173,10 @@ class ScheduleGenerator
     return charging_schedule, discharging_schedule
   end
 
-  # TODO
+  # Fill EV battery charging and discharging schedules based on Markov chain simulation results
   #
-  # @param markov_chain_simulation_result [TODO] TODO
-  # @return [TODO] TODO
+  # @param markov_chain_simulation_result [Array<Matrix>] Array of matrices containing Markov chain simulation results for each occupant
+  # @return [void] Updates @schedules with EV battery charging and discharging schedules
   def fill_ev_battery_schedule(markov_chain_simulation_result)
     if @hpxml_bldg.vehicles.to_a.empty?
       return
