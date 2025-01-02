@@ -29,7 +29,7 @@ module Battery
   # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param spaces [Hash] Map of HPXML locations => OpenStudio Space objects
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
-  # @param battery [HPXML::Battery] Object that defines a single home battery
+  # @param battery [HPXML::Battery, HPXML::Vehicle] Object that defines a single home battery or EV battery
   # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
   # @return [nil]
   def self.apply_battery(runner, model, spaces, hpxml_bldg, battery, schedules_file)
@@ -38,36 +38,16 @@ module Battery
     pv_systems = hpxml_bldg.pv_systems
     is_ev = battery.is_a?(HPXML::Vehicle)
 
-    charging_schedule = nil
-    discharging_schedule = nil
-    charging_col = is_ev ? :EVBatteryCharging : :BatteryCharging
-    discharging_col = is_ev ? :EVBatteryDischarging : :BatteryDischarging
-    charging_col = SchedulesFile::Columns[charging_col].name
-    discharging_col = SchedulesFile::Columns[discharging_col].name
-
-    if not schedules_file.nil?
-      charging_schedule = schedules_file.create_schedule_file(model, col_name: charging_col)
-      discharging_schedule = schedules_file.create_schedule_file(model, col_name: discharging_col)
-    end
-
-    if is_ev && charging_schedule.nil? && discharging_schedule.nil?
-      weekday_charge, weekday_discharge = Schedule.split_signed_charging_schedule(battery.ev_charging_weekday_fractions)
-      weekend_charge, weekend_discharge = Schedule.split_signed_charging_schedule(battery.ev_charging_weekend_fractions)
-      charging_schedule = MonthWeekdayWeekendSchedule.new(model, battery.id + ' charging schedule', weekday_charge, weekend_charge, battery.ev_charging_monthly_multipliers, EPlus::ScheduleTypeLimitsFraction)
-      charging_schedule = charging_schedule.schedule
-      discharging_schedule = MonthWeekdayWeekendSchedule.new(model, battery.id + ' discharging schedule', weekday_discharge, weekend_discharge, battery.ev_charging_monthly_multipliers, EPlus::ScheduleTypeLimitsFraction)
-      discharging_schedule = discharging_schedule.schedule
+    charging_schedule, discharging_schedule = nil, nil
+    if !is_ev && !schedules_file.nil?
+      charging_schedule = schedules_file.create_schedule_file(model, col_name: SchedulesFile::Columns[:BatteryCharging].name)
+      discharging_schedule = schedules_file.create_schedule_file(model, col_name: SchedulesFile::Columns[:BatteryDischarging].name)
     elsif is_ev
-      runner.registerWarning("Both schedule file and weekday fractions provided for '#{charging_col}' and '#{discharging_col}'; weekday fractions will be ignored.") if !battery.ev_charging_weekday_fractions.nil?
-      runner.registerWarning("Both schedule file and weekend fractions provided for '#{charging_col}' and '#{discharging_col}'; weekend fractions will be ignored.") if !battery.ev_charging_weekend_fractions.nil?
-      runner.registerWarning("Both schedule file and monthly multipliers provided for '#{charging_col}' and '#{discharging_col}'; monthly multipliers will be ignored.") if !battery.ev_charging_monthly_multipliers.nil?
+      charging_schedule, discharging_schedule = Vehicle.get_ev_charging_schedules(runner, model, battery, schedules_file)
     end
 
     if !is_ev && pv_systems.empty? && charging_schedule.nil? && discharging_schedule.nil?
       runner.registerWarning('Battery without PV specified, and no charging/discharging schedule provided; battery is assumed to operate as backup and will not be modeled.')
-      return
-    elsif is_ev && charging_schedule.nil? && discharging_schedule.nil?
-      runner.registerWarning('Electric vehicle battery specified with no charging/discharging schedule provided; battery will not be modeled.')
       return
     end
 
@@ -152,9 +132,8 @@ module Battery
     elcs.setLifetimeModel(HPXML::BatteryLifetimeModelNone)
     elcs.setNumberofCellsinSeries(number_of_cells_in_series)
     elcs.setNumberofStringsinParallel(number_of_strings_in_parallel)
-    elcs.setInitialFractionalStateofCharge(0.0)
     elcs.setBatteryMass(battery_mass)
-    elcs.setDCtoDCChargingEfficiency(battery.round_trip_efficiency) # Note: This is currently unused in E+, so we use an EMS program below instead
+    elcs.setDCtoDCChargingEfficiency(battery.round_trip_efficiency) if !is_ev # Note: This is currently unused in E+, so we use an EMS program below instead
     elcs.setBatterySurfaceArea(battery_surface_area)
     elcs.setDefaultNominalCellVoltage(default_nominal_cell_voltage)
     elcs.setFullyChargedCellCapacity(default_cell_capacity)
@@ -176,6 +155,7 @@ module Battery
       elcd.setElectricalBussType('AlternatingCurrentWithStorage')
       elcs.setInitialFractionalStateofCharge(maximum_storage_state_of_charge_fraction)
     else
+      elcs.setInitialFractionalStateofCharge(0.0)
       elcds = model.getElectricLoadCenterDistributions
       elcds = elcds.select { |elcd| elcd.inverter.is_initialized } # i.e., not generators
       # Use PV ELCD if present
@@ -221,6 +201,7 @@ module Battery
     elcs.additionalProperties.setFeature('HPXML_ID', battery.id)
     elcs.additionalProperties.setFeature('UsableCapacity_kWh', Float(usable_capacity_kwh))
 
+    # Power discharge curve in the ev_discharge_program handles all EV losses
     return if is_ev
 
     # Apply round trip efficiency as EMS program b/c E+ input is not hooked up.

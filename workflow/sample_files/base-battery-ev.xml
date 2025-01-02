@@ -515,7 +515,6 @@
                     <Units>kWh</Units>
                     <Value>80.0</Value>
                   </UsableCapacity>
-                  <RatedPowerOutput>6000.0</RatedPowerOutput>
                 </Battery>
                 <ConnectedCharger idref='EVCharger1'/>
               </BatteryElectricVehicle>

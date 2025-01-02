@@ -717,6 +717,11 @@ The column names available in the schedule CSV files are:
   ``water_heater_setpoint``         F        Water heater setpoint schedule.                                                    No
   ``water_heater_operating_mode``   0/1      Heat pump water heater operating mode schedule. 0=hybrid/auto, 1=heat pump only.   No
   ``battery``                       -1 to 1  Battery schedule. Positive for charging, negative for discharging.                 No
+  ``battery_charging``              frac     Battery schedule. Positive for charging, negative for discharging. [#]_            No
+  ``battery_discharging``           frac     Battery schedule. Positive for charging, negative for discharging.                 No
+  ``ev_battery``                    -1 to 1  Battery schedule. Positive for charging, negative for discharging. [#]_            No
+  ``ev_battery_charging``           frac     Electric vehicle charging schedule.                                                No
+  ``ev_battery_discharging``        frac     Electric vehicle discharging schedule.                                             No
   ================================  =======  =================================================================================  ===============================
 
   .. [#] A detailed stochastic occupancy schedule CSV file can also be automatically generated for these columns; see the :ref:`usage_instructions` for the commands.
@@ -740,6 +745,10 @@ The column names available in the schedule CSV files are:
          A "General Curtailment" signal prevents the equipment from running at more than 70% of max power and "Critical Curtailment" limits it to 40% of max power until comfort constraints are violated (4F off the setpoint).
          During the shedding events, the main heat pump is limited to running below the specified fraction of rated power, and the backup system is locked out.
          When the comfort constraints are violated, both heat pump and backup systems are allowed to run at full load to recover the indoor temperature until reaching setpoint.
+
+  .. [#] This column takes precedence over ``battery_charging`` and ``battery_discharging``, if provided.
+
+  .. [#] This column takes precedence over ``ev_battery_charging`` and ``ev_battery_discharging``, if provided.
 
 Columns with units of `frac` must be normalized to MAX=1; that is, these schedules only define *when* energy is used, not *how much* energy is used.
 In other words, the amount of energy or hot water used in each simulation timestep is essentially the schedule value divided by the sum of all schedule values in the column, multiplied by the annual energy or hot water use.
@@ -3802,7 +3811,7 @@ Central Fan Integrated Supply (CFIS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each central fan integrated supply (CFIS) system is entered as a ``/HPXML/Building/BuildingDetails/Systems/MechanicalVentilation/VentilationFans/VentilationFan``.
-A CFIS system is a supply ventilation system that provides outdoor air to the return duct of a forced-air HVAC system.
+A CFIS system is a supply ventilation system with an outdoor air inlet duct on the return side of a forced-air HVAC system.
 
   =============================================================================================  ========  =======  =============================  ========  ===============  =========================================
   Element                                                                                        Type      Units    Constraints                    Required  Default          Notes
@@ -4628,6 +4637,76 @@ If not entered, the simulation will not include batteries.
 
   A battery in a home without PV or charging/discharging schedules is assumed to operate as backup and is not modeled.
 
+HPXML Vehicles
+***************
+
+A single electric vehicle can be entered as a ``/HPXML/Building/BuildingDetails/Systems/Vehicles/Vehicle``. This element is used to describe vehicle-level inputs, with more specific EV and battery inputs described in ``Vehicle/VehicleType/BatteryElectricVehicle/Battery``.
+If not entered, the simulation will not include electric vehicles.
+
+  ====================================================  =======  ========  ============  ========  ========  ============================================
+  Element                                               Type     Units      Constraints  Required  Default   Notes
+  ====================================================  =======  ========  ============  ========  ========  ============================================
+  ``SystemIdentifier``                                  id                               Yes                 Unique identifier
+  ``MilesDrivenPerYear``                                double   miles      >= 0         No        10,900    Number of miles driven per year
+  ``HoursDrivenPerWeek``                                double   hours      >= 0         No        11.6      Number of hours driven per week
+  ``FuelEconomyCombined[Units="kWh/mile"]/Value``       double   kWh/mile   > 0          No        0.22      The vehicle efficiency in kWh/mile
+  ====================================================  =======  ========  ============  ========  ========  ============================================
+
+Battery Electric Vehicle
+~~~~~~~~~~~~~~~~~~~~~~~~
+A battery electric vehicle is entered in ``/HPXML/Building/BuildingDetails/Systems/Vehicles/Vehicle/VehicleType/BatteryElectricVehicle``. This provides inputs specific to EVs and its battery.
+If not entered, the simulation will not include an electric vehicle.
+
+  ============================================================  =======  =========  =======================  ========  ===========  ======================================
+  Element                                                       Type     Units      Constraints              Required  Default      Notes
+  ============================================================  =======  =========  =======================  ========  ===========  ======================================
+  ``FractionChargedLocation[Location="Home"]/Percentage``       double   frac       >= 0                     No        1.0          Unique identifier
+  ``ConnectedCharger``                                          idref                                        Yes                    ID of connected EV charger
+  ``Battery/BatteryType``                                       string                                       No        Li-ion [#]_  EV battery type
+  ``Battery/NominalCapacity[Units="kWh" or Units="Ah"]/Value``  double   kWh or Ah  >= 0                     No        See [#]_
+  ``Battery/UsableCapacity[Units="kWh" or Units="Ah"]/Value``   double   kWh or Ah  >= 0, < NominalCapacity  No        See [#]_
+  ``Battery/NominalVoltage``                                    double   V          >= 0                     No
+  ``extension/WeekdayScheduleFractions``                        array                                        No        See [#]_     24 comma-separated weekday fractions
+  ``extension/WeekendScheduleFractions``                        array                                        No                     24 comma-separated weekday fractions
+  ``extension/MonthlyScheduleMultipliers``                      array                                        No        See [#]_     12 comma-separated monthly multipliers
+  ============================================================  =======  =========  =======================  ========  ===========  ======================================
+
+  .. [#] Only the "Li-ion" battery type is supported.
+  .. [#] If NominalCapacity not provided, defaults to UsableCapacity / 0.8 if UsableCapacity provided, else 63 kWh.
+  .. [#] If UsableCapacity not provided, defaults to 0.9 * NominalCapacity.
+  .. [#] If WeekdayScheduleFractions or WeekendScheduleFractions not provided (and :ref:`schedules_detailed` not used), then :ref:`schedules_default` are used.
+  .. [#] If MonthlyScheduleMultipliers not provided (and :ref:`schedules_detailed` not used), then :ref:`schedules_default` are used.
+
+ .. note::
+
+  If an EV is also specified with PlugLoadType "electric vehicle charging", then EV charging will be modeled as a plug load.
+
+  EV battery charging and discharging can be scheduled using :ref:`schedules_detailed` or with ``WeekdayScheduleFractions``, ``WeekendScheduleFractions``, and ``MonthlyScheduleMultipliers``.
+  Positive schedule values control timing and magnitude of charging storage.
+  Negative schedule values control timing and magnitude of discharging storage.
+  Simultaneous charging and discharging of the battery is not allowed.
+  
+  The effective discharge power is calculated using the vehicle ``FuelEconomyCombined``, ``MilesDrivenPerYear``, and the total discharge hours provided in the schedule.
+  The discharge power is further influenced by the ambient temperature during simulation, and encompasses losses due to battery conditioning, vehicle conditioning, and charging losses.
+  
+
+HPXML Electric Vehicle Chargers
+*******************************
+
+A single electric vehicle charger can be entered as a ``/HPXML/Building/BuildingDetails/Systems/ElectricVehicleChargers/ElectricVehicleCharger``.
+
+  ====================  ======  =====  ===========  ========  ========  ============================================
+  Element               Type    Units  Constraints  Required  Default   Notes
+  ====================  ======  =====  ===========  ========  ========  ============================================
+  ``SystemIdentifier``  id                          Yes                 Unique identifier
+  ``Location``          string         See [#]_     No        See [#]_  Location of EV charger [#]_
+  ``ChargingPower``     double  W      > 0          No        5,690     Charger power output
+  ====================  ======  =====  ===========  ========  ========  ============================================
+
+  .. [#] Location choices are "garage" or "outside".
+  .. [#] If Location is not provided, defaults to "garage" if a garage is present, otherwise "outside".
+  .. [#] Location also specifies the location of the attached electric vehicle.
+
 HPXML Generators
 ****************
 
@@ -5280,7 +5359,7 @@ If not entered, the simulation will not include that type of plug load.
          
          \- **well pump**: 50.8 / 0.127 * (0.5 + 0.25 * NumberofBedrooms / 3 + 0.25 * ConditionedFloorArea / 1920) (based on the `2010 BAHSP <https://www1.eere.energy.gov/buildings/publications/pdfs/building_america/house_simulation.pdf>`_)
          
-         \- **electric vehicle charging**: 1666.67 (calculated using AnnualMiles * kWhPerMile / (ChargerEfficiency * BatteryEfficiency) where AnnualMiles=4500, kWhPerMile=0.3, ChargerEfficiency=0.9, and BatteryEfficiency=0.9)
+         \- **electric vehicle charging**: 1666.67 (calculated using AnnualMiles * kWhPerMile / (ChargerEfficiency * BatteryEfficiency) where AnnualMiles=4500, kWhPerMile=0.3, ChargerEfficiency=0.9, and BatteryEfficiency=0.9). If this plug load type is specified, it will take precedence over an EV specified with ``/HPXML/Building/BuildingDetails/Systems/Vehicles/Vehicle/VehicleType/BatteryElectricVehicle``.
          
          If NumberofResidents is provided, the following defaults are used instead:
          

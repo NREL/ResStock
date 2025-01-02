@@ -677,6 +677,7 @@ module Model
     sch.setNumberofHoursofData(num_hours)
     sch.setMinutesperItem(mins_per_item)
     sch.setTranslateFileWithRelativePath(true)
+    sch.setInterpolatetoTimestep(true)
     add_schedule_type_limits(model, schedule: sch, limits: limits)
     return sch
   end

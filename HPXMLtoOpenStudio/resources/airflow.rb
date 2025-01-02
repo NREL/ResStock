@@ -38,6 +38,8 @@ module Airflow
       elsif f.used_for_seasonal_cooling_load_reduction
         vent_fans[:whf] << f
       elsif f.used_for_local_ventilation
+        next if hpxml_bldg.building_occupancy.number_of_residents == 0 # Operational calculation w/ zero occupants, zero out energy use
+
         if f.fan_location == HPXML::LocationKitchen
           vent_fans[:kitchen] << f
         elsif f.fan_location == HPXML::LocationBath
@@ -588,12 +590,19 @@ module Airflow
     vent_program.addLine('    Set Qwhf = WHF_Flow*Adj')
     vent_program.addLine("    Set #{cond_to_zone_flow_rate_actuator.name} = WHF_Flow*Adj") unless whf_zone.nil?
     vent_program.addLine('    Set WHF_W = 0')
-    vent_fans[:whf].each do |vent_whf|
-      vent_program.addLine("    Set WHF_W = WHF_W + #{vent_whf.fan_power} * #{whf_avail_sensors[vent_whf.id].name}")
+    if hpxml_bldg.building_occupancy.number_of_residents != 0 # If operational calculation w/ zero occupants, zero out whole house fan
+      vent_fans[:whf].each do |vent_whf|
+        vent_program.addLine("    Set WHF_W = WHF_W + #{vent_whf.fan_power} * #{whf_avail_sensors[vent_whf.id].name}")
+      end
     end
     vent_program.addLine("    Set #{whf_elec_actuator.name} = WHF_W*Adj")
     vent_program.addLine('  ElseIf (NVavail > 0)') # Natural ventilation
-    vent_program.addLine("    Set NVArea = #{UnitConversions.convert(area, 'ft^2', 'cm^2')}")
+    if hpxml_bldg.building_occupancy.number_of_residents == 0
+      # Operational calculation w/ zero occupants, zero out natural ventilation
+      vent_program.addLine('    Set NVArea = 0')
+    else
+      vent_program.addLine("    Set NVArea = #{UnitConversions.convert(area, 'ft^2', 'cm^2')}")
+    end
     vent_program.addLine("    Set Cs = #{UnitConversions.convert(c_s, 'ft^2/(s^2*R)', 'L^2/(s^2*cm^4*K)')}")
     vent_program.addLine("    Set Cw = #{c_w * 0.01}")
     vent_program.addLine('    Set Tdiff = Tin-Tout')
@@ -2298,6 +2307,7 @@ module Airflow
     clothes_dryer_in_cond_space = hpxml_bldg.clothes_dryers.empty? ? true : HPXML::conditioned_locations_this_unit.include?(hpxml_bldg.clothes_dryers[0].location)
     vented_dryers = hpxml_bldg.clothes_dryers.select { |cd| cd.is_vented && cd.vented_flow_rate.to_f > 0 }
     vented_dryers.each_with_index do |vented_dryer, index|
+      next if hpxml_bldg.building_occupancy.number_of_residents == 0 # Operational calculation w/ zero occupants, zero out energy use
       next unless clothes_dryer_in_cond_space
 
       # Infiltration impact
@@ -2915,11 +2925,11 @@ module Airflow
   # @param is_balanced [TODO] TODO
   # @param frac_imbal [TODO] TODO
   # @param a_ext [TODO] TODO
-  # @param bldg_type [TODO] TODO
+  # @param unit_type [String] Type of dwelling unit (HXPML::ResidentialTypeXXX)
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param hours_in_operation [TODO] TODO
   # @return [TODO] TODO
-  def self.get_mech_vent_qfan_cfm(q_tot, q_inf, is_balanced, frac_imbal, a_ext, bldg_type, eri_version, hours_in_operation)
+  def self.get_mech_vent_qfan_cfm(q_tot, q_inf, is_balanced, frac_imbal, a_ext, unit_type, eri_version, hours_in_operation)
     q_inf_eff = q_inf * a_ext
     if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2022')
       if frac_imbal == 0
@@ -2940,7 +2950,7 @@ module Airflow
       end
       q_fan = q_tot - phi * q_inf_eff
     else
-      if [HPXML::ResidentialTypeApartment, HPXML::ResidentialTypeSFA].include? bldg_type
+      if [HPXML::ResidentialTypeApartment, HPXML::ResidentialTypeSFA].include? unit_type
         # No infiltration credit for attached/multifamily
         return q_tot
       end

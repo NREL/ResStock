@@ -2678,14 +2678,8 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
 
     arg = OpenStudio::Measure::OSArgument::makeBoolArgument('ev_battery_present', false)
     arg.setDisplayName('Electric Vehicle: Present')
-    arg.setDescription('Whether there is an electric vehicle battery present. Cannot be included if an electric vehicle is modeled as a plug load as specified by the `misc_plug_loads_vehicle_present` argument.')
+    arg.setDescription('Whether there is an electric vehicle battery present. If the `misc_plug_loads_vehicle_present` argument is true, this argument is superseded and vehicle charging will be modeled as a plug load only.')
     arg.setDefaultValue(false)
-    args << arg
-
-    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_battery_discharge_power', false)
-    arg.setDisplayName('Electric Vehicle: Rated Battery Power Output')
-    arg.setDescription('The rated power output of the EV battery. If not provided, the OS-HPXML default is used.')
-    arg.setUnits('W')
     args << arg
 
     arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_battery_capacity', false)
@@ -3278,7 +3272,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
 
     arg = OpenStudio::Measure::OSArgument::makeBoolArgument('misc_plug_loads_vehicle_present', true)
     arg.setDisplayName('Misc Plug Loads: Vehicle Present')
-    arg.setDescription('Whether there is an electric vehicle. Cannot be included if an electric vehicle is modeled as a battery as specified by the `ev_battery_present` argument.')
+    arg.setDescription('Whether there is an electric vehicle. Specifying this argument will model EV charging as a plug load and take precendence over the `ev_battery_present` argument.')
     arg.setDefaultValue(false)
     args << arg
 
@@ -6976,10 +6970,8 @@ module HPXMLFile
                                  charging_power: args[:ev_charger_power])
     end
 
-    ev_ct = hpxml_bldg.vehicles.count { |vehicle| vehicle.vehicle_type == Constants::ObjectTypeBatteryElectricVehicle }
+    ev_ct = hpxml_bldg.vehicles.count { |vehicle| vehicle.vehicle_type == HPXML::VehicleTypeBEV }
     hpxml_bldg.vehicles.add(id: "ElectricVehicle#{ev_ct + 1}",
-                            type: HPXML::BatteryTypeLithiumIon,
-                            rated_power_output: args[:ev_battery_discharge_power],
                             nominal_capacity_kwh: args[:ev_battery_capacity],
                             usable_capacity_kwh: args[:ev_battery_usable_capacity],
                             energy_efficiency: args[:ev_energy_efficiency],

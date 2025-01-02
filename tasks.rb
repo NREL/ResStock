@@ -1656,18 +1656,6 @@ def apply_hpxml_modification_sample_files(hpxml_path, hpxml)
       hpxml_bldg.hvac_distributions[0].ducts[2].duct_surface_area = 37.5
       hpxml_bldg.hvac_distributions[0].ducts[3].duct_location = HPXML::LocationConditionedSpace
       hpxml_bldg.hvac_distributions[0].ducts[3].duct_surface_area = 12.5
-      if hpxml_file == 'base-hvac-ducts-area-fractions.xml'
-        hpxml_bldg.hvac_distributions[0].ducts[0].duct_surface_area = nil
-        hpxml_bldg.hvac_distributions[0].ducts[1].duct_surface_area = nil
-        hpxml_bldg.hvac_distributions[0].ducts[2].duct_surface_area = nil
-        hpxml_bldg.hvac_distributions[0].ducts[3].duct_surface_area = nil
-        hpxml_bldg.hvac_distributions[0].ducts[0].duct_fraction_area = 0.75
-        hpxml_bldg.hvac_distributions[0].ducts[1].duct_fraction_area = 0.75
-        hpxml_bldg.hvac_distributions[0].ducts[2].duct_fraction_area = 0.25
-        hpxml_bldg.hvac_distributions[0].ducts[3].duct_fraction_area = 0.25
-        hpxml_bldg.hvac_distributions[0].conditioned_floor_area_served = 4050.0
-        hpxml_bldg.hvac_distributions[0].number_of_return_registers = 3
-      end
     elsif ['base-hvac-ducts-effective-rvalue.xml'].include? hpxml_file
       hpxml_bldg.hvac_distributions[0].ducts[0].duct_insulation_r_value = nil
       hpxml_bldg.hvac_distributions[0].ducts[1].duct_insulation_r_value = nil
@@ -1952,13 +1940,6 @@ def apply_hpxml_modification_sample_files(hpxml_path, hpxml)
     end
     if hpxml_file.include? 'base-hvac-ground-to-air-heat-pump-detailed-geothermal-loop.xml'
       hpxml_bldg.geothermal_loops[0].shank_spacing = 2.5
-    end
-    if hpxml_file.include? 'HERS_HVAC'
-      hpxml_bldg.hvac_distributions.clear
-      hpxml_bldg.hvac_distributions.add(id: "HVACDistribution#{hpxml_bldg.hvac_distributions.size + 1}",
-                                        distribution_system_type: HPXML::HVACDistributionTypeDSE,
-                                        annual_heating_dse: 1.0,
-                                        annual_cooling_dse: 1.0)
     end
     hpxml_bldg.heating_systems.each do |heating_system|
       if heating_system.heating_system_type == HPXML::HVACTypeBoiler &&
@@ -2650,6 +2631,14 @@ if ARGV[0].to_sym == :update_measures
   command = "#{OpenStudio.getOpenStudioCLI} -e #{commands.join(' -e ')}"
   puts 'Applying rubocop auto-correct to measures...'
   system(command)
+
+  # Update a BuildResidentialHPXML/resources file when the OS-HPXML version changes.
+  # This will ensure that the BuildResidentialHPXML measure.xml is appropriately updated.
+  # Without this, the BuildResidentialHPXML measure has no differences and so OpenStudio
+  # would skip updating it.
+  version_rb_path = File.join(File.dirname(__FILE__), 'HPXMLtoOpenStudio/resources/version.rb')
+  version_txt_path = File.join(File.dirname(__FILE__), 'BuildResidentialHPXML/resources/version.txt')
+  File.write(version_txt_path, Digest::MD5.file(version_rb_path).hexdigest)
 
   # Update measures XMLs
   puts 'Updating measure.xmls...'
