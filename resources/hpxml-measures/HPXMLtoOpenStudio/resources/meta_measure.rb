@@ -465,7 +465,7 @@ def run_measure(model, measure, argument_map, runner)
   return true
 end
 
-# Convert contents of a Hash to single String using provided delimiter and seperator characters.
+# Convert contents of a Hash to single String using provided delimiter and separator characters.
 #
 # @param hash [Hash] Map of keys to values
 # @param delim [String] character between each key and value

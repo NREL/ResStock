@@ -109,7 +109,7 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     end
 
     Version.check_openstudio_version()
-    Model.reset(model, runner)
+    Model.reset(runner, model)
 
     args = runner.getArgumentValues(arguments(model), user_arguments)
     set_file_paths(args)
@@ -327,7 +327,7 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     # Conditioned space & setpoints
     spaces = {} # Map of HPXML locations => OpenStudio Space objects
     Geometry.create_or_get_space(model, spaces, HPXML::LocationConditionedSpace, hpxml_bldg)
-    hvac_days = HVAC.apply_setpoints(model, runner, weather, spaces, hpxml_bldg, hpxml.header, schedules_file)
+    hvac_days = HVAC.apply_setpoints(runner, model, weather, spaces, hpxml_bldg, hpxml.header, schedules_file)
 
     # Geometry & Enclosure
     Geometry.apply_roofs(runner, model, spaces, hpxml_bldg, hpxml.header)
