@@ -870,8 +870,9 @@ module Defaults
     cond_crawl_volume = hpxml_bldg.inferred_conditioned_crawlspace_volume()
     nbeds = hpxml_bldg.building_construction.number_of_bedrooms
     if hpxml_bldg.building_construction.average_ceiling_height.nil?
-      # ASHRAE 62.2 default for average floor to ceiling height
-      hpxml_bldg.building_construction.average_ceiling_height = 8.2
+      # Note: We do not try to calculate it from CFA & ConditionedBuildingVolume since
+      # that is not a reliable assumption if there is a, e.g., conditioned crawlspace.
+      hpxml_bldg.building_construction.average_ceiling_height = 8.2 # ASHRAE 62.2 default
       hpxml_bldg.building_construction.average_ceiling_height_isdefaulted = true
     end
     if hpxml_bldg.building_construction.conditioned_building_volume.nil?
@@ -4725,7 +4726,7 @@ module Defaults
     unit_type = hpxml_bldg.building_construction.residential_facility_type
 
     nl = Airflow.get_infiltration_NL_from_SLA(infil_values[:sla], infil_values[:height])
-    q_inf = Airflow.get_infiltration_Qinf_from_NL(nl, weather, cfa)
+    q_inf = Airflow.get_mech_vent_qinf_cfm(nl, weather, cfa)
     q_tot = Airflow.get_mech_vent_qtot_cfm(nbeds, cfa)
     if vent_fan.is_balanced
       is_balanced, frac_imbal = true, 0.0
@@ -4768,7 +4769,7 @@ module Defaults
   # @param cfa [Double] Conditioned floor area in the dwelling unit (ft2)
   # @param ncfl_ag [Double] Number of conditioned floors above grade
   # @param year_built [Integer] Year the dwelling unit is built
-  # @param avg_ceiling_height [Double] Average floor to ceiling height within conditioned space (ft2)
+  # @param avg_ceiling_height [Double] Average floor to ceiling height within conditioned space (ft)
   # @param infil_volume [Double] Volume of space most impacted by the blower door test (ft3)
   # @param iecc_cz [String] IECC climate zone
   # @param fnd_type_fracs [Hash] Map of foundation type => area fraction
@@ -4875,7 +4876,9 @@ module Defaults
     # Specific Leakage Area
     sla = nl / (1000.0 * ncfl_ag**0.3)
 
-    ach50 = Airflow.get_infiltration_ACH50_from_SLA(sla, 0.65, cfa, infil_volume)
+    # ACH50
+    infil_avg_ceil_height = infil_volume / cfa
+    ach50 = Airflow.get_infiltration_ACH50_from_SLA(sla, infil_avg_ceil_height)
 
     return ach50
   end

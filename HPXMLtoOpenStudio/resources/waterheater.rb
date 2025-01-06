@@ -21,13 +21,13 @@ module Waterheater
     hpxml_bldg.water_heating_systems.each do |dhw_system|
       case dhw_system.water_heater_type
       when HPXML::WaterHeaterTypeStorage
-        apply_tank(model, runner, spaces, hpxml_bldg, hpxml_header, dhw_system, schedules_file, unavailable_periods, plantloop_map)
+        apply_tank(runner, model, spaces, hpxml_bldg, hpxml_header, dhw_system, schedules_file, unavailable_periods, plantloop_map)
       when HPXML::WaterHeaterTypeTankless
-        apply_tankless(model, runner, spaces, hpxml_bldg, hpxml_header, dhw_system, schedules_file, unavailable_periods, plantloop_map)
+        apply_tankless(runner, model, spaces, hpxml_bldg, hpxml_header, dhw_system, schedules_file, unavailable_periods, plantloop_map)
       when HPXML::WaterHeaterTypeHeatPump
-        apply_hpwh(model, runner, spaces, hpxml_bldg, hpxml_header, dhw_system, schedules_file, unavailable_periods, plantloop_map)
+        apply_hpwh(runner, model, spaces, hpxml_bldg, hpxml_header, dhw_system, schedules_file, unavailable_periods, plantloop_map)
       when HPXML::WaterHeaterTypeCombiStorage, HPXML::WaterHeaterTypeCombiTankless
-        apply_combi(model, runner, spaces, hpxml_bldg, hpxml_header, dhw_system, schedules_file, unavailable_periods, plantloop_map)
+        apply_combi(runner, model, spaces, hpxml_bldg, hpxml_header, dhw_system, schedules_file, unavailable_periods, plantloop_map)
       else
         fail "Unhandled water heater (#{dhw_system.water_heater_type})."
       end
@@ -41,8 +41,8 @@ module Waterheater
 
   # Adds a conventional storage tank water heater to the OpenStudio model.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param spaces [Hash] Map of HPXML locations => OpenStudio Space objects
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param hpxml_header [HPXML::Header] HPXML Header object (one per HPXML file)
@@ -51,7 +51,7 @@ module Waterheater
   # @param unavailable_periods [HPXML::UnavailablePeriods] Object that defines periods for, e.g., power outages or vacancies
   # @param plantloop_map [Hash] Map of HPXML System ID => OpenStudio PlantLoop objects
   # @return [nil]
-  def self.apply_tank(model, runner, spaces, hpxml_bldg, hpxml_header, water_heating_system, schedules_file, unavailable_periods, plantloop_map)
+  def self.apply_tank(runner, model, spaces, hpxml_bldg, hpxml_header, water_heating_system, schedules_file, unavailable_periods, plantloop_map)
     loc_space, loc_schedule = Geometry.get_space_or_schedule_from_location(water_heating_system.location, model, spaces)
     unit_multiplier = hpxml_bldg.building_construction.number_of_units
     solar_fraction = get_water_heater_solar_fraction(water_heating_system, hpxml_bldg)
@@ -60,14 +60,13 @@ module Waterheater
 
     act_vol = calc_storage_tank_actual_vol(water_heating_system.tank_volume, water_heating_system.fuel_type)
     u, ua, eta_c = disaggregate_tank_losses_and_burner_efficiency(act_vol, water_heating_system, solar_fraction, hpxml_bldg.building_construction.number_of_bedrooms)
-    water_heater = apply_water_heater(name: Constants::ObjectTypeWaterHeater,
+    water_heater = apply_water_heater(runner, model,
+                                      name: Constants::ObjectTypeWaterHeater,
                                       water_heating_system: water_heating_system,
                                       act_vol: act_vol,
                                       t_set_c: t_set_c,
                                       loc_space: loc_space,
                                       loc_schedule: loc_schedule,
-                                      model: model,
-                                      runner: runner,
                                       u: u,
                                       ua: ua,
                                       eta_c: eta_c,
@@ -77,15 +76,15 @@ module Waterheater
     plant_loop.addSupplyBranchForComponent(water_heater)
 
     apply_ec_adj_program(model, hpxml_bldg, water_heater, loc_space, water_heating_system, unit_multiplier)
-    apply_desuperheater(model, runner, water_heating_system, water_heater, loc_space, loc_schedule, plant_loop, unit_multiplier)
+    apply_desuperheater(runner, model, water_heating_system, water_heater, loc_space, loc_schedule, plant_loop, unit_multiplier)
 
     plantloop_map[water_heating_system.id] = plant_loop
   end
 
   # Adds a tankless water heater to the OpenStudio model.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param spaces [Hash] Map of HPXML locations => OpenStudio Space objects
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param hpxml_header [HPXML::Header] HPXML Header object (one per HPXML file)
@@ -94,7 +93,7 @@ module Waterheater
   # @param unavailable_periods [HPXML::UnavailablePeriods] Object that defines periods for, e.g., power outages or vacancies
   # @param plantloop_map [Hash] Map of HPXML System ID => OpenStudio PlantLoop objects
   # @return [nil]
-  def self.apply_tankless(model, runner, spaces, hpxml_bldg, hpxml_header, water_heating_system, schedules_file, unavailable_periods, plantloop_map)
+  def self.apply_tankless(runner, model, spaces, hpxml_bldg, hpxml_header, water_heating_system, schedules_file, unavailable_periods, plantloop_map)
     loc_space, loc_schedule = Geometry.get_space_or_schedule_from_location(water_heating_system.location, model, spaces)
     unit_multiplier = hpxml_bldg.building_construction.number_of_units
     water_heating_system.heating_capacity = 100000000000.0 * unit_multiplier
@@ -104,14 +103,13 @@ module Waterheater
 
     act_vol = 1.0 * unit_multiplier
     _u, ua, eta_c = disaggregate_tank_losses_and_burner_efficiency(act_vol, water_heating_system, solar_fraction, hpxml_bldg.building_construction.number_of_bedrooms)
-    water_heater = apply_water_heater(name: Constants::ObjectTypeWaterHeater,
+    water_heater = apply_water_heater(runner, model,
+                                      name: Constants::ObjectTypeWaterHeater,
                                       water_heating_system: water_heating_system,
                                       act_vol: act_vol,
                                       t_set_c: t_set_c,
                                       loc_space: loc_space,
                                       loc_schedule: loc_schedule,
-                                      model: model,
-                                      runner: runner,
                                       ua: ua,
                                       eta_c: eta_c,
                                       schedules_file: schedules_file,
@@ -121,15 +119,15 @@ module Waterheater
     plant_loop.addSupplyBranchForComponent(water_heater)
 
     apply_ec_adj_program(model, hpxml_bldg, water_heater, loc_space, water_heating_system, unit_multiplier)
-    apply_desuperheater(model, runner, water_heating_system, water_heater, loc_space, loc_schedule, plant_loop, unit_multiplier)
+    apply_desuperheater(runner, model, water_heating_system, water_heater, loc_space, loc_schedule, plant_loop, unit_multiplier)
 
     plantloop_map[water_heating_system.id] = plant_loop
   end
 
   # Adds a heat pump water heater to the OpenStudio model.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param spaces [Hash] Map of HPXML locations => OpenStudio Space objects
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param hpxml_header [HPXML::Header] HPXML Header object (one per HPXML file)
@@ -138,7 +136,7 @@ module Waterheater
   # @param unavailable_periods [HPXML::UnavailablePeriods] Object that defines periods for, e.g., power outages or vacancies
   # @param plantloop_map [Hash] Map of HPXML System ID => OpenStudio PlantLoop objects
   # @return [nil]
-  def self.apply_hpwh(model, runner, spaces, hpxml_bldg, hpxml_header, water_heating_system, schedules_file, unavailable_periods, plantloop_map)
+  def self.apply_hpwh(runner, model, spaces, hpxml_bldg, hpxml_header, water_heating_system, schedules_file, unavailable_periods, plantloop_map)
     loc_space, loc_schedule = Geometry.get_space_or_schedule_from_location(water_heating_system.location, model, spaces)
     unit_multiplier = hpxml_bldg.building_construction.number_of_units
     obj_name = Constants::ObjectTypeWaterHeater
@@ -200,13 +198,13 @@ module Waterheater
     max_temp = 120.0 # F
 
     # Coil:WaterHeating:AirToWaterHeatPump:Wrapped
-    coil = apply_hpwh_dxcoil(model, runner, water_heating_system, hpxml_bldg.elevation, obj_name, airflow_rate, unit_multiplier)
+    coil = apply_hpwh_dxcoil(runner, model, water_heating_system, hpxml_bldg.elevation, obj_name, airflow_rate, unit_multiplier)
 
     # WaterHeater:Stratified
     tank = apply_hpwh_stratified_tank(model, water_heating_system, obj_name, solar_fraction, hpwh_tamb, top_element_sp, bottom_element_sp, unit_multiplier, hpxml_bldg.building_construction.number_of_bedrooms)
     plant_loop.addSupplyBranchForComponent(tank)
 
-    apply_desuperheater(model, runner, water_heating_system, tank, loc_space, loc_schedule, plant_loop, unit_multiplier)
+    apply_desuperheater(runner, model, water_heating_system, tank, loc_space, loc_schedule, plant_loop, unit_multiplier)
 
     # Fan:SystemModel
     fan_power = 0.0462 # W/cfm, Based on 1st gen AO Smith HPWH, could be updated but pretty minor impact
@@ -228,7 +226,7 @@ module Waterheater
     hpwh_zone_heat_gain_program = apply_hpwh_zone_heat_gain_program(model, obj_name, loc_space, hpwh_tamb, hpwh_rhamb, tank, coil, fan, amb_temp_sensor, amb_rh_sensors, unit_multiplier)
 
     # EMS for the HPWH control logic
-    hpwh_ctrl_program = apply_hpwh_control_program(model, runner, obj_name, water_heating_system, amb_temp_sensor, top_element_sp, bottom_element_sp, min_temp, max_temp, sensed_setpoint_schedule, control_setpoint_schedule, schedules_file)
+    hpwh_ctrl_program = apply_hpwh_control_program(runner, model, obj_name, water_heating_system, amb_temp_sensor, top_element_sp, bottom_element_sp, min_temp, max_temp, sensed_setpoint_schedule, control_setpoint_schedule, schedules_file)
 
     # ProgramCallingManagers
     Model.add_ems_program_calling_manager(
@@ -249,8 +247,8 @@ module Waterheater
   # This makes the code much simpler and makes the EnergyPlus results more robust.
   #
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param spaces [Hash] Map of HPXML locations => OpenStudio Space objects
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param hpxml_header [HPXML::Header] HPXML Header object (one per HPXML file)
@@ -259,7 +257,7 @@ module Waterheater
   # @param unavailable_periods [HPXML::UnavailablePeriods] Object that defines periods for, e.g., power outages or vacancies
   # @param plantloop_map [Hash] Map of HPXML System ID => OpenStudio PlantLoop objects
   # @return [nil]
-  def self.apply_combi(model, runner, spaces, hpxml_bldg, hpxml_header, water_heating_system, schedules_file, unavailable_periods, plantloop_map)
+  def self.apply_combi(runner, model, spaces, hpxml_bldg, hpxml_header, water_heating_system, schedules_file, unavailable_periods, plantloop_map)
     loc_space, loc_schedule = Geometry.get_space_or_schedule_from_location(water_heating_system.location, model, spaces)
     unit_multiplier = hpxml_bldg.building_construction.number_of_units
     solar_fraction = get_water_heater_solar_fraction(water_heating_system, hpxml_bldg)
@@ -288,14 +286,13 @@ module Waterheater
     plant_loop = add_plant_loop(model, t_set_c, hpxml_header.eri_calculation_version, unit_multiplier)
 
     # Create water heater
-    water_heater = apply_water_heater(name: obj_name_combi,
+    water_heater = apply_water_heater(runner, model,
+                                      name: obj_name_combi,
                                       water_heating_system: water_heating_system,
                                       act_vol: act_vol,
                                       t_set_c: t_set_c,
                                       loc_space: loc_space,
                                       loc_schedule: loc_schedule,
-                                      model: model,
-                                      runner: runner,
                                       ua: ua,
                                       is_combi: true,
                                       schedules_file: schedules_file,
@@ -938,15 +935,15 @@ module Waterheater
 
   # Adds a CoilWaterHeatingAirToWaterHeatPumpWrapped object for the HPWH to the OpenStudio model.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param water_heating_system [HPXML::WaterHeatingSystem] The HPXML water heating system of interest
   # @param elevation [Double] Elevation of the building site (ft)
   # @param obj_name [String] Name for the OpenStudio object
   # @param airflow_rate [Double] HPWH fan airflow rate (cfm)
   # @param unit_multiplier [Integer] Number of similar dwelling units
   # @return [OpenStudio::Model::CoilWaterHeatingAirToWaterHeatPumpWrapped] The HPWH DX coil
-  def self.apply_hpwh_dxcoil(model, runner, water_heating_system, elevation, obj_name, airflow_rate, unit_multiplier)
+  def self.apply_hpwh_dxcoil(runner, model, water_heating_system, elevation, obj_name, airflow_rate, unit_multiplier)
     # Curves
     hpwh_cap = Model.add_curve_biquadratic(
       model,
@@ -1297,8 +1294,8 @@ module Waterheater
 
   # Adds an EMS program to control the HPWH upper and lower elements.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param obj_name [String] Name for the OpenStudio object
   # @param water_heating_system [HPXML::WaterHeatingSystem] The HPXML water heating system of interest
   # @param amb_temp_sensor [OpenStudio::Model::EnergyManagementSystemSensor] HPWH ambient temperature sensor
@@ -1310,7 +1307,7 @@ module Waterheater
   # @param control_setpoint_schedule [OpenStudio::Model::ScheduleConstant or OpenStudio::Model::ScheduleRuleset] Setpoint temperature schedule (controlled)
   # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
   # @return [OpenStudio::Model::EnergyManagementSystemProgram] The HPWH control program
-  def self.apply_hpwh_control_program(model, runner, obj_name, water_heating_system, amb_temp_sensor, hpwh_top_element_sp, hpwh_bottom_element_sp, min_temp, max_temp, sensted_setpoint_schedule, control_setpoint_schedule, schedules_file)
+  def self.apply_hpwh_control_program(runner, model, obj_name, water_heating_system, amb_temp_sensor, hpwh_top_element_sp, hpwh_bottom_element_sp, min_temp, max_temp, sensted_setpoint_schedule, control_setpoint_schedule, schedules_file)
     # Lower element is enabled if the ambient air temperature prevents the HP from running
     leschedoverride_actuator = Model.add_ems_actuator(
       name: "#{obj_name} LESchedOverride",
@@ -1483,8 +1480,8 @@ module Waterheater
 
   # Adds a desuperheater for the given HPXML water heating system to the OpenStudio model.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param water_heating_system [HPXML::WaterHeatingSystem] The HPXML water heating system of interest
   # @param tank [OpenStudio::Model::WaterHeaterMixed or OpenStudio::Model::WaterHeaterStratified] The water heater tank
   # @param loc_space [OpenStudio::Model::Space] The space where the water heater is located
@@ -1492,7 +1489,7 @@ module Waterheater
   # @param plant_loop [OpenStudio::Model::PlantLoop] The DHW plant loop
   # @param unit_multiplier [Integer] Number of similar dwelling units
   # @return [nil]
-  def self.apply_desuperheater(model, runner, water_heating_system, tank, loc_space, loc_schedule, plant_loop, unit_multiplier)
+  def self.apply_desuperheater(runner, model, water_heating_system, tank, loc_space, loc_schedule, plant_loop, unit_multiplier)
     return unless water_heating_system.uses_desuperheater
 
     # Get the HVAC cooling coil for the desuperheater
@@ -1525,13 +1522,12 @@ module Waterheater
       t_set_c = get_t_set_c(water_heating_system.temperature - 5.0, HPXML::WaterHeaterTypeStorage)
     end
 
-    storage_tank = apply_water_heater(name: storage_tank_name,
+    storage_tank = apply_water_heater(runner, model,
+                                      name: storage_tank_name,
                                       act_vol: storage_vol_actual,
                                       t_set_c: t_set_c,
                                       loc_space: loc_space,
                                       loc_schedule: loc_schedule,
-                                      model: model,
-                                      runner: runner,
                                       ua: assumed_ua,
                                       is_dsh_storage: true,
                                       unit_multiplier: unit_multiplier)
@@ -1937,14 +1933,14 @@ module Waterheater
 
   # Adds a water heater object to the OpenStudio model.
   #
+  # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param name [String] Name for the OpenStudio object
   # @param water_heating_system [HPXML::WaterHeatingSystem] The HPXML water heating system of interest
   # @param act_vol [Double] Actual tank volume (gal)
   # @param t_set_c [Double] Water heater setpoint including deadband (C)
   # @param loc_space [OpenStudio::Model::Space] The space where the water heater is located
   # @param loc_schedule [OpenStudio::Model::ScheduleConstant] The temperature schedule, if not located in a space
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
-  # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param u [Double] Tank loss coefficient (FIXME)
   # @param ua [Double] Tank loss UA factor (Btu/hr-F)
   # @param eta_c [Double] Burner efficiency (frac)
@@ -1954,7 +1950,7 @@ module Waterheater
   # @param unavailable_periods [HPXML::UnavailablePeriods] Object that defines periods for, e.g., power outages or vacancies
   # @param unit_multiplier [Integer] Number of similar dwelling units
   # @return [OpenStudio::Model::WaterHeaterMixed or OpenStudio::Model::WaterHeaterStratified] Water heater object
-  def self.apply_water_heater(name:, water_heating_system: nil, act_vol:, t_set_c: nil, loc_space:, loc_schedule: nil, model:, runner:, u: nil, ua:, eta_c: nil, is_dsh_storage: false, is_combi: false, schedules_file: nil, unavailable_periods: [], unit_multiplier: 1.0)
+  def self.apply_water_heater(runner, model, name:, water_heating_system: nil, act_vol:, t_set_c: nil, loc_space:, loc_schedule: nil, u: nil, ua:, eta_c: nil, is_dsh_storage: false, is_combi: false, schedules_file: nil, unavailable_periods: [], unit_multiplier: 1.0)
     # storage tank doesn't require water_heating_system class argument being passed
     if is_dsh_storage || is_combi
       fuel = nil
