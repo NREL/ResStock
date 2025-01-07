@@ -512,4 +512,4 @@ Row Index,Sums To,Annual Name,Annual Units,Timeseries ResStock Name,Timeseries B
 511,,,,,schedules_ev_occupant,frac,Occupancy schedule of the electric vehicle driving occupant
 512,,,,,schedules_present_occupants,binary,Binary representation of the occupancy of all occupants. Occupancy status of occupant n = schedules_present_occupants & (1 << n)
 513,,report_simulation_output.vehicle_electric_vehicle_discharging_m_btu,,Vehicle: Electric Vehicle Discharging,vehicle__electric_vehicle_discharging__kwh,kWh,Energy discharged by the electric vehicle battery in the timestep
-514,,report_simulation_output.vehicle_unmet_driving_hours_hr,,Vehicle: Unmet Driving Hours,vehicle__unmet_driving_hours__hr,hour,Number of hours the electric vehicle was attempted to be driven when SOC as at minimum level
+514,,report_simulation_output.unmet_hours_driving_hr,,Unmet Hours: Driving,unmet_hours__driving__hr,hour,Number of hours the electric vehicle was attempted to be driven when SOC was at minimum level
