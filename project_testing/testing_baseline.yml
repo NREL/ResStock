@@ -82,8 +82,6 @@ workflow_generator:
       include_timeseries_resilience: true
       timeseries_timestamp_convention: end
       timeseries_num_decimal_places: 4
-      include_annual_vehicle_outputs: true
-      include_timeseries_vehicle_outputs: true
       output_variables:
         - name: Zone People Occupant Count
       include_monthly_bills: true
