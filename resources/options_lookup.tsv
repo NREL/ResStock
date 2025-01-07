@@ -9286,6 +9286,7 @@ Electric Vehicle Outlet Access	Void
 Electric Vehicle Outlet Access	Yes
 Electric Vehicle Ownership	No	ResStockArguments	ev_battery_present=false
 Electric Vehicle Ownership	Yes	ResStockArguments	ev_battery_present=true
+Electric Vehicle Ownership	Void
 Energystar Climate Zone 2023	North-Central
 Energystar Climate Zone 2023	Northern
 Energystar Climate Zone 2023	South-Central
