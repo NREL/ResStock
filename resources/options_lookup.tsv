@@ -9258,20 +9258,16 @@ Electric Vehicle Battery	"Pickup, Battery Electric Vehicle, 300 mile range"	ResS
 Electric Vehicle Battery	"SUV, Battery Electric Vehicle, 200 mile range"	ResStockArguments	ev_battery_usable_capacity=53.503	ev_energy_efficiency=0.267513	ev_average_mph=22
 Electric Vehicle Battery	"SUV, Battery Electric Vehicle, 300 mile range"	ResStockArguments	ev_battery_usable_capacity=83.680	ev_energy_efficiency=0.278934	ev_average_mph=22
 Electric Vehicle Charge At Home	0-19%	ResStockArguments	ev_fraction_charged_home=0.10
+Electric Vehicle Charge At Home	100%	ResStockArguments	ev_fraction_charged_home=1.00
 Electric Vehicle Charge At Home	20-39%	ResStockArguments	ev_fraction_charged_home=0.30
 Electric Vehicle Charge At Home	40-59%	ResStockArguments	ev_fraction_charged_home=0.50
 Electric Vehicle Charge At Home	60%-79%	ResStockArguments	ev_fraction_charged_home=0.70
 Electric Vehicle Charge At Home	80%-99%	ResStockArguments	ev_fraction_charged_home=0.90
-Electric Vehicle Charge At Home	100%	ResStockArguments	ev_fraction_charged_home=1.00
 Electric Vehicle Charger	Level 1 charger	ResStockArguments	ev_charger_present=true	ev_charger_power=1600	ev_charger_location=auto
 Electric Vehicle Charger	Level 2 charger	ResStockArguments	ev_charger_present=true	ev_charger_power=5690	ev_charger_location=auto
 Electric Vehicle Charger	None	ResStockArguments	ev_charger_present=false
 Electric Vehicle Charger	Void	ResStockArguments	ev_charger_present=false
 Electric Vehicle Miles Traveled	1000	ResStockArguments	ev_miles_per_year=1000
-Electric Vehicle Miles Traveled	3000	ResStockArguments	ev_miles_per_year=3000
-Electric Vehicle Miles Traveled	5000	ResStockArguments	ev_miles_per_year=5000
-Electric Vehicle Miles Traveled	7000	ResStockArguments	ev_miles_per_year=7000
-Electric Vehicle Miles Traveled	9000	ResStockArguments	ev_miles_per_year=9000
 Electric Vehicle Miles Traveled	11000	ResStockArguments	ev_miles_per_year=11000
 Electric Vehicle Miles Traveled	13000	ResStockArguments	ev_miles_per_year=13000
 Electric Vehicle Miles Traveled	15000	ResStockArguments	ev_miles_per_year=15000
@@ -9279,14 +9275,18 @@ Electric Vehicle Miles Traveled	17000	ResStockArguments	ev_miles_per_year=17000
 Electric Vehicle Miles Traveled	19000	ResStockArguments	ev_miles_per_year=19000
 Electric Vehicle Miles Traveled	22500	ResStockArguments	ev_miles_per_year=22500
 Electric Vehicle Miles Traveled	27500	ResStockArguments	ev_miles_per_year=27500
+Electric Vehicle Miles Traveled	3000	ResStockArguments	ev_miles_per_year=3000
 Electric Vehicle Miles Traveled	35000	ResStockArguments	ev_miles_per_year=35000
 Electric Vehicle Miles Traveled	45000	ResStockArguments	ev_miles_per_year=45000
+Electric Vehicle Miles Traveled	5000	ResStockArguments	ev_miles_per_year=5000
+Electric Vehicle Miles Traveled	7000	ResStockArguments	ev_miles_per_year=7000
+Electric Vehicle Miles Traveled	9000	ResStockArguments	ev_miles_per_year=9000
 Electric Vehicle Outlet Access	No
 Electric Vehicle Outlet Access	Void
 Electric Vehicle Outlet Access	Yes
 Electric Vehicle Ownership	No	ResStockArguments	ev_battery_present=false
-Electric Vehicle Ownership	Yes	ResStockArguments	ev_battery_present=true
 Electric Vehicle Ownership	Void
+Electric Vehicle Ownership	Yes	ResStockArguments	ev_battery_present=true
 Energystar Climate Zone 2023	North-Central
 Energystar Climate Zone 2023	Northern
 Energystar Climate Zone 2023	South-Central
