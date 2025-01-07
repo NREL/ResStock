@@ -228,7 +228,6 @@ report_simulation_output.include_annual_emission_fuels,Generates annual emission
 report_simulation_output.include_annual_emission_end_uses,Generates annual emissions for each end use. Requires the appropriate HPXML inputs to be specified.
 report_simulation_output.include_annual_total_loads,"Generates annual heating, cooling, and hot water loads."
 report_simulation_output.include_annual_unmet_hours,Generates annual unmet hours for heating and cooling.
-report_simulation_output.include_annual_vehicle_outputs,Generates annual vehicle outputs.
 report_simulation_output.include_annual_peak_fuels,Generates annual electricity peaks for summer/winter.
 report_simulation_output.include_annual_peak_loads,Generates annual peak loads for heating/cooling.
 report_simulation_output.include_annual_component_loads,Generates annual heating and cooling loads disaggregated by component type.
@@ -250,7 +249,6 @@ report_simulation_output.include_timeseries_zone_temperatures,Generates timeseri
 report_simulation_output.include_timeseries_airflows,Generates timeseries airflows.
 report_simulation_output.include_timeseries_weather,Generates timeseries weather data.
 report_simulation_output.include_timeseries_resilience,Generates timeseries resilience outputs.
-report_simulation_output.include_timeseries_vehicle_outputs,Generates timeseries vehicle outputs.
 report_simulation_output.timeseries_timestamp_convention,Determines whether timeseries timestamps use the start-of-period or end-of-period convention. Doesn't apply if the output format is 'csv_dview'.
 report_simulation_output.timeseries_num_decimal_places,"Allows overriding the default number of decimal places for timeseries output. Does not apply if output format is msgpack, where no rounding is performed because there is no file size penalty to storing full precision."
 report_simulation_output.add_timeseries_dst_column,"Optionally add, in addition to the default local standard Time column, a local clock TimeDST column. Requires that daylight saving time is enabled."
