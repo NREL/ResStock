@@ -404,6 +404,12 @@ class ResStockArguments < OpenStudio::Measure::ModelMeasure
     arg.setUnits('hours')
     args << arg
 
+    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_efficiency_percent_increase', false)
+    arg.setDisplayName('Electric Vehicle: Efficiency Improvement')
+    arg.setDescription('The increase (%) in efficiency of the electric vehicle.')
+    arg.setUnits('hours')
+    args << arg
+
     return args
   end
 
@@ -855,6 +861,11 @@ class ResStockArguments < OpenStudio::Measure::ModelMeasure
     if (not args[:ev_miles_per_year].nil?) && (not args[:ev_average_mph].nil?)
       hours_per_year = args[:ev_miles_per_year] / args[:ev_average_mph]
       args[:ev_hours_per_week] = (hours_per_year / UnitConversions.convert(1, 'yr', 'day')) * 7
+    end
+
+    if not args[:ev_efficiency_percent_increase].nil?
+      # Adjust efficiency (in kWh/mile) to reflect a percentage improvement in efficiency.
+      args[:ev_energy_efficiency] = args[:ev_energy_efficiency] / (1 + args[:ev_efficiency_percent_increase])
     end
 
     args.each do |arg_name, arg_value|

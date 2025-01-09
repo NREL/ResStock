@@ -57,8 +57,6 @@ module Constants
                                    'emissions_wood_values',
                                    'emissions_coal_values',
                                    'emissions_wood_pellets_values',
-                                   'ev_battery_capacity',
-                                   'ev_battery_discharge_power',
                                    'ev_hours_per_week',
                                    'misc_plug_loads_vehicle_2_usage_multiplier',
                                    'misc_plug_loads_vehicle_annual_kwh',
