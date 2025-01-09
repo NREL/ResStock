@@ -9267,6 +9267,7 @@ Electric Vehicle Charger	Level 1 charger	ResStockArguments	ev_charger_present=tr
 Electric Vehicle Charger	Level 2 charger	ResStockArguments	ev_charger_present=true	ev_charger_power=5690	ev_charger_location=auto
 Electric Vehicle Charger	None	ResStockArguments	ev_charger_present=false
 Electric Vehicle Charger	Void	ResStockArguments	ev_charger_present=false
+Electric Vehicle Efficiency Increase	15%	ResStockArguments	ev_efficiency_percent_increase=0.15
 Electric Vehicle Miles Traveled	1000	ResStockArguments	ev_miles_per_year=1000
 Electric Vehicle Miles Traveled	11000	ResStockArguments	ev_miles_per_year=11000
 Electric Vehicle Miles Traveled	13000	ResStockArguments	ev_miles_per_year=13000
@@ -9287,7 +9288,6 @@ Electric Vehicle Outlet Access	Yes
 Electric Vehicle Ownership	No	ResStockArguments	ev_battery_present=false
 Electric Vehicle Ownership	Void
 Electric Vehicle Ownership	Yes	ResStockArguments	ev_battery_present=true
-Electric Vehicle Efficiency Increase	15%	ResStockArguments	ev_efficiency_percent_increase=0.15
 Energystar Climate Zone 2023	North-Central
 Energystar Climate Zone 2023	Northern
 Energystar Climate Zone 2023	South-Central
