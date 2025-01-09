@@ -42,7 +42,7 @@ Development Changelog
         :pullreq: 1329
         :tickets: 1261
 
-        **Date**: 2024-12-9
+        **Date**: 2024-1-9
 
         Title:
         Add Standard Data Release YAML to Integration Tests
