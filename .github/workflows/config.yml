@@ -349,7 +349,7 @@ jobs:
           path: test/tests_yml_files
           name: precomputed_buildstocks
 
-      - name: Build documentation
+      - name: Build Read The Docs Documentation
         run: |
           sudo gem install oga
           ruby docs/read_the_docs/source/workflow_inputs/create_characteristics_rst.rb
@@ -357,12 +357,23 @@ jobs:
           cd docs/read_the_docs
           pip install changelog
           make html SPHINXOPTS="-W --keep-going -n"
-
-      - name: Save Docs
+      
+      - name: Save Read The Docs
         uses: actions/upload-artifact@v4
         with:
           name: documentation
           path: docs/read_the_docs/_build/html/
+      
+      - name: Build ResStock Technical Reference Guide
+        uses: dante-ev/latex-action@latest
+        with:
+          root_file: docs/technical_reference_guide/0_main.tex
+
+      - name: Save Technical Reference Guide
+        uses: actions/upload-artifact@v4
+        with:
+          name: technical_reference_guide
+          path: 0_main.pdf
 
       - name: Commit latest results
         shell: bash        
