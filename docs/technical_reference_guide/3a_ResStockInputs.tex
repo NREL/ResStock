@@ -1672,18 +1672,23 @@ Time period in which the housing unit was constructed as defined by the U.S.~Cen
 \end{itemize}
 
 \paragraph{Options}
-The options for Vintage ACS are the same vintage bins as ACS. They are roughly 20-year bins. No arguments are set based on this input file.
+The options for Vintage ACS are the same vintage bins as ACS, \ref{table:hc_vintage_acs}. They are roughly 20-year bins. No arguments are set based on this input file.
 
-\begin{customLongTable}{@{}ll@{}}
-{Options and saturation for Vintage ACS} {table:test2}\\
-{Option name & Stock saturation} \\
+\begin{longtable}[]{ |p{4.cm}|p{4cm}|p{4cm}| }
+\caption{Option and saturation for Vintage ACS} \label{table:hc_vintage_acs} \\
+\toprule\noalign{}
+Option name & Stock saturation \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
 \textless1940 & 13\% \\
 1940--59 & 15\% \\
 1960--79 & 26\% \\
 1980--99 & 27\% \\
 2000--09 & 14\% \\
 2010s & 5.1\% \\
-\end{customLongTable}
+\end{longtable}
 
 \paragraph{Distribution Assumption(s)}
 \begin{itemize}
@@ -3120,7 +3125,7 @@ All homes in ResStock receive Fiberglass doors with an R-value of 5 (Table \ref{
 \begin{longtable}[]{|p{3.5cm}|p{3.3cm}|} \caption{Door options and arguments that vary for each option} \label{table:hc_opt_door} \\  
 
 \toprule\noalign{}
-Option name & Stock saturation & \texttt{door\_rvalue} \\
+Option name & \texttt{door\_rvalue} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
