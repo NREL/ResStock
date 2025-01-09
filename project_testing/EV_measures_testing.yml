@@ -1,0 +1,85 @@
+schema_version: '0.4'
+os_version: 3.9.0
+os_sha: c77fbb9569
+buildstock_directory: ../ # Relative to this file or absolute
+project_directory: project_national # Relative to buildstock_directory
+output_directory: ev_measure_upgrade_test_20250109_v1
+weather_files_url: https://data.nrel.gov/system/files/156/Buildstock_TMY3_FIPS-1678817889.zip
+# weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
+
+sampler:
+  type: residential_quota
+  args:
+    n_datapoints: 250
+
+workflow_generator:
+  type: residential_hpxml
+  version: 2024.07.20
+  args:
+    build_existing_model:
+      simulation_control_timestep: 60
+      simulation_control_run_period_begin_month: 1
+      simulation_control_run_period_begin_day_of_month: 1
+      simulation_control_run_period_end_month: 12
+      simulation_control_run_period_end_day_of_month: 31
+      simulation_control_run_period_calendar_year: 2007
+
+    emissions:
+      - scenario_name: LRMER_MidCase_15
+        type: CO2e
+        elec_folder: data/emissions/cambium/2022/LRMER_MidCase_15
+
+    utility_bills:
+      - scenario_name: Bills
+
+    simulation_output_report:
+      timeseries_frequency: hourly
+      include_timeseries_total_consumptions: true
+      include_timeseries_fuel_consumptions: true
+      include_timeseries_end_use_consumptions: true
+      include_timeseries_emissions: false
+      include_timeseries_emission_fuels: false
+      include_timeseries_emission_end_uses: false
+      include_timeseries_hot_water_uses: false
+      include_timeseries_total_loads: true
+      include_timeseries_component_loads: true
+      include_timeseries_unmet_hours: true
+      include_timeseries_zone_temperatures: false
+      include_timeseries_airflows: false
+      include_timeseries_weather: false
+      include_timeseries_resilience: false
+
+    reporting_measures:
+      - measure_dir_name: QOIReport
+
+    server_directory_cleanup:
+      retain_schedules_csv: true
+
+baseline:
+  n_buildings_represented: 139647020 # American Community Survey 2021 5-year, B25001, does not include territories ( 138765649 without AK and HI )
+
+upgrades:
+
+  - upgrade_name: Upgrade 1 - EV Ownership + L2 Charger
+    package_apply_logic: &apply_to_non_ev_owners
+      - Electric Vehicle Ownership|No  
+    options:
+      - &EV_Ownership_Yes
+        option: Electric Vehicle Ownership|Yes
+      - &L2_Charger
+        option: Electric Vehicle Charger|Level 2 charger
+
+  - upgrade_name: Upgrade 2 - EV Ownership + L1 Charger
+    package_apply_logic: *apply_to_non_ev_owners
+    options:
+      - *EV_Ownership_Yes
+      - &L1_Charger
+        option: Electric Vehicle Charger|Level 1 charger
+
+  - upgrade_name: Upgrade 3 - EV Ownership + L2 Charger + EV Eff Scale
+    package_apply_logic: *apply_to_non_ev_owners
+    options:
+      - *EV_Ownership_Yes
+      - *L2_Charger
+      - &EV_eff_scale
+        option: Electric Vehicle Efficiency Increase|15%
