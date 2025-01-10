@@ -371,12 +371,6 @@ jobs:
           working_directory: docs/technical_reference_guide
           root_file: ResStockTechnicalReferenceGuide.tex
 
-      - name: Save Technical Reference Guide
-        uses: actions/upload-artifact@v4
-        with:
-          name: technical_reference_guide
-          path: docs/technical_reference_guide/ResStockTechnicalReferenceGuide.pdf
-
       - name: Commit latest results
         shell: bash        
         run: |
