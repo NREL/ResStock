@@ -10,7 +10,7 @@
 ## Checklist
 
 #### Required:
-- [ ] [Technical reference documentation](https://github.com/NREL/resstock/tree/develop/docs/read_the_docs) has been updated
+- [ ] [Technical reference guide](https://github.com/NREL/resstock/tree/develop/docs/technical_reference_guide) has been updated
 - [ ] Add to the [changelog_dev.rst file](https://github.com/NREL/resstock/tree/develop/docs/read_the_docs/source/changelog/changelog_dev.rst)
 - [ ] No unexpected regression test changes on CI (comparison artifacts have been checked)
 
@@ -22,3 +22,4 @@
   - [ ] [options saturation](https://github.com/NREL/resstock/tree/develop/project_national/resources/options_saturations.csv)
   - [ ] [options_lookup](https://github.com/NREL/resstock/blob/develop/resources/options_lookup.tsv)
 - [ ] `openstudio tasks.rb update_measures` has been run
+- [ ] Update [read_the_docs](https://github.com/NREL/resstock/tree/develop/docs/read_the_docs)
