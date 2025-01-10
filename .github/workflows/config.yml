@@ -313,7 +313,7 @@ jobs:
 
   update-results:
     runs-on: ubuntu-22.04
-    # needs: [analysis-tests, integration-tests]
+    needs: [analysis-tests, integration-tests]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -322,7 +322,6 @@ jobs:
       - name: Install software
         run: |
           export DEBIAN_FRONTEND=noninteractive
-          apt update && apt install sudo
           sudo apt update
           sudo -E apt-get install -y wget unzip python3-sphinx-rtd-theme
 
@@ -350,7 +349,7 @@ jobs:
           path: test/tests_yml_files
           name: precomputed_buildstocks
 
-      - name: Build Read The Docs Documentation
+      - name: Build Read The Docs
         run: |
           sudo gem install oga
           ruby docs/read_the_docs/source/workflow_inputs/create_characteristics_rst.rb
