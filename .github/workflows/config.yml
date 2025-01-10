@@ -370,8 +370,6 @@ jobs:
         with:
           working_directory: docs/technical_reference_guide
           root_file: ResStockTechnicalReferenceGuide.tex
-          compiler: pdflatex
-          args: --aux-directory=aux-dir
 
       - name: Save Technical Reference Guide
         uses: actions/upload-artifact@v4

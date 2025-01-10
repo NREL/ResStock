@@ -1,5 +1,13 @@
 /docs/read_the_docs/_build
-/docs/technical_reference_guide/aux-dir
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.aux
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.bcf
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.lof
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.log
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.lot
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.out
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.run.xml
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.toc
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.upa
 /lib
 /measures/UpgradeCosts/tests/in*
 /measures/UpgradeCosts/tests/*.xml
