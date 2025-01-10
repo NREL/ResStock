@@ -325,44 +325,44 @@ jobs:
           sudo apt update
           sudo -E apt-get install -y wget unzip python3-sphinx-rtd-theme
 
-      - name: Download feature samples
-        uses: actions/download-artifact@v4
-        with:
-          path: samples
-          name: feature_samples
+      # - name: Download feature samples
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     path: samples
+      #     name: feature_samples
 
-      - name: Download feature results
-        uses: actions/download-artifact@v4
-        with:
-          path: results
-          name: feature_results
+      # - name: Download feature results
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     path: results
+      #     name: feature_results
 
-      - name: Download formatted options_lookup
-        uses: actions/download-artifact@v4
-        with:
-          path: resources
-          name: options_lookup
+      # - name: Download formatted options_lookup
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     path: resources
+      #     name: options_lookup
 
-      - name: Download precomputed buildstocks
-        uses: actions/download-artifact@v4
-        with:
-          path: test/tests_yml_files
-          name: precomputed_buildstocks
+      # - name: Download precomputed buildstocks
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     path: test/tests_yml_files
+      #     name: precomputed_buildstocks
 
-      - name: Build Read The Docs Documentation
-        run: |
-          sudo gem install oga
-          ruby docs/read_the_docs/source/workflow_inputs/create_characteristics_rst.rb
-          ruby docs/read_the_docs/source/workflow_outputs/csv_tables.rb
-          cd docs/read_the_docs
-          pip install changelog
-          make html SPHINXOPTS="-W --keep-going -n"
+      # - name: Build Read The Docs Documentation
+      #   run: |
+      #     sudo gem install oga
+      #     ruby docs/read_the_docs/source/workflow_inputs/create_characteristics_rst.rb
+      #     ruby docs/read_the_docs/source/workflow_outputs/csv_tables.rb
+      #     cd docs/read_the_docs
+      #     pip install changelog
+      #     make html SPHINXOPTS="-W --keep-going -n"
       
-      - name: Save Read The Docs
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation
-          path: docs/read_the_docs/_build/html/
+      # - name: Save Read The Docs
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: documentation
+      #     path: docs/read_the_docs/_build/html/
       
       - name: Build ResStock Technical Reference Guide
         uses: dante-ev/latex-action@latest
@@ -381,11 +381,11 @@ jobs:
         run: |
           branch_name="${{ github.head_ref }}"
           git pull origin $branch_name
-          cp -r samples/buildstock*.csv test/base_results/baseline/annual
-          cp -r results/baseline/annual/results*.csv test/base_results/baseline/annual
-          cp -r results/baseline/timeseries/*.csv test/base_results/baseline/timeseries
-          cp -r results/upgrades/annual/results*.csv test/base_results/upgrades/annual
-          cp -r results/upgrades/timeseries/*.csv test/base_results/upgrades/timeseries
+          # cp -r samples/buildstock*.csv test/base_results/baseline/annual
+          # cp -r results/baseline/annual/results*.csv test/base_results/baseline/annual
+          # cp -r results/baseline/timeseries/*.csv test/base_results/baseline/timeseries
+          # cp -r results/upgrades/annual/results*.csv test/base_results/upgrades/annual
+          # cp -r results/upgrades/timeseries/*.csv test/base_results/upgrades/timeseries
           git add test/base_results
           git add docs
           git add resources/options_lookup.tsv
