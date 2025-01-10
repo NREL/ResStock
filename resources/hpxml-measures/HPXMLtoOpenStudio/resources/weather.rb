@@ -184,7 +184,7 @@ class WeatherFile
   # @param rowdata [Array<Hash>] Weather data for each EPW record
   # @return [Double] WSF value
   def calc_ashrae_622_wsf(rowdata)
-    weather_data = HPXMLDefaults.lookup_weather_data_from_wmo(header.WMONumber)
+    weather_data = Defaults.lookup_weather_data_from_wmo(header.WMONumber)
     if not weather_data.nil?
       return Float(weather_data[:station_ashrae_622_wsf])
     end
@@ -355,7 +355,7 @@ class WeatherFile
     if !hpxml.nil?
       has_gshp = false
       hpxml.buildings.each do |hpxml_bldg|
-        has_gshp = true if hpxml_bldg.heat_pumps.select { |h| h.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir }.size > 0
+        has_gshp = true if hpxml_bldg.heat_pumps.count { |h| h.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir } > 0
       end
       return if !has_gshp
     end

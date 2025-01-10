@@ -425,7 +425,6 @@
             <Location>conditioned space</Location>
             <TankVolume>50.0</TankVolume>
             <FractionDHWLoadServed>1.0</FractionDHWLoadServed>
-            <HeatingCapacity>15359.0</HeatingCapacity>
             <EnergyFactor>2.0</EnergyFactor>
             <RecoveryEfficiency>1.0</RecoveryEfficiency>
             <WaterHeaterInsulation>

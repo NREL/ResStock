@@ -331,7 +331,6 @@
                 <Units>AFUE</Units>
                 <Value>0.8</Value>
               </AnnualHeatingEfficiency>
-              <ElectricAuxiliaryEnergy>200.0</ElectricAuxiliaryEnergy>
               <extension>
                 <HeatingAutosizingFactor>0.9</HeatingAutosizingFactor>
                 <HeatingAutosizingLimit>29000.0</HeatingAutosizingLimit>

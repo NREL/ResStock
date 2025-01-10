@@ -1210,9 +1210,7 @@
     "heat_pump_cooling_capacity": 12000,
     "heat_pump_fraction_heat_load_served": 1,
     "heat_pump_fraction_cool_load_served": 1,
-    "heat_pump_backup_type": "integrated",
-    "heat_pump_backup_heating_efficiency": 1,
-    "heat_pump_backup_heating_capacity": 12000
+    "heat_pump_backup_type": "none"
   },
   "sample_files/base-bldgtype-mf-unit-shared-laundry-room.xml": {
     "parent_hpxml": "sample_files/base-bldgtype-mf-unit.xml"
@@ -1284,7 +1282,8 @@
     "water_heater_type": "heat pump water heater",
     "water_heater_tank_volume": 120,
     "water_heater_efficiency": 2.3,
-    "water_heater_num_bedrooms_served": 18
+    "water_heater_num_bedrooms_served": 18,
+    "water_heater_heating_capacity": null
   },
   "sample_files/base-bldgtype-mf-unit-shared-water-heater-recirc.xml": {
     "parent_hpxml": "sample_files/base-bldgtype-mf-unit-shared-water-heater.xml"
@@ -1499,7 +1498,14 @@
     "parent_hpxml": "sample_files/base.xml",
     "water_heater_type": "heat pump water heater",
     "water_heater_tank_volume": 80,
-    "water_heater_efficiency": 2.3
+    "water_heater_efficiency": 2.3,
+    "water_heater_heating_capacity": null
+  },
+  "sample_files/base-dhw-tank-heat-pump-capacities.xml": {
+    "parent_hpxml": "sample_files/base-dhw-tank-heat-pump.xml",
+    "water_heater_type": "heat pump water heater",
+    "water_heater_heating_capacity": 3000,
+    "water_heater_backup_heating_capacity": 0
   },
   "sample_files/base-dhw-tank-heat-pump-outside.xml": {
     "parent_hpxml": "sample_files/base-dhw-tank-heat-pump.xml",
@@ -2513,6 +2519,19 @@
     "hvac_control_heating_weekend_setpoint": null,
     "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/setpoints-heating-only.csv"
   },
+  "sample_files/base-hvac-furnace-gas-plus-air-to-air-heat-pump-cooling.xml": {
+    "parent_hpxml": "sample_files/base-hvac-furnace-gas-only.xml",
+    "heat_pump_type": "air-to-air",
+    "heat_pump_heating_efficiency": 7.7,
+    "heat_pump_cooling_efficiency": 13,
+    "heat_pump_cooling_compressor_type": "single stage",
+    "heat_pump_cooling_sensible_heat_fraction": 0.73,
+    "heat_pump_heating_capacity": 36000,
+    "heat_pump_heating_capacity_retention_fraction": 0.6,
+    "heat_pump_heating_capacity_retention_temp": 17.0,
+    "heat_pump_cooling_capacity": 36000,
+    "heat_pump_fraction_cool_load_served": 1
+  },
   "sample_files/base-hvac-furnace-gas-room-ac.xml": {
     "parent_hpxml": "sample_files/base.xml",
     "cooling_system_type": "room air conditioner",
@@ -2553,9 +2572,21 @@
     "heat_pump_cooling_capacity": 36000,
     "heat_pump_fraction_heat_load_served": 1,
     "heat_pump_fraction_cool_load_served": 1,
+    "heat_pump_backup_type": "none"
+  },
+  "sample_files/base-hvac-ground-to-air-heat-pump-backup-integrated.xml": {
+    "parent_hpxml": "sample_files/base-hvac-ground-to-air-heat-pump.xml",
     "heat_pump_backup_type": "integrated",
     "heat_pump_backup_heating_efficiency": 1,
     "heat_pump_backup_heating_capacity": 36000
+  },
+  "sample_files/base-hvac-ground-to-air-heat-pump-backup-stove.xml": {
+    "parent_hpxml": "sample_files/base-hvac-ground-to-air-heat-pump.xml",
+    "heat_pump_backup_type": "separate",
+    "heating_system_2_type": "Stove",
+    "heating_system_2_fuel": "fuel oil",
+    "heating_system_2_heating_efficiency": 0.6,
+    "heating_system_2_heating_capacity": 60000
   },
   "sample_files/base-hvac-ground-to-air-heat-pump-detailed-geothermal-loop.xml": {
     "parent_hpxml": "sample_files/base-hvac-ground-to-air-heat-pump.xml",
@@ -2825,8 +2856,6 @@
     "heat_pump_heating_capacity_retention_temp": 17.0,
     "heat_pump_cooling_capacity": 18000,
     "heat_pump_backup_type": "separate",
-    "heat_pump_backup_heating_efficiency": 1,
-    "heat_pump_backup_heating_capacity": 36000,
     "heating_system_2_type": "Stove",
     "heating_system_2_fuel": "fuel oil",
     "heating_system_2_heating_efficiency": 0.6,
@@ -2879,6 +2908,16 @@
     "cooling_system_cooling_efficiency": 10.7,
     "cooling_system_cooling_sensible_heat_fraction": 0.65
   },
+  "sample_files/base-hvac-ptac-cfis.xml": {
+    "parent_hpxml": "sample_files/base-hvac-ptac.xml",
+    "mech_vent_fan_type": "central fan integrated supply",
+    "mech_vent_flow_rate": 100,
+    "mech_vent_hours_in_operation": 8,
+    "mech_vent_total_recovery_efficiency": 0.48,
+    "mech_vent_sensible_recovery_efficiency": 0.72,
+    "mech_vent_fan_power": 100,
+    "mech_vent_num_units_served": 1
+  },
   "sample_files/base-hvac-ptac-with-heating-electricity.xml": {
     "parent_hpxml": "sample_files/base-hvac-ptac.xml",
     "cooling_system_integrated_heating_system_fuel": "electricity",
@@ -2899,7 +2938,20 @@
     "heat_pump_cooling_efficiency": 11.4,
     "heat_pump_cooling_sensible_heat_fraction": 0.65,
     "heat_pump_heating_capacity_retention_fraction": 0.6,
-    "heat_pump_heating_capacity_retention_temp": 17.0
+    "heat_pump_heating_capacity_retention_temp": 17.0,
+    "heat_pump_backup_type": "integrated",
+    "heat_pump_backup_heating_efficiency": 1,
+    "heat_pump_backup_heating_capacity": 36000
+  },
+  "sample_files/base-hvac-pthp-cfis.xml": {
+    "parent_hpxml": "sample_files/base-hvac-pthp.xml",
+    "mech_vent_fan_type": "central fan integrated supply",
+    "mech_vent_flow_rate": 100,
+    "mech_vent_hours_in_operation": 8,
+    "mech_vent_total_recovery_efficiency": 0.48,
+    "mech_vent_sensible_recovery_efficiency": 0.72,
+    "mech_vent_fan_power": 100,
+    "mech_vent_num_units_served": 1
   },
   "sample_files/base-hvac-pthp-heating-capacity-17f.xml": {
     "parent_hpxml": "sample_files/base-hvac-pthp.xml"
@@ -3149,7 +3201,14 @@
     "mech_vent_fan_power": 300,
     "mech_vent_num_units_served": 1
   },
+  "sample_files/base-mechvent-cfis-15-mins.xml": {
+    "parent_hpxml": "sample_files/base-mechvent-cfis.xml",
+    "simulation_control_timestep": 15
+  },
   "sample_files/base-mechvent-cfis-airflow-fraction-zero.xml": {
+    "parent_hpxml": "sample_files/base-mechvent-cfis.xml"
+  },
+  "sample_files/base-mechvent-cfis-control-type-timer.xml": {
     "parent_hpxml": "sample_files/base-mechvent-cfis.xml"
   },
   "sample_files/base-mechvent-cfis-dse.xml": {
@@ -3173,13 +3232,26 @@
     "mech_vent_num_units_served": 1
   },
   "sample_files/base-mechvent-cfis-no-additional-runtime.xml": {
+    "parent_hpxml": "sample_files/base-mechvent-cfis.xml",
+    "mech_vent_fan_power": null
+  },
+  "sample_files/base-mechvent-cfis-no-outdoor-air-control.xml": {
     "parent_hpxml": "sample_files/base-mechvent-cfis.xml"
   },
   "sample_files/base-mechvent-cfis-supplemental-fan-exhaust.xml": {
-    "parent_hpxml": "sample_files/base-mechvent-cfis.xml"
+    "parent_hpxml": "sample_files/base-mechvent-cfis.xml",
+    "mech_vent_fan_power": null
+  },
+  "sample_files/base-mechvent-cfis-supplemental-fan-exhaust-15-mins.xml": {
+    "parent_hpxml": "sample_files/base-mechvent-cfis-supplemental-fan-exhaust.xml",
+    "simulation_control_timestep": 15
+  },
+  "sample_files/base-mechvent-cfis-supplemental-fan-exhaust-synchronized.xml": {
+    "parent_hpxml": "sample_files/base-mechvent-cfis-supplemental-fan-exhaust.xml"
   },
   "sample_files/base-mechvent-cfis-supplemental-fan-supply.xml": {
-    "parent_hpxml": "sample_files/base-mechvent-cfis.xml"
+    "parent_hpxml": "sample_files/base-mechvent-cfis.xml",
+    "mech_vent_fan_power": null
   },
   "sample_files/base-mechvent-erv.xml": {
     "parent_hpxml": "sample_files/base.xml",

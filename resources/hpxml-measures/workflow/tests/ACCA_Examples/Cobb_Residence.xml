@@ -472,23 +472,30 @@
                   <DuctType>supply</DuctType>
                   <DuctInsulationRValue>4.0</DuctInsulationRValue>
                   <DuctLocation>exterior wall</DuctLocation>
-                  <DuctSurfaceArea>486.0</DuctSurfaceArea>
+                  <FractionDuctArea>1.0</FractionDuctArea>
                 </Ducts>
                 <Ducts>
                   <SystemIdentifier id='Ducts2'/>
                   <DuctType>return</DuctType>
                   <DuctInsulationRValue>4.0</DuctInsulationRValue>
                   <DuctLocation>exterior wall</DuctLocation>
-                  <DuctSurfaceArea>143.0</DuctSurfaceArea>
+                  <FractionDuctArea>1.0</FractionDuctArea>
                 </Ducts>
                 <NumberofReturnRegisters>1</NumberofReturnRegisters>
                 <extension>
                   <ManualJInputs>
                     <BlowerFanHeatBtuh>1707.0</BlowerFanHeatBtuh>
+                    <DefaultTableDuctLoad>
+                      <TableNumber>7I</TableNumber>
+                      <LookupFloorArea>1809.0</LookupFloorArea>
+                      <LeakageLevel>default sealed</LeakageLevel>
+                      <InsulationRValue>4.0</InsulationRValue>
+                    </DefaultTableDuctLoad>
                   </ManualJInputs>
                 </extension>
               </AirDistribution>
             </DistributionSystemType>
+            <ConditionedFloorAreaServed>1809.0</ConditionedFloorAreaServed>
           </HVACDistribution>
         </HVAC>
       </Systems>

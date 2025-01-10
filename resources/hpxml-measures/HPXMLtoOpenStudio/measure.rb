@@ -109,7 +109,7 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     end
 
     Version.check_openstudio_version()
-    Model.tear_down(model: model, runner: runner)
+    Model.reset(model, runner)
 
     args = runner.getArgumentValues(arguments(model), user_arguments)
     set_file_paths(args)
@@ -121,7 +121,7 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
       # Do these once upfront for the entire HPXML object
       epw_path, weather = process_weather(runner, hpxml, args)
       process_whole_sfa_mf_inputs(hpxml)
-      hpxml_sch_map, hpxml_all_zone_loads, hpxml_all_space_loads = process_defaults_schedules_emissions_files(runner, weather, hpxml, args)
+      hpxml_sch_map, design_loads_results_out = process_defaults_schedules_emissions_files(runner, weather, hpxml, args)
 
       # Write updated HPXML object (w/ defaults) to file for inspection
       XMLHelper.write_file(hpxml.to_doc, args[:hpxml_defaults_path])
@@ -157,16 +157,13 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
 
       # Write annual results output file
       # This is helpful if the user wants to get these results right away (e.g.,
-      # they might be using the run_simulation.rb --skip-simulation argument.
-      results_out = []
-      Outputs.append_sizing_results(hpxml.buildings, results_out)
-      Outputs.write_results_out_to_file(results_out, args[:output_format], args[:annual_output_file_path])
+      # they might be using the run_simulation.rb --skip-simulation argument).
+      annual_results_out = []
+      Outputs.append_sizing_results(hpxml.buildings, annual_results_out)
+      Outputs.write_results_out_to_file(annual_results_out, args[:output_format], args[:annual_output_file_path])
 
       # Write design load details output file
-      hpxml.buildings.each do |hpxml_bldg|
-        HVACSizing.write_detailed_output(args[:output_format], args[:design_load_details_output_file_path],
-                                         hpxml_bldg, hpxml_all_zone_loads[hpxml_bldg], hpxml_all_space_loads[hpxml_bldg])
-      end
+      HVACSizing.write_detailed_output(design_loads_results_out, args[:output_format], args[:design_load_details_output_file_path])
     rescue Exception => e
       runner.registerError("#{e.message}\n#{e.backtrace.join("\n")}")
       return false
@@ -273,7 +270,7 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
   # @param weather [WeatherFile] Weather object containing EPW information
   # @param hpxml [HPXML] HPXML object
   # @param args [Hash] Map of :argument_name => value
-  # @return [Array<Hash, Hash, Hash>] Maps of HPXML Building => SchedulesFile object, HPXML Building => (Map of HPXML::Zones => DesignLoadValues object), HPXML Building => (Map of HPXML::Spaces => DesignLoadValues object)
+  # @return [Array<Hash, Array>] Maps of HPXML Building => SchedulesFile object, Rows of design loads output data
   def process_defaults_schedules_emissions_files(runner, weather, hpxml, args)
     hpxml_sch_map = {}
     hpxml_all_zone_loads = {}
@@ -291,7 +288,7 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
       hpxml_sch_map[hpxml_bldg] = schedules_file
 
       # HPXML defaults
-      all_zone_loads, all_space_loads = HPXMLDefaults.apply(runner, hpxml, hpxml_bldg, weather, schedules_file: schedules_file)
+      all_zone_loads, all_space_loads = Defaults.apply(runner, hpxml, hpxml_bldg, weather, schedules_file: schedules_file)
       hpxml_all_zone_loads[hpxml_bldg] = all_zone_loads
       hpxml_all_space_loads[hpxml_bldg] = all_space_loads
     end
@@ -300,7 +297,15 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     Schedule.check_emissions_references(hpxml.header, args[:hpxml_path])
     Schedule.validate_emissions_files(hpxml.header)
 
-    return hpxml_sch_map, hpxml_all_zone_loads, hpxml_all_space_loads
+    # Compile design load outputs for subsequent writing
+    # This needs to come before we collapse enclosure surfaces
+    design_loads_results_out = []
+    hpxml.buildings.each do |hpxml_bldg|
+      HVACSizing.append_detailed_output(args[:output_format], hpxml_bldg, hpxml_all_zone_loads[hpxml_bldg],
+                                        hpxml_all_space_loads[hpxml_bldg], design_loads_results_out)
+    end
+
+    return hpxml_sch_map, design_loads_results_out
   end
 
   # Creates a full OpenStudio model that represents the given HPXML individual dwelling by

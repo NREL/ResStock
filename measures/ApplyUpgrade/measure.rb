@@ -263,14 +263,17 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
         # Get measure name and arguments associated with the option
         options_measure_args, _errors = get_measure_args_from_option_names(lookup_csv_data, [option_name], parameter_name, lookup_file, runner)
         options_measure_args[option_name].each do |measure_subdir, args_hash|
-          update_args_hash(measures, measure_subdir, args_hash, false)
+          update_args_hash(measures, measure_subdir, args_hash)
         end
       end
 
       if halt_workflow(runner, measures)
         return false
       end
-      measures['ResStockArguments'] = [{}] if !measures.keys.include?('ResStockArguments') # upgrade is via another measure
+
+      if !measures.keys.include?('ResStockArguments') # upgrade is via another measure
+        measures['ResStockArguments'] = [{}]
+      end
 
       # Add measure arguments from existing building if needed
       parameters = get_parameters_ordered_from_options_lookup_tsv(lookup_csv_data, characteristics_dir)
@@ -289,7 +292,7 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
 
               new_args_hash[k] = v
             end
-            update_args_hash(measures, measure_subdir, new_args_hash, false)
+            update_args_hash(measures, measure_subdir, new_args_hash)
           end
         end
       end

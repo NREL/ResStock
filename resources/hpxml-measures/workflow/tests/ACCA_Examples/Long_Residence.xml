@@ -221,8 +221,7 @@
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
             <Area>1712.7</Area>
             <RoofType>asphalt or fiberglass shingles</RoofType>
-            <SolarAbsorptance>0.92</SolarAbsorptance>
-            <Emittance>0.92</Emittance>
+            <RoofColor>dark</RoofColor>
             <Pitch>7.0</Pitch>
             <RadiantBarrier>false</RadiantBarrier>
             <Insulation>

@@ -491,13 +491,10 @@
         <WaterHeating>
           <WaterHeatingSystem>
             <SystemIdentifier id='WaterHeatingSystem1'/>
-            <FuelType>propane</FuelType>
             <WaterHeaterType>space-heating boiler with storage tank</WaterHeaterType>
             <Location>conditioned space</Location>
             <TankVolume>50.0</TankVolume>
             <FractionDHWLoadServed>1.0</FractionDHWLoadServed>
-            <EnergyFactor>0.8</EnergyFactor>
-            <RecoveryEfficiency>0.87</RecoveryEfficiency>
             <WaterHeaterInsulation>
               <Jacket>
                 <JacketRValue>0.0</JacketRValue>

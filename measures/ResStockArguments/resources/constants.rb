@@ -26,6 +26,7 @@ module Constants
                                    'simulation_control_onoff_thermostat_deadband',
                                    'simulation_control_heat_pump_backup_heating_capacity_increment',
                                    'unit_multiplier',
+                                   'geometry_unit_height_above_grade',
                                    'geometry_unit_left_wall_is_adiabatic',
                                    'geometry_unit_right_wall_is_adiabatic',
                                    'geometry_unit_front_wall_is_adiabatic',

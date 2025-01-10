@@ -914,6 +914,18 @@ class HPXMLtoOpenStudioEnclosureTest < Minitest::Test
   def test_collapse_surfaces
     # Check that multiple similar surfaces are correctly collapsed
     # to reduce EnergyPlus runtime.
+
+    def add_zones_spaces(hpxml_bldg)
+      hpxml_bldg.zones.add(id: 'Zone1',
+                           zone_type: HPXML::ZoneTypeConditioned)
+      hpxml_bldg.zones[-1].spaces.add(id: 'Zone1Space1')
+      hpxml_bldg.zones[-1].spaces.add(id: 'Zone1Space2')
+      hpxml_bldg.zones.add(id: 'Zone2',
+                           zone_type: HPXML::ZoneTypeConditioned)
+      hpxml_bldg.zones[-1].spaces.add(id: 'Zone2Space1')
+      hpxml_bldg.zones[-1].spaces.add(id: 'Zone2Space2')
+    end
+
     def split_surfaces(surfaces, should_collapse_surfaces)
       surf_class = surfaces[0].class
       for n in 1..surfaces.size
@@ -968,6 +980,20 @@ class HPXMLtoOpenStudioEnclosureTest < Minitest::Test
       surfaces[-1].id += '_tiny'
       surfaces[-1].area = 0.05
       surfaces[-1].exposed_perimeter = 0.05 if surf_class == HPXML::Slab
+
+      if surfaces[0].respond_to?(:attached_to_space_idref)
+        for n in 1..surfaces.size
+          if n % 4 == 1
+            surfaces[n - 1].attached_to_space_idref = 'Zone1Space1'
+          elsif n % 4 == 2
+            surfaces[n - 1].attached_to_space_idref = 'Zone1Space2'
+          elsif n % 4 == 3
+            surfaces[n - 1].attached_to_space_idref = 'Zone2Space1'
+          elsif n % 4 == 0
+            surfaces[n - 1].attached_to_space_idref = 'Zone2Space2'
+          end
+        end
+      end
     end
 
     def get_num_surfaces_by_type(hpxml_bldg)
@@ -984,6 +1010,9 @@ class HPXMLtoOpenStudioEnclosureTest < Minitest::Test
 
     [true, false].each do |should_collapse_surfaces|
       _hpxml, hpxml_bldg = _create_hpxml('base-enclosure-skylights.xml')
+
+      # Make sure that the presence of HPXML zones/spaces doesn't affect this
+      add_zones_spaces(hpxml_bldg)
 
       orig_num_surfaces_by_type = get_num_surfaces_by_type(hpxml_bldg)
 

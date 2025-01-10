@@ -45,8 +45,16 @@ module Generator
     efficiency = output_w / input_w
     fail if efficiency > 1.0 # EPvalidator.xml should prevent this
 
-    curve_biquadratic_constant = create_curve_biquadratic_constant(model)
-    curve_cubic_constant = create_curve_cubic_constant(model)
+    curve_biquadratic_constant = Model.add_curve_biquadratic(
+      model,
+      name: 'ConstantBiquadratic',
+      coeff: [1, 0, 0, 0, 0, 0]
+    )
+    curve_cubic_constant = Model.add_curve_cubic(
+      model,
+      name: 'ConstantCubic',
+      coeff: [1, 0, 0, 0]
+    )
 
     gmt = OpenStudio::Model::GeneratorMicroTurbine.new(model)
     gmt.setName("#{obj_name} generator")
@@ -71,41 +79,5 @@ module Generator
     elcd.setGeneratorOperationSchemeType('Baseload')
     elcd.addGenerator(gmt)
     elcd.setElectricalBussType('AlternatingCurrent')
-  end
-
-  # Create a cubic constant curve for electrical efficiency function of temperature and part load ratio.
-  #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
-  # @return [OpenStudio::Model::CurveCubic] OpenStudio CurveCubic object
-  def self.create_curve_cubic_constant(model)
-    constant_cubic = OpenStudio::Model::CurveCubic.new(model)
-    constant_cubic.setName('ConstantCubic')
-    constant_cubic.setCoefficient1Constant(1)
-    constant_cubic.setCoefficient2x(0)
-    constant_cubic.setCoefficient3xPOW2(0)
-    constant_cubic.setCoefficient4xPOW3(0)
-    # constant_cubic.setMinimumValueofx(-100)
-    # constant_cubic.setMaximumValueofx(100)
-    return constant_cubic
-  end
-
-  # Create a biquadratic constant curve for electrical power function of temperature and elevation.
-  #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
-  # @return [OpenStudio::Model::CurveBiquadratic] OpenStudio CurveBiquadratic object
-  def self.create_curve_biquadratic_constant(model)
-    const_biquadratic = OpenStudio::Model::CurveBiquadratic.new(model)
-    const_biquadratic.setName('ConstantBiquadratic')
-    const_biquadratic.setCoefficient1Constant(1)
-    const_biquadratic.setCoefficient2x(0)
-    const_biquadratic.setCoefficient3xPOW2(0)
-    const_biquadratic.setCoefficient4y(0)
-    const_biquadratic.setCoefficient5yPOW2(0)
-    const_biquadratic.setCoefficient6xTIMESY(0)
-    # const_biquadratic.setMinimumValueofx(-100)
-    # const_biquadratic.setMaximumValueofx(100)
-    # const_biquadratic.setMinimumValueofy(-100)
-    # const_biquadratic.setMaximumValueofy(100)
-    return const_biquadratic
   end
 end

@@ -105,24 +105,4 @@ module PV
     losses_fraction = 1.0 - (1.0 - default_loss_fraction) * (1.0 - age_losses)
     return losses_fraction
   end
-
-  # Get the default inverter efficiency.
-  #
-  # @return [Double] the default inverter efficiency
-  def self.get_default_inv_eff()
-    return 0.96 # PVWatts default inverter efficiency
-  end
-
-  # Get the default system losses.
-  #
-  # @param year_modules_manufactured [Integer] year of manufacture of the modules
-  # @return [Double] the default system losses
-  def self.get_default_system_losses(year_modules_manufactured = nil)
-    default_loss_fraction = 0.14 # PVWatts default system losses
-    if not year_modules_manufactured.nil?
-      return calc_losses_fraction_from_year(year_modules_manufactured, default_loss_fraction)
-    else
-      return default_loss_fraction
-    end
-  end
 end

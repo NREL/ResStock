@@ -490,3 +490,20 @@ Row Index,Sums To,Annual Name,Annual Units,Timeseries ResStock Name,Timeseries B
 489,,,,Weather: Diffuse Solar Radiation,weather__diffuse_solar_radiation__btu/(hr*ft^2),Btu/(hr*ft^2),"Weather file data including outdoor temperatures, relative humidity, wind speed, and solar."
 490,,,,Weather: Direct Solar Radiation,weather__direct_solar_radiation__btu/(hr*ft^2),Btu/(hr*ft^2),"Weather file data including outdoor temperatures, relative humidity, wind speed, and solar."
 491,,,,Zone People Occupant Count: Conditioned Space,zone_people_occupant_count__conditioned_space,,User-requested EnergyPlus output variable.
+492,,,,,schedules_ceiling_fan,frac,Ceiling fan energy use schedule.
+493,,,,,schedules_clothes_dryer,frac,Clothes dryer energy use schedule.
+494,,,,,schedules_clothes_washer,frac,Clothes washer energy use schedule.
+495,,,,,schedules_cooking_range,frac,Cooking range & oven energy use schedule.
+496,,,,,schedules_dishwasher,frac,Dishwasher energy use schedule.
+497,,,,,schedules_hot_water_clothes_washer,frac,Clothes washer hot water use schedule.
+498,,,,,schedules_hot_water_dishwasher,frac,Dishwasher hot water use schedule.
+499,,,,,schedules_hot_water_fixtures,frac,"Fixtures (sinks, showers, baths) hot water use schedule."
+500,,,,,schedules_lighting_garage,frac,Garage lighting energy use schedule.
+501,,,,,schedules_lighting_interior,frac,Interior lighting energy use schedule.
+502,,,,,schedules_no_space_cooling,,Unavailable period.
+503,,,,,schedules_no_space_heating,,Unavailable period.
+504,,,,,schedules_occupants,frac,Occupant heat gain schedule.
+505,,,,,schedules_plug_loads_other,frac,Other plug load energy use schedule.
+506,,,,,schedules_plug_loads_tv,frac,Television plug load energy use schedule.
+507,,,,,schedules_power_outage,,Unavailable period.
+508,,,,,schedules_vacancy,,Unavailable period.

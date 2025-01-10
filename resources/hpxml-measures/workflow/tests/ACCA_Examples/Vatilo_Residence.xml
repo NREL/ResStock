@@ -77,8 +77,7 @@
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
             <Area>1358.4</Area>
             <RoofType>asphalt or fiberglass shingles</RoofType>
-            <SolarAbsorptance>0.7</SolarAbsorptance>
-            <Emittance>0.92</Emittance>
+            <RoofColor>dark</RoofColor>
             <Pitch>6.0</Pitch>
             <RadiantBarrier>false</RadiantBarrier>
             <Insulation>
@@ -424,10 +423,19 @@
                 <extension>
                   <ManualJInputs>
                     <BlowerFanHeatBtuh>1707.0</BlowerFanHeatBtuh>
+                    <DefaultTableDuctLoad>
+                      <TableNumber>7A-AE</TableNumber>
+                      <LookupFloorArea>1200.0</LookupFloorArea>
+                      <LeakageLevel>default not sealed</LeakageLevel>
+                      <InsulationRValue>4.0</InsulationRValue>
+                      <SupplySurfaceArea>366.0</SupplySurfaceArea>
+                      <ReturnSurfaceArea>70.0</ReturnSurfaceArea>
+                    </DefaultTableDuctLoad>
                   </ManualJInputs>
                 </extension>
               </AirDistribution>
             </DistributionSystemType>
+            <ConditionedFloorAreaServed>1200.0</ConditionedFloorAreaServed>
           </HVACDistribution>
         </HVAC>
       </Systems>

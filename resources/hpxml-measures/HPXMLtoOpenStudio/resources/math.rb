@@ -34,7 +34,7 @@ module MathTools
           + (fx2y2 / ((x2 - x1) * (y2 - y1))) * (x - x1) * (y - y1)
   end
 
-  # Calculate the result of a biquadratic polynomial with independent variables.
+  # Calculates the result of a biquadratic polynomial with independent variables.
   # x and y, and a list of coefficients, c:
   #
   # z = c[1] + c[2]*x + c[3]*x**2 + c[4]*y + c[5]*y**2 + c[6]*x*y
@@ -52,7 +52,7 @@ module MathTools
     return z
   end
 
-  # Calculate the result of a quadratic polynomial with independent variable.
+  # Calculates the result of a quadratic polynomial with independent variable.
   # x and a list of coefficients, c:
   #
   # y = c[1] + c[2]*x + c[3]*x**2
@@ -70,9 +70,9 @@ module MathTools
     return y
   end
 
-  # Calculate the result of a bicubic polynomial with independent variables.
+  # Calculates the result of a bicubic polynomial with independent variables.
   # x and y, and a list of coefficients, c:
-
+  #
   # z = c[1] + c[2]*x + c[3]*y + c[4]*x**2 + c[5]*x*y + c[6]*y**2 + \
   #     c[7]*x**3 + c[8]*y*x**2 + c[9]*x*y**2 + c[10]*y**3
   #
@@ -89,6 +89,17 @@ module MathTools
         c[6] * x**3 + c[7] * y**3 + c[8] * x**2 * y + c[9] * x * y**2
 
     return z
+  end
+
+  # Calculates the overlap distance of two 1D line segments.
+  #
+  # @param min1 [Double] min value of line 1
+  # @param max1 [Double] max value of line 1
+  # @param min2 [Double] min value of line 2
+  # @param max2 [Double] max value of line 2
+  # @return [Double] overlap distance
+  def self.overlap(min1, max1, min2, max2)
+    return [0.0, [max1, max2].min - [min1, min2].max].max
   end
 
   # Determine if a guess is within tolerance for convergence.

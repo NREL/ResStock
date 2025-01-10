@@ -59,8 +59,7 @@ module HVACSizing
       hvac_loads = all_hvac_loads[hvac_system]
       apply_hvac_air_temperatures(mj, hvac_loads, hvac_heating, hvac_cooling)
       apply_hvac_fractions_load_served(hvac_loads, hvac_heating, hvac_cooling, hpxml_bldg, hvac_systems, zone)
-      apply_hvac_duct_loads_heating(mj, zone, hvac_loads, all_zone_loads[zone], all_space_loads, hvac_heating, hpxml_bldg)
-      apply_hvac_duct_loads_cooling(mj, zone, hvac_loads, all_zone_loads[zone], all_space_loads, hvac_cooling, hpxml_bldg, weather)
+      apply_hvac_duct_loads(mj, zone, hvac_loads, all_zone_loads[zone], all_space_loads, hvac_heating, hvac_cooling, hpxml_bldg, weather)
       apply_hvac_cfis_loads(mj, hvac_loads, all_zone_loads[zone], hvac_heating, hvac_cooling, hpxml_bldg)
       apply_hvac_blower_heat_load(hvac_loads, all_zone_loads[zone], hvac_heating, hvac_cooling)
       apply_hvac_piping_load(hvac_loads, all_zone_loads[zone], hvac_heating)
@@ -1386,7 +1385,7 @@ module HVACSizing
         lengths_by_azimuth = {}
         adj_fnd_walls.each do |fnd_wall|
           if fnd_wall.azimuth.nil?
-            azimuths = HPXMLDefaults.get_default_azimuths(hpxml_bldg)
+            azimuths = Defaults.get_azimuths(hpxml_bldg)
           else
             azimuths = [fnd_wall.azimuth]
           end
@@ -1814,7 +1813,7 @@ module HVACSizing
     return f_regain
   end
 
-  # Applies heating duct loads to the HVAC/zone/space loads as appropriate.
+  # Applies duct loads to the HVAC/zone/space loads as appropriate.
   #
   # @param mj [MJValues] Object with a collection of misc Manual J values
   # @param zone [HPXML::Zone] The current zone of interest
@@ -1822,124 +1821,142 @@ module HVACSizing
   # @param zone_loads [DesignLoadValues] Object with design loads for the current HPXML::Zone
   # @param all_space_loads [Hash] Map of HPXML::Spaces => DesignLoadValues object
   # @param hvac_heating [HPXML::HeatingSystem or HPXML::HeatPump] The heating portion of the current HPXML HVAC system
+  # @param hvac_cooling [HPXML::CoolingSystem or HPXML::HeatPump] The cooling portion of the current HPXML HVAC system
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
+  # @param weather [WeatherFile] Weather object containing EPW information
   # @return [nil]
-  def self.apply_hvac_duct_loads_heating(mj, zone, hvac_loads, zone_loads, all_space_loads, hvac_heating, hpxml_bldg)
-    return if hvac_heating.nil? || (hvac_loads.Heat_Tot <= 0) || hvac_heating.distribution_system.nil? || hvac_heating.distribution_system.ducts.empty?
+  def self.apply_hvac_duct_loads(mj, zone, hvac_loads, zone_loads, all_space_loads, hvac_heating, hvac_cooling, hpxml_bldg, weather)
+    has_heat_duct_losses = (not (hvac_heating.nil? || (hvac_loads.Heat_Tot <= 0) || hvac_heating.distribution_system.nil? || hvac_heating.distribution_system.ducts.empty?))
+    has_cool_duct_losses = (not (hvac_cooling.nil? || (hvac_loads.Cool_Sens <= 0) || hvac_cooling.distribution_system.nil? || hvac_cooling.distribution_system.ducts.empty?))
 
-    hvac_heating_ap = hvac_heating.additional_properties
+    return unless has_heat_duct_losses || has_cool_duct_losses
 
-    init_heat_load = hvac_loads.Heat_Tot
+    if (not hvac_heating.nil?) && (not hvac_heating.distribution_system.nil?)
+      distribution_system = hvac_heating.distribution_system
+    elsif (not hvac_cooling.nil?) && (not hvac_cooling.distribution_system.nil?)
+      distribution_system = hvac_cooling.distribution_system
+    end
+    return if distribution_system.nil?
 
-    # Distribution system efficiency (DSE) calculations based on ASHRAE Standard 152
+    ducts_heat_load = 0.0
+    ducts_cool_load_sens = 0.0
+    ducts_cool_load_lat = 0.0
 
-    duct_values = calc_duct_conduction_values(hvac_heating.distribution_system, mj.heat_design_temps, hpxml_bldg)
-    a_s, a_r, rvalue_s, rvalue_r, t_amb_s, t_amb_r, f_regain_s, f_regain_r = duct_values
+    if not distribution_system.manualj_duct_loads.empty?
+      # Use Table 7 default duct loads
+      distribution_system.manualj_duct_loads.each do |manualj_duct_load|
+        ehlf, esgf, elg = get_duct_table7_factors(hpxml_bldg, manualj_duct_load)
 
-    # Initialize for the iteration
-    delta = 1
-    heat_load_next = init_heat_load
+        ducts_heat_load += ehlf * hvac_loads.Heat_Tot
+        ducts_cool_load_sens += esgf * hvac_loads.Cool_Sens
+        ducts_cool_load_lat += elg
+      end
+    else
+      # Use ASHRAE 152 distribution system efficiency (DSE) calculations
 
-    for _iter in 0..19
-      break if delta.abs <= 0.001
+      # Heating
+      if has_heat_duct_losses
+        hvac_heating_ap = hvac_heating.additional_properties
 
-      heat_load_prev = heat_load_next
+        init_heat_load = hvac_loads.Heat_Tot
 
-      # Calculate the new heating air flow rate
-      heating_delta_t = hvac_heating_ap.supply_air_temp - mj.heat_setpoint
-      heat_cfm = calc_airflow_rate_manual_s(mj, heat_load_next, heating_delta_t)
+        duct_values = calc_duct_conduction_values_for_dse(distribution_system, mj.heat_design_temps, hpxml_bldg)
+        a_s, a_r, rvalue_s, rvalue_r, t_amb_s, t_amb_r, f_regain_s, f_regain_r = duct_values
 
-      q_s, q_r = calc_duct_leakages_cfm25(hvac_heating.distribution_system, heat_cfm)
+        # Initialize for the iteration
+        delta = 1
+        heat_load_next = init_heat_load
 
-      de = calc_delivery_effectiveness_heating(mj, q_s, q_r, heat_cfm, heat_load_next, t_amb_s, t_amb_r, a_s, a_r, mj.heat_setpoint, f_regain_s, f_regain_r, rvalue_s, rvalue_r)
+        for _iter in 0..19
+          break if delta.abs <= 0.001
 
-      # Calculate the increase in heating load due to ducts (Approach: DE = Qload/Qequip -> Qducts = Qequip-Qload)
-      heat_load_next = init_heat_load / de
+          heat_load_prev = heat_load_next
 
-      # Calculate the change since the last iteration
-      delta = (heat_load_next - heat_load_prev) / heat_load_prev
+          # Calculate the new heating air flow rate
+          heating_delta_t = hvac_heating_ap.supply_air_temp - mj.heat_setpoint
+          heat_cfm = calc_airflow_rate_manual_s(mj, heat_load_next, heating_delta_t)
+
+          q_s, q_r = calc_duct_leakages_cfm25(distribution_system, heat_cfm)
+
+          de = calc_delivery_effectiveness_heating(mj, q_s, q_r, heat_cfm, heat_load_next, t_amb_s, t_amb_r, a_s, a_r, mj.heat_setpoint, f_regain_s, f_regain_r, rvalue_s, rvalue_r)
+
+          # Calculate the increase in heating load due to ducts (Approach: DE = Qload/Qequip -> Qducts = Qequip-Qload)
+          heat_load_next = init_heat_load / de
+
+          # Calculate the change since the last iteration
+          delta = (heat_load_next - heat_load_prev) / heat_load_prev
+        end
+
+        ducts_heat_load = heat_load_next - init_heat_load
+      end
+
+      # Cooling
+      if has_cool_duct_losses
+        hvac_cooling_ap = hvac_cooling.additional_properties
+
+        init_cool_load_sens = hvac_loads.Cool_Sens
+        init_cool_load_lat = hvac_loads.Cool_Lat
+
+        duct_values = calc_duct_conduction_values_for_dse(distribution_system, mj.cool_design_temps, hpxml_bldg)
+        a_s, a_r, rvalue_s, rvalue_r, t_amb_s, t_amb_r, f_regain_s, f_regain_r = duct_values
+
+        # Calculate the air enthalpy in the return duct location for DSE calculations
+        h_r = Psychrometrics.h_fT_w(t_amb_r, weather.design.CoolingHumidityRatio)
+
+        # Initialize for the iteration
+        delta = 1
+        cool_load_tot_next = init_cool_load_sens + init_cool_load_lat
+
+        cooling_delta_t = mj.cool_setpoint - hvac_cooling_ap.leaving_air_temp
+        cool_cfm = calc_airflow_rate_manual_s(mj, init_cool_load_sens, cooling_delta_t)
+        _q_s, q_r = calc_duct_leakages_cfm25(distribution_system, cool_cfm)
+
+        for _iter in 1..50
+          break if delta.abs <= 0.001
+
+          cool_load_tot_prev = cool_load_tot_next
+
+          cool_load_lat, cool_load_sens = calculate_sensible_latent_split(mj, q_r, cool_load_tot_next, init_cool_load_lat)
+          cool_load_tot = cool_load_lat + cool_load_sens
+
+          # Calculate the new cooling air flow rate
+          cool_cfm = calc_airflow_rate_manual_s(mj, cool_load_sens, cooling_delta_t)
+
+          q_s, q_r = calc_duct_leakages_cfm25(distribution_system, cool_cfm)
+
+          de = calc_delivery_effectiveness_cooling(mj, q_s, q_r, hvac_cooling_ap.leaving_air_temp, cool_cfm, cool_load_sens, cool_load_tot, t_amb_s, t_amb_r, a_s, a_r, mj.cool_setpoint, f_regain_s, f_regain_r, h_r, rvalue_s, rvalue_r)
+
+          cool_load_tot_next = (init_cool_load_sens + init_cool_load_lat) / de
+
+          # Calculate the change since the last iteration
+          delta = (cool_load_tot_next - cool_load_tot_prev) / cool_load_tot_prev
+        end
+
+        ducts_cool_load_sens = cool_load_sens - init_cool_load_sens
+        ducts_cool_load_lat = cool_load_lat - init_cool_load_lat
+      end
     end
 
-    ducts_heat_load = heat_load_next - init_heat_load
-
+    # Apply heating duct load
     hvac_loads.Heat_Ducts += ducts_heat_load
     hvac_loads.Heat_Tot += ducts_heat_load
 
     # Don't assign HP backup system duct loads to the zone/spaces; we already have the HP
     # duct loads assigned and don't want to double-count.
-    return if hvac_heating.is_a?(HPXML::HeatingSystem) && hvac_heating.is_heat_pump_backup_system
+    if not (hvac_heating.is_a?(HPXML::HeatingSystem) && hvac_heating.is_heat_pump_backup_system)
+      zone_loads.Heat_Ducts += ducts_heat_load
+      zone_loads.Heat_Tot += ducts_heat_load
 
-    zone_loads.Heat_Ducts += ducts_heat_load
-    zone_loads.Heat_Tot += ducts_heat_load
-
-    zone_htg_load = zone.spaces.map { |space| all_space_loads[space].Heat_Tot }.sum
-    zone.spaces.each do |space|
-      space_loads = all_space_loads[space]
-      space_htg_duct_load = ducts_heat_load * space_loads.Heat_Tot / zone_htg_load
-      space_loads.Heat_Ducts += space_htg_duct_load
-      space_loads.Heat_Tot += space_htg_duct_load
-    end
-  end
-
-  # Applies cooling duct loads to the HVAC/zone/space loads as appropriate.
-  #
-  # @param mj [MJValues] Object with a collection of misc Manual J values
-  # @param zone [HPXML::Zone] The current zone of interest
-  # @param hvac_loads [DesignLoadValues] Object with design loads for the current HPXML HVAC system
-  # @param zone_loads [DesignLoadValues] Object with design loads for the current HPXML::Zone
-  # @param all_space_loads [Hash] Map of HPXML::Spaces => DesignLoadValues object
-  # @param hvac_cooling [HPXML::CoolingSystem or HPXML::HeatPump] The cooling portion of the current HPXML HVAC system
-  # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
-  # @param weather [WeatherFile] Weather object containing EPW information
-  # @return [nil]
-  def self.apply_hvac_duct_loads_cooling(mj, zone, hvac_loads, zone_loads, all_space_loads, hvac_cooling, hpxml_bldg, weather)
-    return if hvac_cooling.nil? || (hvac_loads.Cool_Sens <= 0) || hvac_cooling.distribution_system.nil? || hvac_cooling.distribution_system.ducts.empty?
-
-    hvac_cooling_ap = hvac_cooling.additional_properties
-
-    init_cool_load_sens = hvac_loads.Cool_Sens
-    init_cool_load_lat = hvac_loads.Cool_Lat
-
-    # Distribution system efficiency (DSE) calculations based on ASHRAE Standard 152
-
-    duct_values = calc_duct_conduction_values(hvac_cooling.distribution_system, mj.cool_design_temps, hpxml_bldg)
-    a_s, a_r, rvalue_s, rvalue_r, t_amb_s, t_amb_r, f_regain_s, f_regain_r = duct_values
-
-    # Calculate the air enthalpy in the return duct location for DSE calculations
-    h_r = Psychrometrics.h_fT_w(t_amb_r, weather.design.CoolingHumidityRatio)
-
-    # Initialize for the iteration
-    delta = 1
-    cool_load_tot_next = init_cool_load_sens + init_cool_load_lat
-
-    cooling_delta_t = mj.cool_setpoint - hvac_cooling_ap.leaving_air_temp
-    cool_cfm = calc_airflow_rate_manual_s(mj, init_cool_load_sens, cooling_delta_t)
-    _q_s, q_r = calc_duct_leakages_cfm25(hvac_cooling.distribution_system, cool_cfm)
-
-    for _iter in 1..50
-      break if delta.abs <= 0.001
-
-      cool_load_tot_prev = cool_load_tot_next
-
-      cool_load_lat, cool_load_sens = calculate_sensible_latent_split(mj, q_r, cool_load_tot_next, init_cool_load_lat)
-      cool_load_tot = cool_load_lat + cool_load_sens
-
-      # Calculate the new cooling air flow rate
-      cool_cfm = calc_airflow_rate_manual_s(mj, cool_load_sens, cooling_delta_t)
-
-      q_s, q_r = calc_duct_leakages_cfm25(hvac_cooling.distribution_system, cool_cfm)
-
-      de = calc_delivery_effectiveness_cooling(mj, q_s, q_r, hvac_cooling_ap.leaving_air_temp, cool_cfm, cool_load_sens, cool_load_tot, t_amb_s, t_amb_r, a_s, a_r, mj.cool_setpoint, f_regain_s, f_regain_r, h_r, rvalue_s, rvalue_r)
-
-      cool_load_tot_next = (init_cool_load_sens + init_cool_load_lat) / de
-
-      # Calculate the change since the last iteration
-      delta = (cool_load_tot_next - cool_load_tot_prev) / cool_load_tot_prev
+      zone_htg_load = zone.spaces.map { |space| all_space_loads[space].Heat_Tot }.sum
+      zone.spaces.each do |space|
+        space_loads = all_space_loads[space]
+        space_htg_duct_load = ducts_heat_load * space_loads.Heat_Tot / zone_htg_load
+        space_loads.Heat_Ducts += space_htg_duct_load
+        space_loads.Heat_Tot += space_htg_duct_load
+      end
     end
 
-    ducts_cool_load_sens = cool_load_sens - init_cool_load_sens
-    ducts_cool_load_lat = cool_load_lat - init_cool_load_lat
-
+    # Apply cooling duct load
     hvac_loads.Cool_Ducts_Sens += ducts_cool_load_sens
     hvac_loads.Cool_Sens += ducts_cool_load_sens
     hvac_loads.Cool_Ducts_Lat += ducts_cool_load_lat
@@ -1961,6 +1978,502 @@ module HVACSizing
     end
   end
 
+  # TODO
+  #
+  # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
+  # @param manualj_duct_load [HPXML::ManualJDuctLoad] Manual J duct load of interest
+  # @return [TODO] TODO
+  def self.get_duct_table7_factors(hpxml_bldg, manualj_duct_load)
+    # Gather values
+    htg_oat = hpxml_bldg.header.manualj_heating_design_temp
+    clg_oat = hpxml_bldg.header.manualj_cooling_design_temp
+    clg_grn = hpxml_bldg.header.manualj_humidity_difference
+    n_stories = hpxml_bldg.building_construction.number_of_conditioned_floors_above_grade
+    table_number = manualj_duct_load.table_number
+    fa = manualj_duct_load.lookup_floor_area
+    leakage_level = manualj_duct_load.leakage_level
+    rvalue = manualj_duct_load.insulation_r_value
+    supply_area = manualj_duct_load.supply_surface_area
+    return_area = manualj_duct_load.return_surface_area
+    dsf = manualj_duct_load.dsf
+
+    # Table 7 columns
+    floor_areas = [1000.0, 1500.0, 2000.0, 2500.0, 3000.0]
+    rvalues = [2.0, 4.0, 6.0, 8.0]
+    leakages = [HPXML::ManualJDuctLeakageLevelExtremelySealed,  # 0.06 / 0.06
+                HPXML::ManualJDuctLeakageLevelNotablySealed,    # 0.09 / 0.15
+                HPXML::ManualJDuctLeakageLevelDefaultSealed,    # 0.12 / 0.24
+                HPXML::ManualJDuctLeakageLevelPartiallySealed,  # 0.24 / 0.47
+                HPXML::ManualJDuctLeakageLevelDefaultNotSealed] # 0.35 / 0.70
+
+    # Base Case Heat Loss Factor (BHLF)
+    bhlf_oats = [-10.0, 0.0, 10.0, 20.0, 30.0, 40.0]
+    bhlf_table = {
+      '7A-R' => [[0.130, 0.140, 0.160, 0.180, 0.200], [0.110, 0.130, 0.150, 0.160, 0.170], [0.090, 0.120, 0.130, 0.140, 0.160], [0.080, 0.100, 0.120, 0.130, 0.140], [0.070, 0.080, 0.090, 0.100, 0.110], [0.050, 0.070, 0.080, 0.080, 0.090]],
+      '7A-T' => [[0.200, 0.220, 0.240, 0.270, 0.290], [0.190, 0.210, 0.230, 0.240, 0.270], [0.170, 0.190, 0.200, 0.230, 0.240], [0.150, 0.170, 0.190, 0.200, 0.220], [0.120, 0.150, 0.170, 0.180, 0.200], [0.100, 0.120, 0.140, 0.160, 0.170]],
+      '7B-R' => [[0.130, 0.160, 0.180, 0.190, 0.210], [0.110, 0.140, 0.160, 0.170, 0.190], [0.100, 0.120, 0.140, 0.150, 0.170], [0.090, 0.110, 0.130, 0.140, 0.150], [0.080, 0.090, 0.100, 0.110, 0.130], [0.060, 0.070, 0.090, 0.090, 0.100]],
+      '7B-T' => [[0.220, 0.240, 0.260, 0.280, 0.310], [0.200, 0.220, 0.240, 0.260, 0.290], [0.180, 0.200, 0.220, 0.240, 0.260], [0.170, 0.180, 0.200, 0.220, 0.240], [0.140, 0.170, 0.180, 0.200, 0.220], [0.110, 0.140, 0.160, 0.180, 0.200]],
+      '7A-AE' => [[0.117, 0.134, 0.164, 0.169, 0.186], [0.104, 0.121, 0.144, 0.159, 0.170], [0.092, 0.111, 0.122, 0.130, 0.149], [0.083, 0.100, 0.113, 0.126, 0.135], [0.071, 0.085, 0.090, 0.104, 0.118], [0.069, 0.070, 0.082, 0.090, 0.099]],
+      '7B-AE' => [[0.080, 0.100, 0.130, 0.140, 0.160], [0.070, 0.090, 0.106, 0.120, 0.150], [0.070, 0.080, 0.100, 0.100, 0.120], [0.060, 0.080, 0.090, 0.100, 0.110], [0.060, 0.070, 0.070, 0.080, 0.100], [0.050, 0.060, 0.070, 0.080, 0.080]],
+      '7C-AE' => [[0.138, 0.157, 0.176, 0.195, 0.217], [0.131, 0.145, 0.164, 0.184, 0.199], [0.118, 0.133, 0.148, 0.166, 0.188], [0.111, 0.122, 0.138, 0.150, 0.170], [0.098, 0.119, 0.129, 0.141, 0.153], [0.085, 0.103, 0.120, 0.135, 0.148]],
+      '7C-R' => [[0.130, 0.160, 0.180, 0.190, 0.210], [0.110, 0.140, 0.160, 0.170, 0.190], [0.100, 0.120, 0.140, 0.150, 0.170], [0.090, 0.110, 0.130, 0.140, 0.150], [0.080, 0.090, 0.100, 0.110, 0.130], [0.060, 0.070, 0.090, 0.090, 0.100]],
+      '7C-T' => [[0.220, 0.240, 0.260, 0.280, 0.310], [0.200, 0.220, 0.240, 0.260, 0.290], [0.180, 0.200, 0.220, 0.240, 0.260], [0.170, 0.180, 0.200, 0.220, 0.240], [0.140, 0.170, 0.180, 0.200, 0.220], [0.110, 0.140, 0.160, 0.180, 0.200]],
+      '7D-R' => [[0.130, 0.160, 0.180, 0.190, 0.210], [0.110, 0.140, 0.160, 0.170, 0.190], [0.100, 0.120, 0.140, 0.150, 0.170], [0.090, 0.110, 0.130, 0.140, 0.150], [0.080, 0.090, 0.090, 0.110, 0.130], [0.080, 0.070, 0.070, 0.090, 0.100]],
+      '7D-T' => [[0.220, 0.240, 0.260, 0.280, 0.310], [0.200, 0.220, 0.240, 0.260, 0.290], [0.180, 0.200, 0.220, 0.240, 0.260], [0.170, 0.180, 0.200, 0.220, 0.240], [0.140, 0.170, 0.180, 0.200, 0.220], [0.110, 0.140, 0.160, 0.180, 0.200]],
+      '7E-R' => [[0.130, 0.160, 0.180, 0.190, 0.210], [0.110, 0.140, 0.160, 0.170, 0.190], [0.100, 0.120, 0.140, 0.150, 0.170], [0.090, 0.110, 0.130, 0.140, 0.150], [0.080, 0.090, 0.100, 0.110, 0.130], [0.060, 0.070, 0.090, 0.090, 0.100]],
+      '7E-T' => [[0.220, 0.240, 0.260, 0.280, 0.310], [0.200, 0.220, 0.240, 0.260, 0.290], [0.180, 0.200, 0.220, 0.240, 0.260], [0.170, 0.180, 0.200, 0.220, 0.240], [0.140, 0.170, 0.180, 0.200, 0.220], [0.110, 0.140, 0.160, 0.180, 0.200]],
+      '7F-R' => [[0.130, 0.160, 0.180, 0.190, 0.210], [0.110, 0.140, 0.160, 0.170, 0.190], [0.100, 0.120, 0.140, 0.150, 0.170], [0.090, 0.110, 0.130, 0.140, 0.150], [0.080, 0.090, 0.100, 0.110, 0.130], [0.060, 0.070, 0.090, 0.090, 0.100]],
+      '7F-T' => [[0.220, 0.240, 0.260, 0.280, 0.310], [0.200, 0.220, 0.240, 0.260, 0.290], [0.180, 0.200, 0.220, 0.240, 0.260], [0.170, 0.180, 0.200, 0.220, 0.240], [0.140, 0.170, 0.180, 0.200, 0.220], [0.110, 0.140, 0.160, 0.180, 0.200]],
+      '7G-R' => [[0.290, 0.360, 0.440, 0.510, 0.590], [0.240, 0.300, 0.400, 0.460, 0.520], [0.230, 0.280, 0.340, 0.390, 0.450], [0.200, 0.240, 0.300, 0.330, 0.390], [0.170, 0.210, 0.250, 0.290, 0.310], [0.150, 0.180, 0.220, 0.230, 0.250]],
+      '7G-T' => [[0.350, 0.400, 0.470, 0.510, 0.580], [0.330, 0.380, 0.420, 0.470, 0.520], [0.310, 0.340, 0.390, 0.430, 0.480], [0.290, 0.320, 0.360, 0.390, 0.440], [0.250, 0.300, 0.330, 0.370, 0.390], [0.210, 0.260, 0.310, 0.330, 0.360]],
+      '7H' => [[0.130, 0.150, 0.160, 0.180, 0.200], [0.120, 0.140, 0.160, 0.170, 0.180], [0.120, 0.130, 0.150, 0.160, 0.170], [0.110, 0.120, 0.130, 0.140, 0.160], [0.090, 0.110, 0.120, 0.130, 0.150], [0.080, 0.100, 0.110, 0.130, 0.140]],
+      '7I' => [[0.090, 0.100, 0.110, 0.120, 0.130], [0.080, 0.090, 0.100, 0.110, 0.130], [0.080, 0.090, 0.100, 0.110, 0.120], [0.080, 0.090, 0.100, 0.110, 0.110], [0.070, 0.090, 0.090, 0.100, 0.110], [0.070, 0.080, 0.090, 0.100, 0.110]],
+      '7D-AE' => [[0.081, 0.098, 0.114, 0.128, 0.147], [0.078, 0.090, 0.107, 0.115, 0.132], [0.075, 0.087, 0.100, 0.109, 0.125], [0.071, 0.081, 0.093, 0.102, 0.112], [0.066, 0.080, 0.086, 0.096, 0.106], [0.061, 0.074, 0.085, 0.093, 0.105]],
+      '7J-1' => [[0.050, 0.060, 0.070, 0.070, 0.080], [0.040, 0.050, 0.060, 0.060, 0.070], [0.040, 0.050, 0.050, 0.060, 0.060], [0.040, 0.040, 0.050, 0.050, 0.060], [0.030, 0.040, 0.040, 0.050, 0.050], [0.030, 0.030, 0.040, 0.040, 0.040]],
+      '7J-2' => [[0.060, 0.070, 0.080, 0.090, 0.100], [0.060, 0.070, 0.070, 0.080, 0.090], [0.050, 0.060, 0.070, 0.070, 0.080], [0.040, 0.040, 0.050, 0.060, 0.060], [0.030, 0.040, 0.040, 0.050, 0.050], [0.030, 0.030, 0.030, 0.030, 0.040]],
+      '7K' => [[0.003, 0.003, 0.003, 0.003, 0.003], [0.003, 0.003, 0.003, 0.003, 0.003], [0.003, 0.003, 0.003, 0.003, 0.003], [0.003, 0.003, 0.003, 0.003, 0.003], [0.003, 0.003, 0.003, 0.003, 0.003], [0.003, 0.003, 0.003, 0.003, 0.003]],
+      '7L' => [[-0.015, -0.018, -0.019, -0.019, -0.019], [-0.015, -0.017, -0.018, -0.019, -0.019], [-0.015, -0.017, -0.018, -0.019, -0.019], [-0.013, -0.017, -0.018, -0.019, -0.019], [-0.011, -0.016, -0.018, -0.019, -0.019], [-0.009, -0.013, -0.016, -0.017, -0.019]],
+      '7M' => [[0.049, 0.058, 0.069, 0.076, 0.083], [0.048, 0.058, 0.068, 0.072, 0.081], [0.044, 0.052, 0.062, 0.068, 0.073], [0.048, 0.055, 0.059, 0.065, 0.077], [0.042, 0.051, 0.055, 0.065, 0.070], [0.048, 0.048, 0.055, 0.064, 0.070]],
+      '7N' => [[0.078, 0.086, 0.095, 0.104, 0.112], [0.077, 0.084, 0.094, 0.101, 0.110], [0.077, 0.085, 0.093, 0.100, 0.107], [0.081, 0.087, 0.096, 0.103, 0.111], [0.081, 0.090, 0.098, 0.105, 0.116], [0.089, 0.094, 0.103, 0.113, 0.121]],
+      '7O-1' => [[0.131, 0.148, 0.182, 0.188, 0.206], [0.117, 0.135, 0.162, 0.179, 0.202], [0.104, 0.126, 0.138, 0.147, 0.179], [0.102, 0.116, 0.130, 0.146, 0.155], [0.088, 0.100, 0.122, 0.124, 0.140], [0.081, 0.088, 0.111, 0.110, 0.117]],
+      '7O-2' => [[0.131, 0.148, 0.182, 0.188, 0.206], [0.117, 0.135, 0.162, 0.179, 0.202], [0.104, 0.126, 0.138, 0.147, 0.179], [0.102, 0.116, 0.130, 0.146, 0.155], [0.088, 0.100, 0.122, 0.124, 0.140], [0.081, 0.088, 0.111, 0.110, 0.117]],
+      '7O-3' => [[0.131, 0.149, 0.182, 0.188, 0.206], [0.117, 0.136, 0.162, 0.179, 0.202], [0.104, 0.126, 0.138, 0.147, 0.179], [0.102, 0.116, 0.130, 0.146, 0.155], [0.088, 0.100, 0.122, 0.124, 0.140], [0.081, 0.088, 0.111, 0.110, 0.117]],
+      '7O-4' => [[0.131, 0.148, 0.182, 0.188, 0.206], [0.117, 0.135, 0.162, 0.179, 0.202], [0.104, 0.126, 0.138, 0.147, 0.179], [0.102, 0.116, 0.130, 0.146, 0.155], [0.088, 0.100, 0.122, 0.124, 0.140], [0.081, 0.088, 0.111, 0.110, 0.117]],
+      '7P-1' => [[0.196, 0.220, 0.241, 0.261, 0.286], [0.188, 0.203, 0.231, 0.252, 0.269], [0.176, 0.193, 0.215, 0.235, 0.259], [0.170, 0.182, 0.200, 0.216, 0.237], [0.158, 0.173, 0.191, 0.207, 0.223], [0.154, 0.170, 0.183, 0.193, 0.216]],
+      '7P-2' => [[0.196, 0.220, 0.241, 0.261, 0.286], [0.188, 0.203, 0.231, 0.252, 0.269], [0.176, 0.193, 0.215, 0.235, 0.259], [0.170, 0.182, 0.200, 0.216, 0.237], [0.158, 0.173, 0.191, 0.207, 0.223], [0.154, 0.170, 0.183, 0.193, 0.216]],
+      '7P-3' => [[0.196, 0.220, 0.241, 0.261, 0.286], [0.188, 0.203, 0.231, 0.252, 0.269], [0.176, 0.193, 0.215, 0.235, 0.259], [0.170, 0.182, 0.200, 0.216, 0.237], [0.158, 0.173, 0.191, 0.207, 0.223], [0.154, 0.170, 0.183, 0.193, 0.216]],
+      '7P-4' => [[0.196, 0.220, 0.241, 0.261, 0.286], [0.188, 0.203, 0.231, 0.252, 0.269], [0.176, 0.193, 0.215, 0.235, 0.259], [0.170, 0.182, 0.200, 0.216, 0.237], [0.158, 0.173, 0.191, 0.207, 0.223], [0.154, 0.170, 0.183, 0.193, 0.216]],
+    }[table_number]
+
+    # R-Value Correction, WIF -- Heat Loss
+    hl_rcorr_table = {
+      '7A-R' => [1.98, 1.24, 1.00, 0.87],
+      '7A-T' => [1.84, 1.24, 1.00, 0.85],
+      '7B-R' => [1.99, 1.37, 1.00, 0.87],
+      '7B-T' => [1.85, 1.24, 1.00, 0.85],
+      '7A-AE' => [2.04, 1.39, 1.00, 0.86],
+      '7B-AE' => [2.19, 1.45, 1.00, 0.84],
+      '7C-AE' => [2.02, 1.28, 1.00, 0.84],
+      '7C-R' => [1.99, 1.37, 1.00, 0.87],
+      '7C-T' => [1.85, 1.24, 1.00, 0.85],
+      '7D-R' => [1.99, 1.25, 1.00, 0.87],
+      '7D-T' => [1.85, 1.24, 1.00, 0.85],
+      '7E-R' => [1.99, 1.37, 1.00, 0.87],
+      '7E-T' => [1.85, 1.24, 1.00, 0.85],
+      '7F-R' => [1.99, 1.24, 1.00, 0.87],
+      '7F-T' => [1.85, 1.24, 1.00, 0.85],
+      '7G-R' => [2.45, 1.34, 1.00, 0.83],
+      '7G-T' => [2.17, 1.31, 1.00, 0.86],
+      '7H' => [1.63, 1.19, 1.00, 0.89],
+      '7I' => [1.74, 1.20, 1.00, 0.89],
+      '7D-AE' => [1.79, 1.21, 1.00, 0.88],
+      '7J-1' => [1.00, 1.00, 1.00, 1.00],
+      '7J-2' => [1.25, 1.07, 1.00, 0.88],
+      '7K' => [1.78, 1.23, 1.00, 0.87],
+      '7L' => [0.95, 0.98, 1.00, 1.01],
+      '7M' => [1.80, 1.22, 1.00, 0.86],
+      '7N' => [1.76, 1.22, 1.00, 0.88],
+      '7O-1' => [2.02, 1.27, 1.00, 0.83],
+      '7O-2' => [2.02, 1.27, 1.00, 0.83],
+      '7O-3' => [2.02, 1.27, 1.00, 0.83],
+      '7O-4' => [2.02, 1.27, 1.00, 0.83],
+      '7P-1' => [1.98, 1.28, 1.00, 0.85],
+      '7P-2' => [1.98, 1.28, 1.00, 0.85],
+      '7P-3' => [1.98, 1.28, 1.00, 0.85],
+      '7P-4' => [1.98, 1.28, 1.00, 0.85],
+    }[table_number]
+
+    # Leakage Correction (LCF) for Heat Loss
+    hl_lcf_table = {
+      '7A-R' => [[0.86, 0.79, 0.75, 0.72], [0.92, 0.90, 0.88, 0.86], [1.00, 1.00, 1.00, 1.00], [1.24, 1.36, 1.45, 1.49], [1.56, 1.71, 1.94, 2.05]],
+      '7A-T' => [[0.82, 0.77, 0.71, 0.68], [0.91, 0.88, 0.86, 0.84], [1.00, 1.00, 1.00, 1.00], [1.26, 1.37, 1.44, 1.53], [1.52, 1.73, 1.91, 2.04]],
+      '7B-R' => [[0.86, 0.79, 0.76, 0.71], [0.93, 0.90, 0.87, 0.86], [1.00, 1.00, 1.00, 1.00], [1.26, 1.40, 1.43, 1.49], [1.57, 1.75, 1.93, 2.04]],
+      '7B-T' => [[0.84, 0.78, 0.71, 0.67], [0.92, 0.89, 0.85, 0.83], [1.00, 1.00, 1.00, 1.00], [1.26, 1.38, 1.44, 1.51], [1.53, 1.75, 1.90, 2.03]],
+      '7A-AE' => [[0.88, 0.82, 0.76, 0.74], [0.94, 0.91, 0.87, 0.88], [1.00, 1.00, 1.00, 1.00], [1.26, 1.37, 1.43, 1.53], [1.65, 1.80, 1.97, 2.19]],
+      '7B-AE' => [[0.92, 0.84, 0.84, 0.84], [0.94, 0.93, 0.89, 0.90], [1.00, 1.00, 1.00, 1.00], [1.39, 1.55, 1.66, 1.84], [1.87, 2.21, 2.50, 2.79]],
+      '7C-AE' => [[0.87, 0.83, 0.78, 0.75], [0.92, 0.89, 0.86, 0.86], [1.00, 1.00, 1.00, 1.00], [1.40, 1.56, 1.68, 1.81], [1.84, 2.21, 2.47, 2.76]],
+      '7C-R' => [[0.86, 0.78, 0.74, 0.71], [0.93, 0.88, 0.86, 0.86], [1.00, 1.00, 1.00, 1.00], [1.26, 1.34, 1.42, 1.48], [1.57, 1.74, 1.89, 2.04]],
+      '7C-T' => [[0.84, 0.77, 0.71, 0.67], [0.92, 0.89, 0.85, 0.83], [1.00, 1.00, 1.00, 1.00], [1.27, 1.37, 1.44, 1.52], [1.52, 1.76, 1.90, 2.04]],
+      '7D-R' => [[0.86, 0.78, 0.74, 0.71], [0.93, 0.89, 0.86, 0.86], [1.00, 1.00, 1.00, 1.00], [1.26, 1.33, 1.42, 1.49], [1.57, 1.73, 1.89, 2.04]],
+      '7D-T' => [[0.85, 0.78, 0.71, 0.67], [0.92, 0.89, 0.85, 0.83], [1.00, 1.00, 1.00, 1.00], [1.26, 1.38, 1.43, 1.52], [1.53, 1.75, 1.90, 2.03]],
+      '7E-R' => [[0.87, 0.79, 0.75, 0.71], [0.93, 0.90, 0.87, 0.86], [1.00, 1.00, 1.00, 1.00], [1.26, 1.34, 1.45, 1.49], [1.57, 1.72, 1.93, 2.02]],
+      '7E-T' => [[0.84, 0.77, 0.71, 0.67], [0.92, 0.89, 0.85, 0.83], [1.00, 1.00, 1.00, 1.00], [1.27, 1.37, 1.44, 1.51], [1.52, 1.74, 1.90, 2.04]],
+      '7F-R' => [[0.87, 0.79, 0.75, 0.71], [0.94, 0.90, 0.88, 0.86], [1.00, 1.00, 1.00, 1.00], [1.26, 1.34, 1.43, 1.49], [1.57, 1.74, 1.93, 2.04]],
+      '7F-T' => [[0.84, 0.78, 0.71, 0.67], [0.92, 0.89, 0.86, 0.83], [1.00, 1.00, 1.00, 1.00], [1.26, 1.38, 1.44, 1.52], [1.52, 1.74, 1.90, 2.03]],
+      '7G-R' => [[0.83, 0.79, 0.74, 0.70], [0.92, 0.89, 0.87, 0.85], [1.00, 1.00, 1.00, 1.00], [1.54, 1.69, 1.73, 1.79], [2.19, 2.58, 2.79, 2.98]],
+      '7G-T' => [[0.86, 0.79, 0.75, 0.70], [0.93, 0.89, 0.87, 0.86], [1.00, 1.00, 1.00, 1.00], [1.42, 1.49, 1.59, 1.65], [1.89, 2.09, 2.30, 2.44]],
+      '7H' => [[0.79, 0.71, 0.66, 0.60], [0.89, 0.85, 0.83, 0.79], [1.00, 1.00, 1.00, 1.00], [1.49, 1.62, 1.71, 1.81], [2.02, 2.34, 2.56, 2.75]],
+      '7I' => [[0.82, 0.76, 0.70, 0.65], [0.91, 0.88, 0.85, 0.81], [1.00, 1.00, 1.00, 1.00], [1.53, 1.71, 1.77, 1.87], [2.13, 2.48, 2.74, 2.92]],
+      '7D-AE' => [[0.76, 0.71, 0.66, 0.60], [0.86, 0.84, 0.82, 0.79], [1.00, 1.00, 1.00, 1.00], [1.65, 1.94, 2.07, 2.19], [2.52, 2.99, 3.31, 3.57]],
+      '7J-1' => [[1.00, 1.00, 1.00, 1.00], [1.00, 1.00, 1.00, 1.00], [1.00, 1.00, 1.00, 1.00], [1.00, 1.00, 1.00, 1.00], [1.00, 1.00, 1.00, 1.00]],
+      '7J-2' => [[0.86, 0.80, 0.80, 0.76], [0.92, 0.90, 0.91, 0.91], [1.00, 1.00, 1.00, 1.00], [1.07, 1.10, 1.13, 1.12], [2.87, 3.21, 3.43, 3.41]],
+      '7K' => [[0.44, 0.50, 0.56, 0.62], [0.61, 0.67, 0.72, 0.77], [1.00, 1.00, 1.00, 1.00], [1.64, 1.50, 1.39, 1.31], [2.28, 2.00, 1.78, 1.61]],
+      '7L' => [[0.93, 1.01, 0.23, 0.24], [0.96, 1.01, 0.37, 0.38], [1.00, 1.00, 1.00, 1.00], [1.04, 0.99, 2.69, 2.60], [1.08, 0.99, 4.38, 4.21]],
+      '7M' => [[0.76, 0.80, 0.74, 0.73], [0.82, 0.90, 0.86, 0.86], [1.00, 1.00, 1.00, 1.00], [1.17, 1.37, 1.51, 1.60], [1.48, 1.87, 2.09, 2.28]],
+      '7N' => [[0.84, 0.79, 0.74, 0.69], [0.93, 0.89, 0.87, 0.85], [1.00, 1.00, 1.00, 1.00], [1.29, 1.43, 1.47, 1.53], [1.57, 1.82, 1.97, 2.09]],
+      '7O-1' => [[0.87, 0.82, 0.76, 0.73], [0.92, 0.91, 0.89, 0.86], [1.00, 1.00, 1.00, 1.00], [1.26, 1.35, 1.48, 1.52], [1.62, 1.81, 1.98, 2.11]],
+      '7O-2' => [[0.87, 0.82, 0.76, 0.73], [0.92, 0.91, 0.89, 0.86], [1.00, 1.00, 1.00, 1.00], [1.26, 1.35, 1.48, 1.52], [1.62, 1.81, 1.98, 2.11]],
+      '7O-3' => [[0.87, 0.82, 0.76, 0.73], [0.92, 0.91, 0.89, 0.86], [1.00, 1.00, 1.00, 1.00], [1.26, 1.35, 1.48, 1.52], [1.62, 1.81, 1.98, 2.11]],
+      '7O-4' => [[0.87, 0.82, 0.76, 0.73], [0.92, 0.91, 0.89, 0.86], [1.00, 1.00, 1.00, 1.00], [1.26, 1.35, 1.48, 1.52], [1.62, 1.81, 1.98, 2.11]],
+      '7P-1' => [[0.87, 0.78, 0.77, 0.72], [0.93, 0.90, 0.88, 0.86], [1.00, 1.00, 1.00, 1.00], [1.29, 1.41, 1.48, 1.55], [1.63, 1.87, 2.03, 2.19]],
+      '7P-2' => [[0.87, 0.78, 0.77, 0.72], [0.93, 0.90, 0.88, 0.86], [1.00, 1.00, 1.00, 1.00], [1.29, 1.41, 1.48, 1.55], [1.63, 1.87, 2.03, 2.19]],
+      '7P-3' => [[0.87, 0.78, 0.77, 0.72], [0.93, 0.90, 0.88, 0.86], [1.00, 1.00, 1.00, 1.00], [1.29, 1.41, 1.48, 1.55], [1.63, 1.87, 2.03, 2.19]],
+      '7P-4' => [[0.87, 0.78, 0.77, 0.72], [0.93, 0.90, 0.88, 0.86], [1.00, 1.00, 1.00, 1.00], [1.29, 1.41, 1.48, 1.55], [1.63, 1.87, 2.03, 2.19]],
+    }[table_number]
+
+    # Base Case Sensible Gain Factor (BSGF)
+    bsgf_oats = [85.0, 90.0, 95.0, 100.0, 105.0]
+    bsgf_table = {
+      '7A-R' => [[0.160, 0.200, 0.240, 0.260, 0.280], [0.170, 0.210, 0.250, 0.270, 0.300], [0.180, 0.210, 0.260, 0.290, 0.310], [0.180, 0.230, 0.260, 0.300, 0.330], [0.200, 0.230, 0.280, 0.300, 0.350]],
+      '7A-T' => [[0.350, 0.450, 0.520, 0.560, 0.630], [0.370, 0.430, 0.490, 0.540, 0.590], [0.370, 0.420, 0.470, 0.530, 0.580], [0.370, 0.420, 0.470, 0.510, 0.570], [0.370, 0.420, 0.470, 0.510, 0.570]],
+      '7B-R' => [[0.120, 0.140, 0.170, 0.190, 0.210], [0.130, 0.150, 0.170, 0.190, 0.220], [0.140, 0.160, 0.190, 0.220, 0.240], [0.140, 0.180, 0.200, 0.220, 0.240], [0.150, 0.180, 0.220, 0.230, 0.260]],
+      '7B-T' => [[0.240, 0.310, 0.370, 0.390, 0.440], [0.260, 0.310, 0.340, 0.390, 0.420], [0.280, 0.310, 0.350, 0.380, 0.420], [0.270, 0.310, 0.340, 0.380, 0.420], [0.280, 0.310, 0.340, 0.390, 0.430]],
+      '7A-AE' => [[0.109, 0.131, 0.154, 0.170, 0.189], [0.110, 0.139, 0.151, 0.175, 0.190], [0.124, 0.149, 0.162, 0.176, 0.211], [0.126, 0.154, 0.172, 0.189, 0.205], [0.136, 0.159, 0.175, 0.211, 0.241]],
+      '7B-AE' => [[0.070, 0.090, 0.110, 0.120, 0.130], [0.080, 0.090, 0.110, 0.130, 0.140], [0.080, 0.100, 0.118, 0.130, 0.140], [0.090, 0.130, 0.130, 0.140, 0.160], [0.100, 0.130, 0.130, 0.150, 0.170]],
+      '7C-AE' => [[0.137, 0.170, 0.200, 0.220, 0.240], [0.146, 0.161, 0.203, 0.220, 0.240], [0.157, 0.175, 0.203, 0.220, 0.240], [0.158, 0.180, 0.203, 0.220, 0.247], [0.160, 0.185, 0.207, 0.224, 0.252]],
+      '7C-R' => [[0.100, 0.120, 0.140, 0.150, 0.170], [0.110, 0.130, 0.140, 0.160, 0.180], [0.120, 0.140, 0.160, 0.180, 0.210], [0.120, 0.150, 0.170, 0.180, 0.200], [0.130, 0.160, 0.180, 0.200, 0.220]],
+      '7C-T' => [[0.190, 0.240, 0.290, 0.320, 0.350], [0.210, 0.260, 0.290, 0.320, 0.350], [0.230, 0.260, 0.290, 0.320, 0.350], [0.240, 0.260, 0.290, 0.320, 0.360], [0.240, 0.260, 0.300, 0.330, 0.370]],
+      '7D-R' => [[0.080, 0.100, 0.110, 0.120, 0.140], [0.090, 0.100, 0.120, 0.140, 0.150], [0.100, 0.120, 0.130, 0.150, 0.160], [0.100, 0.120, 0.150, 0.150, 0.170], [0.111, 0.140, 0.150, 0.170, 0.190]],
+      '7D-T' => [[0.150, 0.190, 0.220, 0.250, 0.270], [0.170, 0.210, 0.230, 0.250, 0.270], [0.190, 0.210, 0.240, 0.260, 0.280], [0.190, 0.220, 0.240, 0.270, 0.300], [0.200, 0.230, 0.250, 0.280, 0.300]],
+      '7E-R' => [[0.070, 0.080, 0.100, 0.110, 0.120], [0.080, 0.090, 0.100, 0.120, 0.130], [0.090, 0.110, 0.120, 0.130, 0.140], [0.090, 0.110, 0.140, 0.140, 0.150], [0.100, 0.130, 0.140, 0.160, 0.180]],
+      '7E-T' => [[0.130, 0.160, 0.190, 0.220, 0.240], [0.150, 0.180, 0.200, 0.220, 0.240], [0.170, 0.190, 0.210, 0.230, 0.250], [0.170, 0.200, 0.220, 0.240, 0.270], [0.180, 0.210, 0.230, 0.250, 0.270]],
+      '7F-R' => [[0.050, 0.060, 0.070, 0.080, 0.090], [0.060, 0.070, 0.080, 0.090, 0.100], [0.070, 0.070, 0.090, 0.110, 0.110], [0.080, 0.090, 0.110, 0.110, 0.120], [0.090, 0.110, 0.110, 0.130, 0.140]],
+      '7F-T' => [[0.090, 0.110, 0.130, 0.150, 0.160], [0.110, 0.130, 0.150, 0.160, 0.180], [0.130, 0.140, 0.160, 0.170, 0.190], [0.140, 0.160, 0.170, 0.190, 0.200], [0.150, 0.160, 0.180, 0.200, 0.220]],
+      '7G-R' => [[0.100, 0.130, 0.150, 0.170, 0.190], [0.120, 0.150, 0.160, 0.190, 0.220], [0.130, 0.170, 0.210, 0.230, 0.260], [0.140, 0.190, 0.220, 0.270, 0.290], [0.180, 0.210, 0.250, 0.290, 0.340]],
+      '7G-T' => [[0.140, 0.170, 0.210, 0.230, 0.260], [0.160, 0.200, 0.230, 0.250, 0.270], [0.190, 0.210, 0.240, 0.270, 0.300], [0.200, 0.230, 0.260, 0.300, 0.320], [0.220, 0.250, 0.290, 0.310, 0.350]],
+      '7H' => [[0.060, 0.070, 0.080, 0.090, 0.090], [0.060, 0.080, 0.090, 0.100, 0.100], [0.070, 0.080, 0.100, 0.100, 0.110], [0.080, 0.090, 0.110, 0.110, 0.120], [0.090, 0.100, 0.110, 0.120, 0.130]],
+      '7I' => [[0.040, 0.050, 0.060, 0.070, 0.080], [0.040, 0.050, 0.060, 0.060, 0.070], [0.040, 0.050, 0.060, 0.060, 0.070], [0.040, 0.050, 0.060, 0.060, 0.070], [0.040, 0.050, 0.060, 0.060, 0.070]],
+      '7D-AE' => [[0.048, 0.058, 0.067, 0.064, 0.081], [0.049, 0.059, 0.067, 0.068, 0.081], [0.050, 0.059, 0.067, 0.069, 0.081], [0.052, 0.059, 0.068, 0.072, 0.084], [0.054, 0.059, 0.069, 0.075, 0.087]],
+      '7J-1' => [[0.020, 0.030, 0.030, 0.030, 0.040], [0.020, 0.030, 0.030, 0.030, 0.040], [0.020, 0.030, 0.030, 0.030, 0.040], [0.020, 0.030, 0.030, 0.030, 0.040], [0.020, 0.030, 0.030, 0.030, 0.040]],
+      '7J-2' => [[0.060, 0.070, 0.080, 0.090, 0.090], [0.060, 0.070, 0.080, 0.090, 0.100], [0.060, 0.070, 0.080, 0.090, 0.100], [0.070, 0.070, 0.090, 0.090, 0.100], [0.070, 0.080, 0.090, 0.100, 0.110]],
+      '7K' => [[0.001, 0.001, 0.001, 0.001, 0.001], [0.001, 0.001, 0.001, 0.001, 0.001], [0.001, 0.001, 0.001, 0.001, 0.001], [0.001, 0.001, 0.001, 0.001, 0.001], [0.001, 0.001, 0.001, 0.001, 0.001]],
+      '7L' => [[-0.009, -0.01, -0.011, -0.012, -0.012], [-0.009, -0.01, -0.011, -0.012, -0.012], [-0.009, -0.01, -0.011, -0.01, -0.01], [-0.009, -0.009, -0.009, -0.009, -0.009], [-0.009, -0.009, -0.009, -0.009, -0.009]],
+      '7M' => [[0.042, 0.048, 0.055, 0.068, 0.074], [0.040, 0.050, 0.052, 0.056, 0.064], [0.044, 0.044, 0.053, 0.059, 0.064], [0.037, 0.044, 0.054, 0.061, 0.066], [0.035, 0.046, 0.053, 0.057, 0.062]],
+      '7N' => [[0.085, 0.093, 0.106, 0.126, 0.127], [0.076, 0.087, 0.096, 0.100, 0.109], [0.071, 0.078, 0.086, 0.094, 0.105], [0.065, 0.074, 0.082, 0.088, 0.095], [0.062, 0.070, 0.078, 0.084, 0.091]],
+      '7O-1' => [[0.090, 0.126, 0.133, 0.129, 0.139], [0.092, 0.107, 0.117, 0.137, 0.148], [0.105, 0.103, 0.128, 0.139, 0.151], [0.101, 0.116, 0.142, 0.146, 0.167], [0.111, 0.131, 0.142, 0.173, 0.188]],
+      '7O-2' => [[0.118, 0.164, 0.172, 0.168, 0.181], [0.147, 0.136, 0.150, 0.173, 0.197], [0.127, 0.147, 0.160, 0.192, 0.209], [0.125, 0.153, 0.173, 0.186, 0.202], [0.134, 0.158, 0.171, 0.209, 0.239]],
+      '7O-3' => [[0.203, 0.246, 0.245, 0.258, 0.279], [0.214, 0.206, 0.245, 0.262, 0.282], [0.184, 0.209, 0.240, 0.267, 0.293], [0.173, 0.210, 0.240, 0.274, 0.336], [0.192, 0.215, 0.277, 0.314, 0.341]],
+      '7O-4' => [[0.070, 0.079, 0.106, 0.103, 0.111], [0.075, 0.087, 0.096, 0.113, 0.122], [0.085, 0.099, 0.108, 0.118, 0.127], [0.086, 0.099, 0.121, 0.125, 0.136], [0.095, 0.113, 0.123, 0.143, 0.163]],
+      '7P-1' => [[0.179, 0.193, 0.219, 0.238, 0.259], [0.172, 0.192, 0.213, 0.231, 0.253], [0.172, 0.189, 0.215, 0.231, 0.253], [0.173, 0.195, 0.217, 0.234, 0.263], [0.181, 0.200, 0.228, 0.250, 0.274]],
+      '7P-2' => [[0.235, 0.257, 0.290, 0.314, 0.344], [0.224, 0.246, 0.274, 0.299, 0.336], [0.218, 0.245, 0.270, 0.300, 0.327], [0.224, 0.246, 0.269, 0.304, 0.343], [0.222, 0.245, 0.285, 0.314, 0.343]],
+      '7P-3' => [[0.358, 0.404, 0.455, 0.492, 0.543], [0.342, 0.375, 0.418, 0.453, 0.509], [0.323, 0.364, 0.397, 0.438, 0.483], [0.311, 0.346, 0.396, 0.448, 0.501], [0.316, 0.342, 0.404, 0.441, 0.492]],
+      '7P-4' => [[0.134, 0.155, 0.167, 0.181, 0.196], [0.140, 0.151, 0.167, 0.182, 0.206], [0.141, 0.156, 0.172, 0.192, 0.210], [0.146, 0.164, 0.184, 0.198, 0.217], [0.150, 0.172, 0.191, 0.210, 0.234]],
+    }[table_number]
+
+    # R-Value Correction, WIF -- Sensible Gain
+    sg_rcorr_table = {
+      '7A-R' => [2.07, 1.37, 1.00, 0.86],
+      '7A-T' => [2.19, 1.29, 1.00, 0.84],
+      '7B-R' => [2.17, 1.33, 1.00, 0.86],
+      '7B-T' => [2.07, 1.28, 1.00, 0.84],
+      '7A-AE' => [2.24, 1.37, 1.00, 0.86],
+      '7B-AE' => [2.19, 1.31, 1.00, 0.83],
+      '7C-AE' => [2.19, 1.30, 1.00, 0.80],
+      '7C-R' => [1.99, 1.37, 1.00, 0.87],
+      '7C-T' => [2.00, 1.28, 1.00, 0.86],
+      '7D-R' => [2.04, 1.31, 1.00, 0.87],
+      '7D-T' => [1.94, 1.25, 1.00, 0.87],
+      '7E-R' => [2.01, 1.30, 1.00, 0.86],
+      '7E-T' => [1.85, 1.23, 1.00, 0.84],
+      '7F-R' => [1.84, 1.24, 1.00, 0.82],
+      '7F-T' => [1.82, 1.27, 1.00, 0.86],
+      '7G-R' => [2.17, 1.35, 1.00, 0.87],
+      '7G-T' => [1.99, 1.24, 1.00, 0.88],
+      '7H' => [1.63, 1.19, 1.00, 0.91],
+      '7I' => [1.73, 1.20, 1.00, 0.90],
+      '7D-AE' => [1.65, 1.26, 1.00, 0.91],
+      '7J-1' => [1.00, 1.00, 1.00, 1.00],
+      '7J-2' => [1.33, 1.11, 1.00, 0.94],
+      '7K' => [1.16, 1.05, 1.00, 0.97],
+      '7L' => [1.14, 1.04, 1.00, 0.98],
+      '7M' => [1.70, 1.20, 1.00, 0.87],
+      '7N' => [1.75, 1.23, 1.00, 0.88],
+      '7O-1' => [2.11, 1.32, 1.00, 0.85],
+      '7O-2' => [2.13, 1.33, 1.00, 0.82],
+      '7O-3' => [2.26, 1.34, 1.00, 0.83],
+      '7O-4' => [2.03, 1.26, 1.00, 0.86],
+      '7P-1' => [1.99, 1.29, 1.00, 0.85],
+      '7P-2' => [2.07, 1.29, 1.00, 0.83],
+      '7P-3' => [2.27, 1.33, 1.00, 0.83],
+      '7P-4' => [1.94, 1.27, 1.00, 0.85],
+    }[table_number]
+
+    # Leakage Correction (LCF) for Sensible Gain
+    sg_lcf_table = {
+      '7A-R' => [[0.83, 0.75, 0.66, 0.64], [0.91, 0.86, 0.82, 0.79], [1.00, 1.00, 1.00, 1.00], [1.38, 1.41, 1.50, 1.58], [1.88, 1.94, 2.11, 2.30]],
+      '7A-T' => [[0.79, 0.71, 0.67, 0.62], [0.89, 0.86, 0.82, 0.81], [1.00, 1.00, 1.00, 1.00], [1.40, 1.48, 1.58, 1.64], [1.91, 2.11, 2.29, 2.42]],
+      '7B-R' => [[0.84, 0.72, 0.70, 0.68], [0.92, 0.86, 0.83, 0.83], [1.00, 1.00, 1.00, 1.00], [1.31, 1.44, 1.55, 1.62], [1.57, 1.91, 2.11, 2.36]],
+      '7B-T' => [[0.80, 0.73, 0.69, 0.64], [0.90, 0.86, 0.84, 0.81], [1.00, 1.00, 1.00, 1.00], [1.34, 1.47, 1.54, 1.59], [1.77, 2.01, 2.18, 2.31]],
+      '7A-AE' => [[0.85, 0.79, 0.73, 0.73], [0.94, 0.89, 0.85, 0.86], [1.00, 1.00, 1.00, 1.00], [1.29, 1.39, 1.58, 1.67], [1.60, 1.83, 2.11, 2.34]],
+      '7B-AE' => [[0.90, 0.88, 0.85, 0.84], [0.96, 0.93, 0.91, 0.91], [1.00, 1.00, 1.00, 1.00], [1.21, 1.35, 1.51, 1.47], [1.51, 1.80, 1.96, 2.09]],
+      '7C-AE' => [[0.90, 0.85, 0.80, 0.81], [0.95, 0.91, 0.90, 0.91], [1.00, 1.00, 1.00, 1.00], [1.26, 1.35, 1.42, 1.56], [1.56, 1.74, 1.88, 2.14]],
+      '7C-R' => [[0.82, 0.78, 0.72, 0.68], [0.92, 0.88, 0.86, 0.84], [1.00, 1.00, 1.00, 1.00], [1.33, 1.50, 1.57, 1.52], [1.67, 2.01, 2.20, 2.33]],
+      '7C-T' => [[0.80, 0.74, 0.69, 0.64], [0.90, 0.87, 0.84, 0.82], [1.00, 1.00, 1.00, 1.00], [1.34, 1.45, 1.52, 1.59], [1.71, 1.97, 2.14, 2.27]],
+      '7D-R' => [[0.85, 0.77, 0.74, 0.69], [0.91, 0.88, 0.87, 0.84], [1.00, 1.00, 1.00, 1.00], [1.32, 1.48, 1.53, 1.54], [1.66, 1.99, 2.19, 2.30]],
+      '7D-T' => [[0.81, 0.75, 0.69, 0.65], [0.90, 0.87, 0.85, 0.82], [1.00, 1.00, 1.00, 1.00], [1.32, 1.43, 1.50, 1.57], [1.70, 1.93, 2.09, 2.21]],
+      '7E-R' => [[0.80, 0.77, 0.74, 0.71], [0.89, 0.87, 0.87, 0.86], [1.00, 1.00, 1.00, 1.00], [1.30, 1.48, 1.49, 1.56], [1.65, 1.97, 2.04, 2.28]],
+      '7E-T' => [[0.81, 0.76, 0.69, 0.66], [0.91, 0.88, 0.84, 0.82], [1.00, 1.00, 1.00, 1.00], [1.32, 1.43, 1.50, 1.55], [1.67, 1.91, 2.05, 2.18]],
+      '7F-R' => [[0.85, 0.78, 0.73, 0.70], [0.92, 0.90, 0.87, 0.83], [1.00, 1.00, 1.00, 1.00], [1.40, 1.40, 1.47, 1.53], [1.75, 1.99, 2.01, 2.17]],
+      '7F-T' => [[0.82, 0.75, 0.71, 0.68], [0.91, 0.87, 0.85, 0.84], [1.00, 1.00, 1.00, 1.00], [1.30, 1.40, 1.50, 1.58], [1.64, 1.84, 2.05, 2.17]],
+      '7G-R' => [[0.84, 0.77, 0.71, 0.71], [0.93, 0.87, 0.84, 0.84], [1.00, 1.00, 1.00, 1.00], [1.52, 1.55, 1.78, 1.90], [2.22, 2.28, 2.69, 2.91]],
+      '7G-T' => [[0.84, 0.78, 0.72, 0.69], [0.92, 0.88, 0.87, 0.84], [1.00, 1.00, 1.00, 1.00], [1.40, 1.50, 1.59, 1.64], [1.86, 2.10, 2.27, 2.41]],
+      '7H' => [[0.79, 0.73, 0.67, 0.63], [0.89, 0.87, 0.84, 0.81], [1.00, 1.00, 1.00, 1.00], [1.49, 1.66, 1.72, 1.80], [2.02, 2.35, 2.51, 2.67]],
+      '7I' => [[0.84, 0.77, 0.75, 0.71], [0.93, 0.88, 0.87, 0.86], [1.00, 1.00, 1.00, 1.00], [1.50, 1.61, 1.76, 1.86], [2.04, 2.39, 2.62, 2.81]],
+      '7D-AE' => [[0.80, 0.71, 0.67, 0.63], [0.89, 0.86, 0.82, 0.80], [1.00, 1.00, 1.00, 1.00], [1.65, 1.79, 1.89, 1.97], [2.42, 2.75, 2.97, 3.11]],
+      '7J-1' => [[1.00, 1.00, 1.00, 1.00], [1.00, 1.00, 1.00, 1.00], [1.00, 1.00, 1.00, 1.00], [1.00, 1.00, 1.00, 1.00], [1.00, 1.00, 1.00, 1.00]],
+      '7J-2' => [[0.74, 0.67, 0.66, 0.63], [0.88, 0.85, 0.83, 0.81], [1.00, 1.00, 1.00, 1.00], [1.71, 1.87, 1.96, 1.98], [2.33, 2.55, 2.72, 2.77]],
+      '7K' => [[0.33, 0.38, 0.50, 0.71], [0.50, 0.56, 0.67, 0.83], [1.00, 1.00, 1.00, 1.00], [2.00, 1.80, 1.50, 1.20], [3.00, 2.60, 2.00, 1.40]],
+      '7L' => [[0.51, 0.55, 0.61, 0.63], [0.67, 0.71, 0.76, 0.78], [1.00, 1.00, 1.00, 1.00], [1.49, 1.41, 1.31, 1.29], [1.98, 1.81, 1.63, 1.58]],
+      '7M' => [[0.86, 0.79, 0.75, 0.72], [0.93, 0.89, 0.87, 0.86], [1.00, 1.00, 1.00, 1.00], [1.38, 1.37, 1.45, 1.52], [1.71, 1.92, 2.10, 2.26]],
+      '7N' => [[0.84, 0.77, 0.74, 0.71], [0.92, 0.88, 0.87, 0.85], [1.00, 1.00, 1.00, 1.00], [1.31, 1.42, 1.51, 1.59], [1.62, 1.84, 1.95, 2.15]],
+      '7O-1' => [[0.87, 0.79, 0.76, 0.72], [0.92, 0.89, 0.88, 0.86], [1.00, 1.00, 1.00, 1.00], [1.29, 1.50, 1.58, 1.56], [1.64, 1.98, 2.20, 2.36]],
+      '7O-2' => [[0.85, 0.74, 0.75, 0.72], [0.94, 0.86, 0.87, 0.85], [1.00, 1.00, 1.00, 1.00], [1.28, 1.39, 1.59, 1.64], [1.60, 1.83, 2.15, 2.31]],
+      '7O-3' => [[0.86, 0.77, 0.74, 0.64], [0.92, 0.90, 0.87, 0.82], [1.00, 1.00, 1.00, 1.00], [1.36, 1.37, 1.46, 1.52], [1.85, 1.87, 2.00, 2.11]],
+      '7O-4' => [[0.83, 0.81, 0.77, 0.70], [0.89, 0.90, 0.88, 0.86], [1.00, 1.00, 1.00, 1.00], [1.37, 1.51, 1.51, 1.56], [1.71, 2.05, 2.18, 2.34]],
+      '7P-1' => [[0.84, 1.01, 0.72, 0.69], [0.91, 1.00, 0.86, 0.83], [1.00, 1.00, 1.00, 1.00], [1.32, 1.32, 1.50, 1.58], [1.70, 1.69, 2.07, 2.23]],
+      '7P-2' => [[0.83, 0.78, 0.74, 0.69], [0.92, 0.89, 0.86, 0.85], [1.00, 1.00, 1.00, 1.00], [1.34, 1.44, 1.50, 1.57], [1.71, 1.93, 2.10, 2.24]],
+      '7P-3' => [[0.82, 0.77, 0.73, 0.69], [0.91, 0.88, 0.85, 0.84], [1.00, 1.00, 1.00, 1.00], [1.34, 1.47, 1.50, 1.57], [1.78, 1.99, 2.16, 2.34]],
+      '7P-4' => [[0.84, 0.77, 0.73, 0.71], [0.92, 0.89, 0.86, 0.85], [1.00, 1.00, 1.00, 1.00], [1.31, 1.43, 1.53, 1.62], [1.68, 1.90, 2.12, 2.30]],
+    }[table_number]
+
+    # Base Case Latent Gain (BLG)
+    blg_grains = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0]
+    blg_table = {
+      '7A-R' => [[95.0, 149.0, 200.0, 246.0, 292.0], [144.0, 224.0, 302.0, 371.0, 440.0], [194.0, 303.0, 407.0, 501.0, 594.0], [246.0, 384.0, 516.0, 636.0, 753.0], [300.0, 468.0, 630.0, 775.0, 919.0], [355.0, 555.0, 746.0, 919.0, 1089.0], [413.0, 645.0, 867.0, 1067.0, 1265.0]],
+      '7A-T' => [[215.0, 301.0, 361.0, 419.0, 451.0], [341.0, 477.0, 574.0, 666.0, 716.0], [473.0, 661.0, 794.0, 921.0, 990.0], [608.0, 851.0, 1023.0, 1186.0, 1275.0], [749.0, 1048.0, 1259.0, 1461.0, 1570.0], [895.0, 1251.0, 1504.0, 1744.0, 1875.0], [1045.0, 1461.0, 1757.0, 2038.0, 2190.0]],
+      '7B-R' => [[92.0, 142.0, 190.0, 233.0, 274.0], [138.0, 214.0, 287.0, 351.0, 413.0], [186.0, 289.0, 387.0, 474.0, 558.0], [237.0, 367.0, 491.0, 601.0, 708.0], [288.0, 447.0, 598.0, 733.0, 863.0], [342.0, 530.0, 709.0, 869.0, 1023.0], [397.0, 616.0, 824.0, 1010.0, 1189.0]],
+      '7B-T' => [[198.0, 276.0, 330.0, 379.0, 404.0], [315.0, 438.0, 524.0, 601.0, 642.0], [436.0, 606.0, 726.0, 833.0, 888.0], [561.0, 781.0, 934.0, 1072.0, 1143.0], [691.0, 961.0, 1150.0, 1320.0, 1408.0], [825.0, 1148.0, 1374.0, 1576.0, 1681.0], [963.0, 1341.0, 1605.0, 1841.0, 1964.0]],
+      '7A-AE' => [[77.0, 126.0, 172.0, 217.0, 261.0], [113.0, 185.0, 251.0, 317.0, 382.0], [150.0, 246.0, 334.0, 422.0, 507.0], [189.0, 309.0, 419.0, 530.0, 637.0], [229.0, 374.0, 508.0, 641.0, 772.0], [270.0, 441.0, 599.0, 757.0, 911.0], [312.0, 511.0, 694.0, 867.0, 1055.0]],
+      '7B-AE' => [[51.0, 89.0, 136.0, 186.0, 231.0], [68.0, 119.0, 183.0, 250.0, 310.0], [86.0, 151.0, 231.0, 316.0, 392.0], [105.0, 184.0, 282.0, 385.0, 478.0], [124.0, 218.0, 334.0, 457.0, 567.0], [145.0, 254.0, 388.0, 531.0, 659.0], [166.0, 290.0, 445.0, 608.0, 754.0]],
+      '7C-AE' => [[111.0, 166.0, 214.0, 264.0, 297.0], [157.0, 234.0, 303.0, 373.0, 420.0], [205.0, 306.0, 395.0, 487.0, 549.0], [255.0, 280.0, 492.0, 606.0, 683.0], [307.0, 458.0, 592.0, 730.0, 823.0], [361.0, 639.0, 697.0, 859.0, 968.0], [417.0, 624.0, 806.0, 994.0, 1119.0]],
+      '7C-R' => [[90.0, 139.0, 186.0, 227.0, 266.0], [136.0, 210.0, 280.0, 342.0, 402.0], [183.0, 283.0, 378.0, 462.0, 542.0], [232.0, 359.0, 479.0, 586.0, 688.0], [283.0, 438.0, 584.0, 714.0, 839.0], [336.0, 519.0, 693.0, 847.0, 995.0], [390.0, 603.0, 805.0, 984.0, 1155.0]],
+      '7C-T' => [[191.0, 265.0, 317.0, 363.0, 387.0], [303.0, 421.0, 503.0, 576.0, 614.0], [420.0, 583.0, 697.0, 798.0, 850.0], [541.0, 751.0, 897.0, 1027.0, 1094.0], [666.0, 925.0, 1105.0, 1265.0, 1347.0], [795.0, 1104.0, 1319.0, 1510.0, 1608.0], [929.0, 1290.0, 1541.0, 1764.0, 1879.0]],
+      '7D-R' => [[88.0, 136.0, 181.0, 221.0, 259.0], [133.0, 206.0, 274.0, 334.0, 301.0], [180.0, 277.0, 369.0, 451.0, 528.0], [228.0, 352.0, 469.0, 572.0, 669.0], [278.0, 429.0, 571.0, 697.0, 816.0], [330.0, 509.0, 677.0, 826.0, 967.0], [383.0, 591.0, 787.0, 960.0, 1124.0]],
+      '7D-T' => [[185.0, 256.0, 305.0, 349.0, 371.0], [293.0, 407.0, 484.0, 554.0, 589.0], [405.0, 563.0, 670.0, 766.0, 815.0], [522.0, 725.0, 893.0, 987.0, 1049.0], [643.0, 892.0, 1063.0, 1215.0, 1292.0], [468.0, 1065.0, 1269.0, 1451.0, 1542.0], [896.0, 1244.0, 1482.0, 1694.0, 1802.0]],
+      '7E-R' => [[88.0, 135.0, 179.0, 219.0, 256.0], [132.0, 204.0, 271.0, 330.0, 386.0], [178.0, 275.0, 365.0, 445.0, 520.0], [226.0, 349.0, 463.0, 565.0, 660.0], [276.0, 425.0, 565.0, 688.0, 805.0], [327.0, 504.0, 670.0, 816.0, 954.0], [380.0, 585.0, 778.0, 948.0, 1109.0]],
+      '7E-T' => [[181.0, 251.0, 299.0, 342.0, 363.0], [288.0, 399.0, 475.0, 543.0, 577.0], [399.0, 552.0, 658.0, 751.0, 798.0], [513.0, 711.0, 847.0, 968.0, 1028.0], [632.0, 876.0, 1043.0, 1191.0, 1266.0], [755.0, 1046.0, 1245.0, 1423.0, 1511.0], [881.0, 1222.0, 1455.0, 1662.0, 1765.0]],
+      '7F-R' => [[86.0, 132.0, 175.0, 213.0, 249.0], [130.0, 200.0, 265.0, 322.0, 375.0], [175.0, 269.0, 357.0, 435.0, 507.0], [223.0, 342.0, 453.0, 551.0, 643.0], [271.0, 417.0, 552.0, 672.0, 784.0], [322.0, 494.0, 655.0, 797.0, 929.0], [374.0, 574.0, 761.0, 926.0, 1080.0]],
+      '7F-T' => [[175.0, 243.0, 289.0, 329.0, 349.0], [278.0, 385.0, 458.0, 523.0, 555.0], [365.0, 533.0, 634.0, 723.0, 768.0], [496.0, 687.0, 817.0, 932.0, 988.0], [611.0, 845.0, 1005.0, 1147.0, 1217.0], [730.0, 1010.0, 1201.0, 1370.0, 1453.0], [852.0, 1179.0, 1402.0, 1700.0, 1697.0]],
+      '7G-R' => [[152.0, 260.0, 366.0, 477.0, 571.0], [229.0, 390.0, 550.0, 716.0, 857.0], [309.0, 526.0, 741.0, 965.0, 1156.0], [392.0, 667.0, 941.0, 1226.0, 1468.0], [479.0, 815.0, 1150.0, 1497.0, 1794.0], [569.0, 970.0, 1367.0, 1780.0, 2133.0], [663.0, 1130.0, 1593.0, 2075.0, 2485.0]],
+      '7G-T' => [[223.0, 329.0, 418.0, 502.0, 558.0], [343.0, 506.0, 642.0, 771.0, 857.0], [467.0, 691.0, 875.0, 1052.0, 1169.0], [597.0, 882.0, 1118.0, 1344.0, 1494.0], [732.0, 1081.0, 1371.0, 1647.0, 1831.0], [871.0, 1288.0, 1633.0, 1962.0, 2181.0], [1016.0, 1502.0, 1904.0, 2288.0, 2544.0]],
+      '7H' => [[203.0, 296.0, 373.0, 445.0, 491.0], [311.0, 455.0, 573.0, 684.0, 755.0], [424.0, 620.0, 782.0, 933.0, 1029.0], [542.0, 792.0, 999.0, 1191.0, 1315.0], [664.0, 970.0, 1224.0, 1460.0, 1611.0], [791.0, 1155.0, 1457.0, 1739.0, 1919.0], [922.0, 1347.0, 1699.0, 2027.0, 2237.0]],
+      '7I' => [[199.0, 288.0, 363.0, 432.0, 477.0], [305.0, 442.0, 557.0, 664.0, 732.0], [416.0, 603.0, 760.0, 906.0, 999.0], [532.0, 770.0, 971.0, 1157.0, 1275.0], [652.0, 944.0, 1189.0, 1418.0, 1563.0], [776.0, 1124.0, 1416.0, 1688.0, 1861.0], [905.0, 1131.0, 1651.0, 1968.0, 2170.0]],
+      '7D-AE' => [[182.0, 270.0, 345.0, 418.0, 466.0], [275.0, 408.0, 521.0, 631.0, 703.0], [372.0, 552.0, 705.0, 854.0, 951.0], [473.0, 702.0, 897.0, 1086.0, 1210.0], [579.0, 859.0, 1097.0, 1329.0, 1480.0], [689.0, 1022.0, 1306.0, 1581.0, 1761.0], [803.0, 1191.0, 1522.0, 1843.0, 2053.0]],
+      '7J-1' => [[0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0]],
+      '7J-2' => [[11.0, 21.0, 31.0, 64.0, 64.0], [22.0, 42.0, 63.0, 130.0, 131.0], [34.0, 64.0, 96.0, 199.0, 201.0], [47.0, 88.0, 131.0, 270.0, 247.0], [59.0, 112.0, 166.0, 344.0, 347.0], [73.0, 136.0, 203.0, 421.0, 424.0], [86.0, 162.0, 241.0, 500.0, 504.0]],
+      '7K' => [[8.0, 5.0, 4.0, 3.0, 3.0], [8.0, 5.0, 4.0, 3.0, 3.0], [8.0, 5.0, 4.0, 3.0, 3.0], [8.0, 6.0, 4.0, 3.0, 3.0], [8.0, 6.0, 4.0, 3.0, 3.0], [9.0, 6.0, 4.0, 3.0, 3.0], [9.0, 6.0, 4.0, 4.0, 3.0]],
+      '7L' => [[-5.0, -4.0, -3.0, -2.0, -2.0], [-11.0, -7.0, -5.0, -4.0, -4.0], [-17.0, -11.0, -8.0, -7.0, -6.0], [-23.0, -15.0, -11.0, -9.0, -8.0], [-29.0, -19.0, -14.0, -12.0, -10.0], [-35.0, -23.0, -18.0, -14.0, -12.0], [-42.0, -28.0, -19.0, -17.0, -14.0]],
+      '7M' => [[57.0, 77.0, 106.0, 126.0, 141.0], [71.0, 90.0, 122.0, 145.0, 164.0], [82.0, 102.0, 138.0, 163.0, 187.0], [93.0, 115.0, 154.0, 180.0, 210.0], [104.0, 127.0, 170.0, 214.0, 233.0], [115.0, 140.0, 186.0, 237.0, 257.0], [126.0, 152.0, 203.0, 258.0, 280.0]],
+      '7N' => [[96.0, 140.0, 174.0, 210.0, 230.0], [117.0, 169.0, 210.0, 255.0, 279.0], [139.0, 199.0, 247.0, 299.0, 335.0], [159.0, 228.0, 284.0, 343.0, 384.0], [181.0, 258.0, 321.0, 389.0, 435.0], [201.0, 287.0, 356.0, 434.0, 484.0], [222.0, 318.0, 394.0, 479.0, 533.0]],
+      '7O-1' => [[94.0, 117.0, 162.0, 192.0, 213.0], [130.0, 170.0, 226.0, 269.0, 289.0], [170.0, 243.0, 293.0, 343.0, 383.0], [211.0, 298.0, 359.0, 416.0, 539.0], [252.0, 353.0, 425.0, 562.0, 630.0], [293.0, 416.0, 510.0, 647.0, 735.0], [352.0, 485.0, 585.0, 749.0, 836.0]],
+      '7O-2' => [[90.0, 133.0, 161.0, 193.0, 214.0], [130.0, 189.0, 228.0, 268.0, 344.0], [170.0, 243.0, 293.0, 389.0, 442.0], [211.0, 298.0, 359.0, 476.0, 540.0], [259.0, 361.0, 448.0, 573.0, 635.0], [310.0, 425.0, 514.0, 664.0, 766.0], [351.0, 490.0, 587.0, 751.0, 868.0]],
+      '7O-3' => [[89.0, 134.0, 175.0, 220.0, 245.0], [133.0, 191.0, 243.0, 310.0, 354.0], [179.0, 252.0, 312.0, 397.0, 456.0], [223.0, 315.0, 381.0, 496.0, 561.0], [266.0, 376.0, 457.0, 585.0, 664.0], [310.0, 433.0, 596.0, 673.0, 758.0], [354.0, 491.0, 684.0, 774.0, 936.0]],
+      '7O-4' => [[94.0, 116.0, 154.0, 191.0, 212.0], [139.0, 169.0, 225.0, 266.0, 295.0], [170.0, 243.0, 290.0, 343.0, 379.0], [211.0, 298.0, 360.0, 417.0, 468.0], [252.0, 353.0, 424.0, 493.0, 638.0], [293.0, 408.0, 491.0, 646.0, 735.0], [334.0, 476.0, 577.0, 730.0, 833.0]],
+      '7P-1' => [[150.0, 215.0, 272.0, 337.0, 376.0], [218.0, 315.0, 408.0, 491.0, 554.0], [291.0, 418.0, 543.0, 649.0, 736.0], [360.0, 523.0, 671.0, 810.0, 950.0], [435.0, 644.0, 809.0, 971.0, 1136.0], [515.0, 756.0, 956.0, 1177.0, 1336.0], [587.0, 861.0, 1125.0, 1352.0, 1529.0]],
+      '7P-2' => [[152.0, 220.0, 286.0, 344.0, 396.0], [222.0, 334.0, 417.0, 502.0, 583.0], [296.0, 438.0, 549.0, 688.0, 773.0], [371.0, 547.0, 715.0, 855.0, 968.0], [460.0, 650.0, 847.0, 1022.0, 1204.0], [536.0, 763.0, 1006.0, 1202.0, 1406.0], [617.0, 870.0, 1150.0, 1435.0, 1597.0]],
+      '7P-3' => [[165.0, 236.0, 307.0, 381.0, 425.0], [241.0, 342.0, 451.0, 556.0, 627.0], [318.0, 479.0, 591.0, 735.0, 834.0], [392.0, 594.0, 768.0, 920.0, 1073.0], [477.0, 714.0, 923.0, 1132.0, 1329.0], [554.0, 830.0, 1077.0, 1338.0, 1595.0], [629.0, 947.0, 1243.0, 1539.0, 1824.0]],
+      '7P-4' => [[150.0, 214.0, 269.0, 321.0, 372.0], [218.0, 312.0, 393.0, 470.0, 547.0], [285.0, 409.0, 516.0, 643.0, 725.0], [359.0, 518.0, 673.0, 810.0, 908.0], [429.0, 618.0, 801.0, 969.0, 1087.0], [499.0, 748.0, 928.0, 1125.0, 1321.0], [585.0, 851.0, 1065.0, 1344.0, 1512.0]],
+    }[table_number]
+
+    # Leakage Correction (LCF) for Latent Gain
+    lg_lcf_table = {
+      '7A-R' => [0.28, 0.62, 1.00, 2.39, 4.22],
+      '7A-T' => [0.28, 0.63, 1.00, 2.29, 3.95],
+      '7B-R' => [0.29, 0.63, 1.00, 2.36, 4.02],
+      '7B-T' => [0.28, 0.63, 1.00, 2.20, 3.68],
+      '7A-AE' => [0.30, 0.64, 1.00, 2.58, 4.42],
+      '7B-AE' => [0.27, 0.57, 1.00, 3.42, 6.35],
+      '7C-AE' => [0.28, 0.62, 1.00, 2.81, 4.88],
+      '7C-R' => [0.30, 0.64, 1.00, 2.34, 4.03],
+      '7C-T' => [0.28, 0.63, 1.00, 2.17, 3.58],
+      '7D-R' => [0.30, 0.64, 1.00, 2.28, 3.93],
+      '7D-T' => [0.29, 0.64, 1.00, 2.14, 3.49],
+      '7E-R' => [0.30, 0.64, 1.00, 2.27, 3.81],
+      '7E-T' => [0.29, 0.64, 1.00, 2.13, 3.44],
+      '7F-R' => [0.30, 0.65, 1.00, 2.28, 3.74],
+      '7F-T' => [0.29, 0.64, 1.00, 2.10, 3.33],
+      '7G-R' => [0.31, 0.63, 1.00, 2.89, 5.36],
+      '7G-T' => [0.32, 0.67, 1.00, 2.49, 4.33],
+      '7H' => [0.32, 0.66, 1.00, 2.41, 4.02],
+      '7I' => [0.32, 0.66, 1.00, 2.34, 3.88],
+      '7D-AE' => [0.32, 0.65, 1.00, 2.53, 4.33],
+      '7J-1' => [1.00, 1.00, 1.00, 1.00, 1.00],
+      '7J-2' => [-0.40, 0.40, 1.00, 9.39, 15.41],
+      '7K' => [0.34, 0.50, 1.00, 1.99, 2.97],
+      '7L' => [0.25, 0.68, 1.00, -1.47, -3.93],
+      '7M' => [0.43, 0.72, 1.00, 2.06, 3.29],
+      '7N' => [0.38, 0.69, 1.00, 2.10, 3.19],
+      '7O-1' => [0.31, 0.64, 1.00, 2.53, 4.45],
+      '7O-2' => [0.30, 0.63, 1.00, 2.57, 4.42],
+      '7O-3' => [0.29, 0.63, 1.00, 2.61, 4.70],
+      '7O-4' => [0.30, 0.64, 1.00, 2.51, 4.37],
+      '7P-1' => [0.49, 0.73, 1.00, 2.38, 3.99],
+      '7P-2' => [0.30, 0.64, 1.00, 2.54, 4.34],
+      '7P-3' => [0.30, 0.64, 1.00, 2.59, 4.60],
+      '7P-4' => [0.30, 0.64, 1.00, 2.46, 4.15],
+    }[table_number]
+
+    # Default Duct Wall Surface Area (SqFt)
+    duct_area_table = {
+      '7A-R' => [[116.0, 42.0], [197.0, 64.0], [272.0, 86.0], [331.0, 100.0], [382.0, 114.0]],
+      '7A-T' => [[224.0, 99.0], [337.0, 146.0], [442.0, 188.0], [542.0, 230.0], [622.0, 262.0]],
+      '7B-R' => [[112.0, 41.0], [183.0, 60.0], [249.0, 80.0], [312.0, 95.0], [355.0, 106.0]],
+      '7B-T' => [[209.0, 93.0], [312.0, 138.0], [405.0, 174.0], [494.0, 210.0], [572.0, 241.0]],
+      '7A-AE' => [[109.0, 32.0], [177.0, 43.0], [229.0, 51.0], [287.0, 58.0], [330.0, 64.0]],
+      '7B-AE' => [[107.0, 0.0], [174.0, 0.0], [229.0, 0.0], [277.0, 0.0], [315.0, 0.0]],
+      '7C-AE' => [[189.0, 50.0], [276.0, 70.0], [361.0, 90.0], [431.0, 110.0], [481.0, 120.0]],
+      '7C-R' => [[110.0, 40.0], [180.0, 57.0], [245.0, 78.0], [301.0, 93.0], [343.0, 103.0]],
+      '7C-T' => [[202.0, 91.0], [302.0, 132.0], [388.0, 168.0], [471.0, 200.0], [527.0, 227.0]],
+      '7D-R' => [[107.0, 39.0], [176.0, 57.0], [233.0, 77.0], [290.0, 89.0], [330.0, 100.0]],
+      '7D-T' => [[196.0, 88.0], [289.0, 127.0], [372.0, 163.0], [449.0, 194.0], [505.0, 216.0]],
+      '7E-R' => [[107.0, 39.0], [174.0, 55.0], [233.0, 76.0], [282.0, 88.0], [330.0, 97.0]],
+      '7E-T' => [[193.0, 87.0], [287.0, 125.0], [364.0, 159.0], [440.0, 191.0], [494.0, 213.0]],
+      '7F-R' => [[107.0, 39.0], [174.0, 54.0], [222.0, 73.0], [275.0, 86.0], [301.0, 94.0]],
+      '7F-T' => [[186.0, 85.0], [274.0, 122.0], [350.0, 155.0], [421.0, 184.0], [467.0, 204.0]],
+      '7G-R' => [[221.0, 42.0], [379.0, 61.0], [526.0, 85.0], [669.0, 104.0], [778.0, 115.0]],
+      '7G-T' => [[283.0, 89.0], [435.0, 130.0], [578.0, 167.0], [699.0, 201.0], [797.0, 225.0]],
+      '7H' => [[260.0, 84.0], [390.0, 117.0], [496.0, 150.0], [594.0, 178.0], [666.0, 197.0]],
+      '7I' => [[246.0, 82.0], [373.0, 114.0], [486.0, 143.0], [583.0, 174.0], [640.0, 191.0]],
+      '7D-AE' => [[251.0, 49.0], [374.0, 69.0], [493.0, 86.0], [585.0, 100.0], [649.0, 111.0]],
+      '7J-1' => [[204.0, 42.0], [272.0, 49.0], [382.0, 62.0], [459.0, 81.0], [503.0, 88.0]],
+      '7J-2' => [[204.0, 43.0], [306.0, 52.0], [431.0, 68.0], [532.0, 86.0], [588.0, 93.0]],
+      '7K' => nil, # SAA based on number of stories
+      '7L' => nil, # SAA based on number of stories
+      '7M' => [[107.0, 40.0], [141.0, 47.0], [200.0, 61.0], [242.0, 76.0], [268.0, 88.0]],
+      '7N' => [[172.0, 80.0], [250.0, 112.0], [313.0, 139.0], [378.0, 169.0], [419.0, 187.0]],
+      '7O-1' => [[109.0, 32.0], [176.0, 42.0], [228.0, 51.0], [287.0, 58.0], [330.0, 64.0]],
+      '7O-2' => [[110.0, 32.0], [180.0, 43.0], [249.0, 53.0], [307.0, 60.0], [347.0, 70.0]],
+      '7O-3' => [[116.0, 33.0], [198.0, 46.0], [266.0, 55.0], [341.0, 71.0], [382.0, 77.0]],
+      '7O-4' => [[107.0, 31.0], [173.0, 42.0], [228.0, 51.0], [282.0, 58.0], [330.0, 63.0]],
+      '7P-1' => [[194.0, 53.0], [288.0, 74.0], [371.0, 92.0], [443.0, 111.0], [501.0, 127.0]],
+      '7P-2' => [[200.0, 54.0], [300.0, 76.0], [391.0, 98.0], [472.0, 118.0], [534.0, 132.0]],
+      '7P-3' => [[219.0, 57.0], [329.0, 83.0], [430.0, 107.0], [525.0, 132.0], [606.0, 149.0]],
+      '7P-4' => [[189.0, 51.0], [278.0, 72.0], [359.0, 90.0], [431.0, 109.0], [482.0, 121.0]],
+    }[table_number]
+
+    # Surface Area Factors
+    saf_table = {
+      '7A-R' => [[0.758, 0.242], [0.739, 0.261], [0.712, 0.288], [0.694, 0.306], [0.681, 0.319]],
+      '7A-T' => [[0.696, 0.304], [0.671, 0.329], [0.647, 0.353], [0.627, 0.373], [0.613, 0.387]],
+      '7B-R' => [[0.755, 0.245], [0.730, 0.270], [0.717, 0.283], [0.689, 0.311], [0.676, 0.324]],
+      '7B-T' => [[0.695, 0.305], [0.669, 0.331], [0.644, 0.356], [0.624, 0.376], [0.607, 0.393]],
+      '7A-AE' => [[0.811, 0.189], [0.788, 0.212], [0.771, 0.229], [0.752, 0.248], [0.743, 0.257]],
+      '7B-AE' => [[1.000, 0.000], [1.000, 0.000], [1.000, 0.000], [1.000, 0.000], [1.000, 0.000]],
+      '7C-AE' => [[0.975, 0.025], [0.972, 0.028], [0.969, 0.031], [0.965, 0.035], [0.962, 0.038]],
+      '7C-R' => [[0.755, 0.245], [0.733, 0.267], [0.711, 0.289], [0.695, 0.305], [0.672, 0.328]],
+      '7C-T' => [[0.694, 0.306], [0.660, 0.340], [0.643, 0.357], [0.624, 0.376], [0.606, 0.394]],
+      '7D-R' => [[0.754, 0.246], [0.731, 0.269], [0.712, 0.288], [0.691, 0.309], [0.664, 0.336]],
+      '7D-T' => [[0.693, 0.307], [0.666, 0.334], [0.643, 0.357], [0.619, 0.381], [0.602, 0.398]],
+      '7E-R' => [[0.755, 0.245], [0.728, 0.272], [0.714, 0.286], [0.685, 0.315], [0.676, 0.324]],
+      '7E-T' => [[0.693, 0.307], [0.665, 0.335], [0.640, 0.360], [0.616, 0.384], [0.605, 0.395]],
+      '7F-R' => [[0.758, 0.242], [0.725, 0.275], [0.704, 0.296], [0.685, 0.315], [0.670, 0.330]],
+      '7F-T' => [[0.692, 0.308], [0.662, 0.338], [0.637, 0.363], [0.612, 0.388], [0.595, 0.405]],
+      '7G-R' => [[0.857, 0.143], [0.840, 0.160], [0.827, 0.173], [0.809, 0.191], [0.800, 0.200]],
+      '7G-T' => [[0.615, 0.385], [0.595, 0.405], [0.577, 0.423], [0.562, 0.438], [0.553, 0.447]],
+      '7H' => [[0.765, 0.235], [0.738, 0.262], [0.717, 0.283], [0.698, 0.302], [0.682, 0.318]],
+      '7I' => [[0.764, 0.236], [0.727, 0.273], [0.706, 0.294], [0.683, 0.317], [0.669, 0.331]],
+      '7D-AE' => [[0.846, 0.154], [0.810, 0.190], [0.790, 0.210], [0.772, 0.228], [0.764, 0.236]],
+      '7J-1' => [[0.848, 0.152], [0.848, 0.152], [0.848, 0.152], [0.848, 0.152], [0.848, 0.152]],
+      '7J-2' => [[0.853, 0.147], [0.848, 0.152], [0.845, 0.155], [0.829, 0.171], [0.820, 0.180]],
+      '7K' => nil, # SAA based on number of stories
+      '7L' => nil, # SAA based on number of stories
+      '7M' => [[0.761, 0.239], [0.720, 0.280], [0.691, 0.309], [0.668, 0.332], [0.654, 0.346]],
+      '7N' => [[0.686, 0.314], [0.652, 0.348], [0.628, 0.372], [0.607, 0.393], [0.587, 0.413]],
+      '7O-1' => [[0.811, 0.189], [0.793, 0.207], [0.778, 0.222], [0.760, 0.240], [0.752, 0.248]],
+      '7O-2' => [[0.814, 0.186], [0.794, 0.206], [0.777, 0.223], [0.766, 0.234], [0.753, 0.247]],
+      '7O-3' => [[0.814, 0.186], [0.798, 0.202], [0.787, 0.213], [0.761, 0.239], [0.761, 0.239]],
+      '7O-4' => [[0.811, 0.189], [0.792, 0.208], [0.777, 0.223], [0.755, 0.245], [0.746, 0.254]],
+      '7P-1' => [[0.795, 0.205], [0.775, 0.225], [0.758, 0.242], [0.738, 0.262], [0.722, 0.278]],
+      '7P-2' => [[0.796, 0.204], [0.780, 0.220], [0.762, 0.238], [0.741, 0.259], [0.725, 0.275]],
+      '7P-3' => [[0.801, 0.199], [0.777, 0.223], [0.764, 0.236], [0.745, 0.255], [0.733, 0.267]],
+      '7P-4' => [[0.795, 0.205], [0.772, 0.228], [0.756, 0.244], [0.736, 0.264], [0.716, 0.284]],
+    }[table_number]
+
+    # Get BHLF (interpolate or extrapolate)
+    # FIXME: Check extrapolation works correctly
+    fa_idx = floor_areas.bsearch_index { |i| fa < i }.to_i - 1
+    htg_oat_idx = bhlf_oats.bsearch_index { |i| htg_oat < i }.to_i - 1
+    bhlf = MathTools.interp4(htg_oat, fa,
+                             bhlf_oats[htg_oat_idx], bhlf_oats[htg_oat_idx + 1],
+                             floor_areas[fa_idx], floor_areas[fa_idx + 1],
+                             bhlf_table[htg_oat_idx][fa_idx], bhlf_table[htg_oat_idx][fa_idx + 1],
+                             bhlf_table[htg_oat_idx + 1][fa_idx], bhlf_table[htg_oat_idx + 1][fa_idx + 1])
+
+    # Get BSGF (interpolate or extrapolate)
+    clg_oat_idx = bsgf_oats.bsearch_index { |i| clg_oat < i }.to_i - 1
+    bsgf = MathTools.interp4(clg_oat, fa,
+                             bsgf_oats[clg_oat_idx], bsgf_oats[clg_oat_idx + 1],
+                             floor_areas[fa_idx], floor_areas[fa_idx + 1],
+                             bsgf_table[clg_oat_idx][fa_idx], bsgf_table[clg_oat_idx][fa_idx + 1],
+                             bsgf_table[clg_oat_idx + 1][fa_idx], bsgf_table[clg_oat_idx + 1][fa_idx + 1])
+
+    # Get BLG (interpolate or extrapolate)
+    clg_grn_idx = blg_grains.bsearch_index { |i| clg_grn < i }.to_i - 1
+    blg = MathTools.interp4(clg_grn, fa,
+                            blg_grains[clg_grn_idx], blg_grains[clg_grn_idx + 1],
+                            floor_areas[fa_idx], floor_areas[fa_idx + 1],
+                            blg_table[clg_grn_idx][fa_idx], blg_table[clg_grn_idx][fa_idx + 1],
+                            blg_table[clg_grn_idx + 1][fa_idx], blg_table[clg_grn_idx + 1][fa_idx + 1])
+
+    # Get R-value corrections
+    rvalue_idx = rvalues.bsearch_index { |i| rvalue < i }.to_i - 1
+    hl_rcorr = MathTools.interp2(rvalue,
+                                 rvalues[rvalue_idx], rvalues[rvalue_idx + 1],
+                                 hl_rcorr_table[rvalue_idx], hl_rcorr_table[rvalue_idx + 1])
+    sg_rcorr = MathTools.interp2(rvalue,
+                                 rvalues[rvalue_idx], rvalues[rvalue_idx + 1],
+                                 sg_rcorr_table[rvalue_idx], sg_rcorr_table[rvalue_idx + 1])
+
+    # Get LCFs
+    leakage_idx = leakages.index(leakage_level)
+    hl_lcf = MathTools.interp2(rvalue,
+                               rvalues[rvalue_idx], rvalues[rvalue_idx + 1],
+                               hl_lcf_table[leakage_idx][rvalue_idx], hl_lcf_table[leakage_idx][rvalue_idx + 1])
+    sg_lcf = MathTools.interp2(rvalue,
+                               rvalues[rvalue_idx], rvalues[rvalue_idx + 1],
+                               sg_lcf_table[leakage_idx][rvalue_idx], sg_lcf_table[leakage_idx][rvalue_idx + 1])
+    lg_lcf = lg_lcf_table[leakage_idx]
+
+    if ['7K', '7L'].include? table_number
+      # Adjustments based on number of stories
+      saa = n_stories
+      lga = n_stories
+    elsif (not supply_area.nil?) && (not return_area.nil?)
+      # Get default duct areas
+      def_area_s = MathTools.interp2(fa,
+                                     floor_areas[fa_idx], floor_areas[fa_idx + 1],
+                                     duct_area_table[fa_idx][0], duct_area_table[fa_idx + 1][0])
+      def_area_r = MathTools.interp2(fa,
+                                     floor_areas[fa_idx], floor_areas[fa_idx + 1],
+                                     duct_area_table[fa_idx][1], duct_area_table[fa_idx + 1][1])
+
+      # Get surface area factors
+      k_s, k_r = saf_table[leakage_idx]
+
+      saa = k_s * (supply_area / def_area_s) + k_r * (return_area / def_area_r)
+      lga = return_area / def_area_r
+    elsif not dsf.nil?
+      # Estimated fraction of duct surface area in unconditioned space
+      saa = dsf
+      lga = dsf
+    else
+      # No area information, no adjustment
+      saa = 1.0
+      lga = 1.0
+    end
+
+    # Calculate effective heat loss factor (EHLF)
+    ehlf = bhlf * hl_rcorr * hl_lcf * saa
+
+    # Calculate effective sensible gain factor (ESGF)
+    esgf = bsgf * sg_rcorr * sg_lcf * saa
+
+    # Calculate effective latent gain Btuh (ELG)
+    elg = blg * lg_lcf * lga
+
+    return ehlf, esgf, elg
+  end
+
   # Applies CFIS ventilation loads to the HVAC/zone loads as appropriate. Note that CFIS loads
   # are considered system loads, not space loads like other ventilation systems.
   #
@@ -1972,7 +2485,7 @@ module HVACSizing
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @return [nil]
   def self.apply_hvac_cfis_loads(mj, hvac_loads, zone_loads, hvac_heating, hvac_cooling, hpxml_bldg)
-    if hpxml_bldg.zones[0].id == 'BobRossResidenceConditioned' && hpxml_bldg.ventilation_fans.select { |f| f.used_for_whole_building_ventilation && f.fan_type == HPXML::MechVentTypeERV }.size == 1
+    if hpxml_bldg.zones[0].id == 'BobRossResidenceConditioned' && hpxml_bldg.ventilation_fans.count { |f| f.used_for_whole_building_ventilation && f.fan_type == HPXML::MechVentTypeERV } == 1
       # FUTURE: For now, ACCA is okay with us bypassing our inputs to manually test this.
       # Bob Ross 3-18: ERV to equipment (system load)
       htg_sens_eff = 0.68
@@ -2356,15 +2869,17 @@ module HVACSizing
       heating_delta_t = hvac_heating_ap.supply_air_temp - mj.heat_setpoint
 
       if hvac_heating.is_a?(HPXML::HeatingSystem) && hvac_heating.is_heat_pump_backup_system
-        # Adjust heating load using the HP backup calculation
         hvac_hp = hvac_heating.primary_heat_pump
-        hp_sizing_values = @all_hvac_sizings[{ heating: hvac_hp, cooling: hvac_hp }]
-        if hp_sizing_values.nil?
-          fail 'Primary heat pump should have been sized already.'
-        end
+        if hvac_hp.heat_pump_type != HPXML::HVACTypeHeatPumpGroundToAir
+          # Adjust heating load using the HP backup calculation
+          hp_sizing_values = @all_hvac_sizings[{ heating: hvac_hp, cooling: hvac_hp }]
+          if hp_sizing_values.nil?
+            fail 'Primary heat pump should have been sized already.'
+          end
 
-        hp_heating_speed = get_nominal_speed(hvac_hp.additional_properties, false)
-        hvac_sizings.Heat_Load = calculate_heat_pump_backup_load(mj, hvac_hp, hvac_sizings.Heat_Load, hp_sizing_values.Heat_Capacity, hp_heating_speed, hpxml_bldg)
+          hp_heating_speed = get_nominal_speed(hvac_hp.additional_properties, false)
+          hvac_sizings.Heat_Load = calculate_heat_pump_backup_load(mj, hvac_hp, hvac_sizings.Heat_Load, hp_sizing_values.Heat_Capacity, hp_heating_speed, hpxml_bldg)
+        end
       end
     elsif not hvac_cooling.nil? && hvac_cooling.has_integrated_heating
       heating_delta_t = hvac_cooling_ap.supply_air_temp - mj.heat_setpoint
@@ -2498,7 +3013,7 @@ module HVACSizing
       coefficients_1speed = HVAC.get_cool_cap_eir_ft_spec(HPXML::HVACCompressorTypeSingleStage)[0][0]
     elsif mode == :htg
       rated_indoor_temp = HVAC::AirSourceHeatRatedIDB
-      capacity_retention_temp_1speed, capacity_retention_fraction_1speed = HVAC.get_default_heating_capacity_retention(HPXML::HVACCompressorTypeSingleStage)
+      capacity_retention_temp_1speed, capacity_retention_fraction_1speed = Defaults.get_heating_capacity_retention(HPXML::HVACCompressorTypeSingleStage)
       coefficients_1speed = HVAC.get_heat_cap_eir_ft_spec(HPXML::HVACCompressorTypeSingleStage, capacity_retention_temp_1speed, capacity_retention_fraction_1speed)[0][0]
     end
     return MathTools.biquadratic(indoor_temp, outdoor_temp, coefficients_1speed) / MathTools.biquadratic(rated_indoor_temp, outdoor_temp, coefficients_1speed)
@@ -2528,11 +3043,14 @@ module HVACSizing
       max_rated_dp = detailed_performance_data.find { |dp| dp.outdoor_temperature == rated_odb && dp.capacity_description == HPXML::CapacityDescriptionMaximum }
       if max_rated_dp.capacity.nil?
         property = :capacity_fraction_of_nominal
+        # Should use nominal instead of maximum
+        capacity_nominal = 1.0
       else
         property = :capacity
+        # Should use nominal instead of maximum
+        capacity_nominal = (mode == :clg) ? hvac_sys.cooling_capacity : hvac_sys.heating_capacity
       end
-      capacity_max = detailed_performance_data.find { |dp| dp.outdoor_temperature == rated_odb && dp.capacity_description == HPXML::CapacityDescriptionMaximum }.send(property)
-      odb_adj = HVAC.interpolate_to_odb_table_point(detailed_performance_data, HPXML::CapacityDescriptionMaximum, outdoor_temp, property) / capacity_max
+      odb_adj = HVAC.interpolate_to_odb_table_point(detailed_performance_data, HPXML::CapacityDescriptionMaximum, outdoor_temp, property) / capacity_nominal
     end
     return odb_adj
   end
@@ -3290,11 +3808,11 @@ module HVACSizing
 
     # FUTURE: For now, ACCA is okay with us bypassing our inputs to manually test these.
     if hpxml_bldg.zones[0].id == 'BobRossResidenceConditioned'
-      if hpxml_bldg.ventilation_fans.select { |f| f.used_for_whole_building_ventilation && f.fan_type == HPXML::MechVentTypeERV }.size == 1
+      if hpxml_bldg.ventilation_fans.count { |f| f.used_for_whole_building_ventilation && f.fan_type == HPXML::MechVentTypeERV } == 1
         # Bob Ross 3-18: ERV to equipment (system load)
         return { q_imb: 0.0, q_oa: 0.0, q_preheat: 0.0, q_precool: 0.0, q_recirc: 0.0,
                  htg_sens_eff: 0.0, clg_sens_eff: 0.0, clg_lat_eff: 0.0 }
-      elsif hpxml_bldg.ventilation_fans.select { |f| f.used_for_whole_building_ventilation && f.fan_type == HPXML::MechVentTypeHRV }.size == 1
+      elsif hpxml_bldg.ventilation_fans.count { |f| f.used_for_whole_building_ventilation && f.fan_type == HPXML::MechVentTypeHRV } == 1
         # Bob Ross 3-21: HRV to space (space load)
         htg_sens_eff = 0.64
         clg_sens_eff = 0.58
@@ -3602,16 +4120,17 @@ module HVACSizing
   end
 
   # Returns a variety of area-weighted duct values for a given HVAC distribution system.
+  # Used for DSE calculations.
   #
   # @param distribution_system [HPXML::HVACDistribution] HVAC distribution system of interest
   # @param design_temps [Hash] Map of HPXML locations => design temperatures (F)
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @return [Array<Double, Double, Double, Double, Double, Double, Double, Double>] Supply/return area (ft2), supply/return R-value (hr-ft2-F/Btu), supply/return ambient temperature (F), supply/return regain factors (frac)
-  def self.calc_duct_conduction_values(distribution_system, design_temps, hpxml_bldg)
-    dse_a = { HPXML::DuctTypeSupply => 0.0, HPXML::DuctTypeReturn => 0.0 }
-    dse_ufactor = { HPXML::DuctTypeSupply => 0.0, HPXML::DuctTypeReturn => 0.0 }
-    dse_t_amb = { HPXML::DuctTypeSupply => 0.0, HPXML::DuctTypeReturn => 0.0 }
-    dse_f_regain = { HPXML::DuctTypeSupply => 0.0, HPXML::DuctTypeReturn => 0.0 }
+  def self.calc_duct_conduction_values_for_dse(distribution_system, design_temps, hpxml_bldg)
+    duct_areas = { HPXML::DuctTypeSupply => 0.0, HPXML::DuctTypeReturn => 0.0 }
+    duct_ufactors = { HPXML::DuctTypeSupply => 0.0, HPXML::DuctTypeReturn => 0.0 }
+    duct_t_ambs = { HPXML::DuctTypeSupply => 0.0, HPXML::DuctTypeReturn => 0.0 }
+    duct_f_regains = { HPXML::DuctTypeSupply => 0.0, HPXML::DuctTypeReturn => 0.0 }
 
     [HPXML::DuctTypeSupply, HPXML::DuctTypeReturn].each do |duct_type|
       # Calculate total area outside this unit's conditioned space
@@ -3625,28 +4144,28 @@ module HVACSizing
 
       if total_area == 0
         # There still may be leakage to the outside, so set t_amb to outside environment
-        dse_t_amb[duct_type] = design_temps[HPXML::LocationOutside]
+        duct_t_ambs[duct_type] = design_temps[HPXML::LocationOutside]
       else
         distribution_system.ducts.each do |duct|
           next if duct.duct_type != duct_type
           next if HPXML::conditioned_locations_this_unit.include? duct.duct_location
 
           duct_area = duct.duct_surface_area * duct.duct_surface_area_multiplier
-          dse_a[duct_type] += duct_area
+          duct_areas[duct_type] += duct_area
 
           # Calculate area-weighted values:
           duct_area_fraction = duct_area / total_area
-          dse_ufactor[duct_type] += 1.0 / duct.duct_effective_r_value * duct_area_fraction
-          dse_t_amb[duct_type] += design_temps[duct.duct_location] * duct_area_fraction
-          dse_f_regain[duct_type] += get_duct_regain_factor(duct, hpxml_bldg) * duct_area_fraction
+          duct_ufactors[duct_type] += 1.0 / duct.duct_effective_r_value * duct_area_fraction
+          duct_t_ambs[duct_type] += design_temps[duct.duct_location] * duct_area_fraction
+          duct_f_regains[duct_type] += get_duct_regain_factor(duct, hpxml_bldg) * duct_area_fraction
         end
       end
     end
 
-    return dse_a[HPXML::DuctTypeSupply], dse_a[HPXML::DuctTypeReturn],
-           1.0 / dse_ufactor[HPXML::DuctTypeSupply], 1.0 / dse_ufactor[HPXML::DuctTypeReturn],
-           dse_t_amb[HPXML::DuctTypeSupply], dse_t_amb[HPXML::DuctTypeReturn],
-           dse_f_regain[HPXML::DuctTypeSupply], dse_f_regain[HPXML::DuctTypeReturn]
+    return duct_areas[HPXML::DuctTypeSupply], duct_areas[HPXML::DuctTypeReturn],
+           1.0 / duct_ufactors[HPXML::DuctTypeSupply], 1.0 / duct_ufactors[HPXML::DuctTypeReturn],
+           duct_t_ambs[HPXML::DuctTypeSupply], duct_t_ambs[HPXML::DuctTypeReturn],
+           duct_f_regains[HPXML::DuctTypeSupply], duct_f_regains[HPXML::DuctTypeReturn]
   end
 
   # Calculates supply & return duct leakage in cfm25.
@@ -3809,7 +4328,7 @@ module HVACSizing
       end
       ach = Airflow.get_infiltration_ACH_from_SLA(sla, 8.202, weather) if ach.nil?
     else # Unvented space
-      ach = Airflow.get_default_unvented_space_ach()
+      ach = Airflow::UnventedSpaceACH
     end
     volume = Geometry.calculate_zone_volume(hpxml_bldg, location)
     infiltration_cfm = ach / UnitConversions.convert(1.0, 'hr', 'min') * volume
@@ -4175,7 +4694,7 @@ module HVACSizing
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param leakiness_description [String] Leakiness description to look up the infiltration ach value
   # @param cfa [Double] Conditioned floor area in the dwelling unit (ft2)
-  # @return [Array<Float, Float>] Heating and cooling ACH values from Manual J Table 5A/5B
+  # @return [Array<Double, Double>] Heating and cooling ACH values from Manual J Table 5A/5B
   def self.get_mj_default_ach_values(hpxml_bldg, leakiness_description, cfa)
     ncfl_ag = hpxml_bldg.building_construction.number_of_conditioned_floors_above_grade
     # Manual J Table 5A
@@ -4276,15 +4795,36 @@ module HVACSizing
 
     assembly_r = Material.FoundationWallMaterial(foundation_wall.type, foundation_wall.thickness).rvalue
     assembly_r += Material.AirFilmVertical.rvalue + Material.AirFilmOutside.rvalue
-    if include_insulation_layers
-      if foundation_wall.insulation_interior_distance_to_top == 0 && foundation_wall.insulation_interior_distance_to_bottom > 0
-        assembly_r += foundation_wall.insulation_interior_r_value
-      end
-      if foundation_wall.insulation_exterior_distance_to_top == 0 && foundation_wall.insulation_exterior_distance_to_bottom > 0
-        assembly_r += foundation_wall.insulation_exterior_r_value
-      end
+    if not include_insulation_layers
+      return 1.0 / assembly_r
     end
-    return 1.0 / assembly_r
+
+    ag_depth = foundation_wall.height - foundation_wall.depth_below_grade
+    wall_ins_dist_bottom_to_grade_int = ag_depth - foundation_wall.insulation_interior_distance_to_bottom
+    wall_ins_dist_top_to_grade_int = ag_depth - foundation_wall.insulation_interior_distance_to_top
+    wall_ins_dist_bottom_to_grade_ext = ag_depth - foundation_wall.insulation_exterior_distance_to_bottom
+    wall_ins_dist_top_to_grade_ext = ag_depth - foundation_wall.insulation_exterior_distance_to_top
+    # Perform calculation for each 1ft bin of above grade depth
+    sum_u_wall = 0.0
+    for distance_to_grade in 1..ag_depth.ceil
+      r_wall = assembly_r
+
+      bin_dist_top_to_grade = [distance_to_grade, ag_depth].min
+      bin_dist_bottom_to_grade = distance_to_grade - 1
+      bin_size = bin_dist_top_to_grade - bin_dist_bottom_to_grade # Last bin may be less than 1 ft
+
+      # Add interior insulation R-value at this depth?
+      bin_frac_insulated_int = MathTools.overlap(bin_dist_bottom_to_grade, bin_dist_top_to_grade, wall_ins_dist_bottom_to_grade_int, wall_ins_dist_top_to_grade_int) / bin_size
+      r_wall += foundation_wall.insulation_interior_r_value * bin_frac_insulated_int # Interior insulation at this depth, add R-value
+
+      # Add exterior insulation R-value at this depth?
+      bin_frac_insulated_ext = MathTools.overlap(bin_dist_bottom_to_grade, bin_dist_top_to_grade, wall_ins_dist_bottom_to_grade_ext, wall_ins_dist_top_to_grade_ext) / bin_size
+      r_wall += foundation_wall.insulation_exterior_r_value * bin_frac_insulated_ext # Exterior insulation at this depth, add R-value
+
+      sum_u_wall += (1.0 / r_wall) * bin_size
+    end
+    u_wall = sum_u_wall / ag_depth
+    return u_wall
   end
 
   # Calculates the foundation wall below grade effective U-factor according to Manual J Section A12-4.
@@ -4313,22 +4853,27 @@ module HVACSizing
 
     # Perform calculation for each 1ft bin of below grade depth
     sum_u_wall = 0.0
-    wall_depth_above_grade = foundation_wall.depth_below_grade.ceil
-    for distance_to_grade in 1..wall_depth_above_grade
+    for distance_to_grade in 1..foundation_wall.depth_below_grade.ceil
       # Calculate R-wall at this depth
       r_wall = wall_constr_rvalue - Material.AirFilmOutside.rvalue
-      bin_distance_to_grade = distance_to_grade - 0.5 # Use e.g. 2.5 ft for the 2ft-3ft bin
-      r_soil = (Math::PI * bin_distance_to_grade / 2.0) / ground_conductivity
-      if (distance_to_grade > wall_ins_dist_top_to_grade_int) && (distance_to_grade <= wall_ins_dist_bottom_to_grade_int)
-        r_wall += wall_ins_rvalue_int # Interior insulation at this depth, add R-value
-      end
-      if (distance_to_grade > wall_ins_dist_top_to_grade_ext) && (distance_to_grade <= wall_ins_dist_bottom_to_grade_ext)
-        r_wall += wall_ins_rvalue_ext # Exterior insulation at this depth, add R-value
-      end
+      bin_dist_top_to_grade = distance_to_grade - 1
+      bin_dist_bottom_to_grade = [distance_to_grade, foundation_wall.depth_below_grade].min
+      bin_size = bin_dist_bottom_to_grade - bin_dist_top_to_grade # Last bin may be less than 1 ft
+      bin_avg_dist_to_grade = (bin_dist_top_to_grade + bin_dist_bottom_to_grade) / 2.0
+
+      # Add interior insulation R-value at this depth?
+      bin_frac_insulated_int = MathTools.overlap(bin_dist_top_to_grade, bin_dist_bottom_to_grade, wall_ins_dist_top_to_grade_int, wall_ins_dist_bottom_to_grade_int) / bin_size
+      r_wall += wall_ins_rvalue_int * bin_frac_insulated_int
+
+      # Add exterior insulation R-value at this depth?
+      bin_frac_insulated_ext = MathTools.overlap(bin_dist_top_to_grade, bin_dist_bottom_to_grade, wall_ins_dist_top_to_grade_ext, wall_ins_dist_bottom_to_grade_ext) / bin_size
+      r_wall += wall_ins_rvalue_ext * bin_frac_insulated_ext # Exterior insulation at this depth, add R-value
+
       if include_soil
-        sum_u_wall += 1.0 / (r_soil + r_wall)
+        r_soil = (Math::PI * bin_avg_dist_to_grade / 2.0) / ground_conductivity
+        sum_u_wall += (1.0 / (r_soil + r_wall)) * bin_size
       else
-        sum_u_wall += 1.0 / r_wall
+        sum_u_wall += (1.0 / r_wall) * bin_size
       end
     end
     u_wall = sum_u_wall / foundation_wall.depth_below_grade
@@ -4887,17 +5432,22 @@ module HVACSizing
     end
   end
 
-  # Writes a output file with additional detailed information needed to fill out, e.g., an ACCA Form J1.
+  # Appends additional detailed information needed to fill out, e.g., an ACCA Form J1 to the provided array
+  # for eventual writing to an output file.
   #
   # @param output_format [String] Detailed output file format ('csv', 'json', or 'msgpack')
-  # @param output_file_path [String] Detailed output file path
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param all_zone_loads [Hash] Map of HPXML::Zones => DesignLoadValues object
   # @param all_space_loads [Hash] Map of HPXML::Spaces => DesignLoadValues object
+  # @param results_out [Array] Rows of output data
   # @return [nil]
-  def self.write_detailed_output(output_format, output_file_path, hpxml_bldg, all_zone_loads, all_space_loads)
+  def self.append_detailed_output(output_format, hpxml_bldg, all_zone_loads, all_space_loads, results_out)
     line_break = nil
-    results_out = []
+
+    if (output_format == 'csv') && (not results_out.empty?)
+      # Separate from existing data with line break
+      results_out << [line_break]
+    end
 
     orientation_map = { HPXML::OrientationEast => 'E',
                         HPXML::OrientationNorth => 'N',
@@ -5043,12 +5593,17 @@ module HVACSizing
     all_space_loads.values.each_with_index do |space_loads, i|
       results_out << [space_col_names[i]] + space_loads.HourlyFenestrationLoads.map { |l| l.round }
     end
+  end
 
+  # Writes an output file for the given rows of output data.
+  #
+  # @param results_out [Array] Rows of output data
+  # @param output_format [String] Detailed output file format ('csv', 'json', or 'msgpack')
+  # @param output_file_path [String] Detailed output file path
+  # @return [nil]
+  def self.write_detailed_output(results_out, output_format, output_file_path)
+    line_break = nil
     if ['csv'].include? output_format
-      if File.exist? output_file_path
-        # Separate from existing data
-        results_out.insert(0, [line_break])
-      end
       CSV.open(output_file_path, 'a') { |csv| results_out.to_a.each { |elem| csv << elem } }
     elsif ['json', 'msgpack'].include? output_format
       h = {}
@@ -5074,10 +5629,6 @@ module HVACSizing
           items[columns[i - 1]] = out[i]
         end
         h[report][name] = items
-      end
-
-      if File.exist? output_file_path
-        h = JSON.parse(File.read(output_file_path)).merge(h)
       end
 
       if output_format == 'json'

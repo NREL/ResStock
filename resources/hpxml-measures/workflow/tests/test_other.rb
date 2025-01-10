@@ -148,9 +148,9 @@ class WorkflowOtherTest < Minitest::Test
         assert(File.exist? timeseries_output_path)
         # Check timeseries columns exist
         timeseries_rows = CSV.read(timeseries_output_path)
-        assert_equal(1, timeseries_rows[0].select { |r| r == 'Time' }.size)
-        assert_equal(1, timeseries_rows[0].select { |r| r == 'Zone People Occupant Count: Conditioned Space' }.size)
-        assert_equal(1, timeseries_rows[0].select { |r| r == 'Zone People Total Heating Energy: Conditioned Space' }.size)
+        assert_equal(1, timeseries_rows[0].count { |r| r == 'Time' })
+        assert_equal(1, timeseries_rows[0].count { |r| r == 'Zone People Occupant Count: Conditioned Space' })
+        assert_equal(1, timeseries_rows[0].count { |r| r == 'Zone People Total Heating Energy: Conditioned Space' })
       else
         refute(File.exist? timeseries_output_path)
       end
@@ -183,9 +183,9 @@ class WorkflowOtherTest < Minitest::Test
       'daily' => ['Temperature:'],
       'monthly' => ['End Use:', 'Fuel Use:', 'Zone People Total Heating Energy:'] }.each do |freq, col_names|
       timeseries_rows = CSV.read(File.join(File.dirname(xml), 'run', "results_timeseries_#{freq}.csv"))
-      assert_equal(1, timeseries_rows[0].select { |r| r == 'Time' }.size)
+      assert_equal(1, timeseries_rows[0].count { |r| r == 'Time' })
       col_names.each do |col_name|
-        assert(timeseries_rows[0].select { |r| r.start_with? col_name }.size > 0)
+        assert(timeseries_rows[0].count { |r| r.start_with? col_name } > 0)
       end
     end
   end
@@ -303,12 +303,12 @@ class WorkflowOtherTest < Minitest::Test
         assert_equal(true, File.exist?(bills_csv_path))
 
         # Check that we have multiple warnings, one for each Building element
-        assert_equal(6, File.readlines(run_log).select { |l| l.include? dryer_warning_msg }.size)
+        assert_equal(6, File.readlines(run_log).count { |l| l.include? dryer_warning_msg })
       else
         # Simulation should be unsuccessful (building_id or WholeSFAorMFBuildingSimulation=true is required)
         assert_equal(false, File.exist?(csv_output_path))
         assert_equal(false, File.exist?(bills_csv_path))
-        assert_equal(1, File.readlines(run_log).select { |l| l.include? 'Multiple Building elements defined in HPXML file; provide Building ID argument or set WholeSFAorMFBuildingSimulation=true.' }.size)
+        assert_equal(1, File.readlines(run_log).count { |l| l.include? 'Multiple Building elements defined in HPXML file; provide Building ID argument or set WholeSFAorMFBuildingSimulation=true.' })
       end
 
       # Check for when building-id argument is provided
@@ -320,14 +320,14 @@ class WorkflowOtherTest < Minitest::Test
         # validate the HPXML for one use case (whole building model) while running it for a different unit case (individual dwelling unit model).
         assert_equal(true, File.exist?(csv_output_path))
         assert_equal(true, File.exist?(bills_csv_path))
-        assert_equal(1, File.readlines(run_log).select { |l| l.include? 'Multiple Building elements defined in HPXML file and WholeSFAorMFBuildingSimulation=true; Building ID argument will be ignored.' }.size)
+        assert_equal(1, File.readlines(run_log).count { |l| l.include? 'Multiple Building elements defined in HPXML file and WholeSFAorMFBuildingSimulation=true; Building ID argument will be ignored.' })
       else
         # Simulation should be successful
         assert_equal(true, File.exist?(csv_output_path))
         assert_equal(true, File.exist?(bills_csv_path))
 
         # Check that we have exactly one warning (i.e., check we are only validating a single Building element against schematron)
-        assert_equal(1, File.readlines(run_log).select { |l| l.include? dryer_warning_msg }.size)
+        assert_equal(1, File.readlines(run_log).count { |l| l.include? dryer_warning_msg })
       end
 
       next unless not whole_sfa_or_mf_building_sim
@@ -338,7 +338,7 @@ class WorkflowOtherTest < Minitest::Test
       system(command, err: File::NULL)
       assert_equal(false, File.exist?(csv_output_path))
       assert_equal(false, File.exist?(bills_csv_path))
-      assert_equal(1, File.readlines(run_log).select { |l| l.include? "Could not find Building element with ID 'MyFoo'." }.size)
+      assert_equal(1, File.readlines(run_log).count { |l| l.include? "Could not find Building element with ID 'MyFoo'." })
 
       # Cleanup
       File.delete(tmp_hpxml_path) if File.exist? tmp_hpxml_path
