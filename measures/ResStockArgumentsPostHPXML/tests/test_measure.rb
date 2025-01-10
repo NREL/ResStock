@@ -16,7 +16,7 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
     measures = {}
 
     osw_hash = JSON.parse(File.read(osw))
-    measures_dir = File.join(File.dirname(__FILE__), osw_hash['measure_paths'][0])
+    measures_dirs = osw_hash['measure_paths'].map { |path| File.join(File.dirname(__FILE__), path) }
     osw_hash['steps'].each do |step|
       measures[step['measure_dir_name']] = [step['arguments']]
     end
@@ -24,7 +24,7 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
 
     # Apply measure
     cdir = File.expand_path('.')
-    success = apply_measures(measures_dir, measures, runner, model)
+    success = apply_measures(measures_dirs, measures, runner, model)
     Dir.chdir(cdir) # we need this because of Dir.chdir in HPXMLtoOS
 
     # Report warnings/errors
