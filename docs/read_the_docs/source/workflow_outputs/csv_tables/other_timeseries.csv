@@ -22,3 +22,20 @@ Weather: Wind Speed,weather__wind_speed__mph,mph,"Weather file data including ou
 Weather: Diffuse Solar Radiation,weather__diffuse_solar_radiation__btu/(hr*ft^2),Btu/(hr*ft^2),"Weather file data including outdoor temperatures, relative humidity, wind speed, and solar."
 Weather: Direct Solar Radiation,weather__direct_solar_radiation__btu/(hr*ft^2),Btu/(hr*ft^2),"Weather file data including outdoor temperatures, relative humidity, wind speed, and solar."
 Zone People Occupant Count: Conditioned Space,zone_people_occupant_count__conditioned_space,,User-requested EnergyPlus output variable.
+,schedules_ceiling_fan,frac,Ceiling fan energy use schedule.
+,schedules_clothes_dryer,frac,Clothes dryer energy use schedule.
+,schedules_clothes_washer,frac,Clothes washer energy use schedule.
+,schedules_cooking_range,frac,Cooking range & oven energy use schedule.
+,schedules_dishwasher,frac,Dishwasher energy use schedule.
+,schedules_hot_water_clothes_washer,frac,Clothes washer hot water use schedule.
+,schedules_hot_water_dishwasher,frac,Dishwasher hot water use schedule.
+,schedules_hot_water_fixtures,frac,"Fixtures (sinks, showers, baths) hot water use schedule."
+,schedules_lighting_garage,frac,Garage lighting energy use schedule.
+,schedules_lighting_interior,frac,Interior lighting energy use schedule.
+,schedules_no_space_cooling,,Unavailable period.
+,schedules_no_space_heating,,Unavailable period.
+,schedules_occupants,frac,Occupant heat gain schedule.
+,schedules_plug_loads_other,frac,Other plug load energy use schedule.
+,schedules_plug_loads_tv,frac,Television plug load energy use schedule.
+,schedules_power_outage,,Unavailable period.
+,schedules_vacancy,,Unavailable period.

@@ -1,17 +1,16 @@
-# OpenStudio-HPXML
+# OpenStudio®-HPXML
 
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/NREL/OpenStudio-HPXML?include_prereleases)](https://github.com/NREL/OpenStudio-HPXML/releases)
 [![ci](https://github.com/NREL/OpenStudio-HPXML/workflows/ci/badge.svg)](https://github.com/NREL/OpenStudio-HPXML/actions)
 [![Documentation Status](https://readthedocs.org/projects/openstudio-hpxml/badge/?version=latest)](https://openstudio-hpxml.readthedocs.io/en/latest/?badge=latest)
 
-OpenStudio-HPXML allows running residential EnergyPlus simulations using an [HPXML file](https://hpxml.nrel.gov/) for the building description.
+OpenStudio-HPXML allows running residential EnergyPlus™ simulations using an [HPXML file](https://hpxml.nrel.gov/) for the building description.
 It is intended to be used by user interfaces or other automated software workflows that automatically produce the HPXML file.
-A [Schematron](http://schematron.com/) document for the EnergyPlus use case is used to validate that the appropriate HPXML inputs are provided to run EnergyPlus.
 
 OpenStudio-HPXML can accommodate a wide range of different building technologies and geometries.
 End-to-end simulations typically run in 3-10 seconds, depending on complexity, computer platform and speed, etc.
 
-For more information on running simulations, generating HPXML files, etc., please visit the [documentation](https://openstudio-hpxml.readthedocs.io/en/latest).
+For more information on running simulations, generating HPXML files with the appropriate inputs to run EnergyPlus, etc., please visit the [documentation](https://openstudio-hpxml.readthedocs.io/en/latest).
 
 ## Workflows
 
@@ -42,17 +41,21 @@ This repository contains several OpenStudio measures:
 - `ReportSimulationOutput`: A reporting measure that generates a variety of simulation-based annual/timeseries outputs in CSV/JSON/MessagePack format.
 - `ReportUtilityBills`: A reporting measure that generates utility bill outputs in CSV/JSON/MessagePack format.
 
-## Projects
+## Users
 
-The OpenStudio-HPXML workflow is used by a number of other residential projects, including:
+OpenStudio-HPXML is used by a number of software products or organizations, including:
+
 - [BEopt](https://beopt.nrel.gov)
 - [Energy Rating Index (ERI)](https://github.com/NREL/OpenStudio-ERI)
-- [Home Energy Score](https://betterbuildingssolutioncenter.energy.gov/home-energy-score)
+- [Home Energy Score](https://www.homeenergyscore.gov)
+- [OptiMiser](https://optimiserenergy.com)
+- [Radiant Labs](https://www.radiantlabs.co)
 - [ResStock](https://resstock.nrel.gov/)
 - [URBANopt](https://www.nrel.gov/buildings/urbanopt.html)
+- [VEIC](https://www.veic.org)
 - [Weatherization Assistant](https://weatherization.ornl.gov/softwaredescription/) (pending)
 
-It is also used by several private-sector software tools.
+Are you using OpenStudio-HPXML and want to be mentioned here? [Email us](mailto:scott.horowitz@nrel.gov) or [open a Pull Request](https://github.com/NREL/OpenStudio-HPXML/edit/master/README.md).
 
 ## License
 

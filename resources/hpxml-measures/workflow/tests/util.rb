@@ -43,7 +43,7 @@ def _run_xml(xml, worker_num, apply_unit_multiplier = false, annual_results_1x =
       if hpxml_bldg.dehumidifiers.size > 0
         # FUTURE: Dehumidifiers currently don't give desired results w/ unit multipliers
         # https://github.com/NREL/OpenStudio-HPXML/issues/1499
-      elsif hpxml_bldg.heat_pumps.select { |hp| hp.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir }.size > 0
+      elsif hpxml_bldg.heat_pumps.count { |hp| hp.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir } > 0
         # FUTURE: GSHPs currently don't give desired results w/ unit multipliers
         # https://github.com/NREL/OpenStudio-HPXML/issues/1499
       elsif hpxml_bldg.batteries.size > 0
@@ -267,7 +267,7 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
     # FUTURE: Revert this eventually
     # https://github.com/NREL/OpenStudio-HPXML/issues/1499
     if hpxml_header.utility_bill_scenarios.has_detailed_electric_rates
-      uses_unit_multipliers = hpxml.buildings.select { |hpxml_bldg| hpxml_bldg.building_construction.number_of_units > 1 }.size > 0
+      uses_unit_multipliers = hpxml.buildings.count { |hpxml_bldg| hpxml_bldg.building_construction.number_of_units > 1 } > 0
       if uses_unit_multipliers || hpxml.buildings.size > 1
         next if message.include? 'Cannot currently calculate utility bills based on detailed electric rates for an HPXML with unit multipliers.'
       end
@@ -305,8 +305,8 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
     next if message.include?('WetBulb not converged after') && message.include?('iterations(PsyTwbFnTdbWPb)')
     next if message.include? 'Inside surface heat balance did not converge with Max Temp Difference'
     next if message.include? 'Inside surface heat balance convergence problem continues'
-    next if message.include?('Glycol: Temperature') && message.include?('out of range (too low) for fluid')
-    next if message.include?('Glycol: Temperature') && message.include?('out of range (too high) for fluid')
+    next if message.include?('Glycol') && message.include?('Temperature') && message.include?('out of range (too low) for fluid')
+    next if message.include?('Glycol') && message.include?('Temperature') && message.include?('out of range (too high) for fluid')
     next if message.include? 'Plant loop exceeding upper temperature limit'
     next if message.include? 'Plant loop falling below lower temperature limit'
     next if message.include?('Foundation:Kiva') && message.include?('wall surfaces with more than four vertices') # TODO: Check alternative approach
@@ -324,7 +324,7 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
     next if message.include? 'Multiple speed fan will be applied to this unit. The speed number is determined by load.'
 
     # HPWHs
-    if hpxml_bldg.water_heating_systems.select { |wh| wh.water_heater_type == HPXML::WaterHeaterTypeHeatPump }.size > 0
+    if hpxml_bldg.water_heating_systems.count { |wh| wh.water_heater_type == HPXML::WaterHeaterTypeHeatPump } > 0
       next if message.include? 'Recovery Efficiency and Energy Factor could not be calculated during the test for standard ratings'
       next if message.include? 'SimHVAC: Maximum iterations (20) exceeded for all HVAC loops'
       next if message.include? 'For object = Coil:WaterHeating:AirToWaterHeatPump:Wrapped'
@@ -332,23 +332,23 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
       next if message.include?('CheckWarmupConvergence: Loads Initialization') && message.include?('did not converge after 25 warmup days')
     end
     # HPWHs outside
-    if hpxml_bldg.water_heating_systems.select { |wh| wh.water_heater_type == HPXML::WaterHeaterTypeHeatPump && wh.location == HPXML::LocationOtherExterior }.size > 0
+    if hpxml_bldg.water_heating_systems.count { |wh| wh.water_heater_type == HPXML::WaterHeaterTypeHeatPump && wh.location == HPXML::LocationOtherExterior } > 0
       next if message.include? 'Water heater tank set point temperature is greater than or equal to the cut-in temperature of the heat pump water heater.'
     end
     # Stratified tank WHs
-    if hpxml_bldg.water_heating_systems.select { |wh| wh.tank_model_type == HPXML::WaterHeaterTankModelTypeStratified }.size > 0
+    if hpxml_bldg.water_heating_systems.count { |wh| wh.tank_model_type == HPXML::WaterHeaterTankModelTypeStratified } > 0
       next if message.include? 'Recovery Efficiency and Energy Factor could not be calculated during the test for standard ratings'
     end
     # HP defrost curves
-    if hpxml_bldg.heat_pumps.select { |hp| [HPXML::HVACTypeHeatPumpAirToAir, HPXML::HVACTypeHeatPumpMiniSplit, HPXML::HVACTypeHeatPumpPTHP, HPXML::HVACTypeHeatPumpRoom].include? hp.heat_pump_type }.size > 0
+    if hpxml_bldg.heat_pumps.count { |hp| [HPXML::HVACTypeHeatPumpAirToAir, HPXML::HVACTypeHeatPumpMiniSplit, HPXML::HVACTypeHeatPumpPTHP, HPXML::HVACTypeHeatPumpRoom].include? hp.heat_pump_type } > 0
       next if message.include?('GetDXCoils: Coil:Heating:DX') && message.include?('curve values') && message.include?('Defrost Energy Input Ratio Function of Temperature Curve')
     end
     # variable system SHR adjustment
-    if (hpxml_bldg.heat_pumps + hpxml_bldg.cooling_systems).select { |hp| hp.compressor_type == HPXML::HVACCompressorTypeVariableSpeed }.size > 0
+    if (hpxml_bldg.heat_pumps + hpxml_bldg.cooling_systems).count { |hp| hp.compressor_type == HPXML::HVACCompressorTypeVariableSpeed } > 0
       next if message.include?('CalcCBF: SHR adjusted to achieve valid outlet air properties and the simulation continues.')
     end
     # Evaporative coolers
-    if hpxml_bldg.cooling_systems.select { |c| c.cooling_system_type == HPXML::HVACTypeEvaporativeCooler }.size > 0
+    if hpxml_bldg.cooling_systems.count { |c| c.cooling_system_type == HPXML::HVACTypeEvaporativeCooler } > 0
       # Evap cooler model is not really using Controller:MechanicalVentilation object, so these warnings of ignoring some features are fine.
       # OS requires a Controller:MechanicalVentilation to be attached to the oa controller, however it's not required by E+.
       # Manually removing Controller:MechanicalVentilation from idf eliminates these two warnings.
@@ -361,20 +361,20 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
       next if message.include? 'Since Zone Minimum Air Flow Input Method = CONSTANT, input for Fixed Minimum Air Flow Rate will be ignored'
     end
     # Fan coil distribution
-    if hpxml_bldg.hvac_distributions.select { |d| d.air_type.to_s == HPXML::AirTypeFanCoil }.size > 0
+    if hpxml_bldg.hvac_distributions.count { |d| d.air_type.to_s == HPXML::AirTypeFanCoil } > 0
       next if message.include? 'In calculating the design coil UA for Coil:Cooling:Water' # Warning for unused cooling coil for fan coil
     end
     # Boilers
-    if hpxml_bldg.heating_systems.select { |h| h.heating_system_type == HPXML::HVACTypeBoiler }.size > 0
+    if hpxml_bldg.heating_systems.count { |h| h.heating_system_type == HPXML::HVACTypeBoiler } > 0
       next if message.include? 'Missing temperature setpoint for LeavingSetpointModulated mode' # These warnings are fine, simulation continues with assigning plant loop setpoint to boiler, which is the expected one
     end
     # GSHPs
-    if hpxml_bldg.heat_pumps.select { |hp| hp.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir }.size > 0
+    if hpxml_bldg.heat_pumps.count { |hp| hp.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir } > 0
       next if message.include?('CheckSimpleWAHPRatedCurvesOutputs') && message.include?('WaterToAirHeatPump:EquationFit') # FUTURE: Check these
       next if message.include? 'Actual air mass flow rate is smaller than 25% of water-to-air heat pump coil rated air flow rate.' # FUTURE: Remove this when https://github.com/NREL/EnergyPlus/issues/9125 is resolved
     end
     # GSHPs with only heating or cooling
-    if hpxml_bldg.heat_pumps.select { |hp| hp.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir && (hp.fraction_heat_load_served == 0 || hp.fraction_cool_load_served == 0) }.size > 0
+    if hpxml_bldg.heat_pumps.count { |hp| hp.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir && (hp.fraction_heat_load_served == 0 || hp.fraction_cool_load_served == 0) } > 0
       next if message.include? 'heating capacity is disproportionate (> 20% different) to total cooling capacity' # safe to ignore
     end
     # Solar thermal systems
@@ -390,10 +390,6 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
     timestep = hpxml_header.timestep.nil? ? 60 : hpxml_header.timestep
     if timestep > 15
       next if message.include?('Timestep: Requested number') && message.include?('is less than the suggested minimum')
-    end
-    # Location doesn't match EPW station (see https://github.com/NREL/EnergyPlus/issues/10579)
-    if hpxml_path.include? 'base-location-detailed.xml'
-      next if message.include? 'Weather file location will be used rather than entered (IDF) Location object.'
     end
     # Coil speed level EMS
     if hpxml_header.hvac_onoff_thermostat_deadband
@@ -900,30 +896,31 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
   assert_equal(hpxml_bldg.total_fraction_cool_load_served > 0, clg_energy > 0)
 
   # Mechanical Ventilation
-  whole_vent_fans = hpxml_bldg.ventilation_fans.select { |vent_mech| vent_mech.used_for_whole_building_ventilation && !vent_mech.is_cfis_supplemental_fan }
-  local_vent_fans = hpxml_bldg.ventilation_fans.select { |vent_mech| vent_mech.used_for_local_ventilation }
-  fan_cfis_with_addl_runtime = whole_vent_fans.select { |vent_mech| vent_mech.fan_type == HPXML::MechVentTypeCFIS && vent_mech.cfis_addtl_runtime_operating_mode != HPXML::CFISModeNone }
-  fan_sup = whole_vent_fans.select { |vent_mech| vent_mech.fan_type == HPXML::MechVentTypeSupply }
-  fan_exh = whole_vent_fans.select { |vent_mech| vent_mech.fan_type == HPXML::MechVentTypeExhaust }
-  fan_bal = whole_vent_fans.select { |vent_mech| [HPXML::MechVentTypeBalanced, HPXML::MechVentTypeERV, HPXML::MechVentTypeHRV].include?(vent_mech.fan_type) }
-  vent_fan_kitchen = local_vent_fans.select { |vent_mech| vent_mech.fan_location == HPXML::LocationKitchen }
-  vent_fan_bath = local_vent_fans.select { |vent_mech| vent_mech.fan_location == HPXML::LocationBath }
+  whole_vent_fans = hpxml_bldg.ventilation_fans.select { |f| f.used_for_whole_building_ventilation && !f.is_cfis_supplemental_fan }
+  local_vent_fans = hpxml_bldg.ventilation_fans.select { |f| f.used_for_local_ventilation }
+  fan_cfis = whole_vent_fans.select { |f| f.fan_type == HPXML::MechVentTypeCFIS && f.cfis_addtl_runtime_operating_mode != HPXML::CFISModeNone }
+  fan_sup = whole_vent_fans.select { |f| f.fan_type == HPXML::MechVentTypeSupply }
+  fan_exh = whole_vent_fans.select { |f| f.fan_type == HPXML::MechVentTypeExhaust }
+  fan_bal = whole_vent_fans.select { |f| [HPXML::MechVentTypeBalanced, HPXML::MechVentTypeERV, HPXML::MechVentTypeHRV].include?(f.fan_type) }
+  vent_fan_kitchen = local_vent_fans.select { |f| f.fan_location == HPXML::LocationKitchen }
+  vent_fan_bath = local_vent_fans.select { |f| f.fan_location == HPXML::LocationBath }
 
   mv_energy = UnitConversions.convert(results['End Use: Electricity: Mech Vent (MBtu)'], 'MBtu', 'GJ')
-  if not (fan_cfis_with_addl_runtime + fan_sup + fan_exh + fan_bal + vent_fan_kitchen + vent_fan_bath).empty?
-    if not fan_cfis_with_addl_runtime.empty?
+  if not (fan_cfis + fan_sup + fan_exh + fan_bal + vent_fan_kitchen + vent_fan_bath).empty?
+    if not fan_cfis.empty?
       if (fan_sup + fan_exh + fan_bal + vent_fan_kitchen + vent_fan_bath).empty?
         # CFIS only, check for positive mech vent energy that is less than the energy if it had run 24/7
-        fan_gj = fan_cfis_with_addl_runtime.map { |vent_mech| UnitConversions.convert(vent_mech.unit_fan_power * vent_mech.hours_in_operation * 365.0, 'Wh', 'GJ') }.sum(0.0)
+        max_fan_gj = fan_cfis.select { |f| f.cfis_addtl_runtime_operating_mode == HPXML::CFISModeAirHandler }.map { |f| UnitConversions.convert(f.unit_fan_power * f.hours_in_operation * 365.0, 'Wh', 'GJ') }.sum(0.0)
+        max_fan_gj += fan_cfis.select { |f| f.cfis_addtl_runtime_operating_mode == HPXML::CFISModeSupplementalFan }.map { |f| UnitConversions.convert(f.cfis_supplemental_fan.unit_fan_power * (f.average_unit_flow_rate / f.cfis_supplemental_fan.oa_unit_flow_rate * 24) * 365.0, 'Wh', 'GJ') }.sum(0.0)
         assert_operator(mv_energy, :>, 0)
-        assert_operator(mv_energy, :<, fan_gj)
+        assert_operator(mv_energy, :<, max_fan_gj)
       end
     else
       # Supply, exhaust, ERV, HRV, etc., check for appropriate mech vent energy
       fan_gj = 0
-      fan_gj += (fan_sup + fan_exh + fan_bal).map { |vent_mech| UnitConversions.convert(vent_mech.unit_fan_power * vent_mech.hours_in_operation * 365.0, 'Wh', 'GJ') }.sum(0.0)
-      fan_gj += vent_fan_kitchen.map { |vent_kitchen| UnitConversions.convert(vent_kitchen.unit_fan_power * vent_kitchen.hours_in_operation * vent_kitchen.count * 365.0, 'Wh', 'GJ') }.sum(0.0)
-      fan_gj += vent_fan_bath.map { |vent_bath| UnitConversions.convert(vent_bath.unit_fan_power * vent_bath.hours_in_operation * vent_bath.count * 365.0, 'Wh', 'GJ') }.sum(0.0)
+      fan_gj += (fan_sup + fan_exh + fan_bal).map { |f| UnitConversions.convert(f.unit_fan_power * f.hours_in_operation * 365.0, 'Wh', 'GJ') }.sum(0.0)
+      fan_gj += vent_fan_kitchen.map { |f| UnitConversions.convert(f.unit_fan_power * f.hours_in_operation * f.count * 365.0, 'Wh', 'GJ') }.sum(0.0)
+      fan_gj += vent_fan_bath.map { |f| UnitConversions.convert(f.unit_fan_power * f.hours_in_operation * f.count * 365.0, 'Wh', 'GJ') }.sum(0.0)
       # Maximum error that can be caused by rounding
       assert_in_delta(mv_energy, fan_gj, 0.006)
     end
@@ -1014,7 +1011,8 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
       assert_equal(0, energy_htg)
     end
     if htg_backup_fuels.include? fuel
-      if (not hpxml_path.include? 'autosize') && (not is_warm_climate)
+      has_ashp = hpxml_bldg.heat_pumps.count { |hp| hp.heat_pump_type != HPXML::HVACTypeHeatPumpGroundToAir } > 0
+      if (not hpxml_path.include? 'autosize') && (not is_warm_climate) && has_ashp
         assert_operator(energy_hp_backup, :>, 0)
       end
     else
@@ -1173,11 +1171,11 @@ def _check_unit_multiplier_results(xml, hpxml_bldg, annual_results_1x, annual_re
         end
 
         # FUTURE: Address these
-        if hpxml_bldg.water_heating_systems.select { |wh| wh.water_heater_type == HPXML::WaterHeaterTypeHeatPump }.size > 0
+        if hpxml_bldg.water_heating_systems.count { |wh| wh.water_heater_type == HPXML::WaterHeaterTypeHeatPump } > 0
           next if key.include?('Airflow:')
           next if key.include?('Peak')
         end
-        if hpxml_bldg.water_heating_systems.select { |wh| [HPXML::WaterHeaterTypeCombiStorage, HPXML::WaterHeaterTypeCombiTankless].include? wh.water_heater_type }.size > 0
+        if hpxml_bldg.water_heating_systems.count { |wh| [HPXML::WaterHeaterTypeCombiStorage, HPXML::WaterHeaterTypeCombiTankless].include? wh.water_heater_type } > 0
           next if key.include?('Hot Water')
         end
 

@@ -2,29 +2,32 @@
 
 require 'fileutils'
 
-# TODO
+# Initialize OpenStudio objects (log, model, runner, etc.).
+# Call run methods of OpenStudio Model measures.
+# Report infos/warnings/errors to run.log file.
+# Forward translate the model, write IDF, and call energyPlusOutputRequests methods.
+# Again, report any log messages to file.
+# Simulate the IDF using the EnergyPlus CLI.
+# Call run methods of OpenStudio ReportingMeasures.
+# Again, report any log messages to file.
 #
-# @param rundir [TODO] TODO
-# @param measures [TODO] TODO
-# @param measures_dir [TODO] TODO
-# @param debug [TODO] TODO
-# @param output_vars [TODO] TODO
-# @param output_meters [TODO] TODO
-# @param run_measures_only [TODO] TODO
-# @param print_prefix [TODO] TODO
-# @param ep_input_format [TODO] TODO
-# @param skip_simulation [TODO] TODO
-# @param suppress_print [TODO] TODO
-# @return [TODO] TODO
-def run_hpxml_workflow(rundir, measures, measures_dir, debug: false, output_vars: [],
-                       output_meters: [], run_measures_only: false, print_prefix: '',
-                       ep_input_format: 'idf', skip_simulation: false, suppress_print: false)
+# @param rundir [String] The run directory containing all simulation output files
+# @param measures [Hash] Map of OpenStudio-HPXML measure directory name => List of measure argument hashes
+# @param measures_dir [String] Parent directory path of all OpenStudio-HPXML measures
+# @param debug [Boolean] If true, reports info statements from the runner results
+# @param run_measures_only [Boolean] True applies only OpenStudio Model measures, skipping IDF generation and the simulation
+# @param skip_simulation [Boolean] True applies the OpenStudio Model measures and generates the IDF, but skips the simulation
+# @param ep_input_format [String] EnergyPlus input file format (idf, epjson)
+# @param suppress_print [Boolean] True reduces printed workflow output
+# @return [Hash] Map of 'success' and 'runner' results
+def run_hpxml_workflow(rundir, measures, measures_dir, debug: false, run_measures_only: false,
+                       skip_simulation: false, ep_input_format: 'idf', suppress_print: false)
   rm_path(rundir)
   FileUtils.mkdir_p(rundir)
 
   # Use print instead of puts in here in case running inside
   # a Parallel process (see https://stackoverflow.com/a/5044669)
-  print "#{print_prefix}Creating input...\n" unless suppress_print
+  print "Creating input...\n" unless suppress_print
 
   OpenStudio::Logger.instance.standardOutLogger.setLogLevel(OpenStudio::Fatal)
   os_log = OpenStudio::StringStreamLogSink.new
@@ -39,27 +42,13 @@ def run_hpxml_workflow(rundir, measures, measures_dir, debug: false, output_vars
   report_os_warnings(os_log, rundir)
 
   if not success
-    print "#{print_prefix}Creating input unsuccessful.\n"
-    print "#{print_prefix}See #{File.join(rundir, 'run.log')} for details.\n"
+    print "Creating input unsuccessful.\n"
+    print "See #{File.join(rundir, 'run.log')} for details.\n"
     return { success: false, runner: runner }
   end
 
   if run_measures_only
     return { success: success, runner: runner }
-  end
-
-  # Apply any additional output variables
-  output_vars.each do |output_var|
-    ov = OpenStudio::Model::OutputVariable.new(output_var[0], model)
-    ov.setReportingFrequency(output_var[1])
-    ov.setKeyValue(output_var[2])
-  end
-
-  # Apply any additional output meters
-  output_meters.each do |output_meter|
-    om = OpenStudio::Model::OutputMeter.new(model)
-    om.setName(output_meter[0])
-    om.setReportingFrequency(output_meter[1])
   end
 
   # Remove unused objects automatically added by OpenStudio?
@@ -91,8 +80,8 @@ def run_hpxml_workflow(rundir, measures, measures_dir, debug: false, output_vars
   end
 
   if not success
-    print "#{print_prefix}Creating input unsuccessful.\n"
-    print "#{print_prefix}See #{File.join(rundir, 'run.log')} for details.\n"
+    print "Creating input unsuccessful.\n"
+    print "See #{File.join(rundir, 'run.log')} for details.\n"
     return { success: false, runner: runner }
   end
 
@@ -116,13 +105,13 @@ def run_hpxml_workflow(rundir, measures, measures_dir, debug: false, output_vars
   end
 
   if not model.getWeatherFile.path.is_initialized
-    print "#{print_prefix}Creating input unsuccessful.\n"
-    print "#{print_prefix}See #{File.join(rundir, 'run.log')} for details.\n"
+    print "Creating input unsuccessful.\n"
+    print "See #{File.join(rundir, 'run.log')} for details.\n"
     return { success: false, runner: runner }
   end
 
   # Run simulation
-  print "#{print_prefix}Running simulation...\n" unless suppress_print
+  print "Running simulation...\n" unless suppress_print
   ep_path = File.absolute_path(File.join(OpenStudio.getOpenStudioCLI.to_s, '..', '..', 'EnergyPlus', 'energyplus')) # getEnergyPlusDirectory can be unreliable, using getOpenStudioCLI instead
   simulation_start = Time.now
   command = "\"#{ep_path}\" -w \"#{model.getWeatherFile.path.get}\" #{ep_input_filename}"
@@ -148,18 +137,18 @@ def run_hpxml_workflow(rundir, measures, measures_dir, debug: false, output_vars
       break
     end
     if sim_success
-      print "#{print_prefix}Completed simulation in #{sim_time}s.\n" unless suppress_print
+      print "Completed simulation in #{sim_time}s.\n" unless suppress_print
     else
-      print "#{print_prefix}Simulation unsuccessful.\n"
-      print "#{print_prefix}See #{File.join(rundir, 'eplusout.err')} for details.\n"
+      print "Simulation unsuccessful.\n"
+      print "See #{File.join(rundir, 'eplusout.err')} for details.\n"
       return { success: false, runner: runner }
     end
   else
-    print "#{print_prefix}Simulation unsuccessful.\n"
+    print "Simulation unsuccessful.\n"
     return { success: false, runner: runner }
   end
 
-  print "#{print_prefix}Processing output...\n" unless suppress_print
+  print "Processing output...\n" unless suppress_print
 
   # Apply reporting measures
   runner.setLastEpwFilePath(File.join(rundir, 'in.epw'))
@@ -169,32 +158,33 @@ def run_hpxml_workflow(rundir, measures, measures_dir, debug: false, output_vars
   runner.resetLastEpwFilePath
 
   Dir[File.join(rundir, 'results_*.*')].each do |results_path|
-    print "#{print_prefix}Wrote output file: #{results_path}.\n" unless suppress_print
+    print "Wrote output file: #{results_path}.\n" unless suppress_print
   end
 
   if not success
-    print "#{print_prefix}Processing output unsuccessful.\n"
-    print "#{print_prefix}See #{File.join(rundir, 'run.log')} for details.\n"
+    print "Processing output unsuccessful.\n"
+    print "See #{File.join(rundir, 'run.log')} for details.\n"
     return { success: false, runner: runner }
   else
-    print "#{print_prefix}Wrote log file: #{File.join(rundir, 'run.log')}.\n" unless suppress_print
+    print "Wrote log file: #{File.join(rundir, 'run.log')}.\n" unless suppress_print
   end
 
-  print "#{print_prefix}Done.\n" unless suppress_print
+  print "Done.\n" unless suppress_print
 
   return { success: true, runner: runner, sim_time: sim_time }
 end
 
-# TODO
+# Apply OpenStudio measures and arguments (i.e., "run" method) corresponding to a provided Hash.
+# Optionally, save an OpenStudio Workflow based on the provided Hash.
 #
-# @param measures_dir [TODO] TODO
-# @param measures [TODO] TODO
+# @param measures_dir [String] Parent directory path of all OpenStudio-HPXML measures
+# @param measures [Hash] Map of OpenStudio-HPXML measure directory name => List of measure argument hashes
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
 # @param model [OpenStudio::Model::Model] OpenStudio Model object
-# @param show_measure_calls [TODO] TODO
-# @param measure_type [TODO] TODO
-# @param osw_out [TODO] TODO
-# @return [TODO] TODO
+# @param show_measure_calls [Boolean] Whether to print the measure name and arguments
+# @param measure_type [String] OpenStudio measure type ('OpenStudio::Measure::ModelMeasure' or 'OpenStudio::Measure::ReportingMeasure')
+# @param osw_out [String] File to save the OpenStudio Workflow
+# @return [Boolean] True if all measures were applied successfully
 def apply_measures(measures_dir, measures, runner, model, show_measure_calls = true, measure_type = 'OpenStudio::Measure::ModelMeasure', osw_out = nil)
   if not osw_out.nil?
     # Create a workflow based on the measures we're going to call. Convenient for debugging.
@@ -227,7 +217,7 @@ def apply_measures(measures_dir, measures, runner, model, show_measure_calls = t
     measures[measure_subdir].each do |args|
       next unless measure_type == measure.class.superclass.name.to_s
 
-      argument_map = get_argument_map(model, measure, args, nil, measure_subdir, runner)
+      argument_map = get_argument_map(model, measure, args, measure_subdir, runner)
       if show_measure_calls
         print_measure_call(args, measure_subdir, runner)
       end
@@ -241,14 +231,14 @@ def apply_measures(measures_dir, measures, runner, model, show_measure_calls = t
   return true
 end
 
-# TODO
+# Apply OpenStudio measures and arguments (i.e., "energyPlusOutputRequests" method) corresponding to a provided Hash.
 #
-# @param measures_dir [TODO] TODO
-# @param measures [TODO] TODO
+# @param measures_dir [String] Parent directory path of all OpenStudio-HPXML measures
+# @param measures [Hash] Map of OpenStudio-HPXML measure directory name => List of measure argument hashes
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
 # @param model [OpenStudio::Model::Model] OpenStudio Model object
-# @param workspace [TODO] TODO
-# @return [TODO] TODO
+# @param workspace [OpenStudio::Workspace] EnergyPlus Workspace object
+# @return [Boolean] True if EnergyPlus output requests have been applied successfully
 def apply_energyplus_output_requests(measures_dir, measures, runner, model, workspace)
   # Call each measure in the specified order
   measures.keys.each do |measure_subdir|
@@ -259,7 +249,7 @@ def apply_energyplus_output_requests(measures_dir, measures, runner, model, work
     measures[measure_subdir].each do |args|
       next unless measure.class.superclass.name.to_s == 'OpenStudio::Measure::ReportingMeasure'
 
-      argument_map = get_argument_map(model, measure, args, nil, measure_subdir, runner)
+      argument_map = get_argument_map(model, measure, args, measure_subdir, runner)
       runner.setLastOpenStudioModel(model)
       idf_objects = measure.energyPlusOutputRequests(runner, argument_map)
       idf_objects.each do |idf_object|
@@ -271,12 +261,12 @@ def apply_energyplus_output_requests(measures_dir, measures, runner, model, work
   return true
 end
 
-# TODO
+# Register an info statement to the OpenStudio Runner about calling measures with arguments.
 #
-# @param measure_args [TODO] TODO
-# @param measure_dir [TODO] TODO
+# @param measure_args [Hash] Map of provided measure arguments to values
+# @param measures_dir [String] Parent directory path of all OpenStudio-HPXML measures
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-# @return [TODO] TODO
+# @return [nil]
 def print_measure_call(measure_args, measure_dir, runner)
   if measure_args.nil? || measure_dir.nil?
     return
@@ -290,10 +280,10 @@ def print_measure_call(measure_args, measure_dir, runner)
   end
 end
 
-# TODO
+# Instantiate an OpenStudio measure's class based on the name that is stored in its measure.xml file.
 #
-# @param measure_rb_path [TODO] TODO
-# @return [TODO] TODO
+# @param measure_rb_path [String] Path of an OpenStudio measure's measure.rb file
+# @return [Class] OpenStudio measure class instance
 def get_measure_instance(measure_rb_path)
   # Parse XML file for class name
   # Avoid REXML for performance reasons
@@ -310,14 +300,14 @@ def get_measure_instance(measure_rb_path)
   return measure
 end
 
-# TODO
+# Check provided arguments and values against OpenStudio Measure Arguments.
 #
-# @param measure_args [TODO] TODO
-# @param provided_args [TODO] TODO
-# @param lookup_file [TODO] TODO
-# @param measure_name [TODO] TODO
+# @param measure_args [OpenStudio::Measure::OSArgumentVector] Array of OpenStudio Measure Arguments
+# @param provided_args [Hash] Map of provided measure arguments to values
+# @param lookup_file [String] optional file name to provide more information in registered error message
+# @param measure_name [String] OpenStudio-HPXML measure directory name
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-# @return [TODO] TODO
+# @return [Hash] Map of provided measure arguments to values
 def validate_measure_args(measure_args, provided_args, lookup_file, measure_name, runner = nil)
   measure_arg_names = measure_args.map { |arg| arg.name }
   lookup_file_str = ''
@@ -372,18 +362,17 @@ def validate_measure_args(measure_args, provided_args, lookup_file, measure_name
   return provided_args
 end
 
-# TODO
+# Get a map of OpenStudio measure arguments with values set based on provided arguments.
 #
 # @param model [OpenStudio::Model::Model] OpenStudio Model object
-# @param measure [TODO] TODO
-# @param provided_args [TODO] TODO
-# @param lookup_file [TODO] TODO
-# @param measure_name [TODO] TODO
+# @param measure [Class] OpenStudio measure class instance
+# @param provided_args [Hash] Map of provided measure arguments to values
+# @param measure_name [String] OpenStudio-HPXML measure directory name
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-# @return [TODO] TODO
-def get_argument_map(model, measure, provided_args, lookup_file, measure_name, runner = nil)
+# @return [OpenStudio::Measure::OSArgumentMap] OpenStudio measure arguments
+def get_argument_map(model, measure, provided_args, measure_name, runner = nil)
   measure_args = measure.arguments(model)
-  provided_args = validate_measure_args(measure_args, provided_args, lookup_file, measure_name, runner)
+  provided_args = validate_measure_args(measure_args, provided_args, nil, measure_name, runner)
 
   # Convert to argument map needed by OS
   argument_map = OpenStudio::Measure.convertOSArgumentVectorToMap(measure_args)
@@ -397,10 +386,10 @@ def get_argument_map(model, measure, provided_args, lookup_file, measure_name, r
   return argument_map
 end
 
-# TODO
+# Get the value from an OpenStudio Workflow step.
 #
-# @param step_value [TODO] TODO
-# @return [TODO] TODO
+# @param step_value [OpenStudio::WorkflowStepValue] OpenStudio WorkflowStepValue
+# @return [Boolean or Double or Integer or String] the step value
 def get_value_from_workflow_step_value(step_value)
   variant_type = step_value.variantType
   if variant_type == 'Boolean'.to_VariantType
@@ -414,13 +403,13 @@ def get_value_from_workflow_step_value(step_value)
   end
 end
 
-# TODO
+# Call the run method of an OpenStudio measure and register any log messages to the provided OpenStudio Runner.
 #
 # @param model [OpenStudio::Model::Model] OpenStudio Model object
-# @param measure [TODO] TODO
-# @param argument_map [TODO] TODO
+# @param measure [Class] OpenStudio measure class instance
+# @param argument_map [OpenStudio::Measure::OSArgumentMap] OpenStudio measure arguments
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-# @return [TODO] TODO
+# @return [Boolean] True if measure was applied successfully
 def run_measure(model, measure, argument_map, runner)
   begin
     # run the measure
@@ -476,25 +465,28 @@ def run_measure(model, measure, argument_map, runner)
   return true
 end
 
-# TODO
+# Convert contents of a Hash to single String using provided delimiter and seperator characters.
 #
-# @param hash [TODO] TODO
-# @param delim [TODO] TODO
-# @param separator [TODO] TODO
-# @return [TODO] TODO
+# @param hash [Hash] Map of keys to values
+# @param delim [String] character between each key and value
+# @param separator [String] character between key and value sets
+# @return [String] a single String containing Hash contents
 def hash_to_string(hash, delim = '=', separator = ',')
-  vals = []
+  hash_s = ''
   hash.each do |k, v|
-    vals << "#{k}#{delim}#{v}"
+    hash_s += "#{k}#{delim}#{v}#{separator}"
   end
-  return vals.join(separator.to_s)
+  if hash_s.size > 0
+    hash_s = hash_s.chomp(separator.to_s)
+  end
+  return hash_s
 end
 
-# TODO
+# Register provided error message to OpenStudio Runner.
 #
-# @param msg [TODO] TODO
+# @param msg [String] Error message to register to the OpenStudio runner
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-# @return [TODO] TODO
+# @return [nil]
 def register_error(msg, runner = nil)
   if not runner.nil?
     runner.registerError(msg)
@@ -504,53 +496,34 @@ def register_error(msg, runner = nil)
   end
 end
 
-# TODO
+# Register an error if provided file path does not exist.
 #
-# @param full_path [TODO] TODO
+# @param full_path [String] Path of an OpenStudio measure's measure.rb file
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-# @return [TODO] TODO
+# @return [nil]
 def check_file_exists(full_path, runner = nil)
   if not File.exist?(full_path)
     register_error("Cannot find file #{full_path}.", runner)
   end
 end
 
-# TODO
+# Register an error if provided directory path does not exist.
 #
-# @param full_path [TODO] TODO
+# @param full_path [String] Path of an OpenStudio measure's measure.rb file
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-# @return [TODO] TODO
+# @return [nil]
 def check_dir_exists(full_path, runner = nil)
   if not Dir.exist?(full_path)
     register_error("Cannot find directory #{full_path}.", runner)
   end
 end
 
-# TODO
-#
-# @param hash [TODO] TODO
-# @param key [TODO] TODO
-# @param args [TODO] TODO
-# @param add_new [TODO] TODO
-# @return [TODO] TODO
-def update_args_hash(hash, key, args, add_new = true)
-  if not hash.keys.include? key
-    hash[key] = [args]
-  elsif add_new
-    hash[key] << args
-  else # merge new arguments into existing
-    args.each do |k, v|
-      hash[key][0][k] = v
-    end
-  end
-end
-
-# TODO
+# Write runner warnings and errors (and optionally infos) to log file.
 #
 # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-# @param rundir [TODO] TODO
-# @param debug [TODO] TODO
-# @return [TODO] TODO
+# @param rundir [String] The run directory containing all simulation output files
+# @param debug [Boolean] If true, reports info statements from the runner results
+# @return [nil]
 def report_measure_errors_warnings(runner, rundir, debug)
   # Report warnings/errors
   File.open(File.join(rundir, 'run.log'), 'a') do |f|
@@ -569,11 +542,11 @@ def report_measure_errors_warnings(runner, rundir, debug)
   runner.reset
 end
 
-# TODO
+# Write forward translator warnings and errors to log file.
 #
-# @param forward_translator [TODO] TODO
-# @param rundir [TODO] TODO
-# @return [TODO] TODO
+# @param forward_translator [OpenStudio::EnergyPlus::ForwardTranslator] OpenStudio ForwardTranslator object
+# @param rundir [String] The run directory containing all simulation output files
+# @return [Boolean] True if no errors in forward translation
 def report_ft_errors_warnings(forward_translator, rundir)
   # Report warnings/errors
   success = true
@@ -589,11 +562,11 @@ def report_ft_errors_warnings(forward_translator, rundir)
   return success
 end
 
-# TODO
+# Write OpenStudio log messages to log file.
 #
-# @param os_log [TODO] TODO
-# @param rundir [TODO] TODO
-# @return [TODO] TODO
+# @param os_log [OpenStudio::StringStreamLogSink] OpenStudio Log object
+# @param rundir [String] The run directory containing all simulation output files
+# @return [nil]
 def report_os_warnings(os_log, rundir)
   File.open(File.join(rundir, 'run.log'), 'a') do |f|
     os_log.logMessages.each do |s|
@@ -613,10 +586,10 @@ def report_os_warnings(os_log, rundir)
   os_log.resetStringStream
 end
 
-# TODO
+# Remove file or directory if it exists, and exit the method only after it is actually removed.
 #
-# @param path [TODO] TODO
-# @return [TODO] TODO
+# @param path [String] File or directory path
+# @return [nil]
 def rm_path(path)
   if Dir.exist?(path)
     FileUtils.rm_r(path)
@@ -628,18 +601,18 @@ def rm_path(path)
   end
 end
 
-# TODO
+# Collection of methods for describing a String object.
 class String
-  # TODO
+  # Check if contents of String is a number.
   #
-  # @return [TODO] TODO
+  # @return [Boolean] True if string is a number
   def is_number?
     true if Float(self) rescue false
   end
 
-  # TODO
+  # Check if contents of String is an integer.
   #
-  # @return [TODO] TODO
+  # @return [Boolean] True if string is an integer
   def is_integer?
     if not is_number?
       return false

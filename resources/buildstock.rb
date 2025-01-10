@@ -4,6 +4,21 @@ require 'csv'
 
 require_relative '../resources/hpxml-measures/HPXMLtoOpenStudio/resources/meta_measure'
 
+module Version
+  ResStock_Version = '3.4.0' # Version of ResStock
+  BuildStockBatch_Version = '2023.10.0' # Minimum required version of BuildStockBatch
+  WorkflowGenerator_Version = '2024.07.20' # Version of buildstockbatch workflow generator
+
+  def self.check_buildstockbatch_version
+    if ENV.keys.include?('BUILDSTOCKBATCH_VERSION') # buildstockbatch is installed
+      bsb_version = ENV['BUILDSTOCKBATCH_VERSION']
+      if Gem::Version.new(bsb_version) < Gem::Version.new(BuildStockBatch_Version)
+        fail "BuildStockBatch version #{BuildStockBatch_Version} or above is required. Found version: #{bsb_version}"
+      end
+    end
+  end
+end
+
 class TsvFile
   def initialize(full_path, runner)
     @full_path = full_path
@@ -404,17 +419,14 @@ def get_data_for_sample(buildstock_csv_path, building_id, runner)
   fail msg
 end
 
-def register_logs(runner, new_runner)
-  new_runner.result.warnings.each do |warning|
-    runner.registerWarning(warning.logMessage)
+def update_args_hash(hash, key, args)
+  if not hash.keys.include? key
+    hash[key] = [args]
+  else # merge new arguments into existing
+    args.each do |k, v|
+      hash[key][0][k] = v
+    end
   end
-  new_runner.result.info.each do |info|
-    runner.registerInfo(info.logMessage)
-  end
-  new_runner.result.errors.each do |error|
-    runner.registerError(error.logMessage)
-  end
-  return
 end
 
 class RunOSWs
@@ -531,20 +543,5 @@ class RunOSWs
 
     puts "Wrote: #{csv_out}"
     return csv_out
-  end
-end
-
-module Version
-  ResStock_Version = '3.3.0' # Version of ResStock
-  BuildStockBatch_Version = '2023.10.0' # Minimum required version of BuildStockBatch
-  WorkflowGenerator_Version = '2024.07.20' # Version of buildstockbatch workflow generator
-
-  def self.check_buildstockbatch_version
-    if ENV.keys.include?('BUILDSTOCKBATCH_VERSION') # buildstockbatch is installed
-      bsb_version = ENV['BUILDSTOCKBATCH_VERSION']
-      if Gem::Version.new(bsb_version) < Gem::Version.new(BuildStockBatch_Version)
-        fail "BuildStockBatch version #{BuildStockBatch_Version} or above is required. Found version: #{bsb_version}"
-      end
-    end
   end
 end

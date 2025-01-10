@@ -32,7 +32,7 @@ def run_workflow(basedir, rundir, hpxml, debug, skip_validation, add_comp_loads,
     args['output_csv_path'] = File.join(rundir, 'stochastic.csv')
     args['debug'] = debug
     args['building_id'] = building_id
-    update_args_hash(measures, measure_subdir, args)
+    measures[measure_subdir] = [args]
   end
 
   # Add HPXML translator measure to workflow
@@ -45,7 +45,7 @@ def run_workflow(basedir, rundir, hpxml, debug, skip_validation, add_comp_loads,
   args['skip_validation'] = skip_validation
   args['building_id'] = building_id
   args['debug'] = debug
-  update_args_hash(measures, measure_subdir, args)
+  measures[measure_subdir] = [args]
 
   if not skip_simulation
     n_timeseries_freqs = [hourly_outputs, daily_outputs, monthly_outputs, timestep_outputs].map { |o| !o.empty? }.count(true)
@@ -91,14 +91,15 @@ def run_workflow(basedir, rundir, hpxml, debug, skip_validation, add_comp_loads,
         # Need to use different timeseries filenames
         args['timeseries_output_file_name'] = "results_timeseries_#{timeseries_output_freq}.#{output_format}"
       end
-      update_args_hash(measures, measure_subdir, args)
+      measures[measure_subdir] = [] if not measures.has_key?(measure_subdir)
+      measures[measure_subdir] << args
     end
 
     # Add utility bills measure to workflow
     measure_subdir = 'ReportUtilityBills'
     args = {}
     args['output_format'] = (output_format == 'csv_dview' ? 'csv' : output_format)
-    update_args_hash(measures, measure_subdir, args)
+    measures[measure_subdir] = [args]
   end
 
   results = run_hpxml_workflow(rundir, measures, measures_dir, debug: debug, ep_input_format: ep_input_format, run_measures_only: skip_simulation)
@@ -178,7 +179,7 @@ OptionParser.new do |opts|
   end
 
   options[:debug] = false
-  opts.on('-d', '--debug', 'Generate additional OpenStudio/EnergyPlus output files for debugging') do |_t|
+  opts.on('-d', '--debug', 'Generate additional OpenStudio and EnergyPlus files for debugging') do |_t|
     options[:debug] = true
   end
 

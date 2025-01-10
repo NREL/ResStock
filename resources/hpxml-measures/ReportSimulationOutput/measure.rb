@@ -365,12 +365,12 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     args = setup_timeseries_includes(@emissions, args)
 
     has_electricity_production = false
-    if @end_uses.select { |_key, end_use| end_use.is_negative && end_use.variables.size > 0 }.size > 0
+    if @end_uses.count { |_key, end_use| end_use.is_negative && end_use.variables.size > 0 } > 0
       has_electricity_production = true
     end
 
     has_electricity_storage = false
-    if @end_uses.select { |_key, end_use| end_use.is_storage && end_use.variables.size > 0 }.size > 0
+    if @end_uses.count { |_key, end_use| end_use.is_storage && end_use.variables.size > 0 } > 0
       has_electricity_storage = true
     end
 
@@ -2009,7 +2009,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   def get_report_meter_data_timeseries(meter_names, unit_conv, unit_adder, timeseries_frequency)
     return [0.0] * @timestamps.size if meter_names.empty?
 
-    msgpack_timeseries_name = { 'timestep' => 'Timestep',
+    msgpack_timeseries_name = { 'timestep' => 'TimeStep',
                                 'hourly' => 'Hourly',
                                 'daily' => 'Daily',
                                 'monthly' => 'Monthly' }[timeseries_frequency]
@@ -2573,7 +2573,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
       fuel.name = "Fuel Use: #{fuel_type}: Total"
       fuel.annual_units = 'MBtu'
       fuel.timeseries_units = get_timeseries_units_from_fuel_type(fuel_type)
-      if @end_uses.select { |key, end_use| key[0] == fuel_type && end_use.variables.size + end_use.meters.size > 0 }.size == 0
+      if @end_uses.count { |key, end_use| key[0] == fuel_type && end_use.variables.size + end_use.meters.size > 0 } == 0
         fuel.meters = []
       end
     end

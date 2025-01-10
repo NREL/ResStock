@@ -521,13 +521,10 @@
         <WaterHeating>
           <WaterHeatingSystem>
             <SystemIdentifier id='WaterHeatingSystem1'/>
-            <FuelType>natural gas</FuelType>
             <WaterHeaterType>space-heating boiler with storage tank</WaterHeaterType>
             <Location>basement - unconditioned</Location>
             <TankVolume>40.0</TankVolume>
             <FractionDHWLoadServed>1.0</FractionDHWLoadServed>
-            <EnergyFactor>0.8</EnergyFactor>
-            <RecoveryEfficiency>0.87</RecoveryEfficiency>
             <WaterHeaterInsulation>
               <Jacket>
                 <JacketRValue>0.0</JacketRValue>

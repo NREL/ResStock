@@ -627,7 +627,6 @@
               <TestedFlowRate>42.5</TestedFlowRate>
               <HoursInOperation>8.0</HoursInOperation>
               <UsedForWholeBuildingVentilation>true</UsedForWholeBuildingVentilation>
-              <FanPower>37.5</FanPower>
               <AttachedToHVACDistributionSystem idref='HVACDistribution2'/>
             </VentilationFan>
             <VentilationFan>

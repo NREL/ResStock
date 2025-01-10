@@ -950,6 +950,8 @@ class HPXMLtoOpenStudioWaterHeaterTest < Minitest::Test
     ther_eff = 1.0
     cop = 2.820
     tank_height = 1.598
+    cap = 500.0 * cop # W
+    backup_cap = 4500.0 # W
 
     # Check water heater
     assert_equal(1, model.getWaterHeaterHeatPumpWrappedCondensers.size)
@@ -961,13 +963,14 @@ class HPXMLtoOpenStudioWaterHeaterTest < Minitest::Test
     assert_equal('Schedule', wh.ambientTemperatureIndicator)
     assert_in_epsilon(tank_volume, wh.tankVolume.get, 0.001)
     assert_in_epsilon(tank_height, wh.tankHeight.get, 0.001)
-    assert_in_epsilon(4500.0, wh.heater1Capacity.get, 0.001)
-    assert_in_epsilon(4500.0, wh.heater2Capacity, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater1Capacity.get, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater2Capacity, 0.001)
     assert_in_epsilon(u, wh.uniformSkinLossCoefficientperUnitAreatoAmbientTemperature.get, 0.001)
     assert_in_epsilon(ther_eff, wh.heaterThermalEfficiency, 0.001)
 
     # Check heat pump cooling coil cop
     assert_in_epsilon(cop, coil.ratedCOP, 0.001)
+    assert_in_epsilon(cap, coil.ratedHeatingCapacity, 0.001)
   end
 
   def test_tank_heat_pump_uef
@@ -985,6 +988,8 @@ class HPXMLtoOpenStudioWaterHeaterTest < Minitest::Test
     ther_eff = 1.0
     cop = 4.004
     tank_height = 1.0335
+    cap = 500.0 * cop # W
+    backup_cap = 4500.0 # W
 
     # Check water heater
     assert_equal(1, model.getWaterHeaterHeatPumpWrappedCondensers.size)
@@ -996,13 +1001,52 @@ class HPXMLtoOpenStudioWaterHeaterTest < Minitest::Test
     assert_equal('Schedule', wh.ambientTemperatureIndicator)
     assert_in_epsilon(tank_volume, wh.tankVolume.get, 0.001)
     assert_in_epsilon(tank_height, wh.tankHeight.get, 0.001)
-    assert_in_epsilon(4500.0, wh.heater1Capacity.get, 0.001)
-    assert_in_epsilon(4500.0, wh.heater2Capacity, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater1Capacity.get, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater2Capacity, 0.001)
     assert_in_epsilon(u, wh.uniformSkinLossCoefficientperUnitAreatoAmbientTemperature.get, 0.001)
     assert_in_epsilon(ther_eff, wh.heaterThermalEfficiency, 0.001)
 
     # Check heat pump cooling coil cop
     assert_in_epsilon(cop, coil.ratedCOP, 0.001)
+    assert_in_epsilon(cap, coil.ratedHeatingCapacity, 0.001)
+  end
+
+  def test_tank_heat_pump_capacities
+    args_hash = {}
+    args_hash['hpxml_path'] = File.absolute_path(File.join(sample_files_dir, 'base-dhw-tank-heat-pump-capacities.xml'))
+    model, _hpxml, hpxml_bldg = _test_measure(args_hash)
+
+    # Get HPXML values
+    water_heating_system = hpxml_bldg.water_heating_systems[0]
+
+    # Expected value
+    tank_volume = UnitConversions.convert(water_heating_system.tank_volume * 0.9, 'gal', 'm^3') # convert to actual volume
+    fuel = EPlus.fuel_type(water_heating_system.fuel_type)
+    u =  0.925
+    ther_eff = 1.0
+    cop = 2.820
+    tank_height = 1.598
+    cap = UnitConversions.convert(water_heating_system.heating_capacity, 'Btu/hr', 'W') # W
+    backup_cap = UnitConversions.convert(water_heating_system.backup_heating_capacity, 'Btu/hr', 'W') # W
+
+    # Check water heater
+    assert_equal(1, model.getWaterHeaterHeatPumpWrappedCondensers.size)
+    assert_equal(1, model.getWaterHeaterStratifieds.size)
+    hpwh = model.getWaterHeaterHeatPumpWrappedCondensers[0]
+    wh = hpwh.tank.to_WaterHeaterStratified.get
+    coil = hpwh.dXCoil.to_CoilWaterHeatingAirToWaterHeatPumpWrapped.get
+    assert_equal(fuel, wh.heaterFuelType)
+    assert_equal('Schedule', wh.ambientTemperatureIndicator)
+    assert_in_epsilon(tank_volume, wh.tankVolume.get, 0.001)
+    assert_in_epsilon(tank_height, wh.tankHeight.get, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater1Capacity.get, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater2Capacity, 0.001)
+    assert_in_epsilon(u, wh.uniformSkinLossCoefficientperUnitAreatoAmbientTemperature.get, 0.001)
+    assert_in_epsilon(ther_eff, wh.heaterThermalEfficiency, 0.001)
+
+    # Check heat pump cooling coil cop
+    assert_in_epsilon(cop, coil.ratedCOP, 0.001)
+    assert_in_epsilon(cap, coil.ratedHeatingCapacity, 0.001)
   end
 
   def test_tank_jacket
@@ -1098,6 +1142,8 @@ class HPXMLtoOpenStudioWaterHeaterTest < Minitest::Test
     ther_eff = 1.0
     cop = 2.820
     tank_height = 2.3495
+    cap = 500.0 * cop # W
+    backup_cap = 4500.0 # W
 
     # Check water heater
     assert_equal(1, model.getWaterHeaterHeatPumpWrappedCondensers.size)
@@ -1109,13 +1155,14 @@ class HPXMLtoOpenStudioWaterHeaterTest < Minitest::Test
     assert_equal('Schedule', wh.ambientTemperatureIndicator)
     assert_in_epsilon(tank_volume, wh.tankVolume.get, 0.001)
     assert_in_epsilon(tank_height, wh.tankHeight.get, 0.001)
-    assert_in_epsilon(4500.0, wh.heater1Capacity.get, 0.001)
-    assert_in_epsilon(4500.0, wh.heater2Capacity, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater1Capacity.get, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater2Capacity, 0.001)
     assert_in_epsilon(u, wh.uniformSkinLossCoefficientperUnitAreatoAmbientTemperature.get, 0.001)
     assert_in_epsilon(ther_eff, wh.heaterThermalEfficiency, 0.001)
 
     # Check heat pump cooling coil cop
     assert_in_epsilon(cop, coil.ratedCOP, 0.001)
+    assert_in_epsilon(cap, coil.ratedHeatingCapacity, 0.001)
   end
 
   def test_shared_laundry_room
@@ -1163,6 +1210,8 @@ class HPXMLtoOpenStudioWaterHeaterTest < Minitest::Test
     ther_eff = 1.0
     cop = 4.004
     tank_height = 1.0335
+    cap = 500.0 * cop # W
+    backup_cap = 4500.0 # W
 
     # Check water heater
     assert_equal(1, model.getWaterHeaterHeatPumpWrappedCondensers.size)
@@ -1174,13 +1223,14 @@ class HPXMLtoOpenStudioWaterHeaterTest < Minitest::Test
     assert_equal('Schedule', wh.ambientTemperatureIndicator)
     assert_in_epsilon(tank_volume, wh.tankVolume.get, 0.001)
     assert_in_epsilon(tank_height, wh.tankHeight.get, 0.001)
-    assert_in_epsilon(4500.0, wh.heater1Capacity.get, 0.001)
-    assert_in_epsilon(4500.0, wh.heater2Capacity, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater1Capacity.get, 0.001)
+    assert_in_epsilon(backup_cap, wh.heater2Capacity, 0.001)
     assert_in_epsilon(u, wh.uniformSkinLossCoefficientperUnitAreatoAmbientTemperature.get, 0.001)
     assert_in_epsilon(ther_eff, wh.heaterThermalEfficiency, 0.001)
 
     # Check heat pump cooling coil cop
     assert_in_epsilon(cop, coil.ratedCOP, 0.001)
+    assert_in_epsilon(cap, coil.ratedHeatingCapacity, 0.001)
   end
 
   def test_tank_stratified

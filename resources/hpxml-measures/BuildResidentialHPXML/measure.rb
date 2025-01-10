@@ -2244,7 +2244,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
 
     arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('water_heater_tank_volume', false)
     arg.setDisplayName('Water Heater: Tank Volume')
-    arg.setDescription("Nominal volume of water heater tank. Only applies to #{HPXML::WaterHeaterTypeStorage}, #{HPXML::WaterHeaterTypeHeatPump}, and #{HPXML::WaterHeaterTypeCombiStorage}. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#conventional-storage'>Conventional Storage</a>, <a href='#{docs_base_url}#heat-pump'>Heat Pump</a>, <a href='#{docs_base_url}#combi-boiler-w-storage'>Combi Boiler w/ Storage</a>) is used.")
+    arg.setDescription("Nominal volume of water heater tank. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#conventional-storage'>Conventional Storage</a>, <a href='#{docs_base_url}#heat-pump'>Heat Pump</a>, <a href='#{docs_base_url}#combi-boiler-w-storage'>Combi Boiler w/ Storage</a>) is used.")
     arg.setUnits('gal')
     args << arg
 
@@ -2273,7 +2273,13 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
 
     arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('water_heater_heating_capacity', false)
     arg.setDisplayName('Water Heater: Heating Capacity')
-    arg.setDescription("Heating capacity. Only applies to #{HPXML::WaterHeaterTypeStorage}. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#conventional-storage'>Conventional Storage</a>) is used.")
+    arg.setDescription("Heating capacity. Only applies to #{HPXML::WaterHeaterTypeStorage} and #{HPXML::WaterHeaterTypeHeatPump} (compressor). If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#conventional-storage'>Conventional Storage</a>, <a href='#{docs_base_url}#heat-pump'>Heat Pump</a>) is used.")
+    arg.setUnits('Btu/hr')
+    args << arg
+
+    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('water_heater_backup_heating_capacity', false)
+    arg.setDisplayName('Water Heater: Backup Heating Capacity')
+    arg.setDescription("Backup heating capacity for a #{HPXML::WaterHeaterTypeHeatPump}. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#heat-pump'>Heat Pump</a>) is used.")
     arg.setUnits('Btu/hr')
     args << arg
 
@@ -3541,7 +3547,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
       return false
     end
 
-    Model.tear_down(model: model, runner: runner)
+    Model.reset(model, runner)
 
     Version.check_openstudio_version()
 
@@ -3569,7 +3575,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
     epw_path = args[:weather_station_epw_filepath]
     if epw_path.nil?
       # Get EPW path from zip code
-      epw_path = HPXMLDefaults.lookup_weather_data_from_zipcode(args[:site_zip_code])[:station_filename]
+      epw_path = Defaults.lookup_weather_data_from_zipcode(args[:site_zip_code])[:station_filename]
     end
 
     # Create EpwFile object
@@ -3967,7 +3973,7 @@ module HPXMLFile
         return false
       end
 
-      HPXMLDefaults.apply(runner, hpxml, hpxml_bldg, weather)
+      Defaults.apply(runner, hpxml, hpxml_bldg, weather)
       hpxml_doc = hpxml.to_doc()
       hpxml.set_unique_hpxml_ids(hpxml_doc, true) if hpxml.buildings.size > 1
       XMLHelper.write_file(hpxml_doc, hpxml_path)
@@ -4096,17 +4102,17 @@ module HPXMLFile
     return true
   end
 
-  # Check if unavailable period already exists for given begin/end times
+  # Check if unavailable period already exists for given name and begin/end times.
   #
   # @param hpxml [HPXML] HPXML object
-  # @param column_name [TODO] TODO
-  # @param begin_month [TODO] TODO
-  # @param begin_day [TODO] TODO
-  # @param begin_hour [TODO] TODO
-  # @param end_month [TODO] TODO
-  # @param end_day [TODO] TODO
-  # @param end_hour [TODO] TODO
-  # @param natvent_availability [TODO] TODO
+  # @param column_name [String] Column name associated with unavailable_periods.csv
+  # @param begin_month [Integer] Unavailable period begin month
+  # @param begin_day [Integer] Unavailable period begin day
+  # @param begin_hour [Integer] Unavailable period begin hour
+  # @param end_month [Integer] Unavailable period end month
+  # @param end_day [Integer] Unavailable period end day
+  # @param end_hour [Integer] Unavailable period end hour
+  # @param natvent_availability [String] Natural ventilation availability (HXPML::ScheduleXXX)
   # @return [Boolean] True if the unavailability period already exists
   def self.unavailable_period_exists(hpxml, column_name, begin_month, begin_day, begin_hour, end_month, end_day, end_hour, natvent_availability = nil)
     natvent_availability = HPXML::ScheduleUnavailable if natvent_availability.nil?
@@ -5916,7 +5922,7 @@ module HPXMLFile
   # @param args [Hash] Map of :argument_name => value
   # @return [nil]
   def self.set_geothermal_loop(hpxml_bldg, args)
-    return if hpxml_bldg.heat_pumps.select { |hp| hp.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir }.size == 0
+    return if hpxml_bldg.heat_pumps.count { |hp| hp.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir } == 0
     return if args[:geothermal_loop_configuration].nil? || args[:geothermal_loop_configuration] == Constants::None
 
     if not args[:geothermal_loop_pipe_diameter].nil?
@@ -6185,7 +6191,7 @@ module HPXMLFile
       if ducts_supply_location == HPXML::LocationConditionedSpace
         args[:ducts_supply_surface_area_fraction] = 1.0
       else
-        args[:ducts_supply_surface_area_fraction] = HVAC.get_default_duct_fraction_outside_conditioned_space(args[:geometry_unit_num_floors_above_grade])
+        args[:ducts_supply_surface_area_fraction] = Defaults.get_duct_outside_fraction(args[:geometry_unit_num_floors_above_grade])
       end
     end
 
@@ -6194,7 +6200,7 @@ module HPXMLFile
       if ducts_return_location == HPXML::LocationConditionedSpace
         args[:ducts_return_surface_area_fraction] = 1.0
       else
-        args[:ducts_return_surface_area_fraction] = HVAC.get_default_duct_fraction_outside_conditioned_space(args[:geometry_unit_num_floors_above_grade])
+        args[:ducts_return_surface_area_fraction] = Defaults.get_duct_outside_fraction(args[:geometry_unit_num_floors_above_grade])
       end
     end
 
@@ -6252,7 +6258,7 @@ module HPXMLFile
     end
 
     # If duct surface areas are defaulted, set CFA served
-    if hvac_distribution.ducts.select { |d| d.duct_surface_area.nil? }.size > 0
+    if hvac_distribution.ducts.count { |d| d.duct_surface_area.nil? } > 0
       max_fraction_load_served = 0.0
       hvac_distribution.hvac_systems.each do |hvac_system|
         if hvac_system.respond_to?(:fraction_heat_load_served)
@@ -6286,7 +6292,7 @@ module HPXMLFile
   def self.set_hvac_control(hpxml, hpxml_bldg, args, weather)
     return if (args[:heating_system_type] == Constants::None) && (args[:cooling_system_type] == Constants::None) && (args[:heat_pump_type] == Constants::None)
 
-    latitude = HPXMLDefaults.get_default_latitude(args[:site_latitude], weather) unless weather.nil?
+    latitude = Defaults.get_latitude(args[:site_latitude], weather) unless weather.nil?
 
     # Heating
     if hpxml_bldg.total_fraction_heat_load_served > 0
@@ -6303,7 +6309,7 @@ module HPXMLFile
       if not args[:hvac_control_heating_season_period].nil?
         hvac_control_heating_season_period = args[:hvac_control_heating_season_period]
         if hvac_control_heating_season_period == Constants::BuildingAmerica
-          heating_months, _cooling_months = HVAC.get_default_heating_and_cooling_seasons(weather, latitude)
+          heating_months, _cooling_months = HVAC.get_building_america_hvac_seasons(weather, latitude)
           sim_calendar_year = Location.get_sim_calendar_year(hpxml.header.sim_calendar_year, weather)
           begin_month, begin_day, end_month, end_day = Calendar.get_begin_and_end_dates_from_monthly_array(heating_months, sim_calendar_year)
         else
@@ -6332,7 +6338,7 @@ module HPXMLFile
       if not args[:hvac_control_cooling_season_period].nil?
         hvac_control_cooling_season_period = args[:hvac_control_cooling_season_period]
         if hvac_control_cooling_season_period == Constants::BuildingAmerica
-          _heating_months, cooling_months = HVAC.get_default_heating_and_cooling_seasons(weather, latitude)
+          _heating_months, cooling_months = HVAC.get_building_america_hvac_seasons(weather, latitude)
           sim_calendar_year = Location.get_sim_calendar_year(hpxml.header.sim_calendar_year, weather)
           begin_month, begin_day, end_month, end_day = Calendar.get_begin_and_end_dates_from_monthly_array(cooling_months, sim_calendar_year)
         else
@@ -6411,6 +6417,23 @@ module HPXMLFile
 
           distribution_system_idref = hvac_distribution.id
         end
+        if distribution_system_idref.nil?
+          # Allow for PTAC/PTHP by automatically adding a DSE=1 distribution system to attach the CFIS to
+          hpxml_bldg.hvac_systems.each do |hvac_system|
+            next unless (hvac_system.is_a?(HPXML::CoolingSystem) && [HPXML::HVACTypePTAC, HPXML::HVACTypeRoomAirConditioner].include?(hvac_system.cooling_system_type)) ||
+                        (hvac_system.is_a?(HPXML::HeatPump) && [HPXML::HVACTypeHeatPumpPTHP, HPXML::HVACTypeHeatPumpRoom].include?(hvac_system.heat_pump_type))
+
+            hpxml_bldg.hvac_distributions.add(id: "HVACDistribution#{hpxml_bldg.hvac_distributions.size + 1}",
+                                              distribution_system_type: HPXML::HVACDistributionTypeDSE,
+                                              annual_cooling_dse: 1.0,
+                                              annual_heating_dse: 1.0)
+            hvac_system.distribution_system_idref = hpxml_bldg.hvac_distributions[-1].id
+            distribution_system_idref = hpxml_bldg.hvac_distributions[-1].id
+          end
+        end
+
+        return if distribution_system_idref.nil? # No distribution system to attach the CFIS to
+
         cfis_addtl_runtime_operating_mode = HPXML::CFISModeAirHandler
       end
 
@@ -6609,6 +6632,8 @@ module HPXMLFile
       heating_capacity = args[:water_heater_heating_capacity]
       tank_model_type = args[:water_heater_tank_model_type]
     elsif [HPXML::WaterHeaterTypeHeatPump].include? water_heater_type
+      heating_capacity = args[:water_heater_heating_capacity]
+      backup_heating_capacity = args[:water_heater_backup_heating_capacity]
       operating_mode = args[:water_heater_operating_mode]
     end
 
@@ -6629,6 +6654,7 @@ module HPXMLFile
                                          jacket_r_value: jacket_r_value,
                                          temperature: args[:water_heater_setpoint_temperature],
                                          heating_capacity: heating_capacity,
+                                         backup_heating_capacity: backup_heating_capacity,
                                          is_shared_system: is_shared_system,
                                          number_of_bedrooms_served: number_of_bedrooms_served,
                                          tank_model_type: tank_model_type,
@@ -6716,7 +6742,7 @@ module HPXMLFile
       collector_loop_type = args[:solar_thermal_collector_loop_type]
       collector_type = args[:solar_thermal_collector_type]
       collector_azimuth = args[:solar_thermal_collector_azimuth]
-      latitude = HPXMLDefaults.get_default_latitude(args[:site_latitude], weather) unless weather.nil?
+      latitude = Defaults.get_latitude(args[:site_latitude], weather) unless weather.nil?
       collector_tilt = Geometry.get_absolute_tilt(tilt_str: args[:solar_thermal_collector_tilt], roof_pitch: args[:geometry_roof_pitch], latitude: latitude)
       collector_rated_optical_efficiency = args[:solar_thermal_collector_rated_optical_efficiency]
       collector_rated_thermal_losses = args[:solar_thermal_collector_rated_thermal_losses]
@@ -6766,7 +6792,7 @@ module HPXMLFile
       end
     end
 
-    latitude = HPXMLDefaults.get_default_latitude(args[:site_latitude], weather) unless weather.nil?
+    latitude = Defaults.get_latitude(args[:site_latitude], weather) unless weather.nil?
 
     hpxml_bldg.pv_systems.add(id: "PVSystem#{hpxml_bldg.pv_systems.size + 1}",
                               location: args[:pv_system_location],

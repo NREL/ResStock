@@ -1305,37 +1305,45 @@
                   <DuctType>supply</DuctType>
                   <DuctInsulationRValue>4.0</DuctInsulationRValue>
                   <DuctLocation>crawlspace - unvented</DuctLocation>
-                  <DuctSurfaceArea>72.9</DuctSurfaceArea>
+                  <FractionDuctArea>0.15</FractionDuctArea>
                 </Ducts>
                 <Ducts>
                   <SystemIdentifier id='Ducts2'/>
                   <DuctType>return</DuctType>
                   <DuctInsulationRValue>4.0</DuctInsulationRValue>
                   <DuctLocation>crawlspace - unvented</DuctLocation>
-                  <DuctSurfaceArea>21.5</DuctSurfaceArea>
+                  <FractionDuctArea>0.15</FractionDuctArea>
                 </Ducts>
                 <Ducts>
                   <SystemIdentifier id='Ducts3'/>
                   <DuctType>supply</DuctType>
                   <DuctInsulationRValue>0.0</DuctInsulationRValue>
                   <DuctLocation>conditioned space</DuctLocation>
-                  <DuctSurfaceArea>413.1</DuctSurfaceArea>
+                  <FractionDuctArea>0.85</FractionDuctArea>
                 </Ducts>
                 <Ducts>
                   <SystemIdentifier id='Ducts4'/>
                   <DuctType>return</DuctType>
                   <DuctInsulationRValue>0.0</DuctInsulationRValue>
                   <DuctLocation>conditioned space</DuctLocation>
-                  <DuctSurfaceArea>121.6</DuctSurfaceArea>
+                  <FractionDuctArea>0.85</FractionDuctArea>
                 </Ducts>
                 <NumberofReturnRegisters>1</NumberofReturnRegisters>
                 <extension>
                   <ManualJInputs>
                     <BlowerFanHeatBtuh>1707.0</BlowerFanHeatBtuh>
+                    <DefaultTableDuctLoad>
+                      <TableNumber>7I</TableNumber>
+                      <LookupFloorArea>2136.0</LookupFloorArea>
+                      <LeakageLevel>default not sealed</LeakageLevel>
+                      <InsulationRValue>4.0</InsulationRValue>
+                      <DSF>0.15</DSF>
+                    </DefaultTableDuctLoad>
                   </ManualJInputs>
                 </extension>
               </AirDistribution>
             </DistributionSystemType>
+            <ConditionedFloorAreaServed>2848.0</ConditionedFloorAreaServed>
           </HVACDistribution>
         </HVAC>
         <MechanicalVentilation>

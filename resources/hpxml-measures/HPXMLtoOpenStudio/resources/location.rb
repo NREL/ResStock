@@ -34,13 +34,16 @@ module Location
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @return [nil]
   def self.apply_site(model, hpxml_bldg)
-    # Note: None of these affect the model; see https://github.com/NREL/EnergyPlus/issues/10579.
     site = model.getSite
     site.setName("#{hpxml_bldg.city}_#{hpxml_bldg.state_code}")
     site.setLatitude(hpxml_bldg.latitude)
     site.setLongitude(hpxml_bldg.longitude)
     site.setTimeZone(hpxml_bldg.time_zone_utc_offset)
     site.setElevation(UnitConversions.convert(hpxml_bldg.elevation, 'ft', 'm').round)
+
+    # Tell EnergyPlus to use these values, not what's in the weather station (which
+    # may be at a very different, e.g., elevation)
+    site.setKeepSiteLocationInformation(true)
   end
 
   # Set calendar year on the OpenStudio YearDescription object.
@@ -90,7 +93,7 @@ module Location
     sgts.resetAllMonths
     sgts.setAllMonthlyTemperatures(weather.data.ShallowGroundMonthlyTemps.map { |t| UnitConversions.convert(t, 'F', 'C') })
 
-    if hpxml_bldg.heat_pumps.select { |h| h.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir }.size > 0
+    if hpxml_bldg.heat_pumps.count { |h| h.heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir } > 0
       # Deep ground temperatures used by GSHP setpoint manager
       dgts = model.getSiteGroundTemperatureDeep
       dgts.resetAllMonths
@@ -105,7 +108,7 @@ module Location
   # @return [String] Path to the EnergyPlus weather file (EPW)
   def self.get_epw_path(hpxml_bldg, hpxml_path)
     if hpxml_bldg.climate_and_risk_zones.weather_station_epw_filepath.nil?
-      epw_filepath = HPXMLDefaults.lookup_weather_data_from_zipcode(hpxml_bldg.zip_code)[:station_filename]
+      epw_filepath = Defaults.lookup_weather_data_from_zipcode(hpxml_bldg.zip_code)[:station_filename]
     else
       epw_filepath = hpxml_bldg.climate_and_risk_zones.weather_station_epw_filepath
     end

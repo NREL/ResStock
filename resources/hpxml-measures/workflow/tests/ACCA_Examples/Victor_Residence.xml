@@ -73,8 +73,7 @@
             <InteriorAdjacentTo>conditioned space</InteriorAdjacentTo>
             <Area>2068.6</Area>
             <RoofType>asphalt or fiberglass shingles</RoofType>
-            <SolarAbsorptance>0.92</SolarAbsorptance>
-            <Emittance>0.92</Emittance>
+            <RoofColor>dark</RoofColor>
             <Pitch>7.0</Pitch>
             <RadiantBarrier>false</RadiantBarrier>
             <Insulation>
@@ -409,10 +408,19 @@
                 <extension>
                   <ManualJInputs>
                     <BlowerFanHeatBtuh>1707.0</BlowerFanHeatBtuh>
+                    <DefaultTableDuctLoad>
+                      <TableNumber>7D-AE</TableNumber>
+                      <LookupFloorArea>1800.0</LookupFloorArea>
+                      <LeakageLevel>default not sealed</LeakageLevel>
+                      <InsulationRValue>2.0</InsulationRValue>
+                      <SupplySurfaceArea>516.0</SupplySurfaceArea>
+                      <ReturnSurfaceArea>125.0</ReturnSurfaceArea>
+                    </DefaultTableDuctLoad>
                   </ManualJInputs>
                 </extension>
               </AirDistribution>
             </DistributionSystemType>
+            <ConditionedFloorAreaServed>1800.0</ConditionedFloorAreaServed>
           </HVACDistribution>
         </HVAC>
         <MechanicalVentilation>

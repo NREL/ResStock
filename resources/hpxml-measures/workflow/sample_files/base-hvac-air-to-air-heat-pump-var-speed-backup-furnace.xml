@@ -332,7 +332,6 @@
                 <Units>AFUE</Units>
                 <Value>0.8</Value>
               </AnnualHeatingEfficiency>
-              <ElectricAuxiliaryEnergy>200.0</ElectricAuxiliaryEnergy>
             </HeatingSystem>
             <HeatPump>
               <SystemIdentifier id='HeatPump1'/>

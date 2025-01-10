@@ -19,7 +19,7 @@ module InternalGains
     end
     return if num_occ <= 0
 
-    occ_gain, _hrs_per_day, sens_frac, _lat_frac = get_occupancy_default_values()
+    occ_gain, _hrs_per_day, sens_frac, _lat_frac = Defaults.get_occupancy_values()
     activity_per_person = UnitConversions.convert(occ_gain, 'Btu/hr', 'W')
 
     # Hard-coded convective, radiative, latent, and lost fractions
@@ -48,9 +48,11 @@ module InternalGains
     end
 
     # Create schedule
-    activity_sch = OpenStudio::Model::ScheduleConstant.new(model)
-    activity_sch.setValue(activity_per_person)
-    activity_sch.setName(Constants::ObjectTypeOccupants + ' activity schedule')
+    activity_sch = Model.add_schedule_constant(
+      model,
+      name: "#{Constants::ObjectTypeOccupants} activity schedule",
+      value: activity_per_person
+    )
 
     # Add people definition for the occ
     occ_def = OpenStudio::Model::PeopleDefinition.new(model)
@@ -68,21 +70,6 @@ module InternalGains
     occ.setNumberofPeopleSchedule(people_sch)
   end
 
-  # Gets the default values associated with occupant internal gains.
-  #
-  # @return [Array<Double, Double, Double, Double>] Heat gain (Btu/person/hr), Hours per day, sensible/latent fractions
-  def self.get_occupancy_default_values()
-    # ANSI/RESNET/ICC 301 - Table 4.2.2(3). Internal Gains for Reference Homes
-    hrs_per_day = 16.5 # hrs/day
-    sens_gains = 3716.0 # Btu/person/day
-    lat_gains = 2884.0 # Btu/person/day
-    tot_gains = sens_gains + lat_gains
-    heat_gain = tot_gains / hrs_per_day # Btu/person/hr
-    sens_frac = sens_gains / tot_gains
-    lat_frac = lat_gains / tot_gains
-    return heat_gain, hrs_per_day, sens_frac, lat_frac
-  end
-
   # Adds general water use internal gains (floor mopping, shower evaporation, water films
   # on showers, tubs & sinks surfaces, plant watering, etc.) to the OpenStudio Model.
   #
@@ -98,7 +85,7 @@ module InternalGains
     nbeds_eq = hpxml_bldg.building_construction.additional_properties.equivalent_number_of_bedrooms
 
     if not hpxml_header.apply_ashrae140_assumptions
-      water_sens_btu, water_lat_btu = get_water_gains_sens_lat(nbeds_eq, general_water_use_usage_multiplier)
+      water_sens_btu, water_lat_btu = Defaults.get_water_use_internal_gains(nbeds_eq, general_water_use_usage_multiplier)
 
       # Create schedule
       water_schedule = nil
@@ -123,20 +110,32 @@ module InternalGains
         runner.registerWarning("Both '#{water_col_name}' schedule file and weekend fractions provided; the latter will be ignored.") if !hpxml_bldg.building_occupancy.general_water_use_weekend_fractions.nil?
         runner.registerWarning("Both '#{water_col_name}' schedule file and monthly multipliers provided; the latter will be ignored.") if !hpxml_bldg.building_occupancy.general_water_use_monthly_multipliers.nil?
       end
-      HotWaterAndAppliances.add_other_equipment(model, Constants::ObjectTypeGeneralWaterUseSensible, spaces[HPXML::LocationConditionedSpace], water_design_level_sens, 1.0, 0.0, water_schedule, nil)
-      HotWaterAndAppliances.add_other_equipment(model, Constants::ObjectTypeGeneralWaterUseLatent, spaces[HPXML::LocationConditionedSpace], water_design_level_lat, 0.0, 1.0, water_schedule, nil)
-    end
-  end
 
-  # Gets the default values associated with general water use internal gains.
-  #
-  # @param nbeds_eq [Integer] Number of bedrooms (or equivalent bedrooms, as adjusted by the number of occupants) in the dwelling unit
-  # @param general_water_use_usage_multiplier [Double] Usage multiplier on internal gains
-  # @return [Array<Double, Double>] Sensible/latent internal gains (Btu/yr)
-  def self.get_water_gains_sens_lat(nbeds_eq, general_water_use_usage_multiplier = 1.0)
-    # ANSI/RESNET/ICC 301 - Table 4.2.2(3). Internal Gains for Reference Homes
-    sens_gains = (-1227.0 - 409.0 * nbeds_eq) * general_water_use_usage_multiplier # Btu/day
-    lat_gains = (1245.0 + 415.0 * nbeds_eq) * general_water_use_usage_multiplier # Btu/day
-    return sens_gains * 365.0, lat_gains * 365.0
+      Model.add_other_equipment(
+        model,
+        name: Constants::ObjectTypeGeneralWaterUseSensible,
+        end_use: Constants::ObjectTypeGeneralWaterUseSensible,
+        space: spaces[HPXML::LocationConditionedSpace],
+        design_level: water_design_level_sens,
+        frac_radiant: 0.6, # FIXME: This should probably be zero
+        frac_latent: 0,
+        frac_lost: 0,
+        schedule: water_schedule,
+        fuel_type: nil
+      )
+
+      Model.add_other_equipment(
+        model,
+        name: Constants::ObjectTypeGeneralWaterUseLatent,
+        end_use: Constants::ObjectTypeGeneralWaterUseLatent,
+        space: spaces[HPXML::LocationConditionedSpace],
+        design_level: water_design_level_lat,
+        frac_radiant: 0,
+        frac_latent: 1,
+        frac_lost: 0,
+        schedule: water_schedule,
+        fuel_type: nil
+      )
+    end
   end
 end
