@@ -367,7 +367,8 @@ jobs:
       - name: Build ResStock Technical Reference Guide
         uses: dante-ev/latex-action@latest
         with:
-          root_file: docs/technical_reference_guide/0_main.tex
+          working_directory: docs/technical_reference_guide
+          root_file: 0_main.tex
 
       - name: Save Technical Reference Guide
         uses: actions/upload-artifact@v4
