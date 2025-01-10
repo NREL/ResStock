@@ -1,0 +1,25 @@
+\noaddvspace 
+\babel@toc {english}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1}{\ignorespaces A high-level overview of the ResStock workflow steps and what occurs during those steps\relax }}{5}{figure.caption.16}%
+\contentsline {figure}{\numberline {2}{\ignorespaces An illustrative example of a representative housing unit sample from ResStock (does not show all characteristics available in ResStock)\relax }}{6}{figure.caption.18}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Flowchart of OpenStudio measures performed to translate a ResStock sample into an OpenStudio model\relax }}{8}{figure.caption.21}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4}{\ignorespaces Example of interconnected building characteristic distributions\relax }}{12}{figure.caption.30}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5}{\ignorespaces 2010 Public Use Microdata Area boundaries\relax }}{20}{figure.caption.64}%
+\contentsline {figure}{\numberline {6}{\ignorespaces AIANNH area map. The image is created by \href {https://proximityone.com/aiannh.htm}{ProximityOne} and excludes Alaska and Hawaii.\relax }}{23}{figure.caption.91}%
+\contentsline {figure}{\numberline {7}{\ignorespaces The 2004 ASHRAE 169 and IECC 2012 climate zone map\relax }}{27}{figure.caption.111}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Building America Climate Zone map\relax }}{27}{figure.caption.126}%
+\contentsline {figure}{\numberline {9}{\ignorespaces California Energy Commission \href {https://cecgis-caenergy.opendata.arcgis.com/documents/CAEnergy::building-climate-zones/explore}{Building Climate Zone map}\relax }}{29}{figure.caption.133}%
+\contentsline {figure}{\numberline {10}{\ignorespaces \href {https://www.energystar.gov/sites/default/files/asset/document/Promotional_Map.pdf}{ENERGY STAR V7 climate zone} map\relax }}{30}{figure.caption.140}%
+\contentsline {figure}{\numberline {11}{\ignorespaces ReEDS balancing area map\relax }}{31}{figure.caption.148}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Map of the \href {https://www.nrel.gov/analysis/cambium.html}{Cambium} 2021 Generation and Emission Assessment Regions.\relax }}{32}{figure.caption.155}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Map of the custom regions in ResStock. Alaska and Hawaii are their own custom regions.\relax }}{34}{figure.caption.181}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }

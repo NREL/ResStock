@@ -1,0 +1,227 @@
+\noaddvspace 
+\babel@toc {english}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {1}{\ignorespaces Subset of Water Heating Fuel distribution\relax }}{10}{table.caption.27}%
+\contentsline {table}{\numberline {2}{\ignorespaces Modeled schedules in ResStock\relax }}{14}{table.caption.32}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3}{\ignorespaces The ResStock argument definitions for the State characteristic\relax }}{18}{table.53}%
+\contentsline {table}{\numberline {4}{\ignorespaces The ResStock argument definitions for the County characteristic\relax }}{19}{table.60}%
+\contentsline {table}{\numberline {5}{\ignorespaces The ResStock argument definitions set in the PUMA characteristic\relax }}{21}{table.68}%
+\contentsline {table}{\numberline {6}{\ignorespaces The ResStock argument definitions set in the City characteristic\relax }}{23}{table.87}%
+\contentsline {table}{\numberline {7}{\ignorespaces The ResStock arguments set in the ASHRAE IECC Climate Zone 2004 characteristic\relax }}{25}{table.115}%
+\contentsline {table}{\numberline {8}{\ignorespaces Relevant fields from the EPW header\relax }}{37}{table.caption.198}%
+\contentsline {table}{\numberline {9}{\ignorespaces Bedroom options and arguments that vary for each option\relax }}{38}{table.206}%
+\contentsline {table}{\numberline {10}{\ignorespaces The ResStock argument definitions set in the Orientation characteristic\relax }}{38}{table.207}%
+\contentsline {table}{\numberline {11}{\ignorespaces Geometry Stories options and arguments that vary for each option\relax }}{39}{table.214}%
+\contentsline {table}{\numberline {12}{\ignorespaces Argument definitions for the Geometry Stories characteristics\relax }}{40}{table.215}%
+\contentsline {table}{\numberline {13}{\ignorespaces Options and saturation for the Geometry Story Bin\relax }}{40}{table.222}%
+\contentsline {table}{\numberline {14}{\ignorespaces Options and saturation for Geometry Building Type Height\relax }}{41}{table.229}%
+\contentsline {table}{\numberline {15}{\ignorespaces Geometry Building Level Number of Units MF options and arguments that vary for each option\relax }}{42}{table.242}%
+\contentsline {table}{\numberline {16}{\ignorespaces Argument definitions for the Geometry Building Number of Units MF characteristic\relax }}{43}{table.243}%
+\contentsline {table}{\numberline {17}{\ignorespaces Geometry Building Level Number of Units SFA options and arguments that vary for each option\relax }}{43}{table.250}%
+\contentsline {table}{\numberline {18}{\ignorespaces Geometry Building Level MF options and arguments that vary for each option\relax }}{44}{table.257}%
+\contentsline {table}{\numberline {19}{\ignorespaces Argument definitions for the Geometry Building Level MF characteristic\relax }}{44}{table.258}%
+\contentsline {table}{\numberline {20}{\ignorespaces Geometry Building Horizontal Location Multifamily options and arguments that vary for each option\relax }}{45}{table.265}%
+\contentsline {table}{\numberline {21}{\ignorespaces Argument definitions for the Geometry Building Horizontal Location MF and Geometry Building Horizontal Location SFA characteristics\relax }}{45}{table.266}%
+\contentsline {table}{\numberline {22}{\ignorespaces Geometry Building Horizontal Location SFA options and arguments that vary for each option\relax }}{46}{table.273}%
+\contentsline {table}{\numberline {23}{\ignorespaces Neighbors options and arguments that vary for each option\relax }}{47}{table.280}%
+\contentsline {table}{\numberline {24}{\ignorespaces The ResStock argument definitions set in the Neighbors characteristic\relax }}{47}{table.281}%
+\contentsline {table}{\numberline {25}{\ignorespaces Corridor options and arguments that vary for each option\relax }}{48}{table.289}%
+\contentsline {table}{\numberline {26}{\ignorespaces Argument definitions for the Corridor characteristic\relax }}{49}{table.290}%
+\contentsline {table}{\numberline {27}{\ignorespaces Options and saturation for Geometry Building Type ACS\relax }}{49}{table.298}%
+\contentsline {table}{\numberline {28}{\ignorespaces Geometry Building Type RECS options and arguments that vary for each option\relax }}{50}{table.305}%
+\contentsline {table}{\numberline {29}{\ignorespaces The ResStock argument definitions set in the Geometry Building Type RECS characteristic\relax }}{51}{table.306}%
+\contentsline {table}{\numberline {30}{\ignorespaces Vintage options and arguments that vary for each option\relax }}{52}{table.314}%
+\contentsline {table}{\numberline {31}{\ignorespaces The ResStock argument definitions set in the Vintage characteristic\relax }}{52}{table.315}%
+\contentsline {table}{\numberline {32}{\ignorespaces Option and saturation for Vintage ACS\relax }}{52}{table.322}%
+\contentsline {table}{\numberline {32}{\ignorespaces Option and saturation for Vintage ACS\relax }}{53}{table.322}%
+\contentsline {table}{\numberline {33}{\ignorespaces Geometry Floor Area options and arguments that vary for each option\relax }}{54}{table.330}%
+\contentsline {table}{\numberline {34}{\ignorespaces The ResStock argument definitions set in the Geometry Floor Area characteristic\relax }}{54}{table.331}%
+\contentsline {table}{\numberline {35}{\ignorespaces Bedroom options and arguments that vary for each option\relax }}{55}{table.345}%
+\contentsline {table}{\numberline {36}{\ignorespaces The ResStock argument definitions set in the Bedrooms characteristic\relax }}{56}{table.346}%
+\contentsline {table}{\numberline {37}{\ignorespaces Geometry Attic Type options and arguments that vary for each option\relax }}{56}{table.353}%
+\contentsline {table}{\numberline {38}{\ignorespaces The ResStock argument definitions set in the Geometry Attic characteristic\relax }}{57}{table.354}%
+\contentsline {table}{\numberline {39}{\ignorespaces Geometry Foundation Type options and arguments that vary for each option\relax }}{58}{table.361}%
+\contentsline {table}{\numberline {40}{\ignorespaces The ResStock argument definitions set in the Geometry Foundation Type characteristic\relax }}{58}{table.362}%
+\contentsline {table}{\numberline {41}{\ignorespaces Bedroom options and arguments that vary for each option\relax }}{59}{table.369}%
+\contentsline {table}{\numberline {42}{\ignorespaces The ResStock argument definitions set in the Geometry Garage characteristic\relax }}{59}{table.370}%
+\contentsline {table}{\numberline {43}{\ignorespaces Geometry Wall Exterior Finish options and arguments that vary for each option\relax }}{62}{table.391}%
+\contentsline {table}{\numberline {44}{\ignorespaces The ResStock argument definitions for the Geometry Exterior Finish characteristic\relax }}{62}{table.392}%
+\contentsline {table}{\numberline {45}{\ignorespaces Insulation Wall options and arguments that vary for each option\relax }}{63}{table.399}%
+\contentsline {table}{\numberline {46}{\ignorespaces The ResStock argument definitions set in the Insulation Wall characteristic\relax }}{64}{table.400}%
+\contentsline {table}{\numberline {47}{\ignorespaces Insulation Roof options and arguments that vary for each option\relax }}{65}{table.408}%
+\contentsline {table}{\numberline {48}{\ignorespaces The ResStock argument definitions set in the Insulation Roof characteristic\relax }}{65}{table.409}%
+\contentsline {table}{\numberline {49}{\ignorespaces Radiant Barrier options and arguments that vary for each option\relax }}{65}{table.416}%
+\contentsline {table}{\numberline {50}{\ignorespaces The ResStock argument definitions set in the Radiant Barrier characteristic\relax }}{66}{table.417}%
+\contentsline {table}{\numberline {51}{\ignorespaces Roof Material options and arguments that vary for each option\relax }}{66}{table.424}%
+\contentsline {table}{\numberline {52}{\ignorespaces The ResStock argument definitions set in the Roof Material characteristic\relax }}{67}{table.425}%
+\contentsline {table}{\numberline {53}{\ignorespaces Insulation Ceiling options and arguments that vary for each option\relax }}{68}{table.432}%
+\contentsline {table}{\numberline {54}{\ignorespaces The ResStock argument definitions set in the Insulation Ceiling characteristic\relax }}{68}{table.433}%
+\contentsline {table}{\numberline {55}{\ignorespaces Insulation Floor options and arguments that vary for each option\relax }}{69}{table.441}%
+\contentsline {table}{\numberline {56}{\ignorespaces The ResStock argument definitions set in the Insulation Floor characteristic\relax }}{69}{table.442}%
+\contentsline {table}{\numberline {57}{\ignorespaces Insulation Slab options and arguments that vary for each option\relax }}{70}{table.449}%
+\contentsline {table}{\numberline {58}{\ignorespaces The ResStock argument definitions set in the Insulation Slab characteristic\relax }}{70}{table.450}%
+\contentsline {table}{\numberline {59}{\ignorespaces Insulation Foundation Wall options and arguments that vary for each option\relax }}{72}{table.457}%
+\contentsline {table}{\numberline {60}{\ignorespaces The ResStock argument definitions set in the Insulation Foundation Wall characteristic\relax }}{72}{table.458}%
+\contentsline {table}{\numberline {61}{\ignorespaces Options and saturation for Insulation Rim Joist\relax }}{74}{table.465}%
+\contentsline {table}{\numberline {62}{\ignorespaces The ResStock argument definitions set in the Rim Joist characteristic\relax }}{74}{table.466}%
+\contentsline {table}{\numberline {63}{\ignorespaces Ground Thermal Conductivity options and arguments that vary for each option\relax }}{75}{table.473}%
+\contentsline {table}{\numberline {64}{\ignorespaces The ResStock argument definitions set in the Ground Thermal Conductivity characteristic\relax }}{76}{table.474}%
+\contentsline {table}{\numberline {65}{\ignorespaces Door Area options and arguments that vary for each option\relax }}{77}{table.482}%
+\contentsline {table}{\numberline {66}{\ignorespaces The ResStock argument definitions set in the Door Area characteristic\relax }}{77}{table.483}%
+\contentsline {table}{\numberline {67}{\ignorespaces Door options and arguments that vary for each option\relax }}{78}{table.490}%
+\contentsline {table}{\numberline {68}{\ignorespaces The ResStock argument definitions set in the Door characteristic\relax }}{78}{table.491}%
+\contentsline {table}{\numberline {69}{\ignorespaces Windows options and arguments that vary for each option\relax }}{78}{table.498}%
+\contentsline {table}{\numberline {70}{\ignorespaces The ResStock argument definitions set in the Windows characteristic\relax }}{79}{table.499}%
+\contentsline {table}{\numberline {71}{\ignorespaces Window Area options and arguments that vary for each option\relax }}{81}{table.506}%
+\contentsline {table}{\numberline {72}{\ignorespaces The ResStock argument definitions set in the Window Area characteristic\relax }}{81}{table.507}%
+\contentsline {table}{\numberline {73}{\ignorespaces The ResStock argument definitions set in the Overhangs characteristic\relax }}{83}{table.514}%
+\contentsline {table}{\numberline {74}{\ignorespaces The ResStock argument definitions set in the Eaves characteristic\relax }}{84}{table.521}%
+\contentsline {table}{\numberline {75}{\ignorespaces Interior Shading options and arguments that vary for each option\relax }}{85}{table.528}%
+\contentsline {table}{\numberline {76}{\ignorespaces The ResStock argument definitions set in the Interior Shading characteristic\relax }}{85}{table.529}%
+\contentsline {table}{\numberline {77}{\ignorespaces Infiltration options and arguments that vary for each option\relax }}{86}{table.537}%
+\contentsline {table}{\numberline {78}{\ignorespaces The ResStock argument definitions set in the Infiltration characteristic\relax }}{86}{table.538}%
+\contentsline {table}{\numberline {79}{\ignorespaces The ResStock argument definitions set in the Heating Fuel characteristic\relax }}{88}{table.548}%
+\contentsline {table}{\numberline {80}{\ignorespaces Heating Fuel options and arguments that vary for each option\relax }}{89}{table.549}%
+\contentsline {table}{\numberline {81}{\ignorespaces The ResStock argument definitions set in the HVAC Heating Efficiency characteristic\relax }}{92}{table.568}%
+\contentsline {table}{\numberline {82}{\ignorespaces HVAC Heating Efficiency heat pump options and arguments that vary for each option\relax }}{97}{table.569}%
+\contentsline {table}{\numberline {83}{\ignorespaces HVAC Heating Efficiency non-heat pump heating system options and arguments that vary for each option\relax }}{97}{table.570}%
+\contentsline {table}{\numberline {84}{\ignorespaces The ResStock argument definitions set in the HVAC Heating Autosizing Factor characteristic\relax }}{99}{table.583}%
+\contentsline {table}{\numberline {85}{\ignorespaces HVAC Secondary Heating Fuel options and arguments that vary for each option\relax }}{101}{table.598}%
+\contentsline {table}{\numberline {86}{\ignorespaces The ResStock argument definitions set in the HVAC Secondary Heating Fuel characteristic\relax }}{101}{table.599}%
+\contentsline {table}{\numberline {87}{\ignorespaces HVAC Secondary Heating Efficiency options and arguments that vary for each option\relax }}{102}{table.606}%
+\contentsline {table}{\numberline {88}{\ignorespaces The ResStock argument definitions set in the HVAC Secondary Heating Efficiency characteristic\relax }}{103}{table.607}%
+\contentsline {table}{\numberline {89}{\ignorespaces HVAC Secondary Heating Partial Space Conditioning options and arguments that vary for each option\relax }}{104}{table.614}%
+\contentsline {table}{\numberline {90}{\ignorespaces HVAC Secondary Heating Partial Space Conditioning options and arguments that vary for each option\relax }}{104}{table.615}%
+\contentsline {table}{\numberline {91}{\ignorespaces HVAC Cooling Efficiency options and arguments that vary for each option\relax }}{106}{table.630}%
+\contentsline {table}{\numberline {92}{\ignorespaces The ResStock argument definitions set in the HVAC Cooling Efficiency characteristic\relax }}{107}{table.631}%
+\contentsline {table}{\numberline {93}{\ignorespaces HVAC Cooling Partial Space Conditioning options and arguments that vary for each option\relax }}{109}{table.638}%
+\contentsline {table}{\numberline {94}{\ignorespaces The ResStock argument definitions set in the HVAC Cooling Partial Conditioning characteristic\relax }}{109}{table.639}%
+\contentsline {table}{\numberline {95}{\ignorespaces The ResStock argument definitions set in the HVAC Cooling Autosizing Factor characteristic\relax }}{110}{table.646}%
+\contentsline {table}{\numberline {96}{\ignorespaces The ResStock argument definitions set in the HVAC Shared Efficiencies characteristic for Shared Heating\relax }}{113}{table.668}%
+\contentsline {table}{\numberline {97}{\ignorespaces The ResStock argument definitions set in the HVAC Shared Efficiencies characteristic for Shared Heating and Cooling\relax }}{115}{table.669}%
+\contentsline {table}{\numberline {98}{\ignorespaces The ResStock argument definitions set in the HVAC Shared Efficiencies characteristic\relax }}{115}{table.670}%
+\contentsline {table}{\numberline {99}{\ignorespaces Heating Setpoint options and arguments that vary for each option\relax }}{121}{table.679}%
+\contentsline {table}{\numberline {100}{\ignorespaces The ResStock argument definitions set in the Heating Setpoint characteristic\relax }}{121}{table.680}%
+\contentsline {table}{\numberline {101}{\ignorespaces Heating Setpoint Offset Magnitude options and arguments that vary for each option\relax }}{122}{table.693}%
+\contentsline {table}{\numberline {102}{\ignorespaces The ResStock argument definitions set in the Heating Setpoint Offset Magnitude characteristic\relax }}{123}{table.694}%
+\contentsline {table}{\numberline {103}{\ignorespaces Heating Setpoint Offset Period options and arguments that vary for each option.\relax }}{123}{table.701}%
+\contentsline {table}{\numberline {104}{\ignorespaces The ResStock argument definitions set in the Heating Setpoint Offset Period characteristic\relax }}{125}{table.702}%
+\contentsline {table}{\numberline {105}{\ignorespaces Cooling Setpoint options and arguments that vary for each option\relax }}{126}{table.709}%
+\contentsline {table}{\numberline {106}{\ignorespaces The ResStock argument definitions set in the Cooling Setpoint characteristic\relax }}{126}{table.710}%
+\contentsline {table}{\numberline {107}{\ignorespaces The ResStock argument definitions set in the Cooling Setpoint Offset Magnitude characteristic\relax }}{128}{table.723}%
+\contentsline {table}{\numberline {108}{\ignorespaces Cooling Setpoint Offset Magnitude options and arguments that vary for each option\relax }}{128}{table.724}%
+\contentsline {table}{\numberline {109}{\ignorespaces Cooling Setpoint Offset Period options and arguments that vary for each option\relax }}{129}{table.731}%
+\contentsline {table}{\numberline {110}{\ignorespaces The ResStock argument definitions set in the Cooling Setpoint Offset Period characteristic\relax }}{131}{table.732}%
+\contentsline {table}{\numberline {111}{\ignorespaces The ResStock argument definitions set in the HVAC Has Ducts characteristic\relax }}{132}{table.741}%
+\contentsline {table}{\numberline {112}{\ignorespaces Duct Leakage and Insulation options and arguments that vary for each option\relax }}{133}{table.748}%
+\contentsline {table}{\numberline {113}{\ignorespaces The ResStock argument definitions set in the Duct Leakage and Insulation characteristic\relax }}{134}{table.749}%
+\contentsline {table}{\numberline {114}{\ignorespaces Duct Location options and arguments that vary for each option\relax }}{136}{table.756}%
+\contentsline {table}{\numberline {115}{\ignorespaces The ResStock argument definitions set in the Duct Location characteristic\relax }}{136}{table.757}%
+\contentsline {table}{\numberline {116}{\ignorespaces HVAC System Single-Speed ASHP Airflow options and arguments that vary for each option\relax }}{138}{table.766}%
+\contentsline {table}{\numberline {117}{\ignorespaces The ResStock argument definitions set in the HVAC System Single-Speed ASHP characteristic\relax }}{139}{table.767}%
+\contentsline {table}{\numberline {118}{\ignorespaces HVAC System Single-Speed ASHP options and arguments that vary for each option\relax }}{139}{table.774}%
+\contentsline {table}{\numberline {119}{\ignorespaces The ResStock argument definitions set in the HVAC Secondary Heating characteristic\relax }}{139}{table.775}%
+\contentsline {table}{\numberline {120}{\ignorespaces HVAC System Single-Speed AC Airflow options and arguments that vary for each option\relax }}{140}{table.781}%
+\contentsline {table}{\numberline {121}{\ignorespaces The ResStock argument definitions set in the HVAC System Single-Speed AC Airflow characteristic\relax }}{140}{table.782}%
+\contentsline {table}{\numberline {122}{\ignorespaces HVAC System Single-Speed AC Charge options and arguments that vary for each option\relax }}{141}{table.789}%
+\contentsline {table}{\numberline {123}{\ignorespaces The ResStock argument definitions set in the HVAC System Single-Speed AC Charge\relax }}{141}{table.790}%
+\contentsline {table}{\numberline {124}{\ignorespaces The ResStock argument definitions set in the Mechanical Ventilation characteristic\relax }}{144}{table.812}%
+\contentsline {table}{\numberline {125}{\ignorespaces Natural Ventilation options and arguments that vary for each option\relax }}{147}{table.819}%
+\contentsline {table}{\numberline {126}{\ignorespaces The ResStock argument definitions set in the Natural Ventilation characteristic\relax }}{147}{table.820}%
+\contentsline {table}{\numberline {127}{\ignorespaces Bathroom Spot Vent Hour options and arguments that vary for each option\relax }}{148}{table.827}%
+\contentsline {table}{\numberline {128}{\ignorespaces The ResStock argument definitions set in the Bathroom Spot Vent Hour characteristic\relax }}{148}{table.828}%
+\contentsline {table}{\numberline {129}{\ignorespaces Range Spot Vent Hour options and arguments that vary for each option\relax }}{149}{table.835}%
+\contentsline {table}{\numberline {130}{\ignorespaces The ResStock argument definitions set in the Range Spot Vent Hour characteristic\relax }}{150}{table.836}%
+\contentsline {table}{\numberline {131}{\ignorespaces Water Heater Location options and arguments that vary for each option\relax }}{153}{table.862}%
+\contentsline {table}{\numberline {132}{\ignorespaces The ResStock argument definitions set in the Water Heater Location characteristic\relax }}{153}{table.863}%
+\contentsline {table}{\numberline {133}{\ignorespaces Water Heater Location options and arguments that vary for each option\relax }}{155}{table.870}%
+\contentsline {table}{\numberline {134}{\ignorespaces The ResStock argument definitions set in the Water Heater Efficiency characteristic\relax }}{156}{table.871}%
+\contentsline {table}{\numberline {135}{\ignorespaces The ResStock argument definitions set in the Solar Hot Water characteristic\relax }}{158}{table.878}%
+\contentsline {table}{\numberline {136}{\ignorespaces The ResStock argument definitions set in the Hot Water Distribution characteristic\relax }}{160}{table.886}%
+\contentsline {table}{\numberline {137}{\ignorespaces The ResStock argument definitions set in the Hot Water Fixtures characteristic\relax }}{161}{table.895}%
+\contentsline {table}{\numberline {138}{\ignorespaces Refrigerator options and arguments that vary for each option\relax }}{163}{table.915}%
+\contentsline {table}{\numberline {139}{\ignorespaces The ResStock argument definitions set in the Refrigerator characteristic\relax }}{163}{table.916}%
+\contentsline {table}{\numberline {140}{\ignorespaces Refrigerator options and arguments that vary for each option\relax }}{165}{table.934}%
+\contentsline {table}{\numberline {141}{\ignorespaces The ResStock argument definitions set in the Refrigerator Usage Level characteristic\relax }}{165}{table.935}%
+\contentsline {table}{\numberline {142}{\ignorespaces Misc Extra Refrigerator options and arguments that vary for each option\relax }}{166}{table.943}%
+\contentsline {table}{\numberline {143}{\ignorespaces The ResStock argument definitions set in the Refrigerator Usage Level characteristic\relax }}{166}{table.944}%
+\contentsline {table}{\numberline {144}{\ignorespaces Misc Freezer options and arguments that vary for each option\relax }}{168}{table.967}%
+\contentsline {table}{\numberline {145}{\ignorespaces The ResStock argument definitions set in the Refrigerator Usage Level characteristic\relax }}{168}{table.968}%
+\contentsline {table}{\numberline {146}{\ignorespaces Cooking Range options and arguments that vary for each option\relax }}{169}{table.985}%
+\contentsline {table}{\numberline {147}{\ignorespaces The ResStock argument definitions set in the Cooking Range characteristic\relax }}{170}{table.986}%
+\contentsline {table}{\numberline {148}{\ignorespaces Cooking Range Usage Level options and arguments that vary for each option\relax }}{171}{table.1012}%
+\contentsline {table}{\numberline {149}{\ignorespaces The ResStock argument definitions set in the Cooking Range characteristic\relax }}{171}{table.1013}%
+\contentsline {table}{\numberline {150}{\ignorespaces Dishwasher options and arguments that vary for each option\relax }}{172}{table.1023}%
+\contentsline {table}{\numberline {151}{\ignorespaces The ResStock argument definitions set in the Dishwasher characteristic\relax }}{173}{table.1024}%
+\contentsline {table}{\numberline {152}{\ignorespaces Dishwasher Usage Level options and arguments that vary for each option\relax }}{174}{table.1041}%
+\contentsline {table}{\numberline {153}{\ignorespaces The ResStock argument definitions set in the Dishwasher Usage Level characteristic\relax }}{174}{table.1042}%
+\contentsline {table}{\numberline {154}{\ignorespaces Clothes Washer options and arguments that vary for each option\relax }}{175}{table.1051}%
+\contentsline {table}{\numberline {155}{\ignorespaces The ResStock argument definitions set in the Clothes Washer characteristic\relax }}{176}{table.1052}%
+\contentsline {table}{\numberline {156}{\ignorespaces Clothes Washer Presence options and arguments that vary for each option\relax }}{178}{table.1068}%
+\contentsline {table}{\numberline {157}{\ignorespaces The ResStock argument definitions set in the Clothes Washer Presence characteristic\relax }}{178}{table.1069}%
+\contentsline {table}{\numberline {158}{\ignorespaces Clothes Washer Usage Level options and arguments that vary for each option\relax }}{179}{table.1093}%
+\contentsline {table}{\numberline {159}{\ignorespaces The ResStock argument definitions set in the Clothes Washer Usage Level characteristic\relax }}{180}{table.1094}%
+\contentsline {table}{\numberline {160}{\ignorespaces Clothes Dryer options and arguments that vary for each option\relax }}{181}{table.1103}%
+\contentsline {table}{\numberline {161}{\ignorespaces The ResStock argument definitions set in the Clothes Dryer characteristic\relax }}{181}{table.1104}%
+\contentsline {table}{\numberline {162}{\ignorespaces Clothes Dryer Usage Level options and arguments that vary for each option\relax }}{182}{table.1127}%
+\contentsline {table}{\numberline {163}{\ignorespaces The ResStock argument definitions set in the Clothes Dryer Usage Level characteristic\relax }}{183}{table.1128}%
+\contentsline {table}{\numberline {164}{\ignorespaces Ceiling Fan options and arguments that vary for each option\relax }}{183}{table.1137}%
+\contentsline {table}{\numberline {165}{\ignorespaces The ResStock argument definitions set in the Ceiling Fan characteristic\relax }}{184}{table.1138}%
+\contentsline {table}{\numberline {166}{\ignorespaces Misc Pool options and arguments that vary for each option\relax }}{185}{table.1147}%
+\contentsline {table}{\numberline {167}{\ignorespaces The ResStock argument definitions set in the Misc Pool characteristic\relax }}{185}{table.1148}%
+\contentsline {table}{\numberline {168}{\ignorespaces Pool Heater options and arguments that vary for each option\relax }}{186}{table.1166}%
+\contentsline {table}{\numberline {169}{\ignorespaces The ResStock argument definitions set in the Pool Heater characteristic\relax }}{186}{table.1167}%
+\contentsline {table}{\numberline {170}{\ignorespaces Misc Pool Pump options and arguments that vary for each option\relax }}{187}{table.1174}%
+\contentsline {table}{\numberline {171}{\ignorespaces The ResStock argument definitions set in the Misc Pool Pump characteristic\relax }}{187}{table.1175}%
+\contentsline {table}{\numberline {172}{\ignorespaces Misc Hot Tub Spa options and arguments that vary for each option\relax }}{188}{table.1182}%
+\contentsline {table}{\numberline {173}{\ignorespaces The ResStock argument definitions set in the Misc Hot Tub Spa characteristic\relax }}{188}{table.1183}%
+\contentsline {table}{\numberline {173}{\ignorespaces The ResStock argument definitions set in the Misc Hot Tub Spa characteristic\relax }}{189}{table.1183}%
+\contentsline {table}{\numberline {174}{\ignorespaces Misc Well Pump options and arguments that vary for each option\relax }}{190}{table.1208}%
+\contentsline {table}{\numberline {175}{\ignorespaces The ResStock argument definitions set in the Misc Well Pump characteristic\relax }}{191}{table.1209}%
+\contentsline {table}{\numberline {176}{\ignorespaces Misc Gas Fireplace options and arguments that vary for each option\relax }}{192}{table.1218}%
+\contentsline {table}{\numberline {177}{\ignorespaces The ResStock argument definitions set in the Misc Gas Fireplace characteristic\relax }}{192}{table.1219}%
+\contentsline {table}{\numberline {178}{\ignorespaces Misc Gas Grill options and arguments that vary for each option\relax }}{193}{table.1226}%
+\contentsline {table}{\numberline {179}{\ignorespaces The ResStock argument definitions set in the Misc Gas Grill characteristic\relax }}{193}{table.1227}%
+\contentsline {table}{\numberline {180}{\ignorespaces PV Orientation options and arguments that vary for each option\relax }}{194}{table.1242}%
+\contentsline {table}{\numberline {180}{\ignorespaces PV Orientation options and arguments that vary for each option\relax }}{195}{table.1242}%
+\contentsline {table}{\numberline {181}{\ignorespaces The ResStock argument definitions set in the PV Orientation characteristic\relax }}{195}{table.1243}%
+\contentsline {table}{\numberline {182}{\ignorespaces PV System Size options and arguments that vary for each option\relax }}{196}{table.1250}%
+\contentsline {table}{\numberline {183}{\ignorespaces The ResStock argument definitions set in the PV System Size characteristic\relax }}{196}{table.1251}%
+\contentsline {table}{\numberline {183}{\ignorespaces The ResStock argument definitions set in the PV System Size characteristic\relax }}{197}{table.1251}%
+\contentsline {table}{\numberline {184}{\ignorespaces The ResStock argument definitions set in the Battery characteristic\relax }}{198}{table.1260}%
+\contentsline {table}{\numberline {185}{\ignorespaces The ResStock argument definitions set in the Electric Vehicle characteristic\relax }}{199}{table.1267}%
+\contentsline {table}{\numberline {186}{\ignorespaces The ResStock argument definitions set in the Dehumidifier characteristic\relax }}{200}{table.1274}%
+\contentsline {table}{\numberline {187}{\ignorespaces Lighting options and arguments that vary for each option\relax }}{201}{table.1284}%
+\contentsline {table}{\numberline {188}{\ignorespaces The ResStock arguments set in the Lighting characteristic\relax }}{201}{table.1285}%
+\contentsline {table}{\numberline {189}{\ignorespaces Misc Gas Lighting options and arguments that vary for each option\relax }}{203}{table.1292}%
+\contentsline {table}{\numberline {190}{\ignorespaces The ResStock arguments set in the Misc Gas Lighting characteristic\relax }}{203}{table.1293}%
+\contentsline {table}{\numberline {191}{\ignorespaces The ResStock arguments set in the Holiday Lighting characteristic\relax }}{204}{table.1300}%
+\contentsline {table}{\numberline {192}{\ignorespaces The ResStock arguments set in the Holiday Lighting characteristic\relax }}{204}{table.1301}%
+\contentsline {table}{\numberline {193}{\ignorespaces The ResStock arguments set in the Lighting Interior Use characteristic\relax }}{204}{table.1308}%
+\contentsline {table}{\numberline {194}{\ignorespaces The ResStock arguments set in the Lighting Interior Use characteristic\relax }}{205}{table.1315}%
+\contentsline {table}{\numberline {195}{\ignorespaces The ResStock arguments set in the Plug Loads characteristic\relax }}{206}{table.1323}%
+\contentsline {table}{\numberline {195}{\ignorespaces The ResStock arguments set in the Plug Loads characteristic\relax }}{207}{table.1323}%
+\contentsline {table}{\numberline {196}{\ignorespaces The ResStock arguments set in the Plug Loads Use characteristic\relax }}{207}{table.1324}%
+\contentsline {table}{\numberline {197}{\ignorespaces The ResStock arguments set in the Plug Loads Diversity characteristic\relax }}{208}{table.1331}%
+\contentsline {table}{\numberline {198}{\ignorespaces The ResStock arguments set in the Plug Load Diversity Use characteristic\relax }}{208}{table.1332}%
+\contentsline {table}{\numberline {199}{\ignorespaces 2019 federal poverty guidelines (\blx@tocontentsinit {0}\cite {aspe_2019_fpl})\relax }}{209}{table.caption.1336}%
+\contentsline {table}{\numberline {200}{\ignorespaces The ResStock arguments set in the Occupants characteristic\relax }}{214}{table.1384}%
+\contentsline {table}{\numberline {200}{\ignorespaces The ResStock arguments set in the Occupants characteristic\relax }}{215}{table.1384}%
+\contentsline {table}{\numberline {201}{\ignorespaces The ResStock arguments set in the Vacancy Status characteristic\relax }}{215}{table.1391}%
+\contentsline {table}{\numberline {202}{\ignorespaces The ResStock arguments set in the Vacancy Status characteristic\relax }}{216}{table.1392}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {203}{\ignorespaces ResStock building characteristic output field names and descriptions\relax }}{218}{table.1408}%
+\contentsline {table}{\numberline {204}{\ignorespaces ResStock building characteristic output field names and descriptions\relax }}{222}{table.1409}%
+\contentsline {table}{\numberline {205}{\ignorespaces ResStock energy output field names, units, and descriptions\relax }}{223}{table.1411}%
+\contentsline {table}{\numberline {206}{\ignorespaces ResStock cost multiplier output field names, units, and descriptions\relax }}{226}{table.1413}%
+\contentsline {table}{\numberline {207}{\ignorespaces ResStock utility bill output field names, units, and descriptions\relax }}{227}{table.1417}%
+\contentsline {table}{\numberline {208}{\ignorespaces ResStock utility bill output field names, units, and descriptions\relax }}{229}{table.1419}%
+\contentsline {table}{\numberline {209}{\ignorespaces Other ResStock results output field names, units, and descriptions\relax }}{229}{table.1422}%
+\addvspace {10\p@ }
