@@ -1,4 +1,5 @@
 /docs/read_the_docs/_build
+/docs/technical_reference_guide/aux-dir
 /lib
 /measures/UpgradeCosts/tests/in*
 /measures/UpgradeCosts/tests/*.xml

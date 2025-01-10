@@ -371,33 +371,33 @@ jobs:
           working_directory: docs/technical_reference_guide
           root_file: ResStockTechnicalReferenceGuide.tex
           compiler: pdflatex
-          args: --aux-directory=dir
+          args: --aux-directory=aux-dir
 
-      # - name: Save Technical Reference Guide
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: technical_reference_guide
-      #     path: 0_main.pdf
+      - name: Save Technical Reference Guide
+        uses: actions/upload-artifact@v4
+        with:
+          name: technical_reference_guide
+          path: docs/technical_reference_guide/ResStockTechnicalReferenceGuide.pdf
 
-      # - name: Commit latest results
-      #   shell: bash        
-      #   run: |
-      #     branch_name="${{ github.head_ref }}"
-      #     git pull origin $branch_name
-      #     # cp -r samples/buildstock*.csv test/base_results/baseline/annual
-      #     # cp -r results/baseline/annual/results*.csv test/base_results/baseline/annual
-      #     # cp -r results/baseline/timeseries/*.csv test/base_results/baseline/timeseries
-      #     # cp -r results/upgrades/annual/results*.csv test/base_results/upgrades/annual
-      #     # cp -r results/upgrades/timeseries/*.csv test/base_results/upgrades/timeseries
-      #     git add test/base_results
-      #     git add docs
-      #     git add resources/options_lookup.tsv
-      #     git add test/tests_yml_files
-      #     git status
-      #     if [[ $(git diff --cached --exit-code) ]]; then
-      #       git config --global user.email "github-action@users.noreply.github.com"
-      #       git config --global user.name "GitHub Action"
-      #       git commit -m "Latest results."
-      #       echo "Pushing to branch: $branch_name"
-      #       git push -u origin $branch_name
-      #     fi
+      - name: Commit latest results
+        shell: bash        
+        run: |
+          branch_name="${{ github.head_ref }}"
+          git pull origin $branch_name
+          # cp -r samples/buildstock*.csv test/base_results/baseline/annual
+          # cp -r results/baseline/annual/results*.csv test/base_results/baseline/annual
+          # cp -r results/baseline/timeseries/*.csv test/base_results/baseline/timeseries
+          # cp -r results/upgrades/annual/results*.csv test/base_results/upgrades/annual
+          # cp -r results/upgrades/timeseries/*.csv test/base_results/upgrades/timeseries
+          git add test/base_results
+          git add docs
+          git add resources/options_lookup.tsv
+          git add test/tests_yml_files
+          git status
+          if [[ $(git diff --cached --exit-code) ]]; then
+            git config --global user.email "github-action@users.noreply.github.com"
+            git config --global user.name "GitHub Action"
+            git commit -m "Latest results."
+            echo "Pushing to branch: $branch_name"
+            git push -u origin $branch_name
+          fi
