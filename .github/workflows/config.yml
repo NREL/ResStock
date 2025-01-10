@@ -325,6 +325,10 @@ jobs:
           sudo apt update
           sudo -E apt-get install -y wget unzip python3-sphinx-rtd-theme
 
+      - name: Install TeXLive
+        # Actually pick a version, do not point on master, or the build won't be reproducible
+        uses: DanySK/setup-texlive-action@0.1.1
+
       # - name: Download feature samples
       #   uses: actions/download-artifact@v4
       #   with:
