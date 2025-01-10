@@ -8,6 +8,11 @@
 /docs/technical_reference_guide/ResStockTechnicalReferenceGuide.run.xml
 /docs/technical_reference_guide/ResStockTechnicalReferenceGuide.toc
 /docs/technical_reference_guide/ResStockTechnicalReferenceGuide.upa
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.bbl
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.blg
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.fdb_latexmk
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.fls
+/docs/technical_reference_guide/ResStockTechnicalReferenceGuide.upb
 /lib
 /measures/UpgradeCosts/tests/in*
 /measures/UpgradeCosts/tests/*.xml
