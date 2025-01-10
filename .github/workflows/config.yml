@@ -314,7 +314,6 @@ jobs:
   update-results:
     runs-on: ubuntu-22.04
     # needs: [analysis-tests, integration-tests]
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -325,10 +324,6 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
           sudo apt update
           sudo -E apt-get install -y wget unzip python3-sphinx-rtd-theme
-
-      - name: Install TeXLive
-        # Actually pick a version, do not point on master, or the build won't be reproducible
-        uses: DanySK/setup-texlive-action@0.1.1
 
       # - name: Download feature samples
       #   uses: actions/download-artifact@v4
@@ -370,7 +365,7 @@ jobs:
       #     path: docs/read_the_docs/_build/html/
       
       - name: Build ResStock Technical Reference Guide
-        uses: dante-ev/latex-action@latest
+        uses: xu-cheng/latex-action@v3
         with:
           working_directory: docs/technical_reference_guide
           root_file: 0_main.tex
