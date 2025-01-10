@@ -1,22 +1,22 @@
 [0] Config.pm:307> INFO - This is Biber 2.19
 [0] Config.pm:310> INFO - Logfile is 'ResStockTechnicalReferenceGuide.blg'
-[74] biber:340> INFO - === Fri Jan 10, 2025, 09:03:07
-[90] Biber.pm:419> INFO - Reading 'ResStockTechnicalReferenceGuide.bcf'
-[203] Biber.pm:979> INFO - Found 34 citekeys in bib section 0
-[215] Biber.pm:4419> INFO - Processing section 0
-[223] Biber.pm:4610> INFO - Looking for bibtex file 'files/refs.bib' for section 0
-[224] bibtex.pm:1713> INFO - LaTeX decoding ...
-[248] bibtex.pm:1519> INFO - Found BibTeX data source 'files/refs.bib'
-[554] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'level = 4' with 'level = 2'
-[554] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[554] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[554] Biber.pm:4239> INFO - Sorting list 'nyt/global//global/global' of type 'entry' with template 'nyt' and locale 'en-US'
-[554] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
-[598] bbl.pm:660> INFO - Writing 'ResStockTechnicalReferenceGuide.bbl' with encoding 'UTF-8'
-[634] bbl.pm:763> INFO - Output to ResStockTechnicalReferenceGuide.bbl
-[635] Biber.pm:131> WARN - misc entry 'BigLadderSoftware2015' (files/refs.bib): Invalid format 'July 17, 2024' of date field 'urldate' - ignoring
-[635] Biber.pm:131> WARN - legacy year field 'n.d.' in entry 'aspe_2019_fpl' is not an integer - this will probably not sort properly.
-[635] Biber.pm:131> WARN - legacy year field 'n.d.' in entry 'aspe_fpl_use' is not an integer - this will probably not sort properly.
-[635] Biber.pm:131> WARN - BibTeX subsystem: /tmp/biber_tmp_PQPo/8fe4c9854184545302f21ebf0d47516c_18.utf8, line 20, warning: 1 characters of junk seen at toplevel
-[635] Biber.pm:131> WARN - BibTeX subsystem: /tmp/biber_tmp_PQPo/8fe4c9854184545302f21ebf0d47516c_18.utf8, line 303, warning: 1 characters of junk seen at toplevel
-[635] Biber.pm:133> INFO - WARNINGS: 5
+[73] biber:340> INFO - === Fri Jan 10, 2025, 09:09:30
+[88] Biber.pm:419> INFO - Reading 'ResStockTechnicalReferenceGuide.bcf'
+[199] Biber.pm:979> INFO - Found 34 citekeys in bib section 0
+[209] Biber.pm:4419> INFO - Processing section 0
+[217] Biber.pm:4610> INFO - Looking for bibtex file 'files/refs.bib' for section 0
+[218] bibtex.pm:1713> INFO - LaTeX decoding ...
+[241] bibtex.pm:1519> INFO - Found BibTeX data source 'files/refs.bib'
+[537] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[537] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'level = 4' with 'level = 2'
+[537] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[537] Biber.pm:4239> INFO - Sorting list 'nyt/global//global/global' of type 'entry' with template 'nyt' and locale 'en-US'
+[537] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
+[597] bbl.pm:660> INFO - Writing 'ResStockTechnicalReferenceGuide.bbl' with encoding 'UTF-8'
+[633] bbl.pm:763> INFO - Output to ResStockTechnicalReferenceGuide.bbl
+[633] Biber.pm:131> WARN - misc entry 'BigLadderSoftware2015' (files/refs.bib): Invalid format 'July 17, 2024' of date field 'urldate' - ignoring
+[633] Biber.pm:131> WARN - legacy year field 'n.d.' in entry 'aspe_2019_fpl' is not an integer - this will probably not sort properly.
+[633] Biber.pm:131> WARN - legacy year field 'n.d.' in entry 'aspe_fpl_use' is not an integer - this will probably not sort properly.
+[634] Biber.pm:131> WARN - BibTeX subsystem: /tmp/biber_tmp_3xHP/8fe4c9854184545302f21ebf0d47516c_18.utf8, line 20, warning: 1 characters of junk seen at toplevel
+[634] Biber.pm:131> WARN - BibTeX subsystem: /tmp/biber_tmp_3xHP/8fe4c9854184545302f21ebf0d47516c_18.utf8, line 303, warning: 1 characters of junk seen at toplevel
+[634] Biber.pm:133> INFO - WARNINGS: 5
