@@ -314,6 +314,7 @@ jobs:
   update-results:
     runs-on: ubuntu-22.04
     # needs: [analysis-tests, integration-tests]
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
