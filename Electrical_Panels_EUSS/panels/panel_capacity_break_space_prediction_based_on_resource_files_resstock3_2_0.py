@@ -1,5 +1,6 @@
-""" predict the panel size and breaker space for buildstock.csv based on resstock source files
-updated: 01/09/2025
+""" predict the panel size and breaker space for baseline results csv based on resstock resource files
+updated: 01/13/2025
+
 """
 
 from pathlib import Path
