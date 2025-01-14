@@ -1,11 +1,12 @@
-schema_version: '0.4'
+schema_version: "0.4"
 os_version: 3.9.0
 os_sha: c77fbb9569
 buildstock_directory: ../ # Relative to this file or absolute
-project_directory: project_national # Relative to buildstock_directory
+project_directory: project_testing # Relative to buildstock_directory
 output_directory: ev_measure_upgrade_test_20250109_v1
 weather_files_url: https://data.nrel.gov/system/files/156/Buildstock_TMY3_FIPS-1678817889.zip
 # weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
+# weather_files_path: /Users/radhikar/Documents/BuildStock_TMY3_FIPS.zip
 
 sampler:
   type: residential_quota
