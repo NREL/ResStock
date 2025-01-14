@@ -1,8 +1,8 @@
-Dependency=Usage Level	Option=50% Usage	Option=60% Usage	Option=70% Usage	Option=80% Usage	Option=90% Usage	Option=100% Usage	Option=110% Usage	Option=120% Usage	Option=130% Usage	Option=140% Usage	Option=150% Usage	Option=160% Usage	Option=170% Usage	Option=180% Usage	Option=190% Usage	Option=200% Usage	source_count	source_weight	sampling_probability
-Low	0.0186722	0.145228	0.396266	0.439834	0	0	0	0	0	0	0	0	0	0	0	0	1700	1700	0.25
-Medium	0	0	0	0.0591286	0.335062	0.364108	0.241701	0	0	0	0	0	0	0	0	0	1700	1700	0.5
-High	0	0	0	0	0	0	0.0539419	0.354772	0.271784	0.151452	0.0829876	0.0394191	0.0290456	0.0124481	0	0.00414938	1700	1700	0.25
-Average	0	0	0	0.0591286	0.335062	0.364108	0.241701	0	0	0	0	0	0	0	0	0	1700	1700	0
+Dependency=Usage Level	Option=50% Usage	Option=60% Usage	Option=70% Usage	Option=80% Usage	Option=90% Usage	Option=100% Usage	Option=110% Usage	Option=120% Usage	Option=130% Usage	Option=140% Usage	Option=150% Usage	Option=160% Usage	Option=170% Usage	Option=180% Usage	Option=190% Usage	Option=200% Usage	source_count	source_weight
+Low	0.0186722	0.145228	0.396266	0.439834	0	0	0	0	0	0	0	0	0	0	0	0	1700	1700
+Medium	0	0	0	0.0591286	0.335062	0.364108	0.241701	0	0	0	0	0	0	0	0	0	1700	1700
+High	0	0	0	0	0	0	0.0539419	0.354772	0.271784	0.151452	0.0829876	0.0394191	0.0290456	0.0124481	0	0.00414938	1700	1700
+Average	0	0	0	0.0591286	0.335062	0.364108	0.241701	0	0	0	0	0	0	0	0	0	1700	1700
 # Created by: sources\other\tsv_maker.py
 # Description: Hot water fixture usage and flow levels.
 # Source: Field data from a demand management program with 1700 residential electric resistance water heaters in the Northeast U.S., mean-shifted from 0.8 to 1 average usage.
