@@ -13,6 +13,8 @@ import argparse
 from typing import Union
 import random
 
+import datetime
+
 
 def apply_special_mapping(df):
     """Translate baseline results csv options to ResStock Argument options in resource files."""
@@ -190,11 +192,11 @@ def get_row_probability(prob_table, lookup_array, header_size):
     length = len(lookup_array)
     row_probability = []
 
-    for index, row in prob_table.iterrows():
-        if row[:length].tolist() != lookup_array:
-            continue
-
-        row_probability = [float(value) for value in row[length:length + header_size]]
+    # Vectorized matching
+    subset = prob_table.iloc[:, :length]
+    mask = (subset == lookup_array).all(axis=1)
+    matching_rows = prob_table[mask]
+    row_probability = [float(value) for value in matching_rows.iloc[0][length:length+ header_size]]
 
     if len(row_probability) != header_size:
         raise ValueError(f"ElectricalPanelSampler cannot find row_probability for keys: {lookup_array}")
@@ -204,15 +206,9 @@ def get_row_probability(prob_table, lookup_array, header_size):
 
 def weighted_random(weights, building_id):
     random.seed(building_id)
-    n = random.random()
-    cum_weights = 0
-
-    for index, weight in enumerate(weights):
-        cum_weights += weight
-        if n <= cum_weights:
-            return index
-
-    return len(weights) - 1  # If weights don't sum to 1, return the last index.
+    slots = [x for x in range(0,len(weights))]
+    index= random.choices(slots, weights=weights)[0]
+    return index
 
 
 def sample_rated_capacity_bin(prob_map, row, model_type: str):
@@ -292,8 +288,8 @@ def breaker_space_prediction(dfb):
         dfb.at[index,"break_space_headroom"] = sample_breaker_space_headroom(df_prob_table, row)
     return dfb
 
-def drop_columns(dfb):
-    dfb.drop(['has_elec_heating_primary',
+def drop_columns(df):
+    df.drop(['has_elec_heating_primary',
               'has_central_non_heat_pump_cooling',
               'has_elec_water_heater',
               'has_elec_drying',
@@ -308,7 +304,7 @@ def drop_columns(dfb):
               'water_heater_fuel_type',
               'vintage_simp',
               'geometry_unit_cfa_bin_simp'], axis=1, inplace=True)
-    return dfb
+    return df
 
 def main(filename: str | None = None,):
     global data_dir, electrical_panel_resources_dir
@@ -322,18 +318,27 @@ def main(filename: str | None = None,):
     else:
         filename = Path(filename)
     ext = "panel_prediction"
-    output_filename = data_dir / (filename.stem + "__" + ext + ".csv")
+    output_filename = data_dir / (filename.stem + "__" + ext + ".parquet")
     
     dfb = read_file(filename, low_memory=False)
     dfb["panel_capacity"] = 0
     dfb["break_space_headroom"] = 0
     dfb = get_major_elec_load_count(dfb)
-    dfb = apply_special_mapping(dfb) 
+    dfb = apply_special_mapping(dfb)
+    print("capacity prediction") 
+    current_time = datetime.datetime.now()
+    print(current_time.strftime("%Y-%m-%d %H:%M:%S"))
     dfb = capacity_prediction(dfb)
+    print("breaker space prediction") 
+    current_time = datetime.datetime.now()
+    print(current_time.strftime("%Y-%m-%d %H:%M:%S"))
     dfb = breaker_space_prediction(dfb)
+    print("prediction finished") 
+    current_time = datetime.datetime.now()
+    print(current_time.strftime("%Y-%m-%d %H:%M:%S"))
     dfb = drop_columns(dfb)
 
-    dfb.to_csv(output_filename, index=False)
+    dfb.to_parquet(output_filename, index=False)
 
 
 if __name__ == "__main__":
