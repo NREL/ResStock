@@ -61,12 +61,12 @@ workflow_generator:
 baseline:
   n_buildings_represented: 1447154 # 2021 HI-only, 139647020 American Community Survey 2021 5-year, B25001, does not include territories ( 138765649 without AK and HI )
 
-eagle:
-  n_jobs: 3
+kestrel:
+  n_jobs: 100
   minutes_per_sim: 30
-  account: <account you are authorized to use>
+  account: rescore
   postprocessing:
-    time: 20
+    time: 60
     n_workers: 1
   sampling:
-    time: 5
+    time: 180
