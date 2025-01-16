@@ -48,5 +48,6 @@ Other steps
 After pulling a branch of OpenStudio-HPXML into ResStock, a few additional steps are involved:
 
 1. Run ``openstudio tasks.rb update_measures``; this applies rubocop auto-correct to measures, updates measure.xml files, and ensures arguments of the ResStockArguments measure reflect BuildResidentialHPXML
-2. Run ``openstudio measures/ResStockArguments/tests/resstock_arguments_test.rb``; update ``resources/options_lookup.tsv`` with any new ResStockArguments arguments introduced by BuildResidentialHPXML
-3. Update CSV files in the ``resources/data/dictionary`` folder; this addresses any input/output data dictionary changes introduced by OpenStudio-HPXML workflow updates
+2. Run ``openstudio measures/ResStockArguments/tests/resstock_arguments_test.rb``
+3. Update ``resources/options_lookup.tsv`` with any new ResStockArguments arguments introduced by BuildResidentialHPXML
+4. Update CSV files in the ``resources/data/dictionary`` folder; this addresses any input/output data dictionary changes introduced by OpenStudio-HPXML workflow updates
