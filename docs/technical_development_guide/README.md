@@ -1,10 +1,16 @@
 # ResStock Technical Development Guide
 
-This folder contains a Read The Docs developer documentation.
+This folder contains the Read The Docs project for the ResStock Technical Development Guide.
+
+## GitHub Actions
+In the `.github/workflows/config.yml` file, the `updates-results` job `Build technical development guide` task compiles the project into the `_build/html` folder.
+This folder is then uploaded in the `Save technical development guide` task.
+These actions will help keep the document up to date with any changes and fail in the tests if the document does not compile.
 
 ## Building Technical Development Guide Locally
 
-## Windows
+### Windows
+
 1. With the terminal/command prompt navigate to the resstock repository technical development guide directory.
 
 ```
@@ -22,9 +28,8 @@ pip install sphinx_rtd_theme
 ```
 ./make.bat html SPHINXOPTS="-W --keep-going -n"
 ```
- 
 
-## Mac
+### Mac
 
 1. With the terminal/command prompt navigate to the resstock repository technical development guide directory.
 

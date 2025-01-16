@@ -1,9 +1,12 @@
 # ResStock Technical Reference Guide
 
-This folder contains the LaTex project for the ResStock Technical Reference Guide. The main file is the `ResStockTechnicalReferenceGuide.tex` file and when compiled produces `ResStockTechnicalReferenceGuide.pdf` in this directory. 
+This folder contains the LaTeX project for the ResStock Technical Reference Guide.
+The main file is the `ResStockTechnicalReferenceGuide.tex` file and when compiled produces `ResStockTechnicalReferenceGuide.pdf` in this directory. 
 
 ## GitHub Actions
-In the `.github/workflows/config.yml` file, the `updates-results` job `Build technical reference guide` task compiles an the project into the `ResStockTechnicalReferenceGuide.pdf` file. This file is then committed in the "Latest results" commit in the `Commit latest results` task. These actions will help keep the document up to date with any changes and fail in the tests if the document does not compile.
+In the `.github/workflows/config.yml` file, the `updates-results` job `Build technical reference guide` task compiles the project into the `ResStockTechnicalReferenceGuide.pdf` file.
+This file is then committed in the "Latest results" commit in the `Commit latest results` task.
+These actions will help keep the document up to date with any changes and fail in the tests if the document does not compile.
 
 ## Building Technical Reference Guide Locally
 To compile the ResStock Technical Reference Guide locally it is recommended to use the same environment as the GitHub Action (currently ubuntu 22.04). To get this enviornment install [Docker](https://www.docker.com/) and follow the steps below. After the first time running through this process, where docker container is built and texlive is installed steps #2 and #4 can be skipped.

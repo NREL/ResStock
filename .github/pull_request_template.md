@@ -14,7 +14,7 @@
 - [ ] No unexpected regression test changes on CI (comparison artifacts have been checked)
 - [ ] Update documentation (one is required)
      - [ ] [Technical reference guide](https://github.com/NREL/resstock/tree/develop/docs/technical_reference_guide)
-     - [ ] [technical development guide](https://github.com/NREL/resstock/tree/develop/docs/technical_development_guide)
+     - [ ] [Technical development guide](https://github.com/NREL/resstock/tree/develop/docs/technical_development_guide)
 
 #### Optional (not all items may apply):
 - [ ] Tests (and test files) have been updated
