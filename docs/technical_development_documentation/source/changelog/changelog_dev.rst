@@ -6,8 +6,8 @@ Development Changelog
     :released: pending
 
     .. change::
-        :tags: feature, characteristics
-        :pullreq: 1325
+        :tags: ci, docs, technical reference guide, technical development guide
+        :pullreq: 1338
         :tickets: resstock-estimation 437
 
         **Date**: 2025-1-11
@@ -19,9 +19,6 @@ Development Changelog
         Add the ResStock Technical Reference Guide to the repository and compile it on github actions to keep the pdf up to date.
 
         Assignees: Anthony Fontanini
-
-        :tags: ci, docs, technical reference guide
-        :pullreq: 1338
 
     .. change::
         :tags: feature, characteristics
@@ -40,6 +37,7 @@ Development Changelog
 
         Assignees: Lixi Liu
 
+    .. change::
         :tags: characteristics, pool heater
         :pullreq: 1324
 
