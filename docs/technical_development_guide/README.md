@@ -1,0 +1,48 @@
+# ResStock Technical Development Guide
+
+This folder contains a Read The Docs developer documentation.
+
+## Building Technical Development Guide Locally
+
+## Windows
+1. With the terminal/command prompt navigate to the resstock repository technical development guide directory.
+
+```
+cd <RESSTOCK_DIR>/docs/technical_development_guide
+```
+
+2. Install sphinx Read The Docs theme
+
+```
+pip install sphinx_rtd_theme
+```
+
+3. Build the documentation. HTML files will be created in the `docs/technical_development_guide/_build` directory
+
+```
+./make.bat html SPHINXOPTS="-W --keep-going -n"
+```
+ 
+
+## Mac
+
+1. With the terminal/command prompt navigate to the resstock repository technical development guide directory.
+
+```
+cd <RESSTOCK_DIR>/docs/technical_development_guide
+```
+
+2. Install sphinx Read The Docs theme and Sphinx Auto-build
+
+```
+pip install sphinx_rtd_theme
+pip install sphinx-autobuild
+```
+
+3. Build the documentation. HTML files will be created in the `docs/technical_development_guide/_build` directory. 
+
+```
+sphinx-autobuild source _build source/index.rst
+```
+
+4. The previous step will connect a server which can be opened in a browser. This server might look something like `http://127.0.0.1:8000`. Copy the address into your browser and the built documentation will show up. The `sphinx-autobuild` command will continue to check for changes to the documentation. So after future changes, the page in the browser should automatically reload to see changes to the source files.
