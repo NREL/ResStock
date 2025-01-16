@@ -352,9 +352,9 @@ jobs:
       - name: Build technical development guide
         run: |
           sudo gem install oga
-          ruby docs/technical_development_documentation/source/workflow_inputs/create_characteristics_rst.rb
-          ruby docs/technical_development_documentation/source/workflow_outputs/csv_tables.rb
-          cd docs/technical_development_documentation
+          ruby docs/technical_development_guide/source/workflow_inputs/create_characteristics_rst.rb
+          ruby docs/technical_development_guide/source/workflow_outputs/csv_tables.rb
+          cd docs/technical_development_guide
           pip install changelog
           make html SPHINXOPTS="-W --keep-going -n"
       
@@ -362,7 +362,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: documentation
-          path: docs/technical_development_documentation/_build/html/
+          path: docs/technical_development_guide/_build/html/
       
       - name: Build technical reference guide
         uses: dante-ev/latex-action@2023-A
