@@ -41,7 +41,6 @@ class HPXMLtoOpenStudioHVACSizingTest < Minitest::Test
     args_hash = { 'hpxml_path' => File.absolute_path(@tmp_hpxml_path),
                   'skip_validation' => true }
     Dir["#{@sample_files_path}/base-hvac*.xml"].each do |hvac_hpxml|
-      next unless hvac_hpxml.include? 'ground-to-air'
       next if (hvac_hpxml.include? 'autosize')
       next if hvac_hpxml.include? 'detailed-performance' # Autosizing not allowed
 
