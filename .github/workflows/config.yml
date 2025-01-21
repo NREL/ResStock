@@ -358,17 +358,19 @@ jobs:
           pip install changelog
           make html SPHINXOPTS="-W --keep-going -n"
       
-      - name: Save technical development guide
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation
-          path: docs/technical_development_guide/_build/html/
-      
       - name: Build technical reference guide
         uses: dante-ev/latex-action@2023-A
         with:
           working_directory: docs/technical_reference_guide
           root_file: ResStockTechnicalReferenceGuide.tex
+
+      - name: Save documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: |
+            docs/technical_development_guide/_build/html/
+            docs/technical_reference_guide/ResStockTechnicalReferenceGuide.pdf
 
       - name: Commit latest results
         shell: bash        
