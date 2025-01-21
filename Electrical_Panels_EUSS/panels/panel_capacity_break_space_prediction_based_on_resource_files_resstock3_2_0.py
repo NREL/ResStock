@@ -127,13 +127,23 @@ def buildstock_csv_column_renaming(df):
     )
     return df
 
-
 def results_column_renaming(df):
     df = df.rename(
         columns={
             "panel_capacity": "Panel Size",
             "break_space_headroom": "Break Space Headroom",
             "major_elec_load_count": "Major Elec Load Count",
+            "build_existing_model.heating_fuel": "Heating Fuel",
+            "build_existing_model.clothes_dryer": "Clothes Dryer",
+            "build_existing_model.cooking_range": "Cooking Range",
+            "build_existing_model.geometry_building_type_recs": "Geometry Building Type RECS",
+            "build_existing_model.hvac_cooling_type": "HVAC Cooling Type",
+            "build_existing_model.water_heater_fuel": "Water Heater Fuel",
+            "vintage": "Vintage",
+            "geometry_unit_cfa_bin": "Geometry Floor Area",
+            "build_existing_model.has_pv": "Has PV",
+            "build_existing_model.hvac_heating_type": "HVAC Heating Type",
+            "building_id": "Building",
         }
     )
     return df
