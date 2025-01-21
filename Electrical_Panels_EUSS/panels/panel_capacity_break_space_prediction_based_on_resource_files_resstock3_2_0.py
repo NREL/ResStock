@@ -109,6 +109,36 @@ def apply_special_mapping(df):
     return df
 
 
+def buildstock_csv_column_renaming(df):
+    df = df.rename(
+        columns={
+            "Heating Fuel": "build_existing_model.heating_fuel",
+            "Clothes Dryer": "build_existing_model.clothes_dryer",
+            "Cooking Range": "build_existing_model.cooking_range",
+            "Geometry Building Type RECS": "build_existing_model.geometry_building_type_recs",
+            "HVAC Cooling Type": "build_existing_model.hvac_cooling_type",
+            "Water Heater Fuel": "build_existing_model.water_heater_fuel",
+            "Vintage": "build_existing_model.vintage",
+            "Geometry Floor Area": "build_existing_model.geometry_floor_area",
+            "Has PV": "build_existing_model.has_pv",
+            "HVAC Heating Type": "build_existing_model.hvac_heating_type",
+            "Building": "building_id",
+        }
+    )
+    return df
+
+
+def results_column_renaming(df):
+    df = df.rename(
+        columns={
+            "panel_capacity": "Panel Size",
+            "break_space_headroom": "Break Space Headroom",
+            "major_elec_load_count": "Major Elec Load Count",
+        }
+    )
+    return df
+
+    
 def read_file(
     filename: Union[str, Path], low_memory: bool = True, **kwargs
 ) -> pd.DataFrame:
@@ -306,7 +336,10 @@ def drop_columns(df):
               'geometry_unit_cfa_bin_simp'], axis=1, inplace=True)
     return df
 
-def main(filename: str | None = None,):
+def main(
+        filename: str | None = None,
+        buildstock_csv: bool = False,
+        ):
     global data_dir, electrical_panel_resources_dir
 
     local_dir = Path(__file__).resolve().parent
@@ -317,10 +350,14 @@ def main(filename: str | None = None,):
         filename = local_dir / "test_data" / "panels_30k_results_up00_100.csv"
     else:
         filename = Path(filename)
+
     ext = "panel_prediction"
-    output_filename = data_dir / (filename.stem + "__" + ext + ".parquet")
+    output_filename = data_dir / (filename.stem + "__" + ext + ".csv")
     
     dfb = read_file(filename, low_memory=False)
+    if buildstock_csv:
+        dfb = buildstock_csv_column_renaming(dfb)
+
     dfb["panel_capacity"] = 0
     dfb["break_space_headroom"] = 0
     dfb = get_major_elec_load_count(dfb)
@@ -338,7 +375,10 @@ def main(filename: str | None = None,):
     print(current_time.strftime("%Y-%m-%d %H:%M:%S"))
     dfb = drop_columns(dfb)
 
-    dfb.to_parquet(output_filename, index=False)
+    if buildstock_csv:
+        dfb = results_column_renaming(dfb)
+
+    dfb.to_csv(output_filename, index=False)
 
 
 if __name__ == "__main__":
@@ -348,10 +388,20 @@ if __name__ == "__main__":
         action="store",
         default=None,
         nargs="?",
-        help="Path to ResStock result file, e.g., results_up00.csv"
+        help="Path to ResStock baseline result file, e.g., results_up00.csv"
         "defaults to test data: test_data/panels_30k_results_up00_100.csv",
     )
+
+    parser.add_argument(
+        "-b",
+        "--buildstock_csv",
+        action="store_true",
+        default=False,
+        help="The input file is buildstock csv file instead of ResStock baseline result file",
+    )
+
     args = parser.parse_args()
     main(
         args.filename,
+        buildstock_csv=args.buildstock_csv,
     )
