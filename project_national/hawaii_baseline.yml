@@ -1,16 +1,16 @@
-schema_version: '0.4'
+schema_version: '0.5'
 os_version: 3.9.0
 os_sha: c77fbb9569
 buildstock_directory: ../ # Relative to this file or absolute
 project_directory: project_national # Relative to buildstock_directory
-output_directory: national_baseline
+output_directory: /projects/rescore/hawaii/
 weather_files_url: https://data.nrel.gov/system/files/156/Buildstock_TMY3_FIPS-1678817889.zip
 # weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
 
 sampler:
   type: residential_quota_downselect
   args:
-    n_datapoints: 5000
+    n_datapoints: 7500
     logic:
       - State|HI
     resample: false
