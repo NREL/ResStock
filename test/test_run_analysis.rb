@@ -15,7 +15,6 @@ class TestRunAnalysis < Minitest::Test
     buildstock_directory = File.join(File.dirname(__FILE__), '..')
 
     @testing_baseline = File.join(buildstock_directory, 'testing_baseline')
-    @testing_upgrades = File.join(buildstock_directory, 'testing_upgrades')
     @national_baseline = File.join(buildstock_directory, 'national_baseline')
     @sdr_upgrades_tmy3 = File.join(buildstock_directory, 'sdr_upgrades_tmy3')
 
@@ -185,7 +184,8 @@ class TestRunAnalysis < Minitest::Test
     @command += ' -u "Foundation Type" -u Walls'
 
     system(@command)
-
+    @testing_upgrades = File.join(buildstock_directory, 'testing_upgrades_measure_order')
+    
     _test_measure_order(File.join(@testing_upgrades, 'testing_upgrades-FoundationType.osw'))
     assert(File.exist?(File.join(@testing_upgrades, 'results-FoundationType.csv')))
     _test_measure_order(File.join(@testing_upgrades, 'testing_upgrades-Walls.osw'))
