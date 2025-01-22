@@ -8,8 +8,6 @@ class TestBuildStockBatch < Minitest::Test
   def before_setup
     @testing_baseline = 'project_testing/testing_baseline'
     @national_baseline = 'project_national/national_baseline'
-    @testing_upgrades = 'project_testing/testing_upgrades'
-    @national_upgrades = 'project_national/national_upgrades'
     @sdr_upgrades = 'project_national/sdr_upgrades_tmy3'
   end
 
