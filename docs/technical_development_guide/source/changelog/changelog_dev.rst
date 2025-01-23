@@ -58,12 +58,12 @@ Development Changelog
         :pullreq: 1329
         :tickets: 1261
 
-        **Date**: 2024-1-9
+        **Date**: 2024-1-23
 
         Title:
-        Add Standard Data Release YAML to Integration Tests
+        Add Standard Data Release YAML to GitHub Actions
 
         Description:
-        Add an initial Standard Data Release (SDR) YAML file. Add the SDR upgrade file into integration tests to continue progress towards end-to-end testing.
+        Add an initial Standard Data Release (SDR) YAML file. Add the SDR upgrade file into CI tests to continue progress towards end-to-end testing.
 
         Assignees: Anthony Fontanini
