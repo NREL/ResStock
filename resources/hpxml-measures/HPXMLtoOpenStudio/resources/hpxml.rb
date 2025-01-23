@@ -660,40 +660,62 @@ class HPXML < Object
 
   # Returns a hash with whether each fuel exists in the HPXML Building or Buildings
   #
-  # @param hpxml_doc [Oga::XML::Document] HPXML object as an XML document
   # @param building_id [String] If provided, only search the single HPXML Building with the given ID
   # @return [Hash] Map of HPXML::FuelTypeXXX => boolean
-  def has_fuels(hpxml_doc, building_id = nil)
-    has_fuels = {}
-
-    fuel_element_names = ['HeatingSystemFuel',
-                          'CoolingSystemFuel',
-                          'HeatPumpFuel',
-                          'BackupSystemFuel',
-                          'FuelType',
-                          'IntegratedHeatingSystemFuel',
-                          'Heater/Type']
+  def has_fuels(building_id = nil)
+    has_fuel = {}
+    has_fuel[HPXML::FuelTypeElectricity] = true
 
     HPXML::fossil_fuels.each do |fuel|
-      has_fuels[fuel] = false
-      fuel_element_names.each do |fuel_element_name|
-        if fuel_element_name == 'Heater/Type' && fuel == HPXML::FuelTypeNaturalGas
-          fuel_element_value = HPXML::HeaterTypeGas
-        else
-          fuel_element_value = fuel
+      has_fuel[fuel] = false
+
+      buildings.each do |hpxml_bldg|
+        next if (not building_id.nil?) && (hpxml_bldg.building_id != building_id)
+
+        # Check HVAC systems
+        hpxml_bldg.hvac_systems.each do |hvac_system|
+          if hvac_system.respond_to?(:heating_system_fuel) && hvac_system.heating_system_fuel == fuel
+            has_fuel[fuel] = true
+          end
+          if hvac_system.respond_to?(:cooling_system_fuel) && hvac_system.cooling_system_fuel == fuel
+            has_fuel[fuel] = true
+          end
+          if hvac_system.respond_to?(:heat_pump_fuel) && hvac_system.heat_pump_fuel == fuel
+            has_fuel[fuel] = true
+          end
+          if hvac_system.respond_to?(:backup_heating_fuel) && hvac_system.backup_heating_fuel == fuel
+            has_fuel[fuel] = true
+          end
+          if hvac_system.respond_to?(:integrated_heating_system_fuel) && hvac_system.integrated_heating_system_fuel == fuel
+            has_fuel[fuel] = true
+          end
         end
-        search_str = "/HPXML/Building[BuildingID/@id='#{building_id}']//#{fuel_element_name}[text() = '#{fuel_element_value}']"
-        if building_id.nil?
-          search_str = "/HPXML/Building//#{fuel_element_name}[text() = '#{fuel_element_value}']"
+
+        # Check other appliances
+        (hpxml_bldg.water_heating_systems +
+         hpxml_bldg.generators +
+         hpxml_bldg.clothes_dryers +
+         hpxml_bldg.cooking_ranges +
+         hpxml_bldg.fuel_loads).each do |appliance|
+          if appliance.fuel_type == fuel
+            has_fuel[fuel] = true
+          end
         end
-        if XMLHelper.has_element(hpxml_doc, search_str)
-          has_fuels[fuel] = true
-          break
+
+        # Check pool/spa heaters
+        if fuel == HPXML::FuelTypeNaturalGas
+          (hpxml_bldg.pools + hpxml_bldg.permanent_spas).each do |pool_or_spa|
+            if pool_or_spa.heater_type == HPXML::HeaterTypeGas
+              has_fuel[fuel] = true
+            end
+          end
         end
+
+        break if has_fuel[fuel]
       end
     end
 
-    return has_fuels
+    return has_fuel
   end
 
   # Object to store additional properties on an HPXML object that are not intended
@@ -1714,11 +1736,9 @@ class HPXML < Object
 
     # Returns a hash with whether each fuel exists in the HPXML Building.
     #
-    # @param hpxml_doc [Oga::XML::Document] HPXML object as an XML document
     # @return [Hash] Map of HPXML::FuelTypeXXX => boolean
-    def has_fuels(hpxml_doc)
-      # Returns a hash with whether each fuel exists in the HPXML Building
-      return @parent_object.has_fuels(hpxml_doc, @building_id)
+    def has_fuels()
+      return @parent_object.has_fuels(@building_id)
     end
 
     # Returns the predominant heating fuel type (weighted by fraction of
@@ -1828,13 +1848,15 @@ class HPXML < Object
     end
 
     # Calculates above-grade and below-grade thermal boundary wall areas.
-    # Used to calculate the window area in the ERI Reference Home per ANSI 301.
+    # Used to calculate the window area in the ERI Reference Home.
     #
     # Thermal boundary wall is any wall that separates conditioned space from
     # unconditioned space, outside, or soil. Above-grade thermal boundary
     # wall is any portion of a thermal boundary wall not in contact with soil.
     # Below-grade thermal boundary wall is any portion of a thermal boundary
     # wall in contact with soil.
+    #
+    # Source: ANSI/RESNET/ICC 301
     #
     # @return [Array<Double, Double>] Above-grade and below-grade thermal boundary wall areas (ft2)
     def thermal_boundary_wall_areas
@@ -1881,8 +1903,9 @@ class HPXML < Object
       return ag_cond_vol
     end
 
-    # Calculates common wall area.
-    # Used to calculate the window area in the ERI Reference Home per ANSI 301.
+    # Calculates common wall area. Used to calculate the window area in the ERI Reference Home.
+    #
+    # Source: ANSI/RESNET/ICC 301
     #
     # Common wall is the total wall area of walls adjacent to other unit's
     # conditioned space, not including foundation walls.
@@ -1904,12 +1927,14 @@ class HPXML < Object
 
     # Returns the total and exterior compartmentalization boundary area.
     # Used to convert between total infiltration and exterior infiltration for
-    # SFA/MF dwelling units per ANSI 301.
+    # SFA/MF dwelling units.
+    #
+    # Source: ANSI/RESNET/ICC 301
     #
     # @return [Array<Double, Double>] Total and exterior compartmentalization areas (ft2)
     def compartmentalization_boundary_areas
       total_area = 0.0 # Total surface area that bounds the Infiltration Volume
-      exterior_area = 0.0 # Same as above excluding surfaces attached to garage, other housing units, or other multifamily spaces (see 301-2019 Addendum B)
+      exterior_area = 0.0 # Same as above excluding surfaces attached to garage, other housing units, or other multifamily spaces
 
       # Determine which spaces are within infiltration volume
       spaces_within_infil_volume = HPXML::conditioned_locations_this_unit
@@ -2699,11 +2724,9 @@ class HPXML < Object
     # @param building [Oga::XML::Element] The current Building XML element
     # @return [nil]
     def to_doc(building)
-      return if nil?
-
       climate_and_risk_zones = XMLHelper.create_elements_as_needed(building, ['BuildingDetails', 'ClimateandRiskZones'])
-
       @climate_zone_ieccs.to_doc(climate_and_risk_zones)
+      return if nil?
 
       if not @weather_station_id.nil?
         weather_station = XMLHelper.add_element(climate_and_risk_zones, 'WeatherStation')
@@ -3407,11 +3430,12 @@ class HPXML < Object
     def to_location
       return if @attic_type.nil?
 
-      if [AtticTypeCathedral, AtticTypeConditioned, AtticTypeFlatRoof, AtticTypeBelowApartment].include? @attic_type
+      case @attic_type
+      when AtticTypeCathedral, AtticTypeConditioned, AtticTypeFlatRoof, AtticTypeBelowApartment
         return LocationConditionedSpace
-      elsif [AtticTypeUnvented].include? @attic_type
+      when AtticTypeUnvented
         return LocationAtticUnvented
-      elsif [AtticTypeVented].include? @attic_type
+      when AtticTypeVented
         return LocationAtticVented
       else
         fail "Unexpected attic type: '#{@attic_type}'."
@@ -3450,12 +3474,13 @@ class HPXML < Object
       XMLHelper.add_attribute(sys_id, 'id', @id)
       if not @attic_type.nil?
         attic_type_el = XMLHelper.add_element(attic, 'AtticType')
-        if [AtticTypeFlatRoof, AtticTypeCathedral, AtticTypeBelowApartment].include? @attic_type
+        case @attic_type
+        when AtticTypeFlatRoof, AtticTypeCathedral, AtticTypeBelowApartment
           XMLHelper.add_element(attic_type_el, @attic_type)
-        elsif [AtticTypeUnvented].include? @attic_type
+        when AtticTypeUnvented
           attic_type_attic = XMLHelper.add_element(attic_type_el, 'Attic')
           XMLHelper.add_element(attic_type_attic, 'Vented', false, :boolean)
-        elsif [AtticTypeVented].include? @attic_type
+        when AtticTypeVented
           attic_type_attic = XMLHelper.add_element(attic_type_el, 'Attic')
           XMLHelper.add_element(attic_type_attic, 'Vented', true, :boolean)
           if not @vented_attic_sla.nil?
@@ -3467,7 +3492,7 @@ class HPXML < Object
             XMLHelper.add_element(ventilation_rate, 'UnitofMeasure', UnitsACHNatural, :string)
             XMLHelper.add_element(ventilation_rate, 'Value', @vented_attic_ach, :float)
           end
-        elsif [AtticTypeConditioned].include? @attic_type
+        when AtticTypeConditioned
           attic_type_attic = XMLHelper.add_element(attic_type_el, 'Attic')
           XMLHelper.add_element(attic_type_attic, 'Conditioned', true, :boolean)
         else
@@ -3648,21 +3673,22 @@ class HPXML < Object
     def to_location
       return if @foundation_type.nil?
 
-      if [FoundationTypeSlab, FoundationTypeAboveApartment].include? @foundation_type
+      case @foundation_type
+      when FoundationTypeSlab, FoundationTypeAboveApartment
         return LocationConditionedSpace
-      elsif [FoundationTypeAmbient].include? @foundation_type
+      when FoundationTypeAmbient
         return LocationOutside
-      elsif [FoundationTypeBasementConditioned].include? @foundation_type
+      when FoundationTypeBasementConditioned
         return LocationBasementConditioned
-      elsif [FoundationTypeBasementUnconditioned].include? @foundation_type
+      when FoundationTypeBasementUnconditioned
         return LocationBasementUnconditioned
-      elsif [FoundationTypeCrawlspaceUnvented].include? @foundation_type
+      when FoundationTypeCrawlspaceUnvented
         return LocationCrawlspaceUnvented
-      elsif [FoundationTypeCrawlspaceVented].include? @foundation_type
+      when FoundationTypeCrawlspaceVented
         return LocationCrawlspaceVented
-      elsif @foundation_type == FoundationTypeCrawlspaceConditioned
+      when FoundationTypeCrawlspaceConditioned
         return LocationCrawlspaceConditioned
-      elsif @foundation_type == FoundationTypeBellyAndWing
+      when FoundationTypeBellyAndWing
         return LocationManufacturedHomeUnderBelly
       else
         fail "Unexpected foundation type: '#{@foundation_type}'."
@@ -3721,15 +3747,16 @@ class HPXML < Object
       XMLHelper.add_attribute(sys_id, 'id', @id)
       if not @foundation_type.nil?
         foundation_type_el = XMLHelper.add_element(foundation, 'FoundationType')
-        if [FoundationTypeSlab, FoundationTypeAmbient, FoundationTypeAboveApartment].include? @foundation_type
+        case @foundation_type
+        when FoundationTypeSlab, FoundationTypeAmbient, FoundationTypeAboveApartment
           XMLHelper.add_element(foundation_type_el, @foundation_type)
-        elsif [FoundationTypeBasementConditioned].include? @foundation_type
+        when FoundationTypeBasementConditioned
           basement = XMLHelper.add_element(foundation_type_el, 'Basement')
           XMLHelper.add_element(basement, 'Conditioned', true, :boolean)
-        elsif [FoundationTypeBasementUnconditioned].include? @foundation_type
+        when FoundationTypeBasementUnconditioned
           basement = XMLHelper.add_element(foundation_type_el, 'Basement')
           XMLHelper.add_element(basement, 'Conditioned', false, :boolean)
-        elsif [FoundationTypeCrawlspaceVented].include? @foundation_type
+        when FoundationTypeCrawlspaceVented
           crawlspace = XMLHelper.add_element(foundation_type_el, 'Crawlspace')
           XMLHelper.add_element(crawlspace, 'Vented', true, :boolean)
           if not @vented_crawlspace_sla.nil?
@@ -3737,13 +3764,13 @@ class HPXML < Object
             XMLHelper.add_element(ventilation_rate, 'UnitofMeasure', UnitsSLA, :string)
             XMLHelper.add_element(ventilation_rate, 'Value', @vented_crawlspace_sla, :float, @vented_crawlspace_sla_isdefaulted)
           end
-        elsif [FoundationTypeCrawlspaceUnvented].include? @foundation_type
+        when FoundationTypeCrawlspaceUnvented
           crawlspace = XMLHelper.add_element(foundation_type_el, 'Crawlspace')
           XMLHelper.add_element(crawlspace, 'Vented', false, :boolean)
-        elsif @foundation_type == FoundationTypeCrawlspaceConditioned
+        when FoundationTypeCrawlspaceConditioned
           crawlspace = XMLHelper.add_element(foundation_type_el, 'Crawlspace')
           XMLHelper.add_element(crawlspace, 'Conditioned', true, :boolean)
-        elsif @foundation_type == FoundationTypeBellyAndWing
+        when FoundationTypeBellyAndWing
           belly_and_wing = XMLHelper.add_element(foundation_type_el, 'BellyAndWing')
           XMLHelper.add_element(belly_and_wing, 'SkirtPresent', @belly_wing_skirt_present, :boolean, @belly_wing_skirt_present_isdefaulted) unless @belly_wing_skirt_present.nil?
         else
@@ -7723,11 +7750,12 @@ class HPXML < Object
       hvac_distribution = XMLHelper.add_element(hvac, 'HVACDistribution')
       sys_id = XMLHelper.add_element(hvac_distribution, 'SystemIdentifier')
       XMLHelper.add_attribute(sys_id, 'id', @id)
-      distribution_system_type_el = XMLHelper.add_element(hvac_distribution, 'DistributionSystemType')
       if [HVACDistributionTypeAir, HVACDistributionTypeHydronic].include? @distribution_system_type
+        distribution_system_type_el = XMLHelper.add_element(hvac_distribution, 'DistributionSystemType')
         XMLHelper.add_element(distribution_system_type_el, @distribution_system_type)
         XMLHelper.add_element(hvac_distribution, 'ConditionedFloorAreaServed', @conditioned_floor_area_served, :float) unless @conditioned_floor_area_served.nil?
       elsif [HVACDistributionTypeDSE].include? @distribution_system_type
+        distribution_system_type_el = XMLHelper.add_element(hvac_distribution, 'DistributionSystemType')
         XMLHelper.add_element(distribution_system_type_el, 'Other', @distribution_system_type, :string)
         XMLHelper.add_element(hvac_distribution, 'AnnualHeatingDistributionSystemEfficiency', @annual_heating_dse, :float) unless @annual_heating_dse.nil?
         XMLHelper.add_element(hvac_distribution, 'AnnualCoolingDistributionSystemEfficiency', @annual_cooling_dse, :float) unless @annual_cooling_dse.nil?

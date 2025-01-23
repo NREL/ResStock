@@ -3699,10 +3699,6 @@
     "parent_hpxml": "sample_files/base.xml",
     "geometry_unit_num_occupants": 0
   },
-  "sample_files/base-residents-0-runperiod-1-month.xml": {
-    "parent_hpxml": "sample_files/base-residents-0.xml",
-    "simulation_control_run_period": "Feb 1 - Feb 28"
-  },
   "sample_files/base-residents-1.xml": {
     "parent_hpxml": "sample_files/base.xml",
     "geometry_unit_num_occupants": 1,

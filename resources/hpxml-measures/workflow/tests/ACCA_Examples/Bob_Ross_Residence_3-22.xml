@@ -552,10 +552,10 @@
             <ExteriorAdjacentTo>garage</ExteriorAdjacentTo>
             <InteriorAdjacentTo>basement - conditioned</InteriorAdjacentTo>
             <Type>concrete block</Type>
-            <Height>8.0</Height>
-            <Area>260.0</Area>
+            <Height>6.0</Height>
+            <Area>156.0</Area>
             <Orientation>east</Orientation>
-            <DepthBelowGrade>8.0</DepthBelowGrade>
+            <DepthBelowGrade>6.0</DepthBelowGrade>
             <Insulation>
               <SystemIdentifier id='FoundationWallRecRoomEastPartitionInsulation'/>
               <AssemblyEffectiveRValue>1.71</AssemblyEffectiveRValue>

@@ -357,10 +357,9 @@
             <ExteriorAdjacentTo>ground</ExteriorAdjacentTo>
             <InteriorAdjacentTo>crawlspace - unvented</InteriorAdjacentTo>
             <Type>concrete block solid core</Type>
-            <Height>10.0</Height>
-            <Area>1740.0</Area>
-            <Orientation>north</Orientation>
-            <DepthBelowGrade>8.0</DepthBelowGrade>
+            <Height>2.0</Height>
+            <Area>348.0</Area>
+            <DepthBelowGrade>0.0</DepthBelowGrade>
             <Insulation>
               <SystemIdentifier id='FoundationWallCrawlspaceInsulation'/>
               <AssemblyEffectiveRValue>7.3</AssemblyEffectiveRValue>
@@ -371,10 +370,10 @@
             <ExteriorAdjacentTo>garage</ExteriorAdjacentTo>
             <InteriorAdjacentTo>crawlspace - unvented</InteriorAdjacentTo>
             <Type>concrete block solid core</Type>
-            <Height>10.0</Height>
-            <Area>260.0</Area>
+            <Height>2.0</Height>
+            <Area>52.0</Area>
             <Orientation>east</Orientation>
-            <DepthBelowGrade>8.0</DepthBelowGrade>
+            <DepthBelowGrade>0.0</DepthBelowGrade>
             <Insulation>
               <SystemIdentifier id='FoundationWallRecRoomEastPartitionInsulation'/>
               <AssemblyEffectiveRValue>7.3</AssemblyEffectiveRValue>

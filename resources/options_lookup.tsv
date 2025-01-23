@@ -9363,11 +9363,11 @@ Geometry Building Type ACS	50 or more Unit
 Geometry Building Type ACS	Mobile Home
 Geometry Building Type ACS	Single-Family Attached
 Geometry Building Type ACS	Single-Family Detached
-Geometry Building Type Height	"Multifamily with 5+ units, 1-3 stories"
-Geometry Building Type Height	"Multifamily with 5+ units, 4-7 stories"
-Geometry Building Type Height	"Multifamily with 5+ units, 8+ stories"
+Geometry Building Type Height	"Multi-Family with 5+ Units, 1-3 Stories"
+Geometry Building Type Height	"Multi-Family with 5+ Units, 4-7 Stories"
+Geometry Building Type Height	"Multi-Family with 5+ Units, 8+ Stories"
 Geometry Building Type Height	Mobile Home
-Geometry Building Type Height	Multifamily with 2-4 Units
+Geometry Building Type Height	Multi-Family with 2 - 4 Units
 Geometry Building Type Height	Single-Family Attached
 Geometry Building Type Height	Single-Family Detached
 Geometry Building Type RECS	Mobile Home	ResStockArguments	geometry_unit_type=manufactured home	geometry_average_ceiling_height=8	geometry_unit_aspect_ratio=1.8
