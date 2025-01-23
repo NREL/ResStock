@@ -21,12 +21,24 @@ def create_hpxmls
   schema_path = File.join(File.dirname(__FILE__), 'HPXMLtoOpenStudio', 'resources', 'hpxml_schema', 'HPXML.xsd')
   schema_validator = XMLValidator.get_xml_validator(schema_path)
 
-  schedules_regenerated = []
+  # Delete all stochastic schedule files (they will be regenerated below)
+  stochastic_sched_basename = 'occupancy-stochastic'
+  stochastic_csvs = File.join(File.dirname(__FILE__), 'HPXMLtoOpenStudio', 'resources', 'schedule_files', "#{stochastic_sched_basename}*.csv")
+  Dir.glob(stochastic_csvs).each { |file| File.delete(file) }
+
+  # Specify list of sample files that should not regenerate schedule CSVs. These files test simulation timesteps
+  # that differ from the stochastic schedule timestep. If we were to call the BuildResidentialScheduleFile
+  # measure, it will generate a stochastic schedule that matches the simulation timestep; so we skip it and just
+  # use the stochastic schedule generated from another HPXML file.
+  schedule_skip_list = [
+    'base-schedules-detailed-occupancy-stochastic-10-mins.xml',
+    'base-simcontrol-timestep-10-mins-occupancy-stochastic-60-mins.xml'
+  ]
 
   puts "Generating #{json_inputs.size} HPXML files..."
 
-  json_inputs.keys.each_with_index do |hpxml_filename, i|
-    puts "[#{i + 1}/#{json_inputs.size}] Generating #{hpxml_filename}..."
+  json_inputs.keys.each_with_index do |hpxml_filename, hpxml_i|
+    puts "[#{hpxml_i + 1}/#{json_inputs.size}] Generating #{hpxml_filename}..."
     hpxml_path = File.join(workflow_dir, hpxml_filename)
     abs_hpxml_files << File.absolute_path(hpxml_path)
 
@@ -72,14 +84,21 @@ def create_hpxmls
       end
 
       # Re-generate stochastic schedule CSV?
-      csv_path = json_input['schedules_filepaths'].to_s.split(',').map(&:strip).find { |fp| fp.include? 'occupancy-stochastic' }
-      if (not csv_path.nil?) && (not schedules_regenerated.include? csv_path)
+      prev_csv_path = nil
+      csv_path = json_input['schedules_filepaths'].to_s.split(',').map(&:strip).find { |fp| fp.include? stochastic_sched_basename }
+      if (not csv_path.nil?) && !schedule_skip_list.include?(File.basename(hpxml_path))
         sch_args = { 'hpxml_path' => hpxml_path,
                      'output_csv_path' => csv_path,
                      'hpxml_output_path' => hpxml_path,
                      'building_id' => "MyBuilding#{suffix}" }
         measures['BuildResidentialScheduleFile'] = [sch_args]
-        schedules_regenerated << csv_path
+
+        # Rename existing file (if found) for later comparison
+        csv_path = File.expand_path(File.join(File.dirname(hpxml_path), csv_path))
+        if File.exist? csv_path
+          prev_csv_path = csv_path + '.prev'
+          File.rename(csv_path, prev_csv_path)
+        end
       end
 
       # Apply measure
@@ -94,6 +113,17 @@ def create_hpxmls
         puts "\nError: Did not successfully generate #{hpxml_filename}."
         exit!
       end
+
+      # Make sure newly generated schedule CSV matches previously generated schedule CSV
+      next if prev_csv_path.nil?
+
+      csv_data = File.read(csv_path)
+      prev_csv_data = File.read(prev_csv_path)
+      if csv_data != prev_csv_data
+        puts "Error: Two different schedule CSVs (see #{File.basename(csv_path)} vs #{File.basename(prev_csv_path)}) were generated for the same filename."
+        exit!
+      end
+      File.delete(prev_csv_path)
     end
 
     hpxml = HPXML.new(hpxml_path: hpxml_path)
@@ -1656,18 +1686,6 @@ def apply_hpxml_modification_sample_files(hpxml_path, hpxml)
       hpxml_bldg.hvac_distributions[0].ducts[2].duct_surface_area = 37.5
       hpxml_bldg.hvac_distributions[0].ducts[3].duct_location = HPXML::LocationConditionedSpace
       hpxml_bldg.hvac_distributions[0].ducts[3].duct_surface_area = 12.5
-      if hpxml_file == 'base-hvac-ducts-area-fractions.xml'
-        hpxml_bldg.hvac_distributions[0].ducts[0].duct_surface_area = nil
-        hpxml_bldg.hvac_distributions[0].ducts[1].duct_surface_area = nil
-        hpxml_bldg.hvac_distributions[0].ducts[2].duct_surface_area = nil
-        hpxml_bldg.hvac_distributions[0].ducts[3].duct_surface_area = nil
-        hpxml_bldg.hvac_distributions[0].ducts[0].duct_fraction_area = 0.75
-        hpxml_bldg.hvac_distributions[0].ducts[1].duct_fraction_area = 0.75
-        hpxml_bldg.hvac_distributions[0].ducts[2].duct_fraction_area = 0.25
-        hpxml_bldg.hvac_distributions[0].ducts[3].duct_fraction_area = 0.25
-        hpxml_bldg.hvac_distributions[0].conditioned_floor_area_served = 4050.0
-        hpxml_bldg.hvac_distributions[0].number_of_return_registers = 3
-      end
     elsif ['base-hvac-ducts-effective-rvalue.xml'].include? hpxml_file
       hpxml_bldg.hvac_distributions[0].ducts[0].duct_insulation_r_value = nil
       hpxml_bldg.hvac_distributions[0].ducts[1].duct_insulation_r_value = nil
@@ -1952,13 +1970,6 @@ def apply_hpxml_modification_sample_files(hpxml_path, hpxml)
     end
     if hpxml_file.include? 'base-hvac-ground-to-air-heat-pump-detailed-geothermal-loop.xml'
       hpxml_bldg.geothermal_loops[0].shank_spacing = 2.5
-    end
-    if hpxml_file.include? 'HERS_HVAC'
-      hpxml_bldg.hvac_distributions.clear
-      hpxml_bldg.hvac_distributions.add(id: "HVACDistribution#{hpxml_bldg.hvac_distributions.size + 1}",
-                                        distribution_system_type: HPXML::HVACDistributionTypeDSE,
-                                        annual_heating_dse: 1.0,
-                                        annual_cooling_dse: 1.0)
     end
     hpxml_bldg.heating_systems.each do |heating_system|
       if heating_system.heating_system_type == HPXML::HVACTypeBoiler &&
@@ -2642,6 +2653,13 @@ if ARGV[0].to_sym == :update_measures
   command = "#{OpenStudio.getOpenStudioCLI} -e #{commands.join(' -e ')}"
   puts 'Applying rubocop auto-correct to measures...'
   system(command)
+
+  # Update a BuildResidentialHPXML/resources file when the OS-HPXML version changes.
+  # This will ensure that the BuildResidentialHPXML measure.xml is appropriately updated.
+  # Without this, the BuildResidentialHPXML measure has no differences and so OpenStudio
+  # would skip updating it.
+  version_txt_path = File.join(File.dirname(__FILE__), 'BuildResidentialHPXML/resources/version.txt')
+  File.write(version_txt_path, Digest::MD5.hexdigest(Version::OS_HPXML_Version))
 
   # Update measures XMLs
   puts 'Updating measure.xmls...'

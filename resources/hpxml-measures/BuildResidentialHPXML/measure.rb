@@ -343,7 +343,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
     arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('geometry_unit_num_occupants', false)
     arg.setDisplayName('Geometry: Unit Number of Occupants')
     arg.setUnits('#')
-    arg.setDescription('The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301-2019. If provided, an *operational* calculation is instead performed in which the end use defaults are adjusted using the relationship between Number of Bedrooms and Number of Occupants from RECS 2015.')
+    arg.setDescription('The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301. If provided, an *operational* calculation is instead performed in which the end use defaults to reflect real-world data (where possible).')
     args << arg
 
     arg = OpenStudio::Measure::OSArgument::makeIntegerArgument('geometry_building_num_units', false)
@@ -3547,7 +3547,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
       return false
     end
 
-    Model.reset(model, runner)
+    Model.reset(runner, model)
 
     Version.check_openstudio_version()
 
@@ -4082,21 +4082,22 @@ module HPXMLFile
       return false
     end
 
-    if args[:geometry_unit_type] == HPXML::ResidentialTypeSFD
-      success = Geometry.create_single_family_detached(runner: runner, model: model, **args)
-    elsif args[:geometry_unit_type] == HPXML::ResidentialTypeSFA
-      success = Geometry.create_single_family_attached(model: model, **args)
-    elsif args[:geometry_unit_type] == HPXML::ResidentialTypeApartment
-      success = Geometry.create_apartment(model: model, **args)
-    elsif args[:geometry_unit_type] == HPXML::ResidentialTypeManufactured
-      success = Geometry.create_single_family_detached(runner: runner, model: model, **args)
+    case args[:geometry_unit_type]
+    when HPXML::ResidentialTypeSFD
+      success = Geometry.create_single_family_detached(runner, model, **args)
+    when HPXML::ResidentialTypeSFA
+      success = Geometry.create_single_family_attached(model, **args)
+    when HPXML::ResidentialTypeApartment
+      success = Geometry.create_apartment(model, **args)
+    when HPXML::ResidentialTypeManufactured
+      success = Geometry.create_single_family_detached(runner, model, **args)
     end
     return false if not success
 
-    success = Geometry.create_doors(runner: runner, model: model, **args)
+    success = Geometry.create_doors(runner, model, **args)
     return false if not success
 
-    success = Geometry.create_windows_and_skylights(runner: runner, model: model, **args)
+    success = Geometry.create_windows_and_skylights(runner, model, **args)
     return false if not success
 
     return true
@@ -4613,7 +4614,8 @@ module HPXMLFile
     adb_walls = [args[:geometry_unit_left_wall_is_adiabatic], args[:geometry_unit_right_wall_is_adiabatic], args[:geometry_unit_front_wall_is_adiabatic], args[:geometry_unit_back_wall_is_adiabatic]]
     n_walls_attached = adb_walls.count(true)
 
-    if [HPXML::ResidentialTypeSFA, HPXML::ResidentialTypeApartment].include? args[:geometry_unit_type]
+    case args[:geometry_unit_type]
+    when HPXML::ResidentialTypeSFA, HPXML::ResidentialTypeApartment
       if n_walls_attached == 3
         hpxml_bldg.site.surroundings = HPXML::SurroundingsThreeSides
       elsif n_walls_attached == 2
@@ -4636,7 +4638,7 @@ module HPXMLFile
           hpxml_bldg.site.vertical_surroundings = HPXML::VerticalSurroundingsNoAboveOrBelow
         end
       end
-    elsif [HPXML::ResidentialTypeSFD, HPXML::ResidentialTypeManufactured].include? args[:geometry_unit_type]
+    when HPXML::ResidentialTypeSFD, HPXML::ResidentialTypeManufactured
       hpxml_bldg.site.surroundings = HPXML::SurroundingsStandAlone
       hpxml_bldg.site.vertical_surroundings = HPXML::VerticalSurroundingsNoAboveOrBelow
     end
@@ -4662,7 +4664,7 @@ module HPXMLFile
       distance, neighbor_height = data
       next if distance == 0
 
-      azimuth = Geometry.get_azimuth_from_facade(facade: facade, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_azimuth_from_facade(facade, args[:geometry_unit_orientation])
 
       if (distance > 0) && (not neighbor_height.nil?)
         height = neighbor_height
@@ -4844,17 +4846,17 @@ module HPXMLFile
       next if surface.outsideBoundaryCondition != EPlus::BoundaryConditionOutdoors
       next if surface.surfaceType != EPlus::SurfaceTypeRoofCeiling
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next if [HPXML::LocationOtherHousingUnit].include? interior_adjacent_to
 
       if args[:geometry_attic_type] == HPXML::AtticTypeFlatRoof
         azimuth = nil
       else
-        azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+        azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
       end
 
       hpxml_bldg.roofs.add(id: "Roof#{hpxml_bldg.roofs.size + 1}",
-                           interior_adjacent_to: Geometry.get_adjacent_to(surface: surface),
+                           interior_adjacent_to: Geometry.get_surface_adjacent_to(surface),
                            azimuth: azimuth,
                            area: UnitConversions.convert(surface.grossArea, 'm^2', 'ft^2'),
                            roof_type: args[:roof_material_type],
@@ -4887,9 +4889,9 @@ module HPXMLFile
     sorted_surfaces.each do |surface|
       next if surface.surfaceType != EPlus::SurfaceTypeWall
       next unless [EPlus::BoundaryConditionOutdoors, EPlus::BoundaryConditionAdiabatic].include? surface.outsideBoundaryCondition
-      next unless Geometry.surface_is_rim_joist(surface: surface, height: args[:geometry_rim_joist_height])
+      next unless Geometry.surface_is_rim_joist(surface, args[:geometry_rim_joist_height])
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationBasementConditioned,
                    HPXML::LocationBasementUnconditioned,
                    HPXML::LocationCrawlspaceUnvented,
@@ -4898,7 +4900,7 @@ module HPXMLFile
 
       exterior_adjacent_to = HPXML::LocationOutside
       if surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic # can be adjacent to foundation space
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         if adjacent_surface.nil? # adjacent to a space that is not explicitly in the model
           unless [HPXML::ResidentialTypeSFD].include?(args[:geometry_unit_type])
             exterior_adjacent_to = interior_adjacent_to
@@ -4907,7 +4909,7 @@ module HPXMLFile
             end
           end
         else # adjacent to a space that is explicitly in the model
-          exterior_adjacent_to = Geometry.get_adjacent_to(surface: adjacent_surface)
+          exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
 
@@ -4921,7 +4923,7 @@ module HPXMLFile
         insulation_assembly_r_value = args[:rim_joist_assembly_r]
       end
 
-      azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
 
       hpxml_bldg.rim_joists.add(id: "RimJoist#{hpxml_bldg.rim_joists.size + 1}",
                                 exterior_adjacent_to: exterior_adjacent_to,
@@ -4949,23 +4951,23 @@ module HPXMLFile
   def self.set_walls(hpxml_bldg, model, args, sorted_surfaces)
     sorted_surfaces.each do |surface|
       next if surface.surfaceType != EPlus::SurfaceTypeWall
-      next if Geometry.surface_is_rim_joist(surface: surface, height: args[:geometry_rim_joist_height])
+      next if Geometry.surface_is_rim_joist(surface, args[:geometry_rim_joist_height])
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationConditionedSpace, HPXML::LocationAtticUnvented, HPXML::LocationAtticVented, HPXML::LocationGarage].include? interior_adjacent_to
 
       exterior_adjacent_to = HPXML::LocationOutside
       if surface.adjacentSurface.is_initialized
-        exterior_adjacent_to = Geometry.get_adjacent_to(surface: surface.adjacentSurface.get)
+        exterior_adjacent_to = Geometry.get_surface_adjacent_to(surface.adjacentSurface.get)
       elsif surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic # can be adjacent to conditioned space, attic
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         if adjacent_surface.nil? # adjacent to a space that is not explicitly in the model
           exterior_adjacent_to = interior_adjacent_to
           if exterior_adjacent_to == HPXML::LocationConditionedSpace # conditioned space adjacent to conditioned space
             exterior_adjacent_to = HPXML::LocationOtherHousingUnit
           end
         else # adjacent to a space that is explicitly in the model
-          exterior_adjacent_to = Geometry.get_adjacent_to(surface: adjacent_surface)
+          exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
 
@@ -4990,7 +4992,7 @@ module HPXMLFile
         end
       end
 
-      azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
 
       hpxml_bldg.walls.add(id: "Wall#{hpxml_bldg.walls.size + 1}",
                            exterior_adjacent_to: exterior_adjacent_to,
@@ -5044,9 +5046,9 @@ module HPXMLFile
     sorted_surfaces.each do |surface|
       next if surface.surfaceType != EPlus::SurfaceTypeWall
       next unless [EPlus::BoundaryConditionFoundation, EPlus::BoundaryConditionAdiabatic].include? surface.outsideBoundaryCondition
-      next if Geometry.surface_is_rim_joist(surface: surface, height: args[:geometry_rim_joist_height])
+      next if Geometry.surface_is_rim_joist(surface, args[:geometry_rim_joist_height])
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationBasementConditioned,
                    HPXML::LocationBasementUnconditioned,
                    HPXML::LocationCrawlspaceUnvented,
@@ -5055,7 +5057,7 @@ module HPXMLFile
 
       exterior_adjacent_to = HPXML::LocationGround
       if surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic # can be adjacent to foundation space
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         if adjacent_surface.nil? # adjacent to a space that is not explicitly in the model
           unless [HPXML::ResidentialTypeSFD].include?(args[:geometry_unit_type])
             exterior_adjacent_to = interior_adjacent_to
@@ -5064,7 +5066,7 @@ module HPXMLFile
             end
           end
         else # adjacent to a space that is explicitly in the model
-          exterior_adjacent_to = Geometry.get_adjacent_to(surface: adjacent_surface)
+          exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
 
@@ -5095,7 +5097,7 @@ module HPXMLFile
         end
       end
 
-      azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
 
       hpxml_bldg.foundation_walls.add(id: "FoundationWall#{hpxml_bldg.foundation_walls.size + 1}",
                                       exterior_adjacent_to: exterior_adjacent_to,
@@ -5141,12 +5143,12 @@ module HPXMLFile
       next if surface.outsideBoundaryCondition == EPlus::BoundaryConditionFoundation
       next unless [EPlus::SurfaceTypeFloor, EPlus::SurfaceTypeRoofCeiling].include? surface.surfaceType
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationConditionedSpace, HPXML::LocationGarage].include? interior_adjacent_to
 
       exterior_adjacent_to = HPXML::LocationOutside
       if surface.adjacentSurface.is_initialized
-        exterior_adjacent_to = Geometry.get_adjacent_to(surface: surface.adjacentSurface.get)
+        exterior_adjacent_to = Geometry.get_surface_adjacent_to(surface.adjacentSurface.get)
       elsif surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic
         exterior_adjacent_to = HPXML::LocationOtherHousingUnit
         if surface.surfaceType == EPlus::SurfaceTypeFloor
@@ -5178,9 +5180,10 @@ module HPXMLFile
       @surface_ids[surface.name.to_s] = hpxml_bldg.floors[-1].id
 
       if hpxml_bldg.floors[-1].is_thermal_boundary
-        if [HPXML::LocationAtticUnvented, HPXML::LocationAtticVented].include? exterior_adjacent_to
+        case exterior_adjacent_to
+        when HPXML::LocationAtticUnvented, HPXML::LocationAtticVented
           hpxml_bldg.floors[-1].insulation_assembly_r_value = args[:ceiling_assembly_r]
-        elsif [HPXML::LocationGarage].include? exterior_adjacent_to
+        when HPXML::LocationGarage
           hpxml_bldg.floors[-1].insulation_assembly_r_value = args[:floor_over_garage_assembly_r]
         else
           hpxml_bldg.floors[-1].insulation_assembly_r_value = args[:floor_over_foundation_assembly_r]
@@ -5215,7 +5218,7 @@ module HPXMLFile
       next unless [EPlus::BoundaryConditionFoundation].include? surface.outsideBoundaryCondition
       next if surface.surfaceType != EPlus::SurfaceTypeFloor
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next if [HPXML::LocationOutside, HPXML::LocationOtherHousingUnit].include? interior_adjacent_to
 
       has_foundation_walls = false
@@ -5226,14 +5229,10 @@ module HPXMLFile
           HPXML::LocationBasementConditioned].include? interior_adjacent_to
         has_foundation_walls = true
       end
-      exposed_perimeter = Geometry.calculate_exposed_perimeter(model: model, ground_floor_surfaces: [surface], has_foundation_walls: has_foundation_walls).round(1)
+      exposed_perimeter = Geometry.calculate_exposed_perimeter(model, ground_floor_surfaces: [surface], has_foundation_walls: has_foundation_walls).round(1)
       next if exposed_perimeter == 0
 
-      if [HPXML::LocationCrawlspaceVented,
-          HPXML::LocationCrawlspaceUnvented,
-          HPXML::LocationCrawlspaceConditioned,
-          HPXML::LocationBasementUnconditioned,
-          HPXML::LocationBasementConditioned].include? interior_adjacent_to
+      if has_foundation_walls
         exposed_perimeter -= Geometry.get_unexposed_garage_perimeter(**args)
       end
 
@@ -5290,8 +5289,8 @@ module HPXMLFile
 
       surface = sub_surface.surface.get
 
-      sub_surface_height = Geometry.get_surface_height(surface: sub_surface)
-      sub_surface_facade = Geometry.get_facade_for_surface(surface: sub_surface)
+      sub_surface_height = Geometry.get_surface_height(sub_surface)
+      sub_surface_facade = Geometry.get_surface_facade(sub_surface)
 
       if (sub_surface_facade == Constants::FacadeFront) && ((args[:overhangs_front_depth] > 0) || args[:overhangs_front_distance_to_top_of_window] > 0)
         overhangs_depth = args[:overhangs_front_depth]
@@ -5313,7 +5312,7 @@ module HPXMLFile
         # Get max z coordinate of eaves
         eaves_z = args[:geometry_average_ceiling_height] * args[:geometry_unit_num_floors_above_grade] + args[:geometry_rim_joist_height]
         if args[:geometry_attic_type] == HPXML::AtticTypeConditioned
-          eaves_z += Geometry.get_conditioned_attic_height(spaces: model.getSpaces)
+          eaves_z += Geometry.get_conditioned_attic_height(model.getSpaces)
         end
         if args[:geometry_foundation_type] == HPXML::FoundationTypeAmbient
           eaves_z += args[:geometry_foundation_height]
@@ -5327,7 +5326,7 @@ module HPXMLFile
         overhangs_distance_to_bottom_of_window = (overhangs_distance_to_top_of_window + sub_surface_height).round(1)
       end
 
-      azimuth = Geometry.get_azimuth_from_facade(facade: sub_surface_facade, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_azimuth_from_facade(sub_surface_facade, args[:geometry_unit_orientation])
 
       wall_idref = @surface_ids[surface.name.to_s]
       next if wall_idref.nil?
@@ -5376,8 +5375,8 @@ module HPXMLFile
 
       surface = sub_surface.surface.get
 
-      sub_surface_facade = Geometry.get_facade_for_surface(surface: sub_surface)
-      azimuth = Geometry.get_azimuth_from_facade(facade: sub_surface_facade, orientation: args[:geometry_unit_orientation])
+      sub_surface_facade = Geometry.get_surface_facade(sub_surface)
+      azimuth = Geometry.get_azimuth_from_facade(sub_surface_facade, args[:geometry_unit_orientation])
 
       roof_idref = @surface_ids[surface.name.to_s]
       next if roof_idref.nil?
@@ -5417,10 +5416,10 @@ module HPXMLFile
 
       surface = sub_surface.surface.get
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
 
       if [HPXML::LocationOtherHousingUnit].include?(interior_adjacent_to)
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         next if adjacent_surface.nil?
       end
 
@@ -5627,13 +5626,14 @@ module HPXMLFile
     end
 
     if cooling_system_type != HPXML::HVACTypeEvaporativeCooler
-      if args[:cooling_system_cooling_efficiency_type] == HPXML::UnitsSEER
+      case args[:cooling_system_cooling_efficiency_type]
+      when HPXML::UnitsSEER
         cooling_efficiency_seer = args[:cooling_system_cooling_efficiency]
-      elsif args[:cooling_system_cooling_efficiency_type] == HPXML::UnitsSEER2
+      when HPXML::UnitsSEER2
         cooling_efficiency_seer2 = args[:cooling_system_cooling_efficiency]
-      elsif args[:cooling_system_cooling_efficiency_type] == HPXML::UnitsEER
+      when HPXML::UnitsEER
         cooling_efficiency_eer = args[:cooling_system_cooling_efficiency]
-      elsif args[:cooling_system_cooling_efficiency_type] == HPXML::UnitsCEER
+      when HPXML::UnitsCEER
         cooling_efficiency_ceer = args[:cooling_system_cooling_efficiency]
       end
     end
@@ -5695,10 +5695,11 @@ module HPXMLFile
       cooling_perf_data_data_points.each do |cooling_perf_data_data_point|
         outdoor_temperature, min_speed_cap_or_frac, max_speed_cap_or_frac, min_speed_cop, max_speed_cop = cooling_perf_data_data_point
 
-        if hvac_perf_data_capacity_type == 'Absolute capacities'
+        case hvac_perf_data_capacity_type
+        when 'Absolute capacities'
           min_speed_capacity = Float(min_speed_cap_or_frac)
           max_speed_capacity = Float(max_speed_cap_or_frac)
-        elsif hvac_perf_data_capacity_type == 'Normalized capacity fractions'
+        when 'Normalized capacity fractions'
           min_speed_capacity_fraction_of_nominal = Float(min_speed_cap_or_frac)
           max_speed_capacity_fraction_of_nominal = Float(max_speed_cap_or_frac)
         end
@@ -5737,7 +5738,8 @@ module HPXMLFile
 
     return if heat_pump_type == Constants::None
 
-    if args[:heat_pump_backup_type] == HPXML::HeatPumpBackupTypeIntegrated
+    case args[:heat_pump_backup_type]
+    when HPXML::HeatPumpBackupTypeIntegrated
       backup_type = args[:heat_pump_backup_type]
       backup_heating_fuel = args[:heat_pump_backup_fuel]
       backup_heating_capacity = args[:heat_pump_backup_heating_capacity]
@@ -5747,7 +5749,7 @@ module HPXMLFile
       else
         backup_heating_efficiency_afue = args[:heat_pump_backup_heating_efficiency]
       end
-    elsif args[:heat_pump_backup_type] == HPXML::HeatPumpBackupTypeSeparate
+    when HPXML::HeatPumpBackupTypeSeparate
       if args[:heating_system_2_type] == Constants::None
         fail "Heat pump backup type specified as '#{args[:heat_pump_backup_type]}' but no heating system provided."
       end
@@ -5769,19 +5771,21 @@ module HPXMLFile
       compressor_type = args[:heat_pump_cooling_compressor_type]
     end
 
-    if args[:heat_pump_heating_efficiency_type] == HPXML::UnitsHSPF
+    case args[:heat_pump_heating_efficiency_type]
+    when HPXML::UnitsHSPF
       heating_efficiency_hspf = args[:heat_pump_heating_efficiency]
-    elsif args[:heat_pump_heating_efficiency_type] == HPXML::UnitsHSPF2
+    when HPXML::UnitsHSPF2
       heating_efficiency_hspf2 = args[:heat_pump_heating_efficiency]
-    elsif args[:heat_pump_heating_efficiency_type] == HPXML::UnitsCOP
+    when HPXML::UnitsCOP
       heating_efficiency_cop = args[:heat_pump_heating_efficiency]
     end
 
-    if args[:heat_pump_cooling_efficiency_type] == HPXML::UnitsSEER
+    case args[:heat_pump_cooling_efficiency_type]
+    when HPXML::UnitsSEER
       cooling_efficiency_seer = args[:heat_pump_cooling_efficiency]
-    elsif args[:heat_pump_cooling_efficiency_type] == HPXML::UnitsSEER2
+    when HPXML::UnitsSEER2
       cooling_efficiency_seer2 = args[:heat_pump_cooling_efficiency]
-    elsif args[:heat_pump_cooling_efficiency_type] == HPXML::UnitsEER
+    when HPXML::UnitsEER
       cooling_efficiency_eer = args[:heat_pump_cooling_efficiency]
     end
 
@@ -5848,10 +5852,11 @@ module HPXMLFile
         heating_perf_data_data_points.each do |heating_perf_data_data_point|
           outdoor_temperature, min_speed_cap_or_frac, max_speed_cap_or_frac, min_speed_cop, max_speed_cop = heating_perf_data_data_point
 
-          if hvac_perf_data_capacity_type == 'Absolute capacities'
+          case hvac_perf_data_capacity_type
+          when 'Absolute capacities'
             min_speed_capacity = Float(min_speed_cap_or_frac)
             max_speed_capacity = Float(max_speed_cap_or_frac)
-          elsif hvac_perf_data_capacity_type == 'Normalized capacity fractions'
+          when 'Normalized capacity fractions'
             min_speed_capacity_fraction_of_nominal = Float(min_speed_cap_or_frac)
             max_speed_capacity_fraction_of_nominal = Float(max_speed_cap_or_frac)
           end
@@ -5885,10 +5890,11 @@ module HPXMLFile
         cooling_perf_data_data_points.each do |cooling_perf_data_data_point|
           outdoor_temperature, min_speed_cap_or_frac, max_speed_cap_or_frac, min_speed_cop, max_speed_cop = cooling_perf_data_data_point
 
-          if hvac_perf_data_capacity_type == 'Absolute capacities'
+          case hvac_perf_data_capacity_type
+          when 'Absolute capacities'
             min_speed_capacity = Float(min_speed_cap_or_frac)
             max_speed_capacity = Float(max_speed_cap_or_frac)
-          elsif hvac_perf_data_capacity_type == 'Normalized capacity fractions'
+          when 'Normalized capacity fractions'
             min_speed_capacity_fraction_of_nominal = Float(min_speed_cap_or_frac)
             max_speed_capacity_fraction_of_nominal = Float(max_speed_cap_or_frac)
           end
@@ -5926,12 +5932,12 @@ module HPXMLFile
     return if args[:geothermal_loop_configuration].nil? || args[:geothermal_loop_configuration] == Constants::None
 
     if not args[:geothermal_loop_pipe_diameter].nil?
-      pipe_diameter = args[:geothermal_loop_pipe_diameter]
-      if pipe_diameter == '3/4" pipe'
+      case args[:geothermal_loop_pipe_diameter]
+      when '3/4" pipe'
         pipe_diameter = 0.75
-      elsif pipe_diameter == '1" pipe'
+      when '1" pipe'
         pipe_diameter = 1.0
-      elsif pipe_diameter == '1-1/4" pipe'
+      when '1-1/4" pipe'
         pipe_diameter = 1.25
       end
     end
@@ -6018,24 +6024,25 @@ module HPXMLFile
     # AirDistribution?
     air_distribution_systems = []
     hpxml_bldg.heating_systems.each do |heating_system|
-      if [HPXML::HVACTypeFurnace].include?(heating_system.heating_system_type)
+      case heating_system.heating_system_type
+      when HPXML::HVACTypeFurnace
         air_distribution_systems << heating_system
       end
     end
     hpxml_bldg.cooling_systems.each do |cooling_system|
-      if [HPXML::HVACTypeCentralAirConditioner].include?(cooling_system.cooling_system_type)
+      case cooling_system.cooling_system_type
+      when HPXML::HVACTypeCentralAirConditioner
         air_distribution_systems << cooling_system
-      elsif [HPXML::HVACTypeEvaporativeCooler, HPXML::HVACTypeMiniSplitAirConditioner].include?(cooling_system.cooling_system_type) && args[:cooling_system_is_ducted]
-        air_distribution_systems << cooling_system
+      when HPXML::HVACTypeEvaporativeCooler, HPXML::HVACTypeMiniSplitAirConditioner
+        air_distribution_systems << cooling_system if args[:cooling_system_is_ducted]
       end
     end
     hpxml_bldg.heat_pumps.each do |heat_pump|
-      if [HPXML::HVACTypeHeatPumpAirToAir, HPXML::HVACTypeHeatPumpGroundToAir].include? heat_pump.heat_pump_type
+      case heat_pump.heat_pump_type
+      when HPXML::HVACTypeHeatPumpAirToAir, HPXML::HVACTypeHeatPumpGroundToAir
         air_distribution_systems << heat_pump
-      elsif [HPXML::HVACTypeHeatPumpMiniSplit].include?(heat_pump.heat_pump_type)
-        if args[:heat_pump_is_ducted]
-          air_distribution_systems << heat_pump if args[:heat_pump_is_ducted]
-        end
+      when HPXML::HVACTypeHeatPumpMiniSplit
+        air_distribution_systems << heat_pump if args[:heat_pump_is_ducted]
       end
     end
 
@@ -6089,7 +6096,8 @@ module HPXMLFile
   def self.set_hvac_blower(hpxml_bldg, args)
     # Blower fan W/cfm
     hpxml_bldg.hvac_systems.each do |hvac_system|
-      next unless (!hvac_system.distribution_system.nil? && hvac_system.distribution_system.distribution_system_type == HPXML::HVACDistributionTypeAir) || (hvac_system.is_a?(HPXML::HeatPump) && [HPXML::HVACTypeHeatPumpMiniSplit].include?(hvac_system.heat_pump_type))
+      next unless (!hvac_system.distribution_system.nil? && hvac_system.distribution_system.distribution_system_type == HPXML::HVACDistributionTypeAir) ||
+                  (hvac_system.is_a?(HPXML::HeatPump) && hvac_system.heat_pump_type == HPXML::HVACTypeHeatPumpMiniSplit)
 
       fan_watts_per_cfm = args[:hvac_blower_fan_watts_per_cfm]
 
@@ -6098,11 +6106,14 @@ module HPXMLFile
           hvac_system.fan_watts_per_cfm = fan_watts_per_cfm
         end
       elsif hvac_system.is_a?(HPXML::CoolingSystem)
-        if [HPXML::HVACTypeCentralAirConditioner, HPXML::HVACTypeMiniSplitAirConditioner].include?(hvac_system.cooling_system_type)
+        if [HPXML::HVACTypeCentralAirConditioner,
+            HPXML::HVACTypeMiniSplitAirConditioner].include?(hvac_system.cooling_system_type)
           hvac_system.fan_watts_per_cfm = fan_watts_per_cfm
         end
       elsif hvac_system.is_a?(HPXML::HeatPump)
-        if [HPXML::HVACTypeHeatPumpAirToAir, HPXML::HVACTypeHeatPumpMiniSplit, HPXML::HVACTypeHeatPumpGroundToAir].include?(hvac_system.heat_pump_type)
+        if [HPXML::HVACTypeHeatPumpAirToAir,
+            HPXML::HVACTypeHeatPumpMiniSplit,
+            HPXML::HVACTypeHeatPumpGroundToAir].include?(hvac_system.heat_pump_type)
           hvac_system.fan_watts_per_cfm = fan_watts_per_cfm
         end
       end
@@ -6138,21 +6149,23 @@ module HPXMLFile
     return if location.nil?
 
     if location == HPXML::LocationCrawlspace
-      if foundation_type == HPXML::FoundationTypeCrawlspaceUnvented
+      case foundation_type
+      when HPXML::FoundationTypeCrawlspaceUnvented
         return HPXML::LocationCrawlspaceUnvented
-      elsif foundation_type == HPXML::FoundationTypeCrawlspaceVented
+      when HPXML::FoundationTypeCrawlspaceVented
         return HPXML::LocationCrawlspaceVented
-      elsif foundation_type == HPXML::FoundationTypeCrawlspaceConditioned
+      when HPXML::FoundationTypeCrawlspaceConditioned
         return HPXML::LocationCrawlspaceConditioned
       else
         fail "Specified '#{location}' but foundation type is '#{foundation_type}'."
       end
     elsif location == HPXML::LocationAttic
-      if attic_type == HPXML::AtticTypeUnvented
+      case attic_type
+      when HPXML::AtticTypeUnvented
         return HPXML::LocationAtticUnvented
-      elsif attic_type == HPXML::AtticTypeVented
+      when HPXML::AtticTypeVented
         return HPXML::LocationAtticVented
-      elsif attic_type == HPXML::AtticTypeConditioned
+      when HPXML::AtticTypeConditioned
         return HPXML::LocationConditionedSpace
       else
         fail "Specified '#{location}' but attic type is '#{attic_type}'."
@@ -6393,24 +6406,26 @@ module HPXMLFile
   def self.set_ventilation_fans(hpxml_bldg, args)
     if args[:mech_vent_fan_type] != Constants::None
 
-      if [HPXML::MechVentTypeERV].include?(args[:mech_vent_fan_type])
-        if args[:mech_vent_recovery_efficiency_type] == 'Unadjusted'
+      distribution_system_idref = nil
+
+      case args[:mech_vent_fan_type]
+      when HPXML::MechVentTypeERV
+        case args[:mech_vent_recovery_efficiency_type]
+        when 'Unadjusted'
           total_recovery_efficiency = args[:mech_vent_total_recovery_efficiency]
           sensible_recovery_efficiency = args[:mech_vent_sensible_recovery_efficiency]
-        elsif args[:mech_vent_recovery_efficiency_type] == 'Adjusted'
+        when 'Adjusted'
           total_recovery_efficiency_adjusted = args[:mech_vent_total_recovery_efficiency]
           sensible_recovery_efficiency_adjusted = args[:mech_vent_sensible_recovery_efficiency]
         end
-      elsif [HPXML::MechVentTypeHRV].include?(args[:mech_vent_fan_type])
-        if args[:mech_vent_recovery_efficiency_type] == 'Unadjusted'
+      when HPXML::MechVentTypeHRV
+        case args[:mech_vent_recovery_efficiency_type]
+        when 'Unadjusted'
           sensible_recovery_efficiency = args[:mech_vent_sensible_recovery_efficiency]
-        elsif args[:mech_vent_recovery_efficiency_type] == 'Adjusted'
+        when 'Adjusted'
           sensible_recovery_efficiency_adjusted = args[:mech_vent_sensible_recovery_efficiency]
         end
-      end
-
-      distribution_system_idref = nil
-      if args[:mech_vent_fan_type] == HPXML::MechVentTypeCFIS
+      when HPXML::MechVentTypeCFIS
         hpxml_bldg.hvac_distributions.each do |hvac_distribution|
           next unless hvac_distribution.distribution_system_type == HPXML::HVACDistributionTypeAir
           next if hvac_distribution.air_type != HPXML::AirTypeRegularVelocity
@@ -6474,19 +6489,21 @@ module HPXMLFile
 
     if args[:mech_vent_2_fan_type] != Constants::None
 
-      if [HPXML::MechVentTypeERV].include?(args[:mech_vent_2_fan_type])
-
-        if args[:mech_vent_2_recovery_efficiency_type] == 'Unadjusted'
+      case args[:mech_vent_2_fan_type]
+      when HPXML::MechVentTypeERV
+        case args[:mech_vent_2_recovery_efficiency_type]
+        when 'Unadjusted'
           total_recovery_efficiency = args[:mech_vent_2_total_recovery_efficiency]
           sensible_recovery_efficiency = args[:mech_vent_2_sensible_recovery_efficiency]
-        elsif args[:mech_vent_2_recovery_efficiency_type] == 'Adjusted'
+        when 'Adjusted'
           total_recovery_efficiency_adjusted = args[:mech_vent_2_total_recovery_efficiency]
           sensible_recovery_efficiency_adjusted = args[:mech_vent_2_sensible_recovery_efficiency]
         end
-      elsif [HPXML::MechVentTypeHRV].include?(args[:mech_vent_2_fan_type])
-        if args[:mech_vent_2_recovery_efficiency_type] == 'Unadjusted'
+      when HPXML::MechVentTypeHRV
+        case args[:mech_vent_2_recovery_efficiency_type]
+        when 'Unadjusted'
           sensible_recovery_efficiency = args[:mech_vent_2_sensible_recovery_efficiency]
-        elsif args[:mech_vent_2_recovery_efficiency_type] == 'Adjusted'
+        when 'Adjusted'
           sensible_recovery_efficiency_adjusted = args[:mech_vent_2_sensible_recovery_efficiency]
         end
       end
@@ -6560,9 +6577,10 @@ module HPXMLFile
     location = get_location(args[:water_heater_location], hpxml_bldg.foundations[-1].foundation_type, hpxml_bldg.attics[-1].attic_type)
 
     if not [HPXML::WaterHeaterTypeCombiStorage, HPXML::WaterHeaterTypeCombiTankless].include? water_heater_type
-      if args[:water_heater_efficiency_type] == 'EnergyFactor'
+      case args[:water_heater_efficiency_type]
+      when 'EnergyFactor'
         energy_factor = args[:water_heater_efficiency]
-      elsif args[:water_heater_efficiency_type] == 'UniformEnergyFactor'
+      when 'UniformEnergyFactor'
         uniform_energy_factor = args[:water_heater_efficiency]
         if water_heater_type != HPXML::WaterHeaterTypeTankless
           usage_bin = args[:water_heater_usage_bin]
@@ -6955,9 +6973,10 @@ module HPXMLFile
   def self.set_dehumidifier(hpxml_bldg, args)
     return if args[:dehumidifier_type] == Constants::None
 
-    if args[:dehumidifier_efficiency_type] == 'EnergyFactor'
+    case args[:dehumidifier_efficiency_type]
+    when 'EnergyFactor'
       energy_factor = args[:dehumidifier_efficiency]
-    elsif args[:dehumidifier_efficiency_type] == 'IntegratedEnergyFactor'
+    when 'IntegratedEnergyFactor'
       integrated_energy_factor = args[:dehumidifier_efficiency]
     end
 
@@ -6987,9 +7006,10 @@ module HPXMLFile
     return if args[:water_heater_type] == Constants::None
     return unless args[:clothes_washer_present]
 
-    if args[:clothes_washer_efficiency_type] == 'ModifiedEnergyFactor'
+    case args[:clothes_washer_efficiency_type]
+    when 'ModifiedEnergyFactor'
       modified_energy_factor = args[:clothes_washer_efficiency]
-    elsif args[:clothes_washer_efficiency_type] == 'IntegratedModifiedEnergyFactor'
+    when 'IntegratedModifiedEnergyFactor'
       integrated_modified_energy_factor = args[:clothes_washer_efficiency]
     end
 
@@ -7021,9 +7041,10 @@ module HPXMLFile
     return unless args[:clothes_washer_present]
     return unless args[:clothes_dryer_present]
 
-    if args[:clothes_dryer_efficiency_type] == 'EnergyFactor'
+    case args[:clothes_dryer_efficiency_type]
+    when 'EnergyFactor'
       energy_factor = args[:clothes_dryer_efficiency]
-    elsif args[:clothes_dryer_efficiency_type] == 'CombinedEnergyFactor'
+    when 'CombinedEnergyFactor'
       combined_energy_factor = args[:clothes_dryer_efficiency]
     end
 
@@ -7061,9 +7082,10 @@ module HPXMLFile
     return if args[:water_heater_type] == Constants::None
     return unless args[:dishwasher_present]
 
-    if args[:dishwasher_efficiency_type] == 'RatedAnnualkWh'
+    case args[:dishwasher_efficiency_type]
+    when 'RatedAnnualkWh'
       rated_annual_kwh = args[:dishwasher_efficiency]
-    elsif args[:dishwasher_efficiency_type] == 'EnergyFactor'
+    when 'EnergyFactor'
       energy_factor = args[:dishwasher_efficiency]
     end
 
@@ -7305,14 +7327,13 @@ module HPXMLFile
   def self.set_pool(hpxml_bldg, args)
     return unless args[:pool_present]
 
-    if [HPXML::HeaterTypeElectricResistance, HPXML::HeaterTypeHeatPump].include?(args[:pool_heater_type])
+    case args[:pool_heater_type]
+    when HPXML::HeaterTypeElectricResistance, HPXML::HeaterTypeHeatPump
       if not args[:pool_heater_annual_kwh].nil?
         heater_load_units = HPXML::UnitsKwhPerYear
         heater_load_value = args[:pool_heater_annual_kwh]
       end
-    end
-
-    if [HPXML::HeaterTypeGas].include?(args[:pool_heater_type])
+    when HPXML::HeaterTypeGas
       if not args[:pool_heater_annual_therm].nil?
         heater_load_units = HPXML::UnitsThermPerYear
         heater_load_value = args[:pool_heater_annual_therm]
@@ -7343,14 +7364,13 @@ module HPXMLFile
   def self.set_permanent_spa(hpxml_bldg, args)
     return unless args[:permanent_spa_present]
 
-    if [HPXML::HeaterTypeElectricResistance, HPXML::HeaterTypeHeatPump].include?(args[:permanent_spa_heater_type])
+    case args[:permanent_spa_heater_type]
+    when HPXML::HeaterTypeElectricResistance, HPXML::HeaterTypeHeatPump
       if not args[:permanent_spa_heater_annual_kwh].nil?
         heater_load_units = HPXML::UnitsKwhPerYear
         heater_load_value = args[:permanent_spa_heater_annual_kwh]
       end
-    end
-
-    if [HPXML::HeaterTypeGas].include?(args[:permanent_spa_heater_type])
+    when HPXML::HeaterTypeGas
       if not args[:permanent_spa_heater_annual_therm].nil?
         heater_load_units = HPXML::UnitsThermPerYear
         heater_load_value = args[:permanent_spa_heater_annual_therm]

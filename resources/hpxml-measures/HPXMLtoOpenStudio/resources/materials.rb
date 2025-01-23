@@ -272,31 +272,34 @@ class Material
   def self.ExteriorFinishMaterial(type, thick_in = nil)
     if (type == HPXML::SidingTypeNone) || (!thick_in.nil? && thick_in <= 0)
       return
-    elsif [HPXML::SidingTypeAsbestos].include? type
+    end
+
+    case type
+    when HPXML::SidingTypeAsbestos
       thick_in = 0.25 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 4.20, rho: 118.6, cp: 0.24)
-    elsif [HPXML::SidingTypeBrick].include? type
+    when HPXML::SidingTypeBrick
       thick_in = 4.0 if thick_in.nil?
       return new(name: type, thick_in: thick_in, mat_base: BaseMaterial.Brick)
-    elsif [HPXML::SidingTypeCompositeShingle].include? type
+    when HPXML::SidingTypeCompositeShingle
       thick_in = 0.25 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 1.128, rho: 70.0, cp: 0.35)
-    elsif [HPXML::SidingTypeFiberCement].include? type
+    when HPXML::SidingTypeFiberCement
       thick_in = 0.375 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 1.79, rho: 21.7, cp: 0.24)
-    elsif [HPXML::SidingTypeMasonite].include? type # Masonite hardboard
+    when HPXML::SidingTypeMasonite # Masonite hardboard
       thick_in = 0.5 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 0.69, rho: 46.8, cp: 0.39)
-    elsif [HPXML::SidingTypeStucco].include? type
+    when HPXML::SidingTypeStucco
       thick_in = 1.0 if thick_in.nil?
       return new(name: type, thick_in: thick_in, mat_base: BaseMaterial.Stucco)
-    elsif [HPXML::SidingTypeSyntheticStucco].include? type # EIFS
+    when HPXML::SidingTypeSyntheticStucco # EIFS
       thick_in = 1.0 if thick_in.nil?
       return new(name: type, thick_in: thick_in, mat_base: BaseMaterial.InsulationRigid)
-    elsif [HPXML::SidingTypeVinyl, HPXML::SidingTypeAluminum].include? type
+    when HPXML::SidingTypeVinyl, HPXML::SidingTypeAluminum
       thick_in = 0.375 if thick_in.nil?
       return new(name: type, thick_in: thick_in, mat_base: BaseMaterial.Vinyl)
-    elsif [HPXML::SidingTypeWood].include? type
+    when HPXML::SidingTypeWood
       thick_in = 1.0 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 0.71, rho: 34.0, cp: 0.28)
     end
@@ -310,25 +313,26 @@ class Material
   # @param thick_in [TODO] TODO
   # @return [TODO] TODO
   def self.FoundationWallMaterial(type, thick_in)
-    if type == HPXML::FoundationWallTypeSolidConcrete
+    case type
+    when HPXML::FoundationWallTypeSolidConcrete
       return Material.Concrete(thick_in)
-    elsif type == HPXML::FoundationWallTypeDoubleBrick
+    when HPXML::FoundationWallTypeDoubleBrick
       return new(name: "#{type} #{thick_in} in.", thick_in: thick_in, mat_base: BaseMaterial.Brick, tAbs: 0.9)
-    elsif type == HPXML::FoundationWallTypeWood
+    when HPXML::FoundationWallTypeWood
       # Open wood cavity wall, so just assume 0.5" of sheathing
       return new(name: "#{type} #{thick_in} in.", thick_in: 0.5, mat_base: BaseMaterial.Wood, tAbs: 0.9)
     # Concrete block conductivity values below derived from Table 2 of
     # https://ncma.org/resource/rvalues-ufactors-of-single-wythe-concrete-masonry-walls/. Values
     # for 6-in thickness and 115 pcf, with interior/exterior films removed (R-0.68/R-0.17).
-    elsif type == HPXML::FoundationWallTypeConcreteBlockSolidCore
+    when HPXML::FoundationWallTypeConcreteBlockSolidCore
       return new(name: "#{type} #{thick_in} in.", thick_in: thick_in, k_in: 8.5, rho: 115.0, cp: 0.2, tAbs: 0.9)
-    elsif type == HPXML::FoundationWallTypeConcreteBlock
+    when HPXML::FoundationWallTypeConcreteBlock
       return new(name: "#{type} #{thick_in} in.", thick_in: thick_in, k_in: 5.0, rho: 45.0, cp: 0.2, tAbs: 0.9)
-    elsif type == HPXML::FoundationWallTypeConcreteBlockPerliteCore
+    when HPXML::FoundationWallTypeConcreteBlockPerliteCore
       return new(name: "#{type} #{thick_in} in.", thick_in: thick_in, k_in: 2.0, rho: 67.0, cp: 0.2, tAbs: 0.9)
-    elsif type == HPXML::FoundationWallTypeConcreteBlockFoamCore
+    when HPXML::FoundationWallTypeConcreteBlockFoamCore
       return new(name: "#{type} #{thick_in} in.", thick_in: thick_in, k_in: 1.8, rho: 67.0, cp: 0.2, tAbs: 0.9)
-    elsif type == HPXML::FoundationWallTypeConcreteBlockVermiculiteCore
+    when HPXML::FoundationWallTypeConcreteBlockVermiculiteCore
       return new(name: "#{type} #{thick_in} in.", thick_in: thick_in, k_in: 2.1, rho: 67.0, cp: 0.2, tAbs: 0.9)
     end
 
@@ -345,11 +349,10 @@ class Material
       return
     else
       thick_in = 0.5 if thick_in.nil?
-      if [HPXML::InteriorFinishGypsumBoard,
-          HPXML::InteriorFinishGypsumCompositeBoard,
-          HPXML::InteriorFinishPlaster].include? type
+      case type
+      when HPXML::InteriorFinishGypsumBoard, HPXML::InteriorFinishGypsumCompositeBoard, HPXML::InteriorFinishPlaster
         return new(name: type, thick_in: thick_in, mat_base: BaseMaterial.Gypsum)
-      elsif [HPXML::InteriorFinishWood].include? type
+      when HPXML::InteriorFinishWood
         return new(name: type, thick_in: thick_in, mat_base: BaseMaterial.Wood)
       end
     end
@@ -435,22 +438,23 @@ class Material
   # @param thick_in [TODO] TODO
   # @return [TODO] TODO
   def self.RoofMaterial(type, thick_in = nil)
-    if [HPXML::RoofTypeMetal].include? type
+    case type
+    when HPXML::RoofTypeMetal
       thick_in = 0.02 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 346.9, rho: 487.0, cp: 0.11)
-    elsif [HPXML::RoofTypeAsphaltShingles, HPXML::RoofTypeWoodShingles, HPXML::RoofTypeShingles, HPXML::RoofTypeCool].include? type
+    when HPXML::RoofTypeAsphaltShingles, HPXML::RoofTypeWoodShingles, HPXML::RoofTypeShingles, HPXML::RoofTypeCool
       thick_in = 0.25 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 1.128, rho: 70.0, cp: 0.35)
-    elsif [HPXML::RoofTypeConcrete].include? type
+    when HPXML::RoofTypeConcrete
       thick_in = 0.75 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 7.63, rho: 131.1, cp: 0.199)
-    elsif [HPXML::RoofTypeClayTile].include? type
+    when HPXML::RoofTypeClayTile
       thick_in = 0.75 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 5.83, rho: 118.6, cp: 0.191)
-    elsif [HPXML::RoofTypeEPS].include? type
+    when HPXML::RoofTypeEPS
       thick_in = 1.0 if thick_in.nil?
       return new(name: type, thick_in: thick_in, mat_base: BaseMaterial.InsulationRigid)
-    elsif [HPXML::RoofTypePlasticRubber].include? type
+    when HPXML::RoofTypePlasticRubber
       thick_in = 0.25 if thick_in.nil?
       return new(name: type, thick_in: thick_in, k_in: 2.78, rho: 110.8, cp: 0.36)
     end

@@ -1544,13 +1544,15 @@ module Constructions
       furnSolarAbsorptance = 0.6
       furnSpecHeat = mat.cp
       furnDensity = mat.rho
-      if location == HPXML::LocationConditionedSpace
+
+      case location
+      when HPXML::LocationConditionedSpace
         furnAreaFraction = furniture_mass.area_fraction
         furnMass = mass_lb_per_sqft
-      elsif location == HPXML::LocationBasementUnconditioned
+      when HPXML::LocationBasementUnconditioned
         furnAreaFraction = 0.4
         furnMass = mass_lb_per_sqft
-      elsif location == HPXML::LocationGarage
+      when HPXML::LocationGarage
         furnAreaFraction = 0.1
         furnMass = 2.0
       end
@@ -1686,11 +1688,14 @@ module Constructions
   def self.get_gap_factor(install_grade, framing_factor, cavity_r)
     if cavity_r <= 0
       return 0 # Gap factor only applies when there is cavity insulation
-    elsif install_grade == 1
+    end
+
+    case install_grade
+    when 1
       return 0
-    elsif install_grade == 2
+    when 2
       return 0.02 * (1 - framing_factor)
-    elsif install_grade == 3
+    when 3
       return 0.05 * (1 - framing_factor)
     end
 
@@ -1920,7 +1925,8 @@ module Constructions
     else
       # Space temperature assumptions from ASHRAE 152 - Duct Efficiency Calculations.xls, Zone temperatures
       ground_temp = weather.data.ShallowGroundMonthlyTemps[sim_begin_month - 1]
-      if interior_adjacent_to == HPXML::LocationBasementUnconditioned
+      case interior_adjacent_to
+      when HPXML::LocationBasementUnconditioned
         if foundation_ceiling_insulated
           # Insulated ceiling: 75% ground, 25% outdoor, 0% indoor
           ground_weight, outdoor_weight, indoor_weight = 0.75, 0.25, 0.0
@@ -1932,7 +1938,7 @@ module Constructions
           ground_weight, outdoor_weight, indoor_weight = 0.5, 0.2, 0.3
         end
         initial_temp = outdoor_temp * outdoor_weight + ground_temp * ground_weight + indoor_weight * indoor_temp
-      elsif interior_adjacent_to == HPXML::LocationCrawlspaceVented
+      when HPXML::LocationCrawlspaceVented
         if foundation_ceiling_insulated
           # Insulated ceiling: 90% outdoor, 10% indoor
           outdoor_weight, indoor_weight = 0.9, 0.1
@@ -1944,7 +1950,7 @@ module Constructions
           outdoor_weight, indoor_weight = 0.5, 0.5
         end
         initial_temp = outdoor_temp * outdoor_weight + indoor_weight * indoor_temp
-      elsif interior_adjacent_to == HPXML::LocationCrawlspaceUnvented
+      when HPXML::LocationCrawlspaceUnvented
         if foundation_ceiling_insulated
           # Insulated ceiling: 85% outdoor, 15% indoor
           outdoor_weight, indoor_weight = 0.85, 0.15
@@ -1956,7 +1962,7 @@ module Constructions
           outdoor_weight, indoor_weight = 0.4, 0.6
         end
         initial_temp = outdoor_temp * outdoor_weight + indoor_weight * indoor_temp
-      elsif interior_adjacent_to == HPXML::LocationGarage
+      when HPXML::LocationGarage
         initial_temp = outdoor_temp + 11.0
       else
         fail "Unhandled space: #{interior_adjacent_to}"
@@ -2036,14 +2042,14 @@ module Constructions
     esf_winter = window_or_skylight.exterior_shading_factor_winter.nil? ? 1.0 : window_or_skylight.exterior_shading_factor_winter
     if window_or_skylight.is_a? HPXML::Window
       # These inputs currently only pertain to windows (not skylights)
-      if [HPXML::ExteriorShadingTypeExternalOverhangs,
-          HPXML::ExteriorShadingTypeAwnings].include? window_or_skylight.exterior_shading_type
+      case window_or_skylight.exterior_shading_type
+      when HPXML::ExteriorShadingTypeExternalOverhangs, HPXML::ExteriorShadingTypeAwnings
         if window_or_skylight.overhangs_depth.to_f > 0
           # Explicitly modeling the overhangs, so don't double count the shading effect
           esf_summer = 1.0
           esf_winter = 1.0
         end
-      elsif [HPXML::ExteriorShadingTypeBuilding].include? window_or_skylight.exterior_shading_type
+      when HPXML::ExteriorShadingTypeBuilding
         if hpxml_bldg.neighbor_buildings.size > 0
           # Explicitly modeling neighboring building, so don't double count the shading effect
           esf_summer = 1.0
@@ -2184,7 +2190,8 @@ module Constructions
       fallback_mat_int_finish = Material.InteriorFinishMaterial(mat_int_finish.name, 0.1) # Try thin material
     end
 
-    if wall_type == HPXML::WallTypeWoodStud
+    case wall_type
+    when HPXML::WallTypeWoodStud
       install_grade = 1
       cavity_filled = true
 
@@ -2215,7 +2222,7 @@ module Constructions
                            radiant_barrier_grade,
                            solar_absorptance,
                            emittance)
-    elsif wall_type == HPXML::WallTypeSteelStud
+    when HPXML::WallTypeSteelStud
       install_grade = 1
       cavity_filled = true
       corr_factor = 0.45
@@ -2236,7 +2243,7 @@ module Constructions
                             constr_set.osb_thick_in, constr_set.rigid_r,
                             constr_set.mat_ext_finish, has_radiant_barrier, inside_film, outside_film,
                             radiant_barrier_grade, solar_absorptance, emittance)
-    elsif wall_type == HPXML::WallTypeDoubleWoodStud
+    when HPXML::WallTypeDoubleWoodStud
       install_grade = 1
       is_staggered = false
 
@@ -2255,7 +2262,7 @@ module Constructions
                              has_radiant_barrier, inside_film, outside_film,
                              radiant_barrier_grade, solar_absorptance,
                              emittance)
-    elsif wall_type == HPXML::WallTypeCMU
+    when HPXML::WallTypeCMU
       density = 119.0 # lb/ft^3
       furring_r = 0
       furring_cavity_depth_in = 0 # in
@@ -2274,7 +2281,7 @@ module Constructions
                      constr_set.mat_int_finish, constr_set.osb_thick_in,
                      rigid_r, constr_set.mat_ext_finish, has_radiant_barrier, inside_film,
                      outside_film, radiant_barrier_grade, solar_absorptance, emittance)
-    elsif wall_type == HPXML::WallTypeSIP
+    when HPXML::WallTypeSIP
       sheathing_thick_in = 0.44
 
       constr_sets = [
@@ -2290,7 +2297,7 @@ module Constructions
                      constr_set.osb_thick_in, constr_set.rigid_r,
                      constr_set.mat_ext_finish, has_radiant_barrier, inside_film, outside_film,
                      radiant_barrier_grade, solar_absorptance, emittance)
-    elsif wall_type == HPXML::WallTypeICF
+    when HPXML::WallTypeICF
       constr_sets = [
         ICFConstructionSet.new(2.0, 4.0, 0.08, 0.0, 0.5, mat_int_finish, mat_ext_finish),                   # ICF w/4" concrete and 2" rigid ins layers
         ICFConstructionSet.new(1.0, 1.0, 0.01, 0.0, 0.0, fallback_mat_int_finish, fallback_mat_ext_finish), # Fallback
@@ -2305,7 +2312,7 @@ module Constructions
                      has_radiant_barrier, inside_film, outside_film,
                      radiant_barrier_grade, solar_absorptance,
                      emittance)
-    elsif [HPXML::WallTypeConcrete, HPXML::WallTypeBrick, HPXML::WallTypeAdobe, HPXML::WallTypeStrawBale, HPXML::WallTypeStone, HPXML::WallTypeLog].include? wall_type
+    when HPXML::WallTypeConcrete, HPXML::WallTypeBrick, HPXML::WallTypeAdobe, HPXML::WallTypeStrawBale, HPXML::WallTypeStone, HPXML::WallTypeLog
       constr_sets = [
         GenericConstructionSet.new(10.0, 0.5, mat_int_finish, mat_ext_finish),                  # w/R-10 rigid
         GenericConstructionSet.new(0.0, 0.5, mat_int_finish, mat_ext_finish),                   # Standard
@@ -2313,22 +2320,23 @@ module Constructions
       ]
       match, constr_set, layer_r = pick_generic_construction_set(assembly_r, constr_sets, inside_film, outside_film)
 
-      if wall_type == HPXML::WallTypeConcrete
+      case wall_type
+      when HPXML::WallTypeConcrete
         thick_in = 6.0
         base_mat = BaseMaterial.Concrete
-      elsif wall_type == HPXML::WallTypeBrick
+      when HPXML::WallTypeBrick
         thick_in = 8.0
         base_mat = BaseMaterial.Brick
-      elsif wall_type == HPXML::WallTypeAdobe
+      when HPXML::WallTypeAdobe
         thick_in = 10.0
         base_mat = BaseMaterial.Soil(12.0)
-      elsif wall_type == HPXML::WallTypeStrawBale
+      when HPXML::WallTypeStrawBale
         thick_in = 23.0
         base_mat = BaseMaterial.StrawBale
-      elsif wall_type == HPXML::WallTypeStone
+      when HPXML::WallTypeStone
         thick_in = 6.0
         base_mat = BaseMaterial.Stone
-      elsif wall_type == HPXML::WallTypeLog
+      when HPXML::WallTypeLog
         thick_in = 6.0
         base_mat = BaseMaterial.Wood
       end
@@ -2385,7 +2393,8 @@ module Constructions
     end
     osb_thick_in = (is_ceiling ? 0.0 : 0.75)
 
-    if floor_type == HPXML::FloorTypeWoodFrame
+    case floor_type
+    when HPXML::FloorTypeWoodFrame
       install_grade = 1
       constr_sets = [
         WoodStudConstructionSet.new(Material.Stud2x6, 0.10, 50.0, osb_thick_in, mat_int_finish_or_covering, nil), # 2x6, 24" o.c. + R50
@@ -2406,7 +2415,7 @@ module Constructions
                                      constr_set.osb_thick_in, constr_set.rigid_r, constr_int_finish_or_covering,
                                      has_radiant_barrier, inside_film, outside_film, radiant_barrier_grade)
 
-    elsif floor_type == HPXML::FloorTypeSteelFrame
+    when HPXML::FloorTypeSteelFrame
       install_grade = 1
       corr_factor = 0.45
       osb_thick_in = (is_ceiling ? 0.0 : 0.75)
@@ -2428,7 +2437,7 @@ module Constructions
                                       constr_set.osb_thick_in, constr_set.rigid_r, constr_int_finish_or_covering,
                                       has_radiant_barrier, inside_film, outside_film, radiant_barrier_grade)
 
-    elsif floor_type == HPXML::FloorTypeSIP
+    when HPXML::FloorTypeSIP
       constr_sets = [
         SIPConstructionSet.new(16.0, 0.08, 0.0, 0.0, osb_thick_in, mat_int_finish_or_covering, nil), # 16" SIP core
         SIPConstructionSet.new(12.0, 0.08, 0.0, 0.0, osb_thick_in, mat_int_finish_or_covering, nil), # 12" SIP core
@@ -2441,7 +2450,7 @@ module Constructions
                               cavity_r, constr_set.thick_in, constr_set.framing_factor,
                               constr_set.mat_int_finish, constr_set.osb_thick_in, constr_set.rigid_r,
                               constr_set.mat_ext_finish, has_radiant_barrier, inside_film, outside_film, radiant_barrier_grade)
-    elsif floor_type == HPXML::FloorTypeConcrete
+    when HPXML::FloorTypeConcrete
       constr_sets = [
         GenericConstructionSet.new(20.0, osb_thick_in, mat_int_finish_or_covering, nil), # w/R-20 rigid
         GenericConstructionSet.new(10.0, osb_thick_in, mat_int_finish_or_covering, nil), # w/R-10 rigid
