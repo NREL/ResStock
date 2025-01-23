@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-ResStock Documentation
-======================
+ResStock Technical Development Guide
+====================================
 
 .. note::
   Most people who use ResStock for analysis do so by using the datasets published to the `ResStock Data Viewer <https://resstock.nrel.gov>`_.

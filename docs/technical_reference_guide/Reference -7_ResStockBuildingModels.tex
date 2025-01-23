@@ -1,0 +1,216 @@
+\chapter{ResStock Building Models}
+
+%Discuss a particular release of OS-HPXML Read the docs sections at a high level and discuss ResStock related changes made and create links between the this document and OS-HPXML sections of interest.
+
+% Do we default to OS-HPXML arguments, do we have our own specification of the arguments. Which algorithm are we using as there are multiple pathways often in OS-HPXML
+
+
+%\section{PRIORITY B Connection between ResStock and OpenStudio-HPXML}
+% Detailed description of how the workflow works
+
+%\begin{itemize}
+ % \item Translating samples into ResStock arguments %Options_lookup
+  %\item Translation of arguments into HPXML file % BuildResidentialHPXML and BuildResidentialScheduleFile measures
+  %\item ResStock arguments to OpenStudio-HPXML elements % This doesn’t exist but is a needed piece that often confuses many people including myself. Map ResStock arguments to OS-HPXML arguments or elements.
+%\end{itemize}
+
+\section{Workflow inputs and models}\label{build_models_workflow}
+
+%%%%%%% INTRO NEEDED
+
+
+% The purpose of this section is to basically go through OS-HPXML’s documentation items and discuss how we use the OS-HPXML framework. A general overview how each item is modeled. Include what we default, where we do not use the defaults, and what methods we use (example for infiltration we use the ACH way to specify infiltration, but one could provide other ways like Effective Leakage Area). Link to released version of OSHPXML section, add text that discusses approach and how we use it in ResStock
+\subsection{PRIORITY A Building}
+%ResStock models dwelling units not buildings. Caveat shared systems energy is attributed to the unit.
+\subsection{PRIORITY A Building Site}
+
+\subsection{Building Summary}
+\begin{itemize} 
+  %\item PRIORITY B Site
+  \item PRIORITY A Building Occupancy
+  %\item PRIORITY B Building Construction
+\end{itemize}
+\subsection{PRIORITY A Climate Zones}
+ResStock sets the HPXML Climate Zone IECC (documentation \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-climate-zones}{here})  using the climate zone definitions from ASHRAE 169 2004-2006, and IECC 2012. See \ref{ashrae_iecc_climate_zone_2004} ASHRAE IECC Climate Zone 2004. 
+
+Other climate zone parameters such as Building American climate zone (\ref{building_america_climate_zone}), California Energy Commission (CEC) climate zone (\ref{cec_climate_zone}), and EnergyStar climate zone (\ref{energystar_climate_zone_2023}) are also available as ResStock parameters but do not feed directly into the OpenStudio-HPXML workflow. They are used for other purposes such as for downstream probability distributions, for measure apply logic, or for interpretation of results.  
+
+OpenStudio-HPXML documentation includes weather information within the Climate Zone section. ResStock sets weather file information for each dwelling unit as described in the \ref{weather_data} weather section of this document. 
+\subsection{Enclosure}
+%\begin{itemize}
+    % PRIORITY B \item Infiltration
+    % PRIORITY B \item Attics
+    % PRIORITY B \item Foundations
+    % PRIORITY B \item Roofs
+    % PRIORITY B \item Rim Joists
+\subsection{Walls}
+\paragraph{Description} 
+
+Walls in ResStock are specified both from the main structure of the wall as well as the exterior cladding. A distribution of insulation values are also assigned to the wall, depending on the location, vintage, and wall material
+
+\paragraph{How ResStock Uses OpenStudio-HPXML}
+
+See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-walls}{Walls} documentation for the available HPXML schema elements, default values, and constraints. ResStock provides the required inputs such as effective r-value, wall type, and the geometry related (e.g., adjacency criteria) to OS-HPXML.ResStock also provides non-required parameters, overriding OS-HPXML defaults, for Siding, wall Color, and Orientation. 
+
+\paragraph{ResStock Approach}
+ 
+The distribution of wall types in the baseline stock is discussed in the Geometry Wall Type section \ref{geometry_wall_type}, the exterior finishes section \ref{geometry_wall_exterior_finish}, and the wall insulation section \ref{insulation_wall}. 
+
+
+    % PRIORITY B \item Foundation walls
+    % PRIORITY B \item Floors
+    % PRIORITY B \item Slabs
+    % PRIORITY B \item Windows
+    % PRIORITY B \item Overhangs
+    % PRIORITY B \item Doors
+    % PRIORITY B \item Internal Mass
+    % \begin{itemize}
+   %    \item Partition Wall Mass
+        %\item Furniture Mass
+       %\item TemperatureCapacitanceMultiplier
+    %\end{itemize}
+    % PRIORITY B \item Natural ventilation
+%\end{itemize}
+\subsection{Systems}\label{build_model_systems}
+\subsubsection{Electric Resistance Heaters}
+
+\paragraph{Description} % Using paragraphs so that they can be labeled if needed.
+
+% Briefly describe the technology and any main assumptions in the model
+% The EnergyPlus Engineering Reference might help if this is difficult.
+% Tracking down this information from the EnergyPlus Engineering Reference requires finding the OpenStudio class reference in the OpenStudio-HPXML code. Example for Electric resistance heaters (https://github.com/NREL/OpenStudio-HPXML/blob/1b4accda1470e2549a78167371ab7d59124ce83b/HPXMLtoOpenStudio/resources/hvac.rb#L797). The "ZoneHVACBaseboardConvectiveElectric" class reference can usually be translated into an EnergyPlus object like "ZoneHVAC:Baseboard:Convective:Electric".
+% Point to where the distributions for this technology are in the baseline. For Electric Resistance, the option is Electric Baseboard, 100% Efficiency
+An electric resistance heating system is a device that converts electrical energy into heat by passing an electric current through a resistive element.
+
+\paragraph{How ResStock Uses OpenStudio-HPXML}
+
+% Point to the proper section of OpenStudio-HPXML documentation. Be sure to link to a static version, not the latest version of the documentation.
+See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#electric-resistance}{Electric Resistance} heating system documentation for the available HPXML schema elements, default values, and constraints. ResStock uses all the OpenStudio-HPXML default values. The electric heating systems are assumed to be baseboard heaters. The baseboard heating model assumes only convective heat transfer from the heating element to the conditioned space. 
+
+\paragraph{ResStock Approach}
+
+% Discuss argument assignment in ResStock and timeseries schedules (if applicable)
+% Discuss how ResStock uses the OS-HPXML inputs. Do we supply a distribution for the input value?
+% Help can be found on ResStock's RTD page and comparing the arguments and the values we pass to the OpenStudio-HPXML documentation: https://resstock.readthedocs.io/en/latest/workflow_inputs/characteristics.html
+% In some cases one might need to go to ResStockArguments to figure out how we translate ResStock inputs to OpenStudio-HPXML inputs.
+%- Do we have data sources for the arguments? Probably not. Probably the House Simulation Protocols or EULP calibration report.
+% For appliances and misc. large loads how is the timeseries determined? For some end-uses the time series is described by a load shape (ex: pool pump), in other cases the schedules are stochastic and determined from ATUS.
+The percentage of electric resistance heating systems in the baseline stock is discussed in the HVAC Heating Efficiency housing characteristic, section \ref{hvac_heating_efficiency}. The heating efficiency is assumed to be 1.0 (100\%) from \cite{Wilson2014}. 
+
+% \begin{itemize}
+        %\item	PRIORITY B Furnace
+        %\item	PRIORITY B Wall Furnace
+        %\item	PRIORITY B Floor Furnace
+        %\item	PRIORITY B Boiler (in-unit)
+        %\item	PRIORITY B Boiler (shared)
+        %\item	PRIORITY B Stove
+        %\item	PRIORITY B Space heater
+        %\item	PRIORITY B Fireplace
+% \end{itemize}
+\subsubsection{Central air conditioner}
+
+\paragraph{Description}
+
+A central air conditioner (AC) is a system that cools and dehumidifies air through a network of ducts and vents, distributing the conditioned air throughout a building. It extracts warm air from the interior, passes it over a refrigerant-cooled evaporator coil, and then expels the heat outside via a condenser unit. 
+
+\paragraph{How ResStock Uses OpenStudio-HPXML}
+
+See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#central-air-conditioner}{Central Air Conditioner} cooling system documentation for the available HPXML schema elements, default values, and constraints.  Because of the HPXML default compressor type algorithm, all the central AC technologies in the baseline stock are single-speed compressors. 
+
+\paragraph{ResStock Approach}
+
+ResStock currently models four different central AC performance levels in the residential stock baseline: SEER 8, SEER 10, SEER 13, and SEER 15. The percentage of central AC systems in the baseline stock and the SEER values of these systems are characterized in the HVAC Cooling Efficiency housing characteristic, section \ref{hvac_cooling_efficiency}. The air conditioning systems do not always condition the entire floor area. The ResStock argument \texttt{fractional\textunderscore cooling\textunderscore load\textunderscore served} is used to set percentages of the floor area served by the cooling system. The percentages of the conditioned floor areas served by the cooling system are set in the HVAC Cooling Partial Space Conditioning housing characteristic, section \ref{hvac_cooling_partial_space_conditioning}. All other inputs for the central air conditioners are defaulted to OpenStudio-HPXML inputs.
+\begin{itemize}
+\item	Cooling systems
+    % \begin{itemize}
+        % \item	PRIOIRTY B Room air conditioner
+        % \item	PRIORITY B PTAC % DO WE WANT THIS CAN OF WORMS? 
+        % \item	PRIORITY B Mini-Split air conditioners
+    % \end{itemize}
+\item	PRIORITY A Heat Pumps
+    \begin{itemize}
+        \item	Air-to-Air Heat Pumps
+        \item	Mini-split heat pump
+        \item	Ground-to-air heat pump
+    \end{itemize}
+% \item PRIORITY B Geothermal Loops
+%\item	PRIORITY B HVAC Control
+%\item	PRIORITY B HVAC Distribution
+%\item	PRIORITY B Mechanical ventilation
+%\item	PRIORITY B Local ventilation fans
+
+\item	Water heating systems
+    \begin{itemize}
+        %\item	PRIORITY B Conventional Storage
+        %\item	PRIORITY B Tankless
+        \item	PRIORITY A Heat Pump LIXI
+    \end{itemize}
+%\item	PRIOIRTY B Hot water distribution
+%\item	PRIORITY B Hot water fixtures
+\end{itemize}
+\subsection{Photovoltaics}
+ 
+\paragraph{Description}
+
+ResStock models on-site generation from photovoltaic panels on rooftops in the baseline model.
+
+\paragraph{How ResStock Uses OpenStudio-HPXML}
+See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-photovoltaics}{Photovoltaics} documentation for the available HPXML schema elements, default values, and constraints. 
+
+\paragraph{ResStock Approach}
+
+ResStock provides all the required inputs to OS-HPXML and accepts all defaults. A key thing to note with ResStock photovoltaic systems is that they are dependent only upon location (county) and building type (occupied single-family homes). System sizes are assigned independently of the building load; this is an acceptable approach for capturing the aggregate contribution of PV at the county level, but individual building samples out of ResStock with PV might have inappropriately sized systems. 
+
+\subsection{Appliances}
+
+
+\subsection{Clothes Washer}
+
+\paragraph{Description}
+
+A clothes washer is an in-unit residential appliance for washing clothes. Clothes washers impact energy consumption both through the direct energy to run the appliance as well as the energy necessary to heat any hot water that goes into the appliance. Water heating associated energy use is reported under the water heating end use. Clothes washers in shared spaces and common areas of multifamily buildings are not currently captured in ResStock.
+
+\paragraph{How ResStock Uses OpenStudio-HPXML}
+
+See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-clothes-washer}{Clothes Washer} appliance documentation for the available HPXML schema elements, default values, and constraints. 
+
+\paragraph{ResStock Approach}
+
+ResStock models two types of clothes washers in the baseline: Standard and EnergyStar. ResStock also identifies occupied dwelling units without Clothes Washers (labeled "None"), and does not model them. Vacant units are tagged as "Void" for Clothes Washers, and clothes washers are not modeled for these units. The percentage of Clothes Washers in the baseline stock and efficiency levels of these systems are characterized in the Clothes Washer housing characteristic, section \ref{clothes_washer}. ResStock leverages the \textit{IntegratedModifiedEnergyFactor} in OS-HPXML and provides a full set of EnergyGuide label information for each Clothes Washer option. ResStock also provides a multiplier for the /textit{UsageMultiplier} argument based upon the Clothes Washer Usage Level input, see section \ref{clothes_washer_usage_level} for stock saturations of this argument. The \textit{WeekdayScheduleFractions} and \textit{WeekendScheduleFractions} OS-HPXML elements come are provided from ResStock's occupancy model, described in section \ref{occupancy_model} 
+
+%\begin{itemize}
+    % \item  PRIORITY A Clothes Dryer
+    % \item	PRIORITY B Dishwasher
+    \item	PRIORITY B Refrigerators
+
+    {Description}
+A refrigerator is an appliance that uses a vapor-compression cycle to maintain an insulated box at temperatures suitable for the storage of food and other perishables. ResStock models all residential refrigerators as having both a refrigerator and a freezer compartment. 
+    {How ResStock Uses OpenStudio-HPXML}
+See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-refrigerators}{Refrigerator} appliance documentation for the available HPXML schema elements, default values, and constraints.  ResStock uses HPXML defaults for all inputs aside from refrigerator\_rated\_annual\_kwh and schedules. 
+
+{ResStock Approach}
+    The percentage of dwelling units with refrigerators in the baseline stock, and the distribution of the refrigerator\_rated\_annual\_kwh variable, are discussed in the [reference].  Secondary refrigerators are discussed in [reference].
+    % \item	PRIORITY B Freezers
+    % \item  PRIORITY B Dehumidifiers
+    % \item	PRIORITY B Cooking Range/Oven
+%\end{itemize}
+\subsection{Lighting \& Ceiling Fans}
+\begin{itemize}
+    \item PRIORITY A Lighting
+    % \item PRIORITY B Ceiling Fans
+\end{itemize}
+
+\subsection{Pools \& Permanent Spas}
+\begin{itemize}
+    \item PRIORITY A Pools
+    % \item PRIORITY B Spas
+    %\item PRIORITY B Pool heaters
+\end{itemize}
+\subsection{Miscellaneous Loads}
+\begin{itemize}
+    \item PRIORITY A Plug loads
+    % \item PRIORITY B TVs
+    %TVs are now split out but not included in a data release. Do we include this?
+    % \item PRIORITY B Fuel loads
+\end{itemize}
+\subsection{PRIORITY A Locations}

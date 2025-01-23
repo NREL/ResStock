@@ -20,6 +20,14 @@ OpenStudio-HPXML capabilities include:
 - Optional HPXML inputs with transparent defaults
 - Schematron and XSD Schema input validation
 
+.. note::
+  If you are seeking `DOE HOMES program approval <https://www.energy.gov/scep/single-family-modeling-solutions-home-efficiency-rebates-program>`_, OpenStudio-HPXML can be used to meet the `energy modeling software tests <https://www.energy.gov/scep/articles/home-efficiency-rebates-ira-section-50121-single-family-software-verification>`_.
+
+.. note::
+
+  If you are seeking `ACCA Manual J approval <https://www.acca.org/standards/approved-software>`_ for your software, you will need to contact ACCA and go through their approval process.
+  OpenStudio-HPXML design load calculations can be used to obtain approval, but additional Manual J-specific HPXML inputs need to be specified; refer to the HPXML test files at ``workflow/tests/ACCA_Examples``.
+
 Accuracy vs Speed
 -----------------
 
