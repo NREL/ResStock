@@ -133,7 +133,7 @@ class TestRunAnalysis < Minitest::Test
   end
 
   def test_errors_invalid_upgrade_name
-    yml = ' -y test/tests_yml_files/yml_valid/testing_upgrades.yml'
+    yml = ' -y test/tests_yml_files/yml_valid/test_upgrade_name.yml'
     @command += yml
     @command += ' -u "Fuondation Type" -u Walls'
 
@@ -183,7 +183,7 @@ class TestRunAnalysis < Minitest::Test
     @command += yml
     @command += ' -u "Foundation Type" -u Walls'
     system(@command)
-    
+
     test_upgrade_name = File.join(@buildstock_directory, 'test_upgrade_name')
 
     _test_measure_order(File.join(test_upgrade_name, 'test_upgrade_name-FoundationType.osw'))
