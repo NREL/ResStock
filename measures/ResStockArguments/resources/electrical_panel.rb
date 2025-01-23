@@ -80,10 +80,14 @@ class ElectricalPanelSampler
   end
 
   def sample_breaker_space_headroom(breaker_space_headroom_prob_map, args)
+    # emulate Geometry Building Type RECS
+    geometry_building_type_recs = convert_building_type(args[:geometry_unit_type], args[:geometry_building_num_units])
     # calculate number of major electric load
     major_elec_load_count = get_major_elec_load_count(args)
 
     lookup_array = [
+      geometry_building_type_recs,
+      args[:geometry_unit_cfa_bin],
       major_elec_load_count.to_s,
       args[:electric_panel_service_rating_bin].to_s,
     ]
