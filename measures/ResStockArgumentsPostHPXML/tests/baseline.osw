@@ -1,10 +1,12 @@
 {
   "measure_paths": [
+	"../../../measures",
     "../../../resources/hpxml-measures"
   ],
   "steps": [
     {
       "arguments": {
+		"site_state_code" : "CO",
         "air_leakage_house_pressure": 50,
         "site_shielding_of_home": "normal",
         "air_leakage_units": "ACH",
@@ -155,7 +157,7 @@
         "permanent_spa_heater_usage_multiplier": 1.0,
         "permanent_spa_present": false,
         "permanent_spa_pump_usage_multiplier": 1.0,
-        "hpxml_path": "measures/ResStockArgumentsPostHPXML/tests/SFD_1story_FB_UA_GRG_MSHP_FuelTanklessWH.xml",
+        "hpxml_path": "measures/ResStockArgumentsPostHPXML/tests/baseline.xml",
         "kitchen_fans_quantity": 0,
         "lighting_present": true,
         "lighting_exterior_fraction_cfl": 0.4,
@@ -304,9 +306,21 @@
       },
       "measure_dir_name": "BuildResidentialHPXML"
     },
+	{
+            "measure_dir_name": "ResStockArgumentsPostHPXML",
+            "arguments": {
+                "hpxml_path": "tests/baseline.xml",
+                "loadflex_peak_offset": 0,
+                "loadflex_pre_peak_duration_hours": 0,
+                "loadflex_pre_peak_offset": 0,
+                "loadflex_random_shift_minutes": 0,
+                "output_csv_path": "tests",
+                "building_id": 1
+            }
+    },
     {
       "arguments": {
-        "hpxml_path": "measures/ResStockArgumentsPostHPXML/tests/SFD_1story_FB_UA_GRG_MSHP_FuelTanklessWH.xml",
+        "hpxml_path": "measures/ResStockArgumentsPostHPXML/tests/baseline.xml",
         "output_dir": "measures/ResStockArgumentsPostHPXML/tests",
         "debug": "true"
       },
