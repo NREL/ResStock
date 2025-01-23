@@ -12,11 +12,11 @@ class TestRunAnalysis < Minitest::Test
     cli_path = OpenStudio.getOpenStudioCLI
     @command = "\"#{cli_path}\" workflow/run_analysis.rb"
 
-    buildstock_directory = File.join(File.dirname(__FILE__), '..')
+    @buildstock_directory = File.join(File.dirname(__FILE__), '..')
 
-    @testing_baseline = File.join(buildstock_directory, 'testing_baseline')
-    @national_baseline = File.join(buildstock_directory, 'national_baseline')
-    @sdr_upgrades_tmy3 = File.join(buildstock_directory, 'sdr_upgrades_tmy3')
+    @testing_baseline = File.join(@buildstock_directory, 'testing_baseline')
+    @national_baseline = File.join(@buildstock_directory, 'national_baseline')
+    @sdr_upgrades_tmy3 = File.join(@buildstock_directory, 'sdr_upgrades_tmy3')
 
     FileUtils.rm_rf(@testing_baseline)
     FileUtils.rm_rf(@national_baseline)
@@ -179,18 +179,18 @@ class TestRunAnalysis < Minitest::Test
   end
 
   def test_upgrade_name
-    yml = ' -y test/tests_yml_files/yml_valid/testing_upgrades.yml'
+    yml = ' -y test/tests_yml_files/yml_valid/test_upgrade_name.yml'
     @command += yml
     @command += ' -u "Foundation Type" -u Walls'
-
     system(@command)
-    @testing_upgrades = File.join(buildstock_directory, 'testing_upgrades_measure_order')
     
-    _test_measure_order(File.join(@testing_upgrades, 'testing_upgrades-FoundationType.osw'))
-    assert(File.exist?(File.join(@testing_upgrades, 'results-FoundationType.csv')))
-    _test_measure_order(File.join(@testing_upgrades, 'testing_upgrades-Walls.osw'))
-    assert(File.exist?(File.join(@testing_upgrades, 'results-Walls.csv')))
-    assert(!File.exist?(File.join(@testing_upgrades, 'results-Baseline.csv')))
+    test_upgrade_name = File.join(@buildstock_directory, 'test_upgrade_name')
+
+    _test_measure_order(File.join(test_upgrade_name, 'test_upgrade_name-FoundationType.osw'))
+    assert(File.exist?(File.join(test_upgrade_name, 'results-FoundationType.csv')))
+    _test_measure_order(File.join(test_upgrade_name, 'test_upgrade_name-Walls.osw'))
+    assert(File.exist?(File.join(test_upgrade_name, 'results-Walls.csv')))
+    assert(!File.exist?(File.join(test_upgrade_name, 'results-Baseline.csv')))
   end
 
   def test_threads_and_keep_run_folders
