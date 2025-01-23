@@ -40097,12 +40097,6 @@ Arguments
      - Double
      -
      - The maximum capacity limit applied to the auto-sizing methodology. If not provided, no limit is used.
-   * - ``heating_system_2_fraction_heat_load_served``
-     - true
-     - Frac
-     - Double
-     -
-     - The heat load served fraction of the second heating system. Ignored if this heating system serves as a backup system for a heat pump.
    * - ``heating_system_2_has_flue_or_chimney``
      - true
      - 
@@ -40126,7 +40120,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - ``heating_system_2_heating_efficiency``
      - ``heating_system_2_heating_capacity``
      - ``heating_system_2_heating_autosizing_limit``
-     - ``heating_system_2_fraction_heat_load_served``
      - ``heating_system_2_has_flue_or_chimney``
 
    * - Fuel Boiler, 76% AFUE
@@ -40135,7 +40128,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.76
      - auto
      - auto
-     - 
      - auto
    * - Fuel Boiler, 80% AFUE
      - 0.014%
@@ -40143,7 +40135,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.8
      - auto
      - auto
-     - 
      - auto
    * - Fuel Boiler, 90% AFUE
      - 0.0024%
@@ -40151,7 +40142,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.90
      - auto
      - auto
-     - 
      - auto
    * - Fuel Furnace, 60% AFUE
      - 3.9e-05%
@@ -40159,7 +40149,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.6
      - auto
      - auto
-     - 
      - auto
    * - Fuel Furnace, 76% AFUE
      - 0.00052%
@@ -40167,7 +40156,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.76
      - auto
      - auto
-     - 
      - auto
    * - Fuel Furnace, 80% AFUE
      - 0.0015%
@@ -40175,7 +40163,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.8
      - auto
      - auto
-     - 
      - auto
    * - Fuel Furnace, 92.5% AFUE
      - 0.00082%
@@ -40183,7 +40170,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0.925
      - auto
      - auto
-     - 
      - auto
    * - None
      - 1e+02%
@@ -40191,7 +40177,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0
      - auto
      - auto
-     - 
      - auto
    * - Shared Heating
      - 0.0017%
@@ -40199,11 +40184,9 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 0
      - auto
      - auto
-     - 
      - auto
    * - Void
      - 0%
-     - 
      - 
      - 
      - 
