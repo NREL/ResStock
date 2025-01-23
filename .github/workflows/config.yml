@@ -111,7 +111,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: resources
-          name: options_lookup          
+          name: options_lookup
 
       - name: Generate precomputed buildstocks
         run: |
