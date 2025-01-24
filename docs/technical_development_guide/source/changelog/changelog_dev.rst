@@ -6,11 +6,26 @@ Development Changelog
     :released: pending
 
     .. change::
+        :tags: ci, docs, technical reference guide, technical development guide
+        :pullreq: 1338
+        :tickets: resstock-estimation 437
+
+        **Date**: 2025-1-11
+
+        Title:
+        Add ResStock Technical Reference Guide
+
+        Description:
+        Add the ResStock Technical Reference Guide to the repository and compile it on github actions to keep the pdf up to date.
+
+        Assignees: Anthony Fontanini
+
+    .. change::
         :tags: feature, characteristics
         :pullreq: 1325
         :tickets: resstock-estimation 437
 
-        **Date**: 2024-11-19
+        **Date**: 2024-12-30
 
         Title:
         Well pump distribution using AHS
@@ -22,6 +37,7 @@ Development Changelog
 
         Assignees: Lixi Liu
 
+    .. change::
         :tags: characteristics, pool heater
         :pullreq: 1324
 
