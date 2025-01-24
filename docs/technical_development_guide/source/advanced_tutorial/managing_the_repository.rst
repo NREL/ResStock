@@ -1,12 +1,16 @@
-Branching and Merging
-=====================
+Managing the Repository
+=======================
 
-Depending on how anticipated ResStock changes and updates relate to OpenStudio-HPXML, branching from either ResStock's ``develop`` or ``latest-os-hpxml`` branch may be more appropriate.
-The following describes general guidelines for when to branch from ``develop`` vs. when to branch from ``latest-os-hpxml``.
-Using these guidelines should help to ensure a simple and straightforward merging of new ResStock changes and updates.
+At this point in the tutorial, it is assumed that you have checked out a new branch that is up-to-date with the either the ``develop`` or ``latest-os-hpxml`` branch of the `ResStock <https://github.com/NREL/resstock>`_ repository.
+Note that if your changes are intended to be merged into the ``develop`` branch of the `ResStock <https://github.com/NREL/resstock>`_ repository, a pull request review is required.
 
 ResStock contains a `git subtree <https://www.atlassian.com/git/tutorials/git-subtree>`_ to the `OpenStudio-HPXML <https://github.com/NREL/OpenStudio-HPXML>`_ repository.
 The subtree is located at ``resources/hpxml-measures``, and is basically a direct copy of all the folders and files contained in OpenStudio-HPXML for a particular commit.
+
+When using or testing a specific OpenStudio-HPXML branch, the subtree at ``resources/hpxml-measures`` can be updated using a set of simple commands.
+Files located at ``resources/hpxml-measures`` should typically never be directly edited or modified manually.
+Once ``resources/hpxml-measures`` has been updated, there are a few :ref:`remaining steps<post-git-subtree-steps>` for ensuring ResStock is properly connected to OpenStudio-HPXML.
+
 ResStock's ``develop`` branch generally points to the latest ``master`` branch of OpenStudio-HPXML.
 A standing ``latest-os-hpxml`` branch in ResStock helps to ensure that ResStock stays up-to-date with OpenStudio-HPXML's development.
 The ``latest-os-hpxml`` is periodically merged into ``develop`` using a "Latest OS-HPXML" pull request.
@@ -20,59 +24,32 @@ Other ResStock tasks are developmental in nature and include, e.g.:
 - core OpenStudio measure updates
 
 Any of these types of updates may or may not relate to or use files contained in the OpenStudio-HPXML ``resources-hpxml-measures`` subtree.
-Branch from:
+Depending on how anticipated ResStock changes and updates relate to OpenStudio-HPXML, branching from either ResStock's ``develop`` or ``latest-os-hpxml`` branch may be more appropriate.
+The following describes general guidelines for:
 
-- ``develop`` when updates are not related to the OpenStudio-HPXML subtree, or
-- ``latest-os-hpxml`` when updates involve using or testing an OpenStudio-HPXML branch.
+- when to branch from ``develop`` vs. ``latest-os-hpxml``
+- how to keep your branch up-to-date with either ResStock or OpenStudio-HPXML
+- how to eventually merge your branch into ResStock
 
-When using or testing a specific OpenStudio-HPXML branch, the subtree at ``resources/hpxml-measures`` can be updated using a set of simple commands.
-Files located at ``resources/hpxml-measures`` should typically never be directly edited or modified manually.
-Once ``resources/hpxml-measures`` has been updated, there are a few :ref:`remaining steps<post-git-subtree-steps>` for ensuring ResStock is properly connected to OpenStudio-HPXML.
+Using these guidelines should help to ensure a simple and straightforward merging of new ResStock changes and updates.
 
-.. _branch-develop:
 
-Branch from ``develop``
------------------------
+.. _develop_vs_latest_os_hpxml:
 
-.. _non-os-hpxml-changes:
+``develop`` vs. ``latest-os-hpxml``
+-----------------------------------
 
-Non OpenStudio-HPXML Changes
-****************************
-
-For updating ResStock's ``develop`` branch for changes related to ...
-
-.. _syncing-w-latest-os-hpxml:
-
-Syncing w/Latest OpenStudio-HPXML
-*********************************
-
+Use ``develop`` for the maintenance task of keeping an up-to-date ``latest-os-hpxml`` branch.
 For updating ResStock's ``develop`` branch to point to OpenStudio-HPXML's ``master`` branch, branch from ``develop`` (with branch name ``latest-os-hpxml``), and then enter the following command:
 
 .. code:: bash
 
   $ openstudio tasks.rb update_resources
 
-See :doc:`running_tasks` for more information and context about running tasks.
+See :doc:`running_task_commands` for more information and context about running tasks.
 Executing the ``update_resources`` task will issue the appropriate ``git subtree ...`` command for syncing ResStock with OpenStudio-HPXML's ``master`` branch.
 
-.. _branch-latest-os-hpxml:
-
-Branch from ``latest-os-hpxml``
--------------------------------
-
-.. _using-latest-os-hpxml:
-
-Using Latest OpenStudio-HPXML
-*****************************
-
-Ensures you are using the latest in case ``develop`` falls behind ...
-
-.. _testing-an-os-hpxml-branch:
-
-Testing an OpenStudio-HPXML Branch
-**********************************
-
-For pulling in and testing a specific OpenStudio-HPXML branch (i.e., that is not the ``master`` branch), first create a test branch in ResStock.
+For pulling in and testing a specific OpenStudio-HPXML branch (i.e., that is not the ``master`` branch), create a test branch in ResStock from ``latest-os-hpxml``.
 Then enter the following command:
 
 .. code:: bash
@@ -83,9 +60,25 @@ where ``<branch_or_tag>`` represents the OpenStudio-HPXML branch (or tag) name t
 
 Note that the previous command essentially mirrors what ``update_resources`` calls, but with a user-specified branch (or tag) name.
 
+TODO
+
+.. _update_branch:
+
+Update branch
+-------------
+
+TODO
+
+.. _merge_branch:
+
+Merge branch
+------------
+
+TODO
+
 .. _post-git-subtree-steps:
 
-Post ``git subtree`` Steps
+Post ``git subtree`` steps
 --------------------------
 
 After pulling a branch of OpenStudio-HPXML into ResStock, a few additional steps are involved:
