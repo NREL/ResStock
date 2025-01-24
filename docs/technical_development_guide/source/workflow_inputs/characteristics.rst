@@ -35305,15 +35305,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
      - auto
-   * - Attic
-     - 17%
-     - attic
-     - auto
-     - auto
-     - attic
-     - auto
-     - auto
-     - auto
    * - Crawlspace
      - 15%
      - crawlspace
@@ -35572,7 +35563,7 @@ Source
 Assumption
 **********
 
-- \Due to low sample count, the tsv is constructed by downscaling a dwelling unit sub-tsv with a household sub-tsv. The three sub-tsvs have the following dependencies: tsv1 dependency=['Geometry Building Type RECS'], tsv2 dependency=['Federal Poverty Level'], tsv3 dependency=['Electric Vehicle Outlet Access']. In combining tsv1, tsv2, and tsv3, the conditional relationships are ignored across ('Geometry Building Type RECS', 'Federal Poverty Level', and 'Electric Vehicle Outlet Access').
+- \Due to low sample count, the tsv is constructed by downscaling a dwelling unit sub-tsv with a household sub-tsv. The two sub-tsvs have the following dependencies: tsv1 dependency=['Geometry Building Type RECS'], tsv2 dependency=['Federal Poverty Level'], In combining tsv1 and tsv2, the conditional relationships are ignored across ('Geometry Building Type RECS' and 'Federal Poverty Level').
 
 
 Arguments
@@ -35619,7 +35610,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 1.9%
      - 0.50
    * - 60%-79%
-     - 7.4%
+     - 7.3%
      - 0.70
    * - 80%-99%
      - 34%
@@ -38747,18 +38738,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 11%
    * - Room AC
      - 20%
-   * - Central AC
-     - 53%
-   * - Ducted Heat Pump
-     - 15%
-   * - Evaporative or Swamp Cooler
-     - 0%
-   * - Non-Ducted Heat Pump
-     - 0.97%
-   * - None
-     - 11%
-   * - Room AC
-     - 20%
 
 .. _hvac_has_ducts:
 
@@ -40417,16 +40396,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 24%
    * - None
      - 1.1%
-   * - Ducted Heat Pump
-     - 15%
-   * - Ducted Heating
-     - 59%
-   * - Non-Ducted Heat Pump
-     - 0.97%
-   * - Non-Ducted Heating
-     - 24%
-   * - None
-     - 1.1%
 
 .. _hvac_heating_type_and_fuel:
 
@@ -40611,14 +40580,14 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - ``heating_system_2_has_flue_or_chimney``
 
    * - Fuel Boiler, 76% AFUE
-     - 0.017%
+     - 0.018%
      - Boiler
      - 0.76
      - auto
      - auto
      - auto
    * - Fuel Boiler, 80% AFUE
-     - 0.014%
+     - 0.015%
      - Boiler
      - 0.8
      - auto
@@ -40639,7 +40608,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Furnace, 76% AFUE
-     - 0.00052%
+     - 0.00053%
      - Furnace
      - 0.76
      - auto
@@ -40667,7 +40636,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Shared Heating
-     - 0.0017%
+     - 0%
      - none
      - 0
      - auto
@@ -63690,310 +63659,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
      - auto
-   * - Electric Heat Pump, 50 gal, 3.45 UEF
-     - 0.31%
-     - heat pump water heater
-     - electricity
-     - 50
-     - UniformEnergyFactor
-     - 3.45
-     - auto
-     - 0
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Electric Heat Pump, 66 gal, 3.35 UEF
-     - 0%
-     - heat pump water heater
-     - electricity
-     - 66
-     - UniformEnergyFactor
-     - 3.35
-     - auto
-     - 0
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Electric Heat Pump, 80 gal, 3.45 UEF
-     - 0%
-     - heat pump water heater
-     - electricity
-     - 80
-     - UniformEnergyFactor
-     - 3.45
-     - auto
-     - 0
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Electric Premium
-     - 10%
-     - storage water heater
-     - electricity
-     - auto
-     - EnergyFactor
-     - 0.95
-     - auto
-     - 0
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Electric Standard
-     - 37%
-     - storage water heater
-     - electricity
-     - auto
-     - EnergyFactor
-     - 0.92
-     - auto
-     - 0
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Electric Tankless
-     - 2.1%
-     - instantaneous water heater
-     - electricity
-     - 0
-     - EnergyFactor
-     - 0.99
-     - auto
-     - 0
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - FIXME Fuel Oil Indirect
-     - 0.69%
-     - storage water heater
-     - fuel oil
-     - auto
-     - EnergyFactor
-     - 0.62
-     - auto
-     - 0.78
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Fuel Oil Premium
-     - 0.44%
-     - storage water heater
-     - fuel oil
-     - auto
-     - EnergyFactor
-     - 0.68
-     - auto
-     - 0.9
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Fuel Oil Standard
-     - 1.4%
-     - storage water heater
-     - fuel oil
-     - auto
-     - EnergyFactor
-     - 0.62
-     - auto
-     - 0.78
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Natural Gas Premium
-     - 8.3%
-     - storage water heater
-     - natural gas
-     - auto
-     - EnergyFactor
-     - 0.67
-     - auto
-     - 0.78
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Natural Gas Standard
-     - 33%
-     - storage water heater
-     - natural gas
-     - auto
-     - EnergyFactor
-     - 0.59
-     - auto
-     - 0.76
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Natural Gas Tankless
-     - 2.9%
-     - instantaneous water heater
-     - natural gas
-     - 0
-     - EnergyFactor
-     - 0.82
-     - auto
-     - 0
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Other Fuel
-     - 0.28%
-     - storage water heater
-     - wood
-     - auto
-     - EnergyFactor
-     - 0.59
-     - auto
-     - 0.76
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Propane Premium
-     - 0.62%
-     - storage water heater
-     - propane
-     - auto
-     - EnergyFactor
-     - 0.67
-     - auto
-     - 0.78
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Propane Standard
-     - 2.3%
-     - storage water heater
-     - propane
-     - auto
-     - EnergyFactor
-     - 0.59
-     - auto
-     - 0.76
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
-   * - Propane Tankless
-     - 0.9%
-     - instantaneous water heater
-     - propane
-     - 0
-     - EnergyFactor
-     - 0.82
-     - auto
-     - 0
-     - auto
-     - auto
-     - 0
-     - 0
-     - 125
-     - auto
-     - auto
-     - auto
-     - auto
-     - auto
 
 .. _water_heater_fuel:
 
@@ -64051,16 +63716,6 @@ From ``project_national`` the list of options, option stock sturation, and optio
    * - Option name
      - Stock saturation
 
-   * - Electricity
-     - 49%
-   * - Fuel Oil
-     - 2.5%
-   * - Natural Gas
-     - 44%
-   * - Other Fuel
-     - 0.28%
-   * - Propane
-     - 3.9%
    * - Electricity
      - 49%
    * - Fuel Oil
