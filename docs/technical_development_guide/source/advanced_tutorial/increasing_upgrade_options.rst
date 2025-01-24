@@ -6,7 +6,7 @@ To allow more options per upgrade, increase the value returned by the following 
 .. code::
 
   module Constants
-    NumApplyUpgradeOptions = 25
+    NumApplyUpgradeOptions = 100
     NumApplyUpgradesCostsPerOption = 2
   ...
   
