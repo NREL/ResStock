@@ -23,6 +23,7 @@ class HPXMLtoOpenStudioSchedulesTest < Minitest::Test
   def teardown
     File.delete(@tmp_hpxml_path) if File.exist? @tmp_hpxml_path
     File.delete(@tmp_schedule_file_path) if File.exist? @tmp_schedule_file_path
+    File.delete(File.join(File.dirname(__FILE__), 'in.schedules.csv')) if File.exist? File.join(File.dirname(__FILE__), 'in.schedules.csv')
     File.delete(File.join(File.dirname(__FILE__), 'results_annual.csv')) if File.exist? File.join(File.dirname(__FILE__), 'results_annual.csv')
     File.delete(File.join(File.dirname(__FILE__), 'results_design_load_details.csv')) if File.exist? File.join(File.dirname(__FILE__), 'results_design_load_details.csv')
   end
@@ -86,7 +87,7 @@ class HPXMLtoOpenStudioSchedulesTest < Minitest::Test
     model, _hpxml, _hpxml_bldg = _test_measure(args_hash)
 
     schedule_constants = 11
-    schedule_rulesets = 19
+    schedule_rulesets = 21
     schedule_fixed_intervals = 1
     schedule_files = 0
 
@@ -110,6 +111,8 @@ class HPXMLtoOpenStudioSchedulesTest < Minitest::Test
     assert_in_epsilon(4244, get_annual_equivalent_full_load_hrs(model, Constants::ObjectTypeHotWaterRecircPump + ' schedule'), @tol)
     assert_in_epsilon(5000, get_annual_equivalent_full_load_hrs(model, Constants::ObjectTypeGeneralWaterUse + ' schedule'), @tol)
     assert_in_epsilon(8760, get_annual_equivalent_full_load_hrs(model, Constants::ObjectTypeMechanicalVentilationHouseFan + ' schedule'), @tol)
+    assert_in_epsilon(5422, get_annual_equivalent_full_load_hrs(model, 'ElectricVehicle1 charging schedule'), @tol)
+    assert_in_epsilon(463.50, get_annual_equivalent_full_load_hrs(model, 'ElectricVehicle1 discharging schedule'), @tol)
   end
 
   def test_simple_vacancy_schedules

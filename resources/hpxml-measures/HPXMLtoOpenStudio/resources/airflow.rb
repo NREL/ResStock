@@ -38,6 +38,8 @@ module Airflow
       elsif f.used_for_seasonal_cooling_load_reduction
         vent_fans[:whf] << f
       elsif f.used_for_local_ventilation
+        next if hpxml_bldg.building_occupancy.number_of_residents == 0 # Operational calculation w/ zero occupants, zero out energy use
+
         if f.fan_location == HPXML::LocationKitchen
           vent_fans[:kitchen] << f
         elsif f.fan_location == HPXML::LocationBath
@@ -278,17 +280,18 @@ module Airflow
     site_ap.ashrae_terrain_thickness = 270
     site_ap.ashrae_terrain_exponent = 0.14
 
-    if site.site_type == HPXML::SiteTypeRural
+    case site.site_type
+    when HPXML::SiteTypeRural
       site_ap.site_terrain_multiplier = 0.85
       site_ap.site_terrain_exponent = 0.20
       site_ap.ashrae_site_terrain_thickness = 270 # Flat, open country
       site_ap.ashrae_site_terrain_exponent = 0.14 # Flat, open country
-    elsif site.site_type == HPXML::SiteTypeSuburban
+    when HPXML::SiteTypeSuburban
       site_ap.site_terrain_multiplier = 0.67
       site_ap.site_terrain_exponent = 0.25
       site_ap.ashrae_site_terrain_thickness = 370 # Rough, wooded country, suburbs
       site_ap.ashrae_site_terrain_exponent = 0.22 # Rough, wooded country, suburbs
-    elsif site.site_type == HPXML::SiteTypeUrban
+    when HPXML::SiteTypeUrban
       site_ap.site_terrain_multiplier = 0.47
       site_ap.site_terrain_exponent = 0.35
       site_ap.ashrae_site_terrain_thickness = 460 # Towns, city outskirts, center of large cities
@@ -297,11 +300,12 @@ module Airflow
 
     # Mapping based on AIM-2 Model by Walker/Wilson
     # Table 2: Estimates of Shelter Coefficient S_wo for No Flue (flue effect is handled later)
-    if site.shielding_of_home == HPXML::ShieldingNormal
+    case site.shielding_of_home
+    when HPXML::ShieldingNormal
       site_ap.aim2_shelter_coeff = 0.50 # Class 4: "Very heavy shielding, many large obstructions within one house height"
-    elsif site.shielding_of_home == HPXML::ShieldingExposed
+    when HPXML::ShieldingExposed
       site_ap.aim2_shelter_coeff = 0.90 # Class 2: "Light local shielding with few obstructions within two house heights"
-    elsif site.shielding_of_home == HPXML::ShieldingWellShielded
+    when HPXML::ShieldingWellShielded
       site_ap.aim2_shelter_coeff = 0.30 # Class 5: "Complete shielding, with large buildings immediately adjacent"
     end
 
@@ -528,7 +532,7 @@ module Airflow
     neutral_level = 0.5
     hor_lk_frac = 0.0
     c_w, c_s = calc_wind_stack_coeffs(hpxml_bldg, hor_lk_frac, neutral_level, conditioned_space, infil_values[:height])
-    max_oa_hr = 0.0115 # From ANSI 301-2022
+    max_oa_hr = 0.0115 # From ANSI/RESNET/ICC 301-2022
 
     # Program
     vent_program = Model.add_ems_program(
@@ -586,12 +590,19 @@ module Airflow
     vent_program.addLine('    Set Qwhf = WHF_Flow*Adj')
     vent_program.addLine("    Set #{cond_to_zone_flow_rate_actuator.name} = WHF_Flow*Adj") unless whf_zone.nil?
     vent_program.addLine('    Set WHF_W = 0')
-    vent_fans[:whf].each do |vent_whf|
-      vent_program.addLine("    Set WHF_W = WHF_W + #{vent_whf.fan_power} * #{whf_avail_sensors[vent_whf.id].name}")
+    if hpxml_bldg.building_occupancy.number_of_residents != 0 # If operational calculation w/ zero occupants, zero out whole house fan
+      vent_fans[:whf].each do |vent_whf|
+        vent_program.addLine("    Set WHF_W = WHF_W + #{vent_whf.fan_power} * #{whf_avail_sensors[vent_whf.id].name}")
+      end
     end
     vent_program.addLine("    Set #{whf_elec_actuator.name} = WHF_W*Adj")
     vent_program.addLine('  ElseIf (NVavail > 0)') # Natural ventilation
-    vent_program.addLine("    Set NVArea = #{UnitConversions.convert(area, 'ft^2', 'cm^2')}")
+    if hpxml_bldg.building_occupancy.number_of_residents == 0
+      # Operational calculation w/ zero occupants, zero out natural ventilation
+      vent_program.addLine('    Set NVArea = 0')
+    else
+      vent_program.addLine("    Set NVArea = #{UnitConversions.convert(area, 'ft^2', 'cm^2')}")
+    end
     vent_program.addLine("    Set Cs = #{UnitConversions.convert(c_s, 'ft^2/(s^2*R)', 'L^2/(s^2*cm^4*K)')}")
     vent_program.addLine("    Set Cw = #{c_w * 0.01}")
     vent_program.addLine('    Set Tdiff = Tin-Tout')
@@ -854,11 +865,12 @@ module Airflow
       if hvac_distribution.ducts.count { |d| !HPXML::conditioned_locations_this_unit.include?(d.duct_location) } == 0
         # If ducts completely in conditioned space, issue warning if duct leakage to outside above a certain threshold (e.g., 5%)
         issue_warning = false
-        if units == HPXML::UnitsCFM25
+        case units
+        when HPXML::UnitsCFM25
           issue_warning = true if sum_lto > 0.04 * cfa
-        elsif units == HPXML::UnitsCFM50
+        when HPXML::UnitsCFM50
           issue_warning = true if sum_lto > 0.06 * cfa
-        elsif units == HPXML::UnitsPercent
+        when HPXML::UnitsPercent
           issue_warning = true if sum_lto > 0.05
         end
         next unless issue_warning
@@ -867,11 +879,12 @@ module Airflow
       else
         # If ducts in unconditioned space, issue warning if duct leakage to outside above a certain threshold (e.g., 40%)
         issue_warning = false
-        if units == HPXML::UnitsCFM25
+        case units
+        when HPXML::UnitsCFM25
           issue_warning = true if sum_lto >= 0.32 * cfa
-        elsif units == HPXML::UnitsCFM50
+        when HPXML::UnitsCFM50
           issue_warning = true if sum_lto >= 0.48 * cfa
-        elsif units == HPXML::UnitsPercent
+        when HPXML::UnitsPercent
           issue_warning = true if sum_lto >= 0.4
         end
         next unless issue_warning
@@ -1455,7 +1468,7 @@ module Airflow
     duct_subroutine.addLine('  Set SupLatLkToDZ = sup_lk_mfr*h_fg*(AH_Wout-DZ_W)') # W
     duct_subroutine.addLine('  Set SupSensLkToDZ = SupTotLkToDZ-SupLatLkToDZ') # W
 
-    # Handle duct leakage imbalance induced infiltration (ANSI 301-2022 Addendum C Table 4.2.2(1c)
+    # Handle duct leakage imbalance induced infiltration (ANSI/RESNET/ICC 301-2022 Addendum C Table 4.2.2(1c)
     leakage_supply = leakage_fracs[HPXML::DuctTypeSupply].to_f + leakage_cfm25s[HPXML::DuctTypeSupply].to_f
     leakage_return = leakage_fracs[HPXML::DuctTypeReturn].to_f + leakage_cfm25s[HPXML::DuctTypeReturn].to_f
     if leakage_supply == leakage_return
@@ -1984,30 +1997,32 @@ module Airflow
 
       infil_program.addLine("Set f_operation = #{[vent_mech.hours_in_operation / 24.0, 0.0001].max}") # Operation, fraction of hour
       infil_program.addLine("Set oa_cfm_ah = #{UnitConversions.convert(vent_mech.oa_unit_flow_rate, 'cfm', 'm^3/s')}")
-      if vent_mech.cfis_addtl_runtime_operating_mode == HPXML::CFISModeSupplementalFan
+      case vent_mech.cfis_addtl_runtime_operating_mode
+      when HPXML::CFISModeSupplementalFan
         if vent_mech.cfis_supplemental_fan.oa_unit_flow_rate < vent_mech.average_unit_flow_rate
           runner.registerWarning("CFIS supplemental fan '#{vent_mech.cfis_supplemental_fan.id}' is undersized (#{vent_mech.cfis_supplemental_fan.oa_unit_flow_rate} cfm) compared to the target hourly ventilation rate (#{vent_mech.average_unit_flow_rate} cfm).")
         end
         infil_program.addLine("Set suppl_fan_w = #{vent_mech.cfis_supplemental_fan.unit_fan_power}") # W, supplemental fan power
         infil_program.addLine("Set oa_cfm_suppl = #{UnitConversions.convert(vent_mech.cfis_supplemental_fan.oa_unit_flow_rate, 'cfm', 'm^3/s')}")
-      elsif vent_mech.cfis_addtl_runtime_operating_mode == HPXML::CFISModeAirHandler
+      when HPXML::CFISModeAirHandler
         infil_program.addLine("Set ah_fan_w = #{vent_mech.unit_fan_power}") # W, air handler fan power
       end
       infil_program.addLine("Set has_outdoor_air_control = #{vent_mech.cfis_has_outdoor_air_control ? 1 : 0}")
 
-      if vent_mech.cfis_control_type == HPXML::CFISControlTypeTimer
+      case vent_mech.cfis_control_type
+      when HPXML::CFISControlTypeTimer
         # Ventilation occurs at fixed intervals regardless of HVAC operation
 
         # Calculate outdoor air ventilation
         infil_program.addLine('Set QWHV_cfis_sup = QWHV_cfis_sup + (oa_cfm_ah * f_operation)')
 
-        # Calculate fraction of the timestep with ventilation only mode runtime per ANSI 301-2022 Addendum E
+        # Calculate fraction of the timestep with ventilation only mode runtime per ANSI/RESNET/ICC 301-2022 Addendum E
         infil_program.addLine("Set #{f_vent_only_mode_var.name} = f_operation * (1 - fan_rtf_hvac)")
 
         # Calculate additional fan energy
         infil_program.addLine("Set #{cfis_fan_actuator.name} = #{cfis_fan_actuator.name} + (ah_fan_w * #{f_vent_only_mode_var.name})")
 
-      elsif vent_mech.cfis_control_type == HPXML::CFISControlTypeOptimized
+      when HPXML::CFISControlTypeOptimized
         # Ventilation optimized to make use of HVAC operation
 
         infil_program.addLine("Set #{f_vent_only_mode_var.name} = 0")
@@ -2040,9 +2055,10 @@ module Airflow
           infil_program.addLine('  If hr_oa_cfm_during_hvac > 0')
           infil_program.addLine('    Set f_open_damper_ah = (hr_oa_cfm_during_hvac / hr_oa_cfm_during_hvac_avail) * fan_rtf_hvac')
           infil_program.addLine("    Set #{cfis_suppl_fan_actuator.name} = #{cfis_suppl_fan_actuator.name} + (suppl_fan_w * f_open_damper_ah)")
-          if vent_mech.cfis_supplemental_fan.fan_type == HPXML::MechVentTypeSupply
+          case vent_mech.cfis_supplemental_fan.fan_type
+          when HPXML::MechVentTypeSupply
             infil_program.addLine('    Set QWHV_cfis_suppl_sup = QWHV_cfis_suppl_sup + (f_open_damper_ah * oa_cfm_suppl)')
-          elsif vent_mech.cfis_supplemental_fan.fan_type == HPXML::MechVentTypeExhaust
+          when HPXML::MechVentTypeExhaust
             infil_program.addLine('    Set QWHV_cfis_suppl_exh = QWHV_cfis_suppl_exh + (f_open_damper_ah * oa_cfm_suppl)')
           end
           infil_program.addLine('  EndIf')
@@ -2052,16 +2068,18 @@ module Airflow
         infil_program.addLine('  Set hr_oa_cfm_addtl_needed = hr_oa_cfm_needed - hr_oa_cfm_during_hvac')
 
         # Calculate hourly-average outdoor air ventilation that can be brought in during subsequent timesteps of the hour if needed
-        if vent_mech.cfis_addtl_runtime_operating_mode == HPXML::CFISModeAirHandler
+        case vent_mech.cfis_addtl_runtime_operating_mode
+        when HPXML::CFISModeAirHandler
           infil_program.addLine('  Set hr_oa_cfm_addtl_needed = hr_oa_cfm_addtl_needed - (((60 - Minute) / 60) * oa_cfm_ah)')
-        elsif vent_mech.cfis_addtl_runtime_operating_mode == HPXML::CFISModeSupplementalFan
+        when HPXML::CFISModeSupplementalFan
           infil_program.addLine('  Set hr_oa_cfm_addtl_needed = hr_oa_cfm_addtl_needed - (((60 - Minute) / 60) * oa_cfm_suppl)')
-        elsif vent_mech.cfis_addtl_runtime_operating_mode == HPXML::CFISModeNone
+        when HPXML::CFISModeNone
           infil_program.addLine('  Set hr_oa_cfm_addtl_needed = 0')
         end
         infil_program.addLine('  If hr_oa_cfm_addtl_needed > 0')
 
-        if vent_mech.cfis_addtl_runtime_operating_mode == HPXML::CFISModeAirHandler
+        case vent_mech.cfis_addtl_runtime_operating_mode
+        when HPXML::CFISModeAirHandler
           # Air handler meets additional runtime requirement
 
           # Calculate hourly-average available outdoor air ventilation during non-HVAC runtime
@@ -2078,7 +2096,7 @@ module Airflow
           infil_program.addLine("      Set #{cfis_fan_actuator.name} = #{cfis_fan_actuator.name} + (ah_fan_w * #{f_vent_only_mode_var.name})")
           infil_program.addLine('    EndIf')
 
-        elsif vent_mech.cfis_addtl_runtime_operating_mode == HPXML::CFISModeSupplementalFan
+        when HPXML::CFISModeSupplementalFan
           # Supplemental fan meets additional runtime requirement
 
           # Calculate hourly-average available outdoor air ventilation during non-HVAC runtime
@@ -2086,9 +2104,10 @@ module Airflow
 
           # Calculate hourly-average actual outdoor air ventilation brought in during non-HVAC runtime
           infil_program.addLine('    Set hr_oa_cfm_during_non_hvac = @Min hr_oa_cfm_during_non_hvac_avail hr_oa_cfm_addtl_needed')
-          if vent_mech.cfis_supplemental_fan.fan_type == HPXML::MechVentTypeSupply
+          case vent_mech.cfis_supplemental_fan.fan_type
+          when HPXML::MechVentTypeSupply
             infil_program.addLine('    Set QWHV_cfis_suppl_sup = QWHV_cfis_suppl_sup + (hr_oa_cfm_during_non_hvac / ZoneTimestep)')
-          elsif vent_mech.cfis_supplemental_fan.fan_type == HPXML::MechVentTypeExhaust
+          when HPXML::MechVentTypeExhaust
             infil_program.addLine('    Set QWHV_cfis_suppl_exh = QWHV_cfis_suppl_exh + (hr_oa_cfm_during_non_hvac / ZoneTimestep)')
           end
           infil_program.addLine("    Set #{sum_oa_cfm_var.name} = #{sum_oa_cfm_var.name} + hr_oa_cfm_during_non_hvac")
@@ -2288,6 +2307,7 @@ module Airflow
     clothes_dryer_in_cond_space = hpxml_bldg.clothes_dryers.empty? ? true : HPXML::conditioned_locations_this_unit.include?(hpxml_bldg.clothes_dryers[0].location)
     vented_dryers = hpxml_bldg.clothes_dryers.select { |cd| cd.is_vented && cd.vented_flow_rate.to_f > 0 }
     vented_dryers.each_with_index do |vented_dryer, index|
+      next if hpxml_bldg.building_occupancy.number_of_residents == 0 # Operational calculation w/ zero occupants, zero out energy use
       next unless clothes_dryer_in_cond_space
 
       # Infiltration impact
@@ -2905,11 +2925,11 @@ module Airflow
   # @param is_balanced [TODO] TODO
   # @param frac_imbal [TODO] TODO
   # @param a_ext [TODO] TODO
-  # @param bldg_type [TODO] TODO
+  # @param unit_type [String] Type of dwelling unit (HXPML::ResidentialTypeXXX)
   # @param eri_version [String] Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
   # @param hours_in_operation [TODO] TODO
   # @return [TODO] TODO
-  def self.get_mech_vent_qfan_cfm(q_tot, q_inf, is_balanced, frac_imbal, a_ext, bldg_type, eri_version, hours_in_operation)
+  def self.get_mech_vent_qfan_cfm(q_tot, q_inf, is_balanced, frac_imbal, a_ext, unit_type, eri_version, hours_in_operation)
     q_inf_eff = q_inf * a_ext
     if Constants::ERIVersions.index(eri_version) >= Constants::ERIVersions.index('2022')
       if frac_imbal == 0
@@ -2930,7 +2950,7 @@ module Airflow
       end
       q_fan = q_tot - phi * q_inf_eff
     else
-      if [HPXML::ResidentialTypeApartment, HPXML::ResidentialTypeSFA].include? bldg_type
+      if [HPXML::ResidentialTypeApartment, HPXML::ResidentialTypeSFA].include? unit_type
         # No infiltration credit for attached/multifamily
         return q_tot
       end
@@ -3057,11 +3077,12 @@ module Airflow
       duct_leakage_value = leakage_to_outside[duct_side][0]
       duct_leakage_units = leakage_to_outside[duct_side][1]
 
-      if duct_leakage_units == HPXML::UnitsCFM25
+      case duct_leakage_units
+      when HPXML::UnitsCFM25
         duct_leakage_cfm25 = duct_leakage_value
-      elsif duct_leakage_units == HPXML::UnitsCFM50
+      when HPXML::UnitsCFM50
         duct_leakage_cfm50 = duct_leakage_value
-      elsif duct_leakage_units == HPXML::UnitsPercent
+      when HPXML::UnitsPercent
         duct_leakage_frac = duct_leakage_value
       else
         fail "#{duct_side.capitalize} ducts exist but leakage was not specified for distribution system '#{hvac_distribution.id}'."

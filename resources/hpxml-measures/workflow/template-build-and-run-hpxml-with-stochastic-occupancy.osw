@@ -118,7 +118,6 @@
         "include_annual_resilience": true,
         "timeseries_frequency": "none",
         "include_timeseries_total_consumptions": false,
-        "include_timeseries_fuel_consumptions": false,
         "include_timeseries_end_use_consumptions": false,
         "include_timeseries_system_use_consumptions": false,
         "include_timeseries_emissions": false,

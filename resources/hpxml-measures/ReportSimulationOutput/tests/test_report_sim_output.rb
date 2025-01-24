@@ -66,7 +66,6 @@ class ReportSimulationOutputTest < Minitest::Test
     "End Use: #{FT::Elec}: #{EUT::CeilingFan} (MBtu)",
     "End Use: #{FT::Elec}: #{EUT::Television} (MBtu)",
     "End Use: #{FT::Elec}: #{EUT::PlugLoads} (MBtu)",
-    "End Use: #{FT::Elec}: #{EUT::Vehicle} (MBtu)",
     "End Use: #{FT::Elec}: #{EUT::WellPump} (MBtu)",
     "End Use: #{FT::Elec}: #{EUT::PoolHeater} (MBtu)",
     "End Use: #{FT::Elec}: #{EUT::PoolPump} (MBtu)",
@@ -75,6 +74,7 @@ class ReportSimulationOutputTest < Minitest::Test
     "End Use: #{FT::Elec}: #{EUT::PV} (MBtu)",
     "End Use: #{FT::Elec}: #{EUT::Generator} (MBtu)",
     "End Use: #{FT::Elec}: #{EUT::Battery} (MBtu)",
+    "End Use: #{FT::Elec}: #{EUT::Vehicle} (MBtu)",
     "End Use: #{FT::Gas}: #{EUT::Heating} (MBtu)",
     "End Use: #{FT::Gas}: #{EUT::HeatingHeatPumpBackup} (MBtu)",
     "End Use: #{FT::Gas}: #{EUT::HotWater} (MBtu)",
@@ -151,6 +151,7 @@ class ReportSimulationOutputTest < Minitest::Test
     "Load: #{LT::HotWaterSolarThermal} (MBtu)",
     "Unmet Hours: #{UHT::Heating} (hr)",
     "Unmet Hours: #{UHT::Cooling} (hr)",
+    "Unmet Hours: #{UHT::Driving} (hr)",
     "Peak Electricity: #{PFT::Winter} #{TE::Total} (W)",
     "Peak Electricity: #{PFT::Summer} #{TE::Total} (W)",
     "Peak Electricity: #{PFT::Annual} #{TE::Total} (W)",
@@ -332,6 +333,7 @@ class ReportSimulationOutputTest < Minitest::Test
   BaseHPXMLTimeseriesColsUnmetHours = [
     "Unmet Hours: #{UHT::Heating}",
     "Unmet Hours: #{UHT::Cooling}",
+    "Unmet Hours: #{UHT::Driving}",
   ]
 
   BaseHPXMLTimeseriesColsZoneTemps = [
@@ -461,7 +463,6 @@ class ReportSimulationOutputTest < Minitest::Test
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::CeilingFan} (lb)",
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::Television} (lb)",
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::PlugLoads} (lb)",
-               "Emissions: #{scenario}: #{FT::Elec}: #{EUT::Vehicle} (lb)",
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::WellPump} (lb)",
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::PoolHeater} (lb)",
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::PoolPump} (lb)",
@@ -470,6 +471,7 @@ class ReportSimulationOutputTest < Minitest::Test
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::PV} (lb)",
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::Generator} (lb)",
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::Battery} (lb)",
+               "Emissions: #{scenario}: #{FT::Elec}: #{EUT::Vehicle} (lb)",
                "Emissions: #{scenario}: #{FT::Gas}: #{EUT::Heating} (lb)",
                "Emissions: #{scenario}: #{FT::Gas}: #{EUT::HeatingHeatPumpBackup} (lb)",
                "Emissions: #{scenario}: #{FT::Gas}: #{EUT::HotWater} (lb)",
@@ -573,6 +575,7 @@ class ReportSimulationOutputTest < Minitest::Test
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::PlugLoads}",
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::PV}",
                "Emissions: #{scenario}: #{FT::Elec}: #{EUT::Battery}",
+               "Emissions: #{scenario}: #{FT::Elec}: #{EUT::Vehicle}",
                "Emissions: #{scenario}: #{FT::Gas}: #{EUT::Heating}"]
     end
     return cols
@@ -580,7 +583,8 @@ class ReportSimulationOutputTest < Minitest::Test
 
   def pv_battery_timeseries_cols
     return ["End Use: #{FT::Elec}: #{EUT::PV}",
-            "End Use: #{FT::Elec}: #{EUT::Battery}"]
+            "End Use: #{FT::Elec}: #{EUT::Battery}",
+            "End Use: #{FT::Elec}: #{EUT::Vehicle}"]
   end
 
   def test_annual_only
@@ -878,13 +882,13 @@ class ReportSimulationOutputTest < Minitest::Test
                                                              "Component Load: Cooling: #{CLT::InternalGains}"])
   end
 
-  def test_timeseries_hourly_unmet_hours
-    args_hash = { 'hpxml_path' => File.join(File.dirname(__FILE__), '../../workflow/sample_files/base-hvac-undersized.xml'),
+  def check_timeseries_hourly_unmet_hours(xml_file, unmet_hours_cols)
+    args_hash = { 'hpxml_path' => File.join(File.dirname(__FILE__), "../../workflow/sample_files/#{xml_file}"),
                   'skip_validation' => true,
                   'add_component_loads' => true,
                   'timeseries_frequency' => 'hourly',
                   'include_timeseries_unmet_hours' => true }
-    annual_csv, timeseries_csv = _test_measure(args_hash)
+    annual_csv, timeseries_csv, run_log = _test_measure(args_hash)
     assert(File.exist?(annual_csv))
     assert(File.exist?(timeseries_csv))
     expected_timeseries_cols = ['Time'] + BaseHPXMLTimeseriesColsUnmetHours
@@ -894,8 +898,15 @@ class ReportSimulationOutputTest < Minitest::Test
     assert_equal(8760, timeseries_rows.size - 2)
     timeseries_cols = timeseries_rows.transpose
     assert_equal(1, _check_for_constant_timeseries_step(timeseries_cols[0]))
-    _check_for_nonzero_avg_timeseries_value(timeseries_csv, ["Unmet Hours: #{UHT::Heating}",
-                                                             "Unmet Hours: #{UHT::Cooling}"])
+    _check_for_nonzero_avg_timeseries_value(timeseries_csv, unmet_hours_cols)
+    if xml_file.include? 'base-battery-ev-undercharged'
+      assert(File.readlines(run_log).any? { |line| line.include?('A total of 1066.0 driving hours could not be met') })
+    end
+  end
+
+  def test_timeseries_hourly_unmet_hours
+    check_timeseries_hourly_unmet_hours('base-hvac-undersized.xml', ["Unmet Hours: #{UHT::Heating}", "Unmet Hours: #{UHT::Cooling}"])
+    check_timeseries_hourly_unmet_hours('base-battery-ev-undercharged.xml', ["Unmet Hours: #{UHT::Driving}"])
   end
 
   def test_timeseries_hourly_zone_temperatures
@@ -1036,7 +1047,7 @@ class ReportSimulationOutputTest < Minitest::Test
                   'include_timeseries_zone_temperatures' => true,
                   'include_timeseries_airflows' => true,
                   'include_timeseries_weather' => true,
-                  'include_timeseries_resilience' => true }
+                  'include_timeseries_resilience' => true, }
     annual_csv, timeseries_csv = _test_measure(args_hash)
     assert(File.exist?(annual_csv))
     assert(File.exist?(timeseries_csv))

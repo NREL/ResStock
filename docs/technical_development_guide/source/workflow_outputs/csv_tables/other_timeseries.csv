@@ -39,3 +39,7 @@ Zone People Occupant Count: Conditioned Space,zone_people_occupant_count__condit
 ,schedules_plug_loads_tv,frac,Television plug load energy use schedule.
 ,schedules_power_outage,,Unavailable period.
 ,schedules_vacancy,,Unavailable period.
+,schedules_ev_battery_charging,frac,Electric vehicle battery charging schedule
+,schedules_ev_battery_discharging,frac,Electric vehicle battery discharging schedule
+,schedules_ev_occupant,frac,Occupancy schedule of the electric vehicle driving occupant
+,schedules_present_occupants,binary,Binary representation of the occupancy of all occupants. Occupancy status of occupant n = schedules_present_occupants & (1 << n)

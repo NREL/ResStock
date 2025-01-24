@@ -88,9 +88,38 @@ Level,Parameter,Option,Saturation
 0,Eaves,1 ft,0.25
 0,Eaves,2 ft,0.25
 0,Eaves,3 ft,0.25
-0,Electric Vehicle,None,0.333333
-0,Electric Vehicle,"EV, 5000 miles, 0.3 kWh/mi",0.333333
-0,Electric Vehicle,"EV, 4000 miles, 0.3 kWh/mi",0.333333
+0,Electric Vehicle Battery,"Compact, Battery Electric Vehicle, 200 mile range",0.125
+0,Electric Vehicle Battery,"Compact, Battery Electric Vehicle, 300 mile range",0.125
+0,Electric Vehicle Battery,"Midsize, Battery Electric Vehicle, 200 mile range",0.125
+0,Electric Vehicle Battery,"Midsize, Battery Electric Vehicle, 300 mile range",0.125
+0,Electric Vehicle Battery,"Pickup, Battery Electric Vehicle, 200 mile range",0.125
+0,Electric Vehicle Battery,"Pickup, Battery Electric Vehicle, 300 mile range",0.125
+0,Electric Vehicle Battery,"SUV, Battery Electric Vehicle, 200 mile range",0.125
+0,Electric Vehicle Battery,"SUV, Battery Electric Vehicle, 300 mile range",0.125
+0,Electric Vehicle Charge At Home,0-19%,0.166667
+0,Electric Vehicle Charge At Home,20-39%,0.166667
+0,Electric Vehicle Charge At Home,40-59%,0.166667
+0,Electric Vehicle Charge At Home,60%-79%,0.166667
+0,Electric Vehicle Charge At Home,80%-99%,0.166667
+0,Electric Vehicle Charge At Home,100%,0.166667
+0,Electric Vehicle Miles Traveled,1000,0.0714286
+0,Electric Vehicle Miles Traveled,3000,0.0714286
+0,Electric Vehicle Miles Traveled,5000,0.0714286
+0,Electric Vehicle Miles Traveled,7000,0.0714286
+0,Electric Vehicle Miles Traveled,9000,0.0714286
+0,Electric Vehicle Miles Traveled,11000,0.0714286
+0,Electric Vehicle Miles Traveled,13000,0.0714286
+0,Electric Vehicle Miles Traveled,15000,0.0714286
+0,Electric Vehicle Miles Traveled,17000,0.0714286
+0,Electric Vehicle Miles Traveled,19000,0.0714286
+0,Electric Vehicle Miles Traveled,22500,0.0714286
+0,Electric Vehicle Miles Traveled,27500,0.0714286
+0,Electric Vehicle Miles Traveled,35000,0.0714286
+0,Electric Vehicle Miles Traveled,45000,0.0714286
+0,Electric Vehicle Outlet Access,No,0.5
+0,Electric Vehicle Outlet Access,Yes,0.5
+0,Electric Vehicle Ownership,No,0.5
+0,Electric Vehicle Ownership,Yes,0.5
 0,Geometry Building Type ACS,2 Unit,0.111111
 0,Geometry Building Type ACS,3 or 4 Unit,0.111111
 0,Geometry Building Type ACS,5 to 9 Unit,0.111111
@@ -455,6 +484,9 @@ Level,Parameter,Option,Saturation
 1,State,IL,0.2
 1,State,NY,0.2
 1,State,TX,0.2
+1,Electric Vehicle Charger,Level 1 charger,0.25
+1,Electric Vehicle Charger,Level 2 charger,0.25
+1,Electric Vehicle Charger,None,0.5
 1,Geometry Building Number Units SFA,None,0.888889
 1,Geometry Building Number Units SFA,2,0.00555556
 1,Geometry Building Number Units SFA,3,0.00555556
@@ -875,15 +907,15 @@ Level,Parameter,Option,Saturation
 3,HVAC Has Shared System,Heating Only,0.25463
 3,HVAC Has Shared System,None,0.625
 3,HVAC Has Shared System,Void,0
-4,HVAC Secondary Heating Efficiency,"Fuel Boiler, 76% AFUE",0.00846559
-4,HVAC Secondary Heating Efficiency,"Fuel Boiler, 80% AFUE",0.00846559
-4,HVAC Secondary Heating Efficiency,"Fuel Boiler, 90% AFUE",0.00846559
-4,HVAC Secondary Heating Efficiency,"Fuel Furnace, 60% AFUE",0.00846559
-4,HVAC Secondary Heating Efficiency,"Fuel Furnace, 76% AFUE",0.00846559
-4,HVAC Secondary Heating Efficiency,"Fuel Furnace, 80% AFUE",0.00846559
-4,HVAC Secondary Heating Efficiency,"Fuel Furnace, 92.5% AFUE",0.00846559
-4,HVAC Secondary Heating Efficiency,None,0.932275
-4,HVAC Secondary Heating Efficiency,Shared Heating,0.00846559
+4,HVAC Secondary Heating Efficiency,"Fuel Boiler, 76% AFUE",0.0126984
+4,HVAC Secondary Heating Efficiency,"Fuel Boiler, 80% AFUE",0.0126984
+4,HVAC Secondary Heating Efficiency,"Fuel Boiler, 90% AFUE",0.0126984
+4,HVAC Secondary Heating Efficiency,"Fuel Furnace, 60% AFUE",0.0095238
+4,HVAC Secondary Heating Efficiency,"Fuel Furnace, 76% AFUE",0.0095238
+4,HVAC Secondary Heating Efficiency,"Fuel Furnace, 80% AFUE",0.0095238
+4,HVAC Secondary Heating Efficiency,"Fuel Furnace, 92.5% AFUE",0.0095238
+4,HVAC Secondary Heating Efficiency,None,0.92381
+4,HVAC Secondary Heating Efficiency,Shared Heating,0
 4,HVAC Secondary Heating Efficiency,Void,0
 4,HVAC Secondary Heating Partial Space Conditioning,0%,0.936508
 4,HVAC Secondary Heating Partial Space Conditioning,10%,0.0126984

@@ -36,17 +36,19 @@ class UtilityBills
     end
 
     if not marginal_rate.nil?
-      if [HPXML::FuelTypeElectricity, HPXML::FuelTypeNaturalGas].include? fuel_type
+      case fuel_type
+      when HPXML::FuelTypeElectricity, HPXML::FuelTypeNaturalGas
         # Calculate average rate from user-specified marginal rate, user-specified fixed charge, and EIA data
         average_rate = marginal_rate_to_average_rate(marginal_rate, fixed_charge, household_consumption)
-      elsif [HPXML::FuelTypeOil, HPXML::FuelTypePropane, HPXML::FuelTypeCoal, HPXML::FuelTypeWoodCord, HPXML::FuelTypeWoodPellets].include? fuel_type
+      when HPXML::FuelTypeOil, HPXML::FuelTypePropane, HPXML::FuelTypeCoal, HPXML::FuelTypeWoodCord, HPXML::FuelTypeWoodPellets
         # Do nothing
       end
     else
-      if [HPXML::FuelTypeElectricity, HPXML::FuelTypeNaturalGas].include? fuel_type
+      case fuel_type
+      when HPXML::FuelTypeElectricity, HPXML::FuelTypeNaturalGas
         average_rate = get_eia_seds_rate(runner, state_code, fuel_type)
         marginal_rate = average_rate_to_marginal_rate(average_rate, fixed_charge, household_consumption)
-      elsif [HPXML::FuelTypeOil, HPXML::FuelTypePropane, HPXML::FuelTypeCoal, HPXML::FuelTypeWoodCord, HPXML::FuelTypeWoodPellets].include? fuel_type
+      when HPXML::FuelTypeOil, HPXML::FuelTypePropane, HPXML::FuelTypeCoal, HPXML::FuelTypeWoodCord, HPXML::FuelTypeWoodPellets
         marginal_rate = get_eia_seds_rate(runner, state_code, fuel_type)
       end
     end

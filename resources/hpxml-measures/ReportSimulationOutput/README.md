@@ -524,8 +524,6 @@ All possible measure outputs are listed below. Actual outputs depend on measure 
 
 - ``end_use_electricity_plug_loads_m_btu``
 
-- ``end_use_electricity_electric_vehicle_charging_m_btu``
-
 - ``end_use_electricity_well_pump_m_btu``
 
 - ``end_use_electricity_pool_heater_m_btu``
@@ -541,6 +539,8 @@ All possible measure outputs are listed below. Actual outputs depend on measure 
 - ``end_use_electricity_generator_m_btu``
 
 - ``end_use_electricity_battery_m_btu``
+
+- ``end_use_electricity_electric_vehicle_charging_m_btu``
 
 - ``end_use_natural_gas_heating_m_btu``
 
@@ -683,6 +683,8 @@ All possible measure outputs are listed below. Actual outputs depend on measure 
 - ``unmet_hours_heating_hr``
 
 - ``unmet_hours_cooling_hr``
+
+- ``unmet_hours_driving_hr``
 
 - ``peak_electricity_winter_total_w``
 

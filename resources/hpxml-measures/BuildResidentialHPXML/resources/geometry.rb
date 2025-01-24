@@ -268,7 +268,8 @@ module Geometry
       # make polygons
       polygon_floor = make_polygon(roof_nw_point, roof_ne_point, roof_se_point, roof_sw_point)
       side_type = nil
-      if roof_type == Constants::RoofTypeGable
+      case roof_type
+      when Constants::RoofTypeGable
         if length >= width
           roof_w_point = OpenStudio::Point3d.new(0, width / 2.0, z + attic_height)
           roof_e_point = OpenStudio::Point3d.new(length, width / 2.0, z + attic_height)
@@ -285,7 +286,7 @@ module Geometry
           polygon_e_wall = make_polygon(roof_e_point, roof_ne_point, roof_nw_point)
         end
         side_type = EPlus::SurfaceTypeWall
-      elsif roof_type == Constants::RoofTypeHip
+      when Constants::RoofTypeHip
         if length >= width
           roof_w_point = OpenStudio::Point3d.new(width / 2.0, width / 2.0, z + attic_height)
           roof_e_point = OpenStudio::Point3d.new(length - width / 2.0, width / 2.0, z + attic_height)
@@ -330,7 +331,8 @@ module Geometry
       surface_e_wall.setSpace(attic_space)
 
       # set these to the attic zone
-      if (attic_type == HPXML::AtticTypeVented) || (attic_type == HPXML::AtticTypeUnvented)
+      case attic_type
+      when HPXML::AtticTypeVented, HPXML::AtticTypeUnvented
         # create attic zone
         attic_zone = OpenStudio::Model::ThermalZone.new(model)
         attic_space.setThermalZone(attic_zone)
@@ -340,7 +342,7 @@ module Geometry
           attic_space_name = HPXML::LocationAtticUnvented
         end
         attic_zone.setName(attic_space_name)
-      elsif attic_type == HPXML::AtticTypeConditioned
+      when HPXML::AtticTypeConditioned
         attic_space.setThermalZone(conditioned_zone)
         attic_space_name = HPXML::LocationConditionedSpace
       end
@@ -379,20 +381,23 @@ module Geometry
       foundation_space = OpenStudio::Model::Space::fromFloorPrint(foundation_polygon, foundation_height, model)
       foundation_space = foundation_space.get
       assign_indexes(model: model, footprint_polygon: foundation_polygon, space: foundation_space)
-      if foundation_type == HPXML::FoundationTypeCrawlspaceVented
+      case foundation_type
+      when HPXML::FoundationTypeCrawlspaceVented
         foundation_space_name = HPXML::LocationCrawlspaceVented
-      elsif foundation_type == HPXML::FoundationTypeCrawlspaceUnvented
+      when HPXML::FoundationTypeCrawlspaceUnvented
         foundation_space_name = HPXML::LocationCrawlspaceUnvented
-      elsif foundation_type == HPXML::FoundationTypeCrawlspaceConditioned
+      when HPXML::FoundationTypeCrawlspaceConditioned
         foundation_space_name = HPXML::LocationCrawlspaceConditioned
-      elsif foundation_type == HPXML::FoundationTypeBasementUnconditioned
+      when HPXML::FoundationTypeBasementUnconditioned
         foundation_space_name = HPXML::LocationBasementUnconditioned
-      elsif foundation_type == HPXML::FoundationTypeBasementConditioned
+      when HPXML::FoundationTypeBasementConditioned
         foundation_space_name = HPXML::LocationBasementConditioned
-      elsif foundation_type == HPXML::FoundationTypeAmbient
+      when HPXML::FoundationTypeAmbient
         foundation_space_name = HPXML::LocationOutside
-      elsif foundation_type.start_with?(HPXML::FoundationTypeBellyAndWing)
-        foundation_space_name = HPXML::LocationManufacturedHomeUnderBelly
+      else
+        if foundation_type.start_with? HPXML::FoundationTypeBellyAndWing
+          foundation_space_name = HPXML::LocationManufacturedHomeUnderBelly
+        end
       end
       foundation_zone.setName(foundation_space_name)
       foundation_space.setName(foundation_space_name)
@@ -814,17 +819,18 @@ module Geometry
       # create foundation zone
       foundation_zone = OpenStudio::Model::ThermalZone.new(model)
 
-      if foundation_type == HPXML::FoundationTypeCrawlspaceVented
+      case foundation_type
+      when HPXML::FoundationTypeCrawlspaceVented
         foundation_space_name = HPXML::LocationCrawlspaceVented
-      elsif foundation_type == HPXML::FoundationTypeCrawlspaceUnvented
+      when HPXML::FoundationTypeCrawlspaceUnvented
         foundation_space_name = HPXML::LocationCrawlspaceUnvented
-      elsif foundation_type == HPXML::FoundationTypeCrawlspaceConditioned
+      when HPXML::FoundationTypeCrawlspaceConditioned
         foundation_space_name = HPXML::LocationCrawlspaceConditioned
-      elsif foundation_type == HPXML::FoundationTypeBasementUnconditioned
+      when HPXML::FoundationTypeBasementUnconditioned
         foundation_space_name = HPXML::LocationBasementUnconditioned
-      elsif foundation_type == HPXML::FoundationTypeBasementConditioned
+      when HPXML::FoundationTypeBasementConditioned
         foundation_space_name = HPXML::LocationBasementConditioned
-      elsif foundation_type == HPXML::FoundationTypeAmbient
+      when HPXML::FoundationTypeAmbient
         foundation_space_name = HPXML::LocationOutside
       end
       foundation_zone.setName(foundation_space_name)
@@ -889,7 +895,8 @@ module Geometry
       attic_space = get_attic_space(model: model, x: x, y: y, average_ceiling_height: average_ceiling_height, num_floors: num_floors, roof_pitch: roof_pitch, roof_type: roof_type, rim_joist_height: rim_joist_height)
 
       # set these to the attic zone
-      if (attic_type == HPXML::AtticTypeVented) || (attic_type == HPXML::AtticTypeUnvented)
+      case attic_type
+      when HPXML::AtticTypeVented, HPXML::AtticTypeUnvented
         # create attic zone
         attic_zone = OpenStudio::Model::ThermalZone.new(model)
         attic_space.setThermalZone(attic_zone)
@@ -1106,17 +1113,18 @@ module Geometry
       # create foundation zone
       foundation_zone = OpenStudio::Model::ThermalZone.new(model)
 
-      if foundation_type == HPXML::FoundationTypeCrawlspaceVented
+      case foundation_type
+      when HPXML::FoundationTypeCrawlspaceVented
         foundation_space_name = HPXML::LocationCrawlspaceVented
-      elsif foundation_type == HPXML::FoundationTypeCrawlspaceUnvented
+      when HPXML::FoundationTypeCrawlspaceUnvented
         foundation_space_name = HPXML::LocationCrawlspaceUnvented
-      elsif foundation_type == HPXML::FoundationTypeCrawlspaceConditioned
+      when HPXML::FoundationTypeCrawlspaceConditioned
         foundation_space_name = HPXML::LocationCrawlspaceConditioned
-      elsif foundation_type == HPXML::FoundationTypeBasementUnconditioned
+      when HPXML::FoundationTypeBasementUnconditioned
         foundation_space_name = HPXML::LocationBasementUnconditioned
-      elsif foundation_type == HPXML::FoundationTypeBasementConditioned
+      when HPXML::FoundationTypeBasementConditioned
         foundation_space_name = HPXML::LocationBasementConditioned
-      elsif foundation_type == HPXML::FoundationTypeAmbient
+      when HPXML::FoundationTypeAmbient
         foundation_space_name = HPXML::LocationOutside
       end
       foundation_zone.setName(foundation_space_name)
@@ -1179,7 +1187,8 @@ module Geometry
       attic_space = get_attic_space(model: model, x: x, y: y, average_ceiling_height: average_ceiling_height, num_floors: num_floors, roof_pitch: roof_pitch, roof_type: roof_type, rim_joist_height: rim_joist_height)
 
       # set these to the attic zone
-      if (attic_type == HPXML::AtticTypeVented) || (attic_type == HPXML::AtticTypeUnvented)
+      case attic_type
+      when HPXML::AtticTypeVented, HPXML::AtticTypeUnvented
         # create attic zone
         attic_zone = OpenStudio::Model::ThermalZone.new(model)
         attic_space.setThermalZone(attic_zone)
@@ -1326,16 +1335,17 @@ module Geometry
 
       # Convert to 3D geometry; assign to surface
       door_polygon = OpenStudio::Point3dVector.new
-      if facade == Constants::FacadeFront
+      case facade
+      when Constants::FacadeFront
         multx = 1
         multy = 0
-      elsif facade == Constants::FacadeBack
+      when Constants::FacadeBack
         multx = -1
         multy = 0
-      elsif facade == Constants::FacadeLeft
+      when Constants::FacadeLeft
         multx = 0
         multy = -1
-      elsif facade == Constants::FacadeRight
+      when Constants::FacadeRight
         multx = 0
         multy = 1
       end
@@ -1602,19 +1612,20 @@ module Geometry
         leftx = skylight_bottom_left.x
         lefty = skylight_bottom_left.y
         bottomz = skylight_bottom_left.z
-        if (facade == Constants::FacadeFront) || (facade == Constants::FacadeNone)
+        case facade
+        when Constants::FacadeFront, Constants::FacadeNone
           skylight_top_left = OpenStudio::Point3d.new(leftx, lefty + Math.cos(surface.tilt) * skylight_length, bottomz + Math.sin(surface.tilt) * skylight_length)
           skylight_top_right = OpenStudio::Point3d.new(leftx + skylight_width, lefty + Math.cos(surface.tilt) * skylight_length, bottomz + Math.sin(surface.tilt) * skylight_length)
           skylight_bottom_right = OpenStudio::Point3d.new(leftx + skylight_width, lefty, bottomz)
-        elsif facade == Constants::FacadeBack
+        when Constants::FacadeBack
           skylight_top_left = OpenStudio::Point3d.new(leftx, lefty - Math.cos(surface.tilt) * skylight_length, bottomz + Math.sin(surface.tilt) * skylight_length)
           skylight_top_right = OpenStudio::Point3d.new(leftx - skylight_width, lefty - Math.cos(surface.tilt) * skylight_length, bottomz + Math.sin(surface.tilt) * skylight_length)
           skylight_bottom_right = OpenStudio::Point3d.new(leftx - skylight_width, lefty, bottomz)
-        elsif facade == Constants::FacadeLeft
+        when Constants::FacadeLeft
           skylight_top_left = OpenStudio::Point3d.new(leftx + Math.cos(surface.tilt) * skylight_length, lefty, bottomz + Math.sin(surface.tilt) * skylight_length)
           skylight_top_right = OpenStudio::Point3d.new(leftx + Math.cos(surface.tilt) * skylight_length, lefty - skylight_width, bottomz + Math.sin(surface.tilt) * skylight_length)
           skylight_bottom_right = OpenStudio::Point3d.new(leftx, lefty - skylight_width, bottomz)
-        elsif facade == Constants::FacadeRight
+        when Constants::FacadeRight
           skylight_top_left = OpenStudio::Point3d.new(leftx - Math.cos(surface.tilt) * skylight_length, lefty, bottomz + Math.sin(surface.tilt) * skylight_length)
           skylight_top_right = OpenStudio::Point3d.new(leftx - Math.cos(surface.tilt) * skylight_length, lefty + skylight_width, bottomz + Math.sin(surface.tilt) * skylight_length)
           skylight_bottom_right = OpenStudio::Point3d.new(leftx, lefty + skylight_width, bottomz)
@@ -1802,13 +1813,14 @@ module Geometry
   # @return [Double] the absolute azimuth based on relative azimuth of the facade and building orientation
   def self.get_azimuth_from_facade(facade:,
                                    orientation:)
-    if facade == Constants::FacadeFront
+    case facade
+    when Constants::FacadeFront
       return get_abs_azimuth(relative_azimuth: 0, building_orientation: orientation)
-    elsif facade == Constants::FacadeBack
+    when Constants::FacadeBack
       return get_abs_azimuth(relative_azimuth: 180, building_orientation: orientation)
-    elsif facade == Constants::FacadeLeft
+    when Constants::FacadeLeft
       return get_abs_azimuth(relative_azimuth: 90, building_orientation: orientation)
-    elsif facade == Constants::FacadeRight
+    when Constants::FacadeRight
       return get_abs_azimuth(relative_azimuth: 270, building_orientation: orientation)
     else
       fail 'Unexpected facade.'
@@ -2290,16 +2302,17 @@ module Geometry
 
     # Convert to 3D geometry; assign to surface
     window_polygon = OpenStudio::Point3dVector.new
-    if facade == Constants::FacadeFront
+    case facade
+    when Constants::FacadeFront
       multx = 1
       multy = 0
-    elsif facade == Constants::FacadeBack
+    when Constants::FacadeBack
       multx = -1
       multy = 0
-    elsif facade == Constants::FacadeLeft
+    when Constants::FacadeLeft
       multx = 0
       multy = -1
-    elsif facade == Constants::FacadeRight
+    when Constants::FacadeRight
       multx = 0
       multy = 1
     end
@@ -2458,7 +2471,8 @@ module Geometry
     attic_height = (y_tot / 2.0) * roof_pitch + rim_joist_height # Roof always has same orientation
 
     side_type = nil
-    if roof_type == Constants::RoofTypeGable
+    case roof_type
+    when Constants::RoofTypeGable
       roof_w_point = OpenStudio::Point3d.new(0, y_peak, average_ceiling_height * num_floors + attic_height)
       roof_e_point = OpenStudio::Point3d.new(x, y_peak, average_ceiling_height * num_floors + attic_height)
       polygon_w_roof = make_polygon(roof_w_point, roof_e_point, ne_point, nw_point)
@@ -2466,7 +2480,7 @@ module Geometry
       polygon_s_wall = make_polygon(roof_w_point, nw_point, sw_point)
       polygon_n_wall = make_polygon(roof_e_point, se_point, ne_point)
       side_type = EPlus::SurfaceTypeWall
-    elsif roof_type == Constants::RoofTypeHip
+    when Constants::RoofTypeHip
       if y > 0
         if x <= (y + y_rear)
           roof_n_point = OpenStudio::Point3d.new(x / 2.0, y_rear - x / 2.0, average_ceiling_height * num_floors + attic_height)

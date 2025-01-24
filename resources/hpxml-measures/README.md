@@ -4,7 +4,7 @@
 [![ci](https://github.com/NREL/OpenStudio-HPXML/workflows/ci/badge.svg)](https://github.com/NREL/OpenStudio-HPXML/actions)
 [![Documentation Status](https://readthedocs.org/projects/openstudio-hpxml/badge/?version=latest)](https://openstudio-hpxml.readthedocs.io/en/latest/?badge=latest)
 
-OpenStudio-HPXML allows running residential EnergyPlus™ simulations using an [HPXML file](https://hpxml.nrel.gov/) for the building description.
+OpenStudio-HPXML allows running residential [EnergyPlus™ simulations](https://energyplus.net/) using an [HPXML file](https://hpxml.nrel.gov/) for the building description.
 It is intended to be used by user interfaces or other automated software workflows that automatically produce the HPXML file.
 
 OpenStudio-HPXML can accommodate a wide range of different building technologies and geometries.
@@ -31,6 +31,8 @@ OpenStudio-HPXML capabilities include:
 - Annual and timeseries outputs (energy, loads, temperatures, etc.)
 - Optional HPXML inputs with transparent defaults
 - Schematron and XSD Schema input validation
+- Can be used for [DOE HOMES program approval](https://www.energy.gov/scep/single-family-modeling-solutions-home-efficiency-rebates-program)
+- Can be used for [ACCA Manual J approval](https://www.acca.org/standards/approved-software)
 
 ## Measures
 

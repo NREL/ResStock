@@ -2,7 +2,7 @@
 
 # Collection of methods related to software versions.
 module Version
-  OS_HPXML_Version = '1.9.0' # Version of the OS-HPXML workflow
+  OS_HPXML_Version = '1.10.0' # Version of the OS-HPXML workflow
   OS_Version = '3.9.0' # Required version of OpenStudio (can be 'X.X' or 'X.X.X')
   HPXML_Version = '4.0' # HPXML schemaVersion
 

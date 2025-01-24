@@ -93,7 +93,7 @@ Annual energy outputs are listed below.
   ====================================  ===========================
   Type                                  Notes
   ====================================  ===========================
-  Energy Use: Total (MBtu)              Total energy consumption; includes any battery charging/discharging
+  Energy Use: Total (MBtu)              Total energy consumption; includes any home battery charging/discharging, excludes electric vehicle discharging
   Energy Use: Net (MBtu)                Subtracts any power produced by PV or generators
   ====================================  ===========================
 
@@ -105,7 +105,7 @@ Fuel uses are listed below.
   ====================================  ===========================
   Type                                  Notes
   ====================================  ===========================
-  Fuel Use: Electricity: Total (MBtu)   Total electricity consumption, includes any battery charging/discharging
+  Fuel Use: Electricity: Total (MBtu)   Total electricity consumption, includes any home battery charging/discharging, excludes electric vehicle discharging
   Fuel Use: Electricity: Net (MBtu)     Subtracts any power produced by PV or generators
   Fuel Use: Natural Gas: Total (MBtu)
   Fuel Use: Fuel Oil: Total (MBtu)      Includes "fuel oil", "fuel oil 1", "fuel oil 2", "fuel oil 4", "fuel oil 5/6", "kerosene", and "diesel"
@@ -251,7 +251,7 @@ Results for each emissions scenario defined in the HPXML file are listed as show
   =======================================================================  ==================================================================
   Type                                                                     Notes
   =======================================================================  ==================================================================
-  Emissions: <EmissionsType>: <ScenarioName>: Total (lb)                   Scenario total emissions, includes any battery charging/discharging
+  Emissions: <EmissionsType>: <ScenarioName>: Total (lb)                   Scenario total emissions, includes any home battery charging/discharging, excludes electric vehicle discharging
   Emissions: <EmissionsType>: <ScenarioName>: Net (lb)                     Subtracts any power produced by PV or generators
   =======================================================================  ==================================================================
 
@@ -263,7 +263,7 @@ Results for each emissions scenario defined in the HPXML file are listed as show
   =======================================================================  ==================================================================
   Type                                                                     Notes
   =======================================================================  ==================================================================
-  Emissions: <EmissionsType>: <ScenarioName>: Electricity: Total (lb)      Scenario total emissions for Electricity only, includes any battery charging/discharging
+  Emissions: <EmissionsType>: <ScenarioName>: Electricity: Total (lb)      Scenario total emissions for Electricity only, includes any home battery charging/discharging, excludes electric vehicle discharging
   Emissions: <EmissionsType>: <ScenarioName>: Electricity: Net (lb)        Subtracts any power produced by PV or generators
   Emissions: <EmissionsType>: <ScenarioName>: Natural Gas: Total (lb)      Scenario emissions for Natural Gas only
   Emissions: <EmissionsType>: <ScenarioName>: Fuel Oil: Total (lb)         Scenario emissions for Fuel Oil only

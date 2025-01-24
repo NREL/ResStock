@@ -1006,6 +1006,44 @@
     "schedules_unavailable_period_types": "Power Outage",
     "schedules_unavailable_period_dates": "Jul 1 5 - Jul 31 14"
   },
+  "sample_files/base-battery-ev-no-charger.xml": {
+    "parent_hpxml": "sample_files/base-enclosure-garage.xml",
+    "ev_battery_present": true
+  },
+  "sample_files/base-battery-ev.xml": {
+    "parent_hpxml": "sample_files/base-battery-ev-no-charger.xml",
+    "ev_battery_capacity": 100,
+    "ev_battery_usable_capacity": 80,
+    "ev_miles_per_year": 10000,
+    "ev_hours_per_week": 14,
+    "ev_energy_efficiency": 0.25,
+    "ev_charger_present": true,
+    "ev_charger_power": 7000,
+    "ev_charger_location": "garage"
+  },
+  "sample_files/base-battery-ev-scheduled.xml": {
+    "parent_hpxml": "sample_files/base-battery-ev.xml",
+    "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/battery-ev.csv"
+  },
+  "sample_files/base-battery-ev-undercharged.xml": {
+    "parent_hpxml": "sample_files/base-battery-ev.xml",
+    "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/battery-ev-low-charge.csv"
+  },
+  "sample_files/base-battery-ev-lifetime-model.xml": {
+    "parent_hpxml": "sample_files/base-battery-ev-scheduled.xml"
+  },
+  "sample_files/base-battery-ev-plug-load-ev.xml": {
+    "parent_hpxml": "sample_files/base-battery-ev-scheduled.xml",
+    "misc_plug_loads_vehicle_present": true,
+    "misc_plug_loads_vehicle_annual_kwh": 3000
+  },
+  "sample_files/base-pv-battery-and-ev.xml": {
+    "parent_hpxml": "sample_files/base-pv-battery.xml",
+    "ev_battery_present": true,
+    "ev_charger_present": true,
+    "ev_charger_location": "outside",
+    "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/battery-ev.csv"
+  },
   "sample_files/base-bldgtype-sfa-unit.xml": {
     "parent_hpxml": "sample_files/base.xml",
     "geometry_unit_type": "single-family attached",
@@ -3415,6 +3453,8 @@
     "pv_system_array_tilt": 20,
     "pv_system_max_power_output": 4000,
     "battery_present": true,
+    "ev_battery_present": true,
+    "ev_charger_present": true,
     "clothes_washer_location": null,
     "clothes_washer_efficiency": null,
     "clothes_washer_rated_annual_kwh": null,
@@ -3445,7 +3485,7 @@
     "misc_plug_loads_other_frac_latent": null
   },
   "sample_files/base-misc-emissions.xml": {
-    "parent_hpxml": "sample_files/base-pv-battery.xml",
+    "parent_hpxml": "sample_files/base-pv-battery-and-ev.xml",
     "emissions_scenario_names": "Cambium Hourly MidCase LRMER RMPA, Cambium Hourly LowRECosts LRMER RMPA, Cambium Annual MidCase AER National, eGRID RMPA, eGRID RMPA",
     "emissions_types": "CO2e, CO2e, CO2e, SO2, NOx",
     "emissions_electricity_units": "kg/MWh, kg/MWh, kg/MWh, lb/MWh, lb/MWh",
@@ -3475,6 +3515,7 @@
   "sample_files/base-misc-loads-large-uncommon.xml": {
     "parent_hpxml": "sample_files/base-schedules-simple.xml",
     "hot_water_distribution_system_type": "Standard",
+    "ev_battery_present": false,
     "extra_refrigerator_present": true,
     "extra_refrigerator_rated_annual_kwh": 700,
     "freezer_present": true,
@@ -3699,10 +3740,6 @@
     "parent_hpxml": "sample_files/base.xml",
     "geometry_unit_num_occupants": 0
   },
-  "sample_files/base-residents-0-runperiod-1-month.xml": {
-    "parent_hpxml": "sample_files/base-residents-0.xml",
-    "simulation_control_run_period": "Feb 1 - Feb 28"
-  },
   "sample_files/base-residents-1.xml": {
     "parent_hpxml": "sample_files/base.xml",
     "geometry_unit_num_occupants": 1,
@@ -3749,7 +3786,10 @@
     "hot_water_distribution_recirc_control_type": "no control",
     "hot_water_distribution_recirc_piping_length": 50,
     "hot_water_distribution_recirc_branch_piping_length": 50,
-    "hot_water_distribution_recirc_pump_power": 50
+    "hot_water_distribution_recirc_pump_power": 50,
+    "ev_battery_present": true,
+    "ev_charger_present": true,
+    "misc_plug_loads_vehicle_present": false
   },
   "sample_files/base-schedules-simple-vacancy.xml": {
     "parent_hpxml": "sample_files/base.xml",

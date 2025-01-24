@@ -36,15 +36,18 @@ module XMLHelper
       parent.children.insert(index, added)
     end
     if not value.nil?
-      if datatype == :integer
+      case datatype
+      when :integer
         value = to_integer(value, parent, element_name)
-      elsif datatype == :float
+      when :float
         value = to_float(value, parent, element_name)
-      elsif datatype == :boolean
+      when :boolean
         value = to_boolean(value, parent, element_name)
-      elsif datatype != :string
-        # If value provided, datatype required
-        fail 'Unexpected datatype.'
+      else
+        if datatype != :string
+          # If value provided, datatype required
+          fail 'Unexpected datatype.'
+        end
       end
       added.inner_text = value.to_s
     end
@@ -113,14 +116,17 @@ module XMLHelper
 
     value = element.text
 
-    if datatype == :integer
+    case datatype
+    when :integer
       value = to_integer_or_nil(value, parent, element_name)
-    elsif datatype == :float
+    when :float
       value = to_float_or_nil(value, parent, element_name)
-    elsif datatype == :boolean
+    when :boolean
       value = to_boolean_or_nil(value, parent, element_name)
-    elsif datatype != :string
-      fail 'Unexpected datatype.'
+    else
+      if datatype != :string
+        fail 'Unexpected datatype.'
+      end
     end
 
     return value
@@ -138,14 +144,17 @@ module XMLHelper
     parent.xpath(element_name).each do |value|
       value = value.text
 
-      if datatype == :integer
+      case datatype
+      when :integer
         value = to_integer_or_nil(value, parent, element_name)
-      elsif datatype == :float
+      when :float
         value = to_float_or_nil(value, parent, element_name)
-      elsif datatype == :boolean
+      when :boolean
         value = to_boolean_or_nil(value, parent, element_name)
-      elsif datatype != :string
-        fail 'Unexpected datatype.'
+      else
+        if datatype != :string
+          fail 'Unexpected datatype.'
+        end
       end
 
       values << value

@@ -9,6 +9,7 @@ require_relative '../resources/util.rb'
 
 class HPXMLtoOpenStudioBatteryTest < Minitest::Test
   def teardown
+    File.delete(File.join(File.dirname(__FILE__), 'in.schedules.csv')) if File.exist? File.join(File.dirname(__FILE__), 'in.schedules.csv')
     File.delete(File.join(File.dirname(__FILE__), 'results_annual.csv')) if File.exist? File.join(File.dirname(__FILE__), 'results_annual.csv')
     File.delete(File.join(File.dirname(__FILE__), 'results_design_load_details.csv')) if File.exist? File.join(File.dirname(__FILE__), 'results_design_load_details.csv')
   end
@@ -17,12 +18,24 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     return File.join(File.dirname(__FILE__), '..', '..', 'workflow', 'sample_files')
   end
 
-  def get_battery(model, name)
+  def get_batteries(model, name)
+    batteries = []
     model.getElectricLoadCenterStorageLiIonNMCBatterys.each do |b|
       next unless b.name.to_s.start_with? "#{name} "
 
-      return b
+      batteries << b
     end
+    return batteries
+  end
+
+  def get_elcds(model, name)
+    elcds = []
+    model.getElectricLoadCenterDistributions.each do |elcd|
+      next unless elcd.name.to_s.start_with? "#{name} "
+
+      elcds << elcd
+    end
+    return elcds
   end
 
   def calc_nom_capacity(battery)
@@ -36,7 +49,9 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(1, batteries.size)
+      battery = batteries[0]
 
       # Check object
       assert(!battery.thermalZone.is_initialized)
@@ -50,9 +65,11 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
       assert_in_epsilon(1.42, battery.batterySurfaceArea, 0.01)
       assert_in_epsilon(10000, calc_nom_capacity(battery), 0.01)
 
-      elcds = model.getElectricLoadCenterDistributions
+      elcds = get_elcds(model, 'PVSystem')
       assert_equal(1, elcds.size)
       elcd = elcds[0]
+
+      # Check object
       assert_equal('DirectCurrentWithInverterACStorage', elcd.electricalBussType)
       assert_equal(0.075, elcd.minimumStorageStateofChargeFraction)
       assert_equal(0.975, elcd.maximumStorageStateofChargeFraction)
@@ -69,13 +86,12 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(0, batteries.size)
 
-      assert_empty(battery)
+      elcds = get_elcds(model, hpxml_battery.id)
+      assert_equal(0, elcds.size)
     end
-
-    elcds = model.getElectricLoadCenterDistributions
-    assert_equal(0, elcds.size)
   end
 
   def test_battery_scheduled
@@ -84,7 +100,9 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(1, batteries.size)
+      battery = batteries[0]
 
       # Check object
       assert(!battery.thermalZone.is_initialized)
@@ -98,9 +116,11 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
       assert_in_epsilon(2.25, battery.batterySurfaceArea, 0.01)
       assert_in_epsilon(20000, calc_nom_capacity(battery), 0.01)
 
-      elcds = model.getElectricLoadCenterDistributions
+      elcds = get_elcds(model, hpxml_battery.id)
       assert_equal(1, elcds.size)
       elcd = elcds[0]
+
+      # Check object
       assert_equal('AlternatingCurrentWithStorage', elcd.electricalBussType)
       assert_equal(0.075, elcd.minimumStorageStateofChargeFraction)
       assert_equal(0.975, elcd.maximumStorageStateofChargeFraction)
@@ -125,7 +145,9 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(1, batteries.size)
+      battery = batteries[0]
 
       # Check object
       assert(!battery.thermalZone.is_initialized)
@@ -139,9 +161,11 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
       assert_in_epsilon(2.25, battery.batterySurfaceArea, 0.01)
       assert_in_epsilon(20000, calc_nom_capacity(battery), 0.01)
 
-      elcds = model.getElectricLoadCenterDistributions
+      elcds = get_elcds(model, 'PVSystem')
       assert_equal(1, elcds.size)
       elcd = elcds[0]
+
+      # Check object
       assert_equal('DirectCurrentWithInverterACStorage', elcd.electricalBussType)
       assert_equal(0.075, elcd.minimumStorageStateofChargeFraction)
       assert_equal(0.975, elcd.maximumStorageStateofChargeFraction)
@@ -161,7 +185,9 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(1, batteries.size)
+      battery = batteries[0]
 
       # Check object
       assert(!battery.thermalZone.is_initialized)
@@ -175,9 +201,11 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
       assert_in_epsilon(2.25, battery.batterySurfaceArea, 0.01)
       assert_in_epsilon(20000, calc_nom_capacity(battery), 0.01)
 
-      elcds = model.getElectricLoadCenterDistributions
+      elcds = get_elcds(model, 'PVSystem')
       assert_equal(1, elcds.size)
       elcd = elcds[0]
+
+      # Check object
       assert_equal('DirectCurrentWithInverterACStorage', elcd.electricalBussType)
       assert_equal(0.075, elcd.minimumStorageStateofChargeFraction)
       assert_equal(0.975, elcd.maximumStorageStateofChargeFraction)
@@ -197,7 +225,9 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(1, batteries.size)
+      battery = batteries[0]
 
       # Check object
       assert(!battery.thermalZone.is_initialized)
@@ -211,9 +241,11 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
       assert_in_epsilon(2.25, battery.batterySurfaceArea, 0.01)
       assert_in_epsilon(20000, calc_nom_capacity(battery), 0.01)
 
-      elcds = model.getElectricLoadCenterDistributions
+      elcds = get_elcds(model, 'PVSystem')
       assert_equal(1, elcds.size)
       elcd = elcds[0]
+
+      # Check object
       assert_equal('DirectCurrentWithInverterACStorage', elcd.electricalBussType)
       assert_equal(0.075, elcd.minimumStorageStateofChargeFraction)
       assert_equal(0.975, elcd.maximumStorageStateofChargeFraction)
@@ -238,7 +270,9 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(1, batteries.size)
+      battery = batteries[0]
 
       # Check object
       assert(!battery.thermalZone.is_initialized)
@@ -252,9 +286,11 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
       assert_in_epsilon(2.25, battery.batterySurfaceArea, 0.01)
       assert_in_epsilon(20000, calc_nom_capacity(battery), 0.01)
 
-      elcds = model.getElectricLoadCenterDistributions
+      elcds = get_elcds(model, 'PVSystem')
       assert_equal(1, elcds.size)
       elcd = elcds[0]
+
+      # Check object
       assert_equal('DirectCurrentWithInverterACStorage', elcd.electricalBussType)
       assert_equal(0.075, elcd.minimumStorageStateofChargeFraction)
       assert_equal(0.975, elcd.maximumStorageStateofChargeFraction)
@@ -275,7 +311,9 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(1, batteries.size)
+      battery = batteries[0]
 
       # Check object
       assert(!battery.thermalZone.is_initialized)
@@ -289,9 +327,11 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
       assert_in_epsilon(2.25, battery.batterySurfaceArea, 0.01)
       assert_in_epsilon(20000, calc_nom_capacity(battery), 0.01)
 
-      elcds = model.getElectricLoadCenterDistributions
+      elcds = get_elcds(model, 'PVSystem')
       assert_equal(1, elcds.size)
       elcd = elcds[0]
+
+      # Check object
       assert_equal('DirectCurrentWithInverterACStorage', elcd.electricalBussType)
       assert_equal(0.075, elcd.minimumStorageStateofChargeFraction)
       assert_equal(0.975, elcd.maximumStorageStateofChargeFraction)
@@ -308,7 +348,9 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(1, batteries.size)
+      battery = batteries[0]
 
       # Check object
       assert(battery.thermalZone.is_initialized)
@@ -323,9 +365,11 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
       assert_in_epsilon(2.25, battery.batterySurfaceArea, 0.01)
       assert_in_epsilon(20000, calc_nom_capacity(battery), 0.01)
 
-      elcds = model.getElectricLoadCenterDistributions
+      elcds = get_elcds(model, 'PVSystem')
       assert_equal(1, elcds.size)
       elcd = elcds[0]
+
+      # Check object
       assert_equal('DirectCurrentWithInverterACStorage', elcd.electricalBussType)
       assert_equal(0.075, elcd.minimumStorageStateofChargeFraction)
       assert_equal(0.975, elcd.maximumStorageStateofChargeFraction)
@@ -342,7 +386,9 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
     model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
     hpxml_bldg.batteries.each do |hpxml_battery|
-      battery = get_battery(model, hpxml_battery.id)
+      batteries = get_batteries(model, hpxml_battery.id)
+      assert_equal(1, batteries.size)
+      battery = batteries[0]
 
       # Check object
       assert(!battery.thermalZone.is_initialized)
@@ -356,9 +402,11 @@ class HPXMLtoOpenStudioBatteryTest < Minitest::Test
       assert_in_epsilon(2.25, battery.batterySurfaceArea, 0.01)
       assert_in_epsilon(20000, calc_nom_capacity(battery), 0.01)
 
-      elcds = model.getElectricLoadCenterDistributions
+      elcds = get_elcds(model, 'PVSystem')
       assert_equal(1, elcds.size)
       elcd = elcds[0]
+
+      # Check object
       assert_equal('DirectCurrentWithInverterACStorage', elcd.electricalBussType)
       assert_equal(0.075, elcd.minimumStorageStateofChargeFraction)
       assert_equal(0.975, elcd.maximumStorageStateofChargeFraction)

@@ -17,6 +17,7 @@ module Lighting
     unit_multiplier = hpxml_bldg.building_construction.number_of_units
     cfa = hpxml_bldg.building_construction.conditioned_floor_area
     eri_version = hpxml_header.eri_calculation_version
+    n_occ = hpxml_bldg.building_occupancy.number_of_residents
 
     ltg_locns = [HPXML::LocationInterior, HPXML::LocationExterior, HPXML::LocationGarage]
     ltg_types = [HPXML::LightingTypeCFL, HPXML::LightingTypeLFL, HPXML::LightingTypeLED]
@@ -39,7 +40,7 @@ module Lighting
                                      fractions[[HPXML::LocationInterior, HPXML::LightingTypeLFL]],
                                      fractions[[HPXML::LocationInterior, HPXML::LightingTypeLED]])
     end
-    int_kwh = 0.0 if int_kwh.nil?
+    int_kwh = 0.0 if int_kwh.nil? || n_occ == 0
     int_kwh *= lighting.interior_usage_multiplier unless lighting.interior_usage_multiplier.nil?
 
     # Calculate exterior lighting kWh/yr
@@ -50,7 +51,7 @@ module Lighting
                                      fractions[[HPXML::LocationExterior, HPXML::LightingTypeLFL]],
                                      fractions[[HPXML::LocationExterior, HPXML::LightingTypeLED]])
     end
-    ext_kwh = 0.0 if ext_kwh.nil?
+    ext_kwh = 0.0 if ext_kwh.nil? || n_occ == 0
     ext_kwh *= lighting.exterior_usage_multiplier unless lighting.exterior_usage_multiplier.nil?
     ext_kwh *= unit_multiplier # Not in a thermal zone, so needs to be explicitly multiplied
 
@@ -69,7 +70,7 @@ module Lighting
                                      fractions[[HPXML::LocationGarage, HPXML::LightingTypeLED]])
       end
     end
-    grg_kwh = 0.0 if grg_kwh.nil?
+    grg_kwh = 0.0 if grg_kwh.nil? || n_occ == 0
     grg_kwh *= lighting.garage_usage_multiplier unless lighting.garage_usage_multiplier.nil?
 
     # Add lighting to conditioned space

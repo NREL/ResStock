@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>build_residential_schedule_file</name>
   <uid>f770b2db-1a9f-4e99-99a7-7f3161a594b1</uid>
-  <version_id>fac68af6-8045-433e-8eca-df53c8274e61</version_id>
-  <version_modified>2024-09-29T23:07:27Z</version_modified>
+  <version_id>80143af3-5598-418b-ad2b-815d88e9eb19</version_id>
+  <version_modified>2024-12-11T04:08:07Z</version_modified>
   <xml_checksum>03F02484</xml_checksum>
   <class_name>BuildResidentialScheduleFile</class_name>
   <display_name>Schedule File Builder</display_name>
@@ -22,7 +22,7 @@
     <argument>
       <name>schedules_column_names</name>
       <display_name>Schedules: Column Names</display_name>
-      <description>A comma-separated list of the column names to generate. If not provided, defaults to all columns. Possible column names are: occupants, lighting_interior, lighting_garage, cooking_range, dishwasher, clothes_washer, clothes_dryer, ceiling_fan, plug_loads_other, plug_loads_tv, hot_water_dishwasher, hot_water_clothes_washer, hot_water_fixtures.</description>
+      <description>A comma-separated list of the column names to generate. If not provided, defaults to all columns. Possible column names are: occupants, ev_occupant, present_occupants, lighting_interior, lighting_garage, cooking_range, dishwasher, clothes_washer, clothes_dryer, ceiling_fan, plug_loads_other, plug_loads_tv, hot_water_dishwasher, hot_water_clothes_washer, hot_water_fixtures.</description>
       <type>String</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -116,7 +116,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>EB56CA85</checksum>
+      <checksum>AB9FD943</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -133,7 +133,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>655C4010</checksum>
+      <checksum>AF714BB1</checksum>
     </file>
     <file>
       <filename>README.md</filename>
@@ -229,7 +229,7 @@
       <filename>schedules.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>F53FB2CB</checksum>
+      <checksum>1426A034</checksum>
     </file>
     <file>
       <filename>shower_cluster_size_probability.csv</filename>
@@ -931,7 +931,7 @@
       <filename>test_build_residential_schedule_file.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>04AE998D</checksum>
+      <checksum>BF89765F</checksum>
     </file>
   </files>
 </measure>

@@ -10,8 +10,7 @@ The current set of tests include:
 - RESNET® HERS® HVAC tests
 - RESNET HERS DSE tests
 - RESNET HERS Hot Water tests
-
-OpenStudio-HPXML can be used to meet BPI-2400 software tests.
+- ACCA Manual J tests
 
 Running Tests Locally
 ---------------------

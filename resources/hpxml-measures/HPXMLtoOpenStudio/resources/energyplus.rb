@@ -59,28 +59,25 @@ module EPlus
     # Name of fuel used as inputs to E+ objects
     if hpxml_fuel.nil?
       return FuelTypeNone
-    elsif [HPXML::FuelTypeElectricity].include? hpxml_fuel
+    end
+
+    case hpxml_fuel
+    when HPXML::FuelTypeElectricity
       return FuelTypeElectricity
-    elsif [HPXML::FuelTypeNaturalGas].include? hpxml_fuel
+    when HPXML::FuelTypeNaturalGas
       return FuelTypeNaturalGas
-    elsif [HPXML::FuelTypeOil,
-           HPXML::FuelTypeOil1,
-           HPXML::FuelTypeOil2,
-           HPXML::FuelTypeOil4,
-           HPXML::FuelTypeOil5or6,
-           HPXML::FuelTypeDiesel,
-           HPXML::FuelTypeKerosene].include? hpxml_fuel
+    when HPXML::FuelTypeOil, HPXML::FuelTypeOil1, HPXML::FuelTypeOil2,
+           HPXML::FuelTypeOil4, HPXML::FuelTypeOil5or6, HPXML::FuelTypeDiesel,
+           HPXML::FuelTypeKerosene
       return FuelTypeOil
-    elsif [HPXML::FuelTypePropane].include? hpxml_fuel
+    when HPXML::FuelTypePropane
       return FuelTypePropane
-    elsif [HPXML::FuelTypeWoodCord].include? hpxml_fuel
+    when HPXML::FuelTypeWoodCord
       return FuelTypeWoodCord
-    elsif [HPXML::FuelTypeWoodPellets].include? hpxml_fuel
+    when HPXML::FuelTypeWoodPellets
       return FuelTypeWoodPellets
-    elsif [HPXML::FuelTypeCoal,
-           HPXML::FuelTypeCoalAnthracite,
-           HPXML::FuelTypeCoalBituminous,
-           HPXML::FuelTypeCoke].include? hpxml_fuel
+    when HPXML::FuelTypeCoal, HPXML::FuelTypeCoalAnthracite,
+         HPXML::FuelTypeCoalBituminous, HPXML::FuelTypeCoke
       return FuelTypeCoal
     else
       fail "Unexpected HPXML fuel '#{hpxml_fuel}'."

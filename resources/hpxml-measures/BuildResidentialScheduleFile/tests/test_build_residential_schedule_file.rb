@@ -332,6 +332,22 @@ class BuildResidentialScheduleFileTest < Minitest::Test
     assert_empty(hpxml.buildings[0].header.schedules_filepaths)
   end
 
+  def test_ev_battery
+    num_occupants = 1.0
+
+    hpxml = _create_hpxml('base-battery-ev.xml')
+    hpxml.buildings[0].building_occupancy.number_of_residents = num_occupants
+    XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
+
+    @args_hash['output_csv_path'] = File.absolute_path(File.join(@tmp_output_path, 'occupancy-stochastic.csv'))
+    hpxml, _result = _test_measure()
+    sf = SchedulesFile.new(schedules_paths: hpxml.buildings[0].header.schedules_filepaths,
+                           year: @year,
+                           output_path: @tmp_schedule_file_path)
+    assert_in_epsilon(6201, sf.annual_equivalent_full_load_hrs(col_name: SchedulesFile::Columns[:EVBatteryCharging].name, schedules: sf.tmp_schedules), @tol)
+    assert_in_epsilon(125, sf.annual_equivalent_full_load_hrs(col_name: SchedulesFile::Columns[:EVBatteryDischarging].name, schedules: sf.tmp_schedules), @tol)
+  end
+
   def test_multiple_buildings
     hpxml = _create_hpxml('base-bldgtype-mf-whole-building.xml')
     hpxml.buildings.each do |hpxml_bldg|

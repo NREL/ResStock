@@ -1,11 +1,11 @@
-schema_version: '0.4'
+schema_version: '0.5'
 os_version: 3.9.0
 os_sha: c77fbb9569
 buildstock_directory: ../ # Relative to this file or absolute
 project_directory: project_national # Relative to buildstock_directory
 output_directory: national_baseline
 weather_files_url: https://data.nrel.gov/system/files/156/Buildstock_TMY3_FIPS-1678817889.zip
-# weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
+#weather_files_path: /Users/radhikar/Documents/BuildStock_TMY3_FIPS.zip
 
 sampler:
   type: residential_quota
@@ -57,13 +57,3 @@ workflow_generator:
 
 baseline:
   n_buildings_represented: 139647020 # American Community Survey 2021 5-year, B25001, does not include territories ( 138765649 without AK and HI )
-
-eagle:
-  n_jobs: 3
-  minutes_per_sim: 30
-  account: <account you are authorized to use>
-  postprocessing:
-    time: 20
-    n_workers: 1
-  sampling:
-    time: 5

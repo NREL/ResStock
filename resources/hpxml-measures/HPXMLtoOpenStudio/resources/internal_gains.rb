@@ -13,11 +13,11 @@ module InternalGains
   # @return [nil]
   def self.apply_building_occupants(runner, model, hpxml_bldg, hpxml_header, spaces, schedules_file)
     if hpxml_bldg.building_occupancy.number_of_residents.nil? # Asset calculation
-      num_occ = Geometry.get_occupancy_default_num(nbeds: hpxml_bldg.building_construction.number_of_bedrooms)
+      n_occ = Geometry.get_occupancy_default_num(nbeds: hpxml_bldg.building_construction.number_of_bedrooms)
     else # Operational calculation
-      num_occ = hpxml_bldg.building_occupancy.number_of_residents
+      n_occ = hpxml_bldg.building_occupancy.number_of_residents
     end
-    return if num_occ <= 0
+    return if n_occ <= 0
 
     occ_gain, _hrs_per_day, sens_frac, _lat_frac = Defaults.get_occupancy_values()
     activity_per_person = UnitConversions.convert(occ_gain, 'Btu/hr', 'W')
@@ -60,7 +60,7 @@ module InternalGains
     occ.setName(Constants::ObjectTypeOccupants)
     occ.setSpace(spaces[HPXML::LocationConditionedSpace])
     occ_def.setName(Constants::ObjectTypeOccupants)
-    occ_def.setNumberofPeople(num_occ)
+    occ_def.setNumberofPeople(n_occ)
     occ_def.setFractionRadiant(occ_rad)
     occ_def.setSensibleHeatFraction(occ_sens)
     occ_def.setMeanRadiantTemperatureCalculationType('ZoneAveraged')
@@ -81,11 +81,13 @@ module InternalGains
   # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
   # @return [nil]
   def self.apply_general_water_use(runner, model, hpxml_bldg, hpxml_header, spaces, schedules_file)
+    nbeds = hpxml_bldg.building_construction.number_of_bedrooms
+    n_occ = hpxml_bldg.building_occupancy.number_of_residents
+    unit_type = hpxml_bldg.building_construction.residential_facility_type
     general_water_use_usage_multiplier = hpxml_bldg.building_occupancy.general_water_use_usage_multiplier
-    nbeds_eq = hpxml_bldg.building_construction.additional_properties.equivalent_number_of_bedrooms
 
     if not hpxml_header.apply_ashrae140_assumptions
-      water_sens_btu, water_lat_btu = Defaults.get_water_use_internal_gains(nbeds_eq, general_water_use_usage_multiplier)
+      water_sens_btu, water_lat_btu = Defaults.get_water_use_internal_gains(nbeds, n_occ, unit_type, general_water_use_usage_multiplier)
 
       # Create schedule
       water_schedule = nil

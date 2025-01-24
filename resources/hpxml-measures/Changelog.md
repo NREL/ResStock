@@ -1,3 +1,19 @@
+## OpenStudio-HPXML v1.10.0
+
+__New Features__
+
+__Bugfixes__
+- Fixes zero occupants specified for one unit in a whole MF building from being treated like zero occupants for every unit.
+- Fixes using detailed schedules with higher resolution (e.g., 10-min data) than the simulation timestep (e.g., 60-min).
+
+## OpenStudio-HPXML v1.9.1
+
+__New Features__
+- Now can be used to obtain ACCA Manual J approval; see the [OpenStudio-HPXML documentation](https://openstudio-hpxml.readthedocs.io/en/latest/intro.html#capabilities).
+
+__Bugfixes__
+- Fixes Manual J design load calculations for radiant floors.
+
 ## OpenStudio-HPXML v1.9.0
 
 __New Features__
