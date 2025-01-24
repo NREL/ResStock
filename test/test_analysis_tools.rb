@@ -32,7 +32,7 @@ class TestTools < Minitest::Test
 
   def test_upgrades_columns
     # Read BuildStockBatch results
-    results_csvs = Dir[File.join(@buildstock_directory, "buildstockbatch/project_national/sdr_upgrades_tmy3/results_csvs/results_up*.csv")]
+    results_csvs = Dir[File.join(@buildstock_directory, 'buildstockbatch/project_national/sdr_upgrades_tmy3/results_csvs/results_up*.csv')]
     assert_equal(1, results_csvs.size)
     buildstockbatch_path = results_csvs[0] # Only test at one upgrade
     buildstockbatch = CSV.read(buildstockbatch_path, headers: true)
@@ -43,7 +43,7 @@ class TestTools < Minitest::Test
     end
 
     # Read run_analysis results
-    run_analysis_path = File.join(@buildstock_directory, "run_analysis/project_national/results-EnvelopeOnlyLightTouchEnvelope.csv")
+    run_analysis_path = File.join(@buildstock_directory, 'run_analysis/project_national/results-EnvelopeOnlyLightTouchEnvelope.csv')
     run_analysis = CSV.read(run_analysis_path, headers: true)
 
     # Test if BuildStockBatch has extra columns that are not empty
@@ -86,12 +86,12 @@ class TestTools < Minitest::Test
   def test_upgrades_results
     columns = ['report_simulation_output.energy_use_total_m_btu']
 
-    results_csvs = Dir[File.join(@buildstock_directory, "buildstockbatch/project_national/sdr_upgrades_tmy3/results_csvs/results_up*.csv")]
+    results_csvs = Dir[File.join(@buildstock_directory, 'buildstockbatch/project_national/sdr_upgrades_tmy3/results_csvs/results_up*.csv')]
     assert_equal(1, results_csvs.size)
     buildstockbatch_path = results_csvs[0]
     buildstockbatch = CSV.read(buildstockbatch_path, headers: true)
 
-    run_analysis_path = File.join(@buildstock_directory, "run_analysis/project_national/results-EnvelopeOnlyLightTouchEnvelope.csv")
+    run_analysis_path = File.join(@buildstock_directory, 'run_analysis/project_national/results-EnvelopeOnlyLightTouchEnvelope.csv')
     run_analysis = CSV.read(run_analysis_path, headers: true)
 
     columns.each do |col|
