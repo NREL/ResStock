@@ -1706,7 +1706,10 @@ Due to the low sample count, the input file is constructed with the following fa
 The heating fuel of the pool heater if there is a pool.
 
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+\begin{itemize}
+    \item Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+    \item Constructed using the California Energy Commission 2019 Residential Appliance Saturation Study (RASS) microdata 
+\end{itemize} 
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1716,7 +1719,7 @@ Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) mic
 
 \paragraph{Options}
 
-The options for pool heaters are based on the fuel they use: electricity, natural gas, none, and other fuel. The characteristic assigns the \texttt{pool\_heater\_type}, \texttt{pool\_heater\_annual\_kwh}, \texttt{pool\_heater\_annual\_therm}, and \texttt{pool\_heater\_usage\_multiplier} ResStock arguments (Table \ref{table:opt_def_pool_heat}).
+There are five options for pool heaters: Electricity, Electric Heat Pump, Natural Gas, None, and Other Fuel. The Electricity option defines a traditional electric resistance pool heater, whereas the Electric Heat Pump option uses heat pump technology for heating the pool. The “Other Fuel” pool heater option currently is currently not modeled in ResStock. The ResStock arguments assigned for each of these options is given in  Table \ref{table:opt_def_pool_heat}. 
 
 \begin{customLongTable}{ |p{2.5cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}| }
 {Pool Heater options and arguments that vary for each option} {table:opt_def_pool_heat} 
@@ -1725,6 +1728,7 @@ The options for pool heaters are based on the fuel they use: electricity, natura
 \texttt{pool\_heater\_annual\_therm} &
 \texttt{pool\_heater\_usage\_multiplier}} 
 Electricity & electric resistance & auto & 0 & 1.0 \\
+Electric Heat Pump & heat pump & auto & 0 & 1.0 \\ 
 Natural Gas & gas fired & 0 & auto & 1.0 \\
 None & none & 0 & 0 & 0 \\
 Other Fuel & none & 0 & 0 & 0 \\
@@ -1758,7 +1762,7 @@ high/low usage occupants.  \\
 \end{longtable}
 
 \paragraph{Distribution Assumption(s)}
-None.
+Within electric pool heaters, the proportion of heat pump electric pool heating versus non-heat pump electric pool heating was derived from RASS.
 
 \subsubsection{Misc Pool Pump}
 \paragraph{Description}
