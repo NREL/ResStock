@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments</name>
   <uid>c984bb9e-4ac4-4930-a399-9d23f8f6936a</uid>
-  <version_id>996bf4a9-6cf7-499a-ab0f-4e8b8aaa74d8</version_id>
-  <version_modified>2025-01-27T16:59:49Z</version_modified>
+  <version_id>e8fc0ce5-14c3-48ca-92fe-fc26926e9190</version_id>
+  <version_modified>2025-01-27T18:22:02Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArguments</class_name>
   <display_name>ResStock Arguments</display_name>
@@ -5294,15 +5294,6 @@
       <default_value>4000</default_value>
     </argument>
     <argument>
-      <name>electric_panel_service_feeders_load_calculation_types</name>
-      <display_name>Electric Panel: Service/Feeders Load Calculation Types</display_name>
-      <description>Types of electric panel service/feeder load calculations. Possible types are: 2023 Existing Dwelling Load-Based, 2023 Existing Dwelling Meter-Based. If multiple types, use a comma-separated list. If not provided, no electric panel loads are calculated.</description>
-      <type>String</type>
-      <units></units>
-      <required>false</required>
-      <model_dependent>false</model_dependent>
-    </argument>
-    <argument>
       <name>electric_panel_load_heat_pump_voltage</name>
       <display_name>Electric Panel: Heat Pump Voltage</display_name>
       <description>Specifies the panel load heat pump voltage. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
@@ -7725,7 +7716,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>A2F33A2B</checksum>
+      <checksum>0655CEC8</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -7742,13 +7733,13 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>78F14364</checksum>
+      <checksum>522F34CA</checksum>
     </file>
     <file>
       <filename>constants.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>E4976995</checksum>
+      <checksum>F2148A31</checksum>
     </file>
     <file>
       <filename>electrical_panel/electrical_panel_breaker_space.csv</filename>

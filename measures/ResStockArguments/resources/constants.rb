@@ -44,7 +44,7 @@ module Constants
                                    'hvac_control_cooling_weekend_setpoint',
                                    'pv_system_num_bedrooms_served',
                                    'battery_num_bedrooms_served',
-                                   'electric_panel_load_calculation_types',
+                                   'electric_panel_service_feeders_load_calculation_types',
                                    'electric_panel_service_voltage',
                                    'electric_panel_service_rating',
                                    'electric_panel_breaker_spaces_type',

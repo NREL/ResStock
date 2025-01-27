@@ -3795,17 +3795,6 @@ Maximum power output of the second PV system. For a shared system, this is the t
 
 <br/>
 
-**Electric Panel: Service/Feeders Load Calculation Types**
-
-Types of electric panel service/feeder load calculations. Possible types are: 2023 Existing Dwelling Load-Based, 2023 Existing Dwelling Meter-Based. If multiple types, use a comma-separated list. If not provided, no electric panel loads are calculated.
-
-- **Name:** ``electric_panel_service_feeders_load_calculation_types``
-- **Type:** ``String``
-
-- **Required:** ``false``
-
-<br/>
-
 **Electric Panel: Heat Pump Voltage**
 
 Specifies the panel load heat pump voltage. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'>Panel Loads</a>) is used.
