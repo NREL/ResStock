@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>build_residential_hpxml</name>
   <uid>a13a8983-2b01-4930-8af2-42030b6e4233</uid>
-  <version_id>eabc6676-3be7-41d7-8aef-b263a57101ae</version_id>
-  <version_modified>2024-12-02T21:49:02Z</version_modified>
+  <version_id>c701f876-5cab-4b5a-bf7b-93360b54feff</version_id>
+  <version_modified>2025-01-16T17:55:56Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>BuildResidentialHPXML</class_name>
   <display_name>HPXML Builder</display_name>
@@ -878,7 +878,7 @@
     <argument>
       <name>geometry_unit_num_occupants</name>
       <display_name>Geometry: Unit Number of Occupants</display_name>
-      <description>The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301-2019. If provided, an *operational* calculation is instead performed in which the end use defaults are adjusted using the relationship between Number of Bedrooms and Number of Occupants from RECS 2015.</description>
+      <description>The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301. If provided, an *operational* calculation is instead performed in which the end use defaults to reflect real-world data (where possible).</description>
       <type>Double</type>
       <units>#</units>
       <required>false</required>
@@ -5398,9 +5398,9 @@
       <default_value>4000</default_value>
     </argument>
     <argument>
-      <name>electric_panel_load_calculation_types</name>
-      <display_name>Electric Panel: Load Calculation Types</display_name>
-      <description>Types of electric panel load calculations. If multiple types, use a comma-separated list. If not provided, no electric panel loads are calculated.</description>
+      <name>electric_panel_service_feeders_load_calculation_types</name>
+      <display_name>Electric Panel: Service/Feeders Load Calculation Types</display_name>
+      <description>Types of electric panel service/feeder load calculations. Possible types are: 2023 Existing Dwelling Load-Based, 2023 Existing Dwelling Meter-Based. If multiple types, use a comma-separated list. If not provided, no electric panel loads are calculated.</description>
       <type>String</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5472,7 +5472,7 @@
     <argument>
       <name>electric_panel_load_heating_system_addition</name>
       <display_name>Electric Panel: Heating System Addition</display_name>
-      <description>Specifies whether the panel load heating sysem is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the heating system is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5499,7 +5499,7 @@
     <argument>
       <name>electric_panel_load_cooling_system_addition</name>
       <display_name>Electric Panel: Cooling System Addition</display_name>
-      <description>Specifies whether the panel load cooling system is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the cooling system is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5533,9 +5533,28 @@
       <model_dependent>false</model_dependent>
     </argument>
     <argument>
+      <name>electric_panel_load_heat_pump_voltage</name>
+      <display_name>Electric Panel: Heat Pump Voltage</display_name>
+      <description>Specifies the panel load heat pump voltage. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <type>Choice</type>
+      <units>V</units>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <choices>
+        <choice>
+          <value>120</value>
+          <display_name>120</display_name>
+        </choice>
+        <choice>
+          <value>240</value>
+          <display_name>240</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
       <name>electric_panel_load_heat_pump_addition</name>
       <display_name>Electric Panel: Heat Pump Addition</display_name>
-      <description>Specifies whether the panel load heat pump is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the heat pump is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5562,7 +5581,7 @@
     <argument>
       <name>electric_panel_load_heating_system_2_addition</name>
       <display_name>Electric Panel: Heating System 2 Addition</display_name>
-      <description>Specifies whether the panel load second heating system is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the second heating system is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5580,7 +5599,7 @@
     <argument>
       <name>electric_panel_load_mech_vent_power</name>
       <display_name>Electric Panel: Mechanical Ventilation Power</display_name>
-      <description>Specifies the panel load mechanical ventilation  power. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Specifies the panel load mechanical ventilation power. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Double</type>
       <units>W</units>
       <required>false</required>
@@ -5589,7 +5608,7 @@
     <argument>
       <name>electric_panel_load_mech_vent_fan_addition</name>
       <display_name>Electric Panel: Mechanical Ventilation Addition</display_name>
-      <description>Specifies whether the panel load mechanical ventilation  is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the mechanical ventilation is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5616,7 +5635,7 @@
     <argument>
       <name>electric_panel_load_mech_vent_2_addition</name>
       <display_name>Electric Panel: Mechanical Ventilation 2 Addition</display_name>
-      <description>Specifies whether the panel load second mechanical ventilation is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the second mechanical ventilation is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5643,7 +5662,7 @@
     <argument>
       <name>electric_panel_load_whole_house_fan_addition</name>
       <display_name>Electric Panel: Whole House Fan Addition</display_name>
-      <description>Specifies whether the panel load whole house fan is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the whole house fan is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5670,7 +5689,7 @@
     <argument>
       <name>electric_panel_load_kitchen_fans_addition</name>
       <display_name>Electric Panel: Kitchen Fans Addition</display_name>
-      <description>Specifies whether the panel load kitchen fans is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the kitchen fans is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5697,7 +5716,7 @@
     <argument>
       <name>electric_panel_load_bathroom_fans_addition</name>
       <display_name>Electric Panel: Bathroom Fans Addition</display_name>
-      <description>Specifies whether the panel load bathroom fans is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the bathroom fans is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5715,7 +5734,7 @@
     <argument>
       <name>electric_panel_load_water_heater_power</name>
       <display_name>Electric Panel: Water Heater Power</display_name>
-      <description>Specifies the panel load water heater power. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Specifies the panel load water heater power. Only applies to electric water heater. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Double</type>
       <units>W</units>
       <required>false</required>
@@ -5743,7 +5762,7 @@
     <argument>
       <name>electric_panel_load_water_heater_addition</name>
       <display_name>Electric Panel: Water Heater Addition</display_name>
-      <description>Specifies whether the panel load water heater is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the water heater is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5761,7 +5780,7 @@
     <argument>
       <name>electric_panel_load_clothes_dryer_power</name>
       <display_name>Electric Panel: Clothes Dryer Power</display_name>
-      <description>Specifies the panel load power. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Specifies the panel load power. Only applies to electric clothes dryer. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Double</type>
       <units>W</units>
       <required>false</required>
@@ -5789,7 +5808,7 @@
     <argument>
       <name>electric_panel_load_clothes_dryer_addition</name>
       <display_name>Electric Panel: Clothes Dryer Addition</display_name>
-      <description>Specifies whether the panel load clothes dryer is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the clothes dryer is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5816,7 +5835,7 @@
     <argument>
       <name>electric_panel_load_dishwasher_addition</name>
       <display_name>Electric Panel: Dishwasher Addition</display_name>
-      <description>Specifies whether the panel load dishwasher is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the dishwasher is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5834,7 +5853,7 @@
     <argument>
       <name>electric_panel_load_cooking_range_power</name>
       <display_name>Electric Panel: Cooking Range/Oven Power</display_name>
-      <description>Specifies the panel load cooking range/oven power. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Specifies the panel load cooking range/oven power. Only applies to electric cooking range/oven. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Double</type>
       <units>W</units>
       <required>false</required>
@@ -5862,7 +5881,7 @@
     <argument>
       <name>electric_panel_load_cooking_range_addition</name>
       <display_name>Electric Panel: Cooking Range/Oven Addition</display_name>
-      <description>Specifies whether the panel load cooking range/oven is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the cooking range is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5889,7 +5908,7 @@
     <argument>
       <name>electric_panel_load_misc_plug_loads_well_pump_addition</name>
       <display_name>Electric Panel: Misc Plug Loads Well Pump Addition</display_name>
-      <description>Specifies whether the panel load well pump is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the well pump is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5935,7 +5954,7 @@
     <argument>
       <name>electric_panel_load_misc_plug_loads_vehicle_addition</name>
       <display_name>Electric Panel: Misc Plug Loads Vehicle Addition</display_name>
-      <description>Specifies whether the panel load electric vehicle is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the electric vehicle is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5962,7 +5981,7 @@
     <argument>
       <name>electric_panel_load_pool_pump_addition</name>
       <display_name>Electric Panel: Pool Pump Addition</display_name>
-      <description>Specifies whether the panel load pool pump is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the pool pump is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -5980,7 +5999,7 @@
     <argument>
       <name>electric_panel_load_pool_heater_power</name>
       <display_name>Electric Panel: Pool Heater Power</display_name>
-      <description>Specifies the panel load pool heater power. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Specifies the panel load pool heater power. Only applies to electric pool heater. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Double</type>
       <units>W</units>
       <required>false</required>
@@ -5989,7 +6008,7 @@
     <argument>
       <name>electric_panel_load_pool_heater_addition</name>
       <display_name>Electric Panel: Pool Heater Addition</display_name>
-      <description>Specifies whether the panel load pool heater is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the pool heater is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -6016,7 +6035,7 @@
     <argument>
       <name>electric_panel_load_permanent_spa_pump_addition</name>
       <display_name>Electric Panel: Permanent Spa Pump Addition</display_name>
-      <description>Specifies whether the panel load permanent spa pump is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the spa pump is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -6034,7 +6053,7 @@
     <argument>
       <name>electric_panel_load_permanent_spa_heater_power</name>
       <display_name>Electric Panel: Permanent Spa Heater Power</display_name>
-      <description>Specifies the panel load permanent spa heater power. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Specifies the panel load permanent spa heater power. Only applies to electric permanent spa heater. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Double</type>
       <units>W</units>
       <required>false</required>
@@ -6043,7 +6062,7 @@
     <argument>
       <name>electric_panel_load_permanent_spa_heater_addition</name>
       <display_name>Electric Panel: Permanent Spa Heater Addition</display_name>
-      <description>Specifies whether the panel load permanent spa heater is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the spa heater is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -6061,7 +6080,7 @@
     <argument>
       <name>electric_panel_load_other_power</name>
       <display_name>Electric Panel: Other Power</display_name>
-      <description>Specifies the panel load other power. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Specifies the panel load other power. This represents the total of all other electric loads that are fastened in place, permanently connected, or located on a specific circuit. For example, garbage disposal, built-in microwave. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Double</type>
       <units>W</units>
       <required>false</required>
@@ -6070,7 +6089,7 @@
     <argument>
       <name>electric_panel_load_other_addition</name>
       <display_name>Electric Panel: Other Addition</display_name>
-      <description>Specifies whether the panel load other is an addition. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Whether the other load is a new panel load addition to an existing service panel. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>Boolean</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -8215,7 +8234,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>F8E18F95</checksum>
+      <checksum>5ED50BEE</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -8232,7 +8251,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>38AC55D5</checksum>
+      <checksum>EF3095DB</checksum>
     </file>
     <file>
       <filename>constants.rb</filename>
@@ -8244,13 +8263,19 @@
       <filename>geometry.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>425682E4</checksum>
+      <checksum>170EAEAB</checksum>
+    </file>
+    <file>
+      <filename>version.txt</filename>
+      <filetype>txt</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>6D7D7910</checksum>
     </file>
     <file>
       <filename>test_build_residential_hpxml.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>CCBB49E7</checksum>
+      <checksum>71348C9A</checksum>
     </file>
   </files>
 </measure>

@@ -49,13 +49,14 @@
         </Site>
         <BuildingConstruction>
           <ResidentialFacilityType>single-family detached</ResidentialFacilityType>
+          <NumberofUnits>10</NumberofUnits>
           <NumberofConditionedFloors>2.0</NumberofConditionedFloors>
           <NumberofConditionedFloorsAboveGrade>1.0</NumberofConditionedFloorsAboveGrade>
           <AverageCeilingHeight>8.0</AverageCeilingHeight>
           <NumberofBedrooms>3</NumberofBedrooms>
           <NumberofBathrooms>2</NumberofBathrooms>
-          <ConditionedFloorArea>1228.0</ConditionedFloorArea>
-          <ConditionedBuildingVolume>9824.0</ConditionedBuildingVolume>
+          <ConditionedFloorArea>2700.0</ConditionedFloorArea>
+          <ConditionedBuildingVolume>21600.0</ConditionedBuildingVolume>
         </BuildingConstruction>
       </BuildingSummary>
       <ClimateandRiskZones>
@@ -80,7 +81,7 @@
               <UnitofMeasure>ACH</UnitofMeasure>
               <AirLeakage>3.0</AirLeakage>
             </BuildingAirLeakage>
-            <InfiltrationVolume>9824.0</InfiltrationVolume>
+            <InfiltrationVolume>21600.0</InfiltrationVolume>
           </AirInfiltrationMeasurement>
         </AirInfiltration>
         <Attics>
@@ -114,7 +115,7 @@
           <Roof>
             <SystemIdentifier id='Roof1'/>
             <InteriorAdjacentTo>attic - unvented</InteriorAdjacentTo>
-            <Area>686.5</Area>
+            <Area>1509.3</Area>
             <RoofType>asphalt or fiberglass shingles</RoofType>
             <SolarAbsorptance>0.7</SolarAbsorptance>
             <Emittance>0.92</Emittance>
@@ -130,7 +131,7 @@
             <SystemIdentifier id='RimJoist1'/>
             <ExteriorAdjacentTo>outside</ExteriorAdjacentTo>
             <InteriorAdjacentTo>basement - conditioned</InteriorAdjacentTo>
-            <Area>78.0</Area>
+            <Area>115.6</Area>
             <Siding>wood siding</Siding>
             <SolarAbsorptance>0.7</SolarAbsorptance>
             <Emittance>0.92</Emittance>
@@ -148,7 +149,7 @@
             <WallType>
               <WoodStud/>
             </WallType>
-            <Area>809.3</Area>
+            <Area>1200.0</Area>
             <Siding>wood siding</Siding>
             <SolarAbsorptance>0.7</SolarAbsorptance>
             <Emittance>0.92</Emittance>
@@ -168,7 +169,7 @@
             <WallType>
               <WoodStud/>
             </WallType>
-            <Area>102.3</Area>
+            <Area>225.0</Area>
             <Siding>wood siding</Siding>
             <SolarAbsorptance>0.7</SolarAbsorptance>
             <Emittance>0.92</Emittance>
@@ -184,7 +185,7 @@
             <ExteriorAdjacentTo>ground</ExteriorAdjacentTo>
             <InteriorAdjacentTo>basement - conditioned</InteriorAdjacentTo>
             <Height>8.0</Height>
-            <Area>809.3</Area>
+            <Area>1200.0</Area>
             <Thickness>8.0</Thickness>
             <DepthBelowGrade>7.0</DepthBelowGrade>
             <InteriorFinish>
@@ -214,7 +215,7 @@
             <FloorType>
               <WoodFrame/>
             </FloorType>
-            <Area>614.0</Area>
+            <Area>1350.0</Area>
             <InteriorFinish>
               <Type>gypsum board</Type>
             </InteriorFinish>
@@ -228,9 +229,9 @@
           <Slab>
             <SystemIdentifier id='Slab1'/>
             <InteriorAdjacentTo>basement - conditioned</InteriorAdjacentTo>
-            <Area>614.0</Area>
+            <Area>1350.0</Area>
             <Thickness>4.0</Thickness>
-            <ExposedPerimeter>101.2</ExposedPerimeter>
+            <ExposedPerimeter>150.0</ExposedPerimeter>
             <PerimeterInsulation>
               <SystemIdentifier id='Slab1PerimeterInsulation'/>
               <Layer>
@@ -333,7 +334,7 @@
                 <Furnace/>
               </HeatingSystemType>
               <HeatingSystemFuel>natural gas</HeatingSystemFuel>
-              <HeatingCapacity>52280.0</HeatingCapacity>
+              <HeatingCapacity>36000.0</HeatingCapacity>
               <AnnualHeatingEfficiency>
                 <Units>AFUE</Units>
                 <Value>0.92</Value>
@@ -345,7 +346,7 @@
               <DistributionSystem idref='HVACDistribution1'/>
               <CoolingSystemType>central air conditioner</CoolingSystemType>
               <CoolingSystemFuel>electricity</CoolingSystemFuel>
-              <CoolingCapacity>14760.0</CoolingCapacity>
+              <CoolingCapacity>24000.0</CoolingCapacity>
               <CompressorType>single stage</CompressorType>
               <FractionCoolLoadServed>1.0</FractionCoolLoadServed>
               <AnnualCoolingEfficiency>
@@ -399,26 +400,10 @@
             </DistributionSystemType>
           </HVACDistribution>
         </HVAC>
-        <MechanicalVentilation>
-          <VentilationFans>
-            <VentilationFan>
-              <SystemIdentifier id='VentilationFan1'/>
-              <Count>1</Count>
-              <FanLocation>kitchen</FanLocation>
-              <UsedForLocalVentilation>true</UsedForLocalVentilation>
-            </VentilationFan>
-            <VentilationFan>
-              <SystemIdentifier id='VentilationFan2'/>
-              <Count>2</Count>
-              <FanLocation>bath</FanLocation>
-              <UsedForLocalVentilation>true</UsedForLocalVentilation>
-            </VentilationFan>
-          </VentilationFans>
-        </MechanicalVentilation>
         <WaterHeating>
           <WaterHeatingSystem>
             <SystemIdentifier id='WaterHeatingSystem1'/>
-            <FuelType>natural gas</FuelType>
+            <FuelType>electricity</FuelType>
             <WaterHeaterType>storage water heater</WaterHeaterType>
             <Location>conditioned space</Location>
             <TankVolume>40.0</TankVolume>
@@ -452,9 +437,6 @@
         <ElectricPanels>
           <ElectricPanel>
             <SystemIdentifier id='ElectricPanel1'/>
-            <Voltage>240</Voltage>
-            <MaxCurrentRating>100.0</MaxCurrentRating>
-            <Headroom>5</Headroom>
             <ServiceFeeders>
               <ServiceFeeder>
                 <SystemIdentifier id='ElectricPanel1_ServiceFeeder1'/>
@@ -464,23 +446,27 @@
               <ServiceFeeder>
                 <SystemIdentifier id='ElectricPanel1_ServiceFeeder2'/>
                 <LoadType>cooling</LoadType>
-                <PowerRating>3542.0</PowerRating>
                 <AttachedToComponent idref='CoolingSystem1'/>
               </ServiceFeeder>
               <ServiceFeeder>
                 <SystemIdentifier id='ElectricPanel1_ServiceFeeder3'/>
-                <LoadType>mech vent</LoadType>
-                <AttachedToComponent idref='VentilationFan1'/>
+                <LoadType>hot water</LoadType>
+                <AttachedToComponent idref='WaterHeatingSystem1'/>
               </ServiceFeeder>
               <ServiceFeeder>
                 <SystemIdentifier id='ElectricPanel1_ServiceFeeder4'/>
-                <LoadType>mech vent</LoadType>
-                <AttachedToComponent idref='VentilationFan2'/>
+                <LoadType>clothes dryer</LoadType>
+                <AttachedToComponent idref='ClothesDryer1'/>
               </ServiceFeeder>
               <ServiceFeeder>
                 <SystemIdentifier id='ElectricPanel1_ServiceFeeder5'/>
-                <LoadType>other</LoadType>
-                <PowerRating>559.0</PowerRating>
+                <LoadType>dishwasher</LoadType>
+                <AttachedToComponent idref='Dishwasher1'/>
+              </ServiceFeeder>
+              <ServiceFeeder>
+                <SystemIdentifier id='ElectricPanel1_ServiceFeeder6'/>
+                <LoadType>range/oven</LoadType>
+                <AttachedToComponent idref='CookingRange1'/>
               </ServiceFeeder>
             </ServiceFeeders>
           </ElectricPanel>
@@ -501,11 +487,21 @@
         <ClothesDryer>
           <SystemIdentifier id='ClothesDryer1'/>
           <Location>conditioned space</Location>
-          <FuelType>natural gas</FuelType>
+          <FuelType>electricity</FuelType>
           <CombinedEnergyFactor>3.73</CombinedEnergyFactor>
           <Vented>true</Vented>
           <VentedFlowRate>150.0</VentedFlowRate>
         </ClothesDryer>
+        <Dishwasher>
+          <SystemIdentifier id='Dishwasher1'/>
+          <Location>conditioned space</Location>
+          <RatedAnnualkWh>307.0</RatedAnnualkWh>
+          <PlaceSettingCapacity>12</PlaceSettingCapacity>
+          <LabelElectricRate>0.12</LabelElectricRate>
+          <LabelGasRate>1.09</LabelGasRate>
+          <LabelAnnualGasCost>22.32</LabelAnnualGasCost>
+          <LabelUsage>4.0</LabelUsage>
+        </Dishwasher>
         <Refrigerator>
           <SystemIdentifier id='Refrigerator1'/>
           <Location>conditioned space</Location>
@@ -514,7 +510,7 @@
         <CookingRange>
           <SystemIdentifier id='CookingRange1'/>
           <Location>conditioned space</Location>
-          <FuelType>natural gas</FuelType>
+          <FuelType>electricity</FuelType>
           <IsInduction>false</IsInduction>
         </CookingRange>
         <Oven>
