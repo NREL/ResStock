@@ -67,7 +67,8 @@ Run ``openstudio tasks.rb integrity_check_<project_name>``, where ``<project_nam
   Checking for issues with project_national/Usage Level...
   ...
 
-If the integrity check for a given project fails, you will need to update either your tsv files and/or the ``resources/options_lookup.tsv`` file. See :doc:`options_lookup` for information about the ``options_lookup.tsv`` file.
+If the integrity check for a given project fails, you will need to update either your tsv files and/or the ``resources/options_lookup.tsv`` file.
+See :doc:`updating_options_lookup` for information about the ``options_lookup.tsv`` file.
 
 .. download-weather:
 
