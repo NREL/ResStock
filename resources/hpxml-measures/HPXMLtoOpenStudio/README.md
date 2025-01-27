@@ -68,17 +68,6 @@ The name of the file w/ additional HVAC design load details. If not provided, de
 
 <br/>
 
-**Electric Panel Output File Name**
-
-The name of the file w/ additional electric panel loads. If not provided, defaults to 'results_panel.csv' (or '.json' or '.msgpack').
-
-- **Name:** ``electric_panel_output_file_name``
-- **Type:** ``String``
-
-- **Required:** ``false``
-
-<br/>
-
 **Add component loads?**
 
 If true, adds the calculation of heating/cooling component loads (not enabled by default for faster performance).

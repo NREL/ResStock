@@ -68,12 +68,6 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     arg.setDefaultValue('results_design_load_details')
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeStringArgument('electric_panel_output_file_name', false)
-    arg.setDisplayName('Electric Panel Output File Name')
-    arg.setDescription("The name of the file w/ additional electric panel loads. If not provided, defaults to 'results_panel.csv' (or '.json' or '.msgpack').")
-    arg.setDefaultValue('results_panel')
-    args << arg
-
     arg = OpenStudio::Measure::OSArgument.makeBoolArgument('add_component_loads', false)
     arg.setDisplayName('Add component loads?')
     arg.setDescription('If true, adds the calculation of heating/cooling component loads (not enabled by default for faster performance).')
@@ -170,13 +164,6 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
 
       # Write design load details output file
       HVACSizing.write_detailed_output(design_loads_results_out, args[:output_format], args[:design_load_details_output_file_path])
-
-      # Write electric panel load output file
-      if hpxml.buildings.map { |hpxml_bldg| hpxml_bldg.electric_panels.size }.sum > 0
-        electric_panel_results_out = []
-        Outputs.append_panel_results(hpxml.header, hpxml.buildings, nil, electric_panel_results_out)
-        Outputs.write_results_out_to_file(electric_panel_results_out, args[:output_format], args[:electric_panel_output_file_path])
-      end
     rescue Exception => e
       runner.registerError("#{e.message}\n#{e.backtrace.join("\n")}")
       return false
@@ -210,11 +197,6 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
       args[:design_load_details_output_file_name] = "#{args[:design_load_details_output_file_name]}.#{args[:output_format]}"
     end
     args[:design_load_details_output_file_path] = File.join(args[:output_dir], args[:design_load_details_output_file_name])
-
-    if File.extname(args[:electric_panel_output_file_name]).length == 0
-      args[:electric_panel_output_file_name] = "#{args[:electric_panel_output_file_name]}.#{args[:output_format]}"
-    end
-    args[:electric_panel_output_file_path] = File.join(args[:output_dir], args[:electric_panel_output_file_name])
 
     args[:hpxml_defaults_path] = File.join(args[:output_dir], 'in.xml')
   end

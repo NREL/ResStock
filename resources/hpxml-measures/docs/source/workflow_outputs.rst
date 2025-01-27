@@ -425,43 +425,6 @@ Resilience outputs are listed below.
          The entire electric load is treated as a "critical load" that would be supported during an outage.
          Resilience hours are set to 0 for any timestep where the battery is not charged, even if there is sufficient PV to power the building.
 
-Electric Panel
-~~~~~~~~~~~~~~
-
-Electric panel loads, capacities, and breaker spaces are listed below.
-Panel loads, load-based capacities, and breaker spaces can also be found in the ``in.xml`` file.
-
-  ====================================================  ====================
-  Type                                                  Notes
-  ====================================================  ====================
-  Electric Panel Load: Heating (W)                      Sum of heating system and heat pump heating panel loads
-  Electric Panel Load: Cooling (W)                      Sum of cooling system and heat pump cooling panel loads
-  Electric Panel Load: Hot Water (W)                    Sum of water heating system panel loads
-  Electric Panel Load: Clothes Dryer (W)                Sum of clothes dryer panel loads
-  Electric Panel Load: Dishwasher (W)                   Sum of dishwasher panel loads
-  Electric Panel Load: Range/Oven (W)                   Sum of range/oven panel loads
-  Electric Panel Load: Mech Vent (W)                    Sum of mechanical ventilation panel loads
-  Electric Panel Load: Permanent Spa Heater (W)         Sum of permanent spa heater panel loads
-  Electric Panel Load: Permanent Spa Pump (W)           Sum of permanent spa pump panel loads
-  Electric Panel Load: Pool Heater (W)                  Sum of pool heater panel loads
-  Electric Panel Load: Pool Pump (W)                    Sum of pool pump panel loads
-  Electric Panel Load: Well Pump (W)                    Sum of well pump panel loads
-  Electric Panel Load: Electric Vehicle Charging (W)    Sum of electric vehicle charging panel loads
-  Electric Panel Load: Lighting (W)                     Sum of lighting panel loads
-  Electric Panel Load: Other (W)                        Sum of other panel loads
-  Electric Panel Breaker Spaces: Total Count (#)        Total number of breaker spaces on the panel
-  Electric Panel Breaker Spaces: Occupied Count (#)     Number of occupied breaker spaces on the panel
-  Electric Panel Breaker Spaces: Headroom Count (#)     Total breaker spaces minus occupied breaker spaces
-  Electric Panel Capacity: <Type>: Total (W)            NEC load calculation
-  Electric Panel Capacity: <Type>: Total (A)            Total (W) divided by panel voltage
-  Electric Panel Capacity: <Type>: Headroom (A)         Panel max current rating (A) minus Total (A)
-  ====================================================  ====================
-
-.. note::
-
-  Headroom is calculated as the panel's maximum current rating (or total breaker spaces) minus calculated capacity (or occupied breaker spaces).
-  A positive value indicates panel availability whereas a negative value indicates panel constraint.
-
 HVAC Capacities
 ~~~~~~~~~~~~~~~
 
