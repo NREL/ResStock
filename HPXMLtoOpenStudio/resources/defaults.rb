@@ -3358,9 +3358,11 @@ module Defaults
                             type: HPXML::ElectricPanelLoadTypeOther,
                             type_isdefaulted: true,
                             component_idrefs: [])
-        branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
-                            occupied_spaces: get_default_panels_value(runner, default_panels_csv_data, 'other', 'BreakerSpaces', HPXML::ElectricPanelVoltage120),
-                            occupied_spaces_isdefaulted: true)
+        (1..get_default_panels_value(runner, default_panels_csv_data, 'other', 'BreakerSpaces', HPXML::ElectricPanelVoltage120)).each do |_i|
+          branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
+                              occupied_spaces: 1,
+                              occupied_spaces_isdefaulted: true)
+        end
       end
 
       if service_feeders.count { |pl| pl.type == HPXML::ElectricPanelLoadTypeLighting } == 0
@@ -3368,9 +3370,11 @@ module Defaults
                             type: HPXML::ElectricPanelLoadTypeLighting,
                             type_isdefaulted: true,
                             component_idrefs: [])
-        branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
-                            occupied_spaces: get_default_panels_value(runner, default_panels_csv_data, 'lighting', 'BreakerSpaces', HPXML::ElectricPanelVoltage120),
-                            occupied_spaces_isdefaulted: true)
+        (1..get_default_panels_value(runner, default_panels_csv_data, 'lighting', 'BreakerSpaces', HPXML::ElectricPanelVoltage120)).each do |_i|
+          branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
+                              occupied_spaces: 1,
+                              occupied_spaces_isdefaulted: true)
+        end
       end
 
       if service_feeders.count { |pl| pl.type == HPXML::ElectricPanelLoadTypeKitchen } == 0
@@ -3378,9 +3382,11 @@ module Defaults
                             type: HPXML::ElectricPanelLoadTypeKitchen,
                             type_isdefaulted: true,
                             component_idrefs: [])
-        branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
-                            occupied_spaces: get_default_panels_value(runner, default_panels_csv_data, 'kitchen', 'BreakerSpaces', HPXML::ElectricPanelVoltage120),
-                            occupied_spaces_isdefaulted: true)
+        (1..get_default_panels_value(runner, default_panels_csv_data, 'kitchen', 'BreakerSpaces', HPXML::ElectricPanelVoltage120)).each do |_i|
+          branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
+                              occupied_spaces: 1,
+                              occupied_spaces_isdefaulted: true)
+        end
       end
 
       if service_feeders.count { |pl| pl.type == HPXML::ElectricPanelLoadTypeLaundry } == 0
@@ -3388,9 +3394,11 @@ module Defaults
                             type: HPXML::ElectricPanelLoadTypeLaundry,
                             type_isdefaulted: true,
                             component_idrefs: [])
-        branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
-                            occupied_spaces: get_default_panels_value(runner, default_panels_csv_data, 'laundry', 'BreakerSpaces', HPXML::ElectricPanelVoltage120),
-                            occupied_spaces_isdefaulted: true)
+        (1..get_default_panels_value(runner, default_panels_csv_data, 'laundry', 'BreakerSpaces', HPXML::ElectricPanelVoltage120)).each do |_i|
+          branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
+                              occupied_spaces: 1,
+                              occupied_spaces_isdefaulted: true)
+        end
       end
 
       branch_circuits.each do |branch_circuit|
@@ -3442,8 +3450,8 @@ module Defaults
         next unless n_spaces % breakers_per_branch_circuit != 0
 
         branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
-                            voltage: branch_circuit.voltage,
-                            max_current_rating: branch_circuit.max_current_rating,
+                            voltage: HPXML::ElectricPanelVoltage120,
+                            max_current_rating: 20.0,
                             occupied_spaces: 1,
                             occupied_spaces_isdefaulted: true,
                             component_idrefs: branch_circuit.component_idrefs)
