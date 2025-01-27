@@ -1064,7 +1064,7 @@ module Geometry
   #
   # @param surface [OpenStudio::Model::Surface] an OpenStudio::Model::Surface object
   # @return [Double] the max z value minus the min x value
-  def self.get_surface_height(surface:)
+  def self.get_surface_height(surface)
     zvalues = get_surface_z_values(surfaceArray: [surface])
     zrange = zvalues.max - zvalues.min
     return zrange
@@ -1123,8 +1123,8 @@ module Geometry
   #
   # @param nbeds [Integer] Number of bedrooms in the dwelling unit
   # @return [Double] Number of occupants in the dwelling unit
-  def self.get_occupancy_default_num(nbeds:)
-    return Float(nbeds) # Per ANSI 301 for an asset calculation
+  def self.get_occupancy_default_num(nbeds)
+    return Float(nbeds) # Per ANSI/RESNET/ICC 301 for an asset calculation
   end
 
   # Creates a space and zone based on contents of spaces and value of location.
@@ -1325,7 +1325,6 @@ module Geometry
   end
 
   # Set calculated zone volumes for all HPXML locations on OpenStudio Thermal Zone and Space objects.
-  # TODO why? for reporting?
   #
   # @param spaces [Hash] Map of HPXML locations => OpenStudio Space objects
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
@@ -1968,26 +1967,20 @@ module Geometry
     return spaces[location]
   end
 
-  # Calculates space heights as the max z coordinate minus the min z coordinate.
+  # Calculates space height as the max z coordinate minus the min z coordinate.
   #
-  # @param spaces [Array<OpenStudio::Model::Space>] array of OpenStudio::Model::Space objects
-  # @return [Double] max z coordinate minus min z coordinate for a collection of spaces (ft)
-  def self.get_height_of_spaces(spaces:)
-    minzs = []
-    maxzs = []
-    spaces.each do |space|
-      zvalues = get_surface_z_values(surfaceArray: space.surfaces)
-      minzs << zvalues.min + UnitConversions.convert(space.zOrigin, 'm', 'ft')
-      maxzs << zvalues.max + UnitConversions.convert(space.zOrigin, 'm', 'ft')
-    end
-    return maxzs.max - minzs.min
+  # @param space [OpenStudio::Model::Space] an OpenStudio::Model::Space object
+  # @return [Double] space height (ft)
+  def self.get_space_height(space)
+    zvalues = get_surface_z_values(surfaceArray: space.surfaces)
+    return zvalues.max - zvalues.min
   end
 
   # Determine the length of an OpenStudio Surface by calculating the maximum difference between x and y coordinates.
   #
   # @param surface [OpenStudio::Model::Surface] an OpenStudio::Model::Surface object
   # @return [Double] length of the OpenStudio Surface (ft)
-  def self.get_surface_length(surface:)
+  def self.get_surface_length(surface)
     xvalues = get_surface_x_values(surfaceArray: [surface])
     yvalues = get_surface_y_values(surfaceArray: [surface])
     xrange = xvalues.max - xvalues.min

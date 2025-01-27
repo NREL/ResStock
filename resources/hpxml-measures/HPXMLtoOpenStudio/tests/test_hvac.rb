@@ -1663,6 +1663,33 @@ class HPXMLtoOpenStudioHVACTest < Minitest::Test
     assert_in_epsilon(cooling_setpoint_temp + ceiling_fan_cooling_setpoint_temp_offset, UnitConversions.convert(values[0], 'C', 'F'), 0.01)
   end
 
+  def test_operational_0_occupants
+    args_hash = {}
+    args_hash['hpxml_path'] = @tmp_hpxml_path
+    hpxml, hpxml_bldg = _create_hpxml('base-residents-0.xml')
+    hpxml_bldg.ceiling_fans.add(id: "CeilingFan#{hpxml_bldg.ceiling_fans.size + 1}")
+    hpxml_bldg.hvac_controls[0].ceiling_fan_cooling_setpoint_temp_offset = 2.0
+    XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
+    model, _hpxml, _hpxml_bldg = _test_measure(args_hash)
+
+    # Get HPXML values
+    hvac_control = hpxml_bldg.hvac_controls[0]
+    cooling_setpoint_temp = hvac_control.cooling_setpoint_temp
+
+    # Check ceiling fan months
+    assert_equal(1, model.getThermostatSetpointDualSetpoints.size)
+    thermostat = model.getThermostatSetpointDualSetpoints[0]
+
+    cooling_schedule = thermostat.coolingSetpointTemperatureSchedule.get.to_ScheduleRuleset.get
+    assert_equal(1, cooling_schedule.scheduleRules.size)
+
+    rule = cooling_schedule.scheduleRules[0] # year-round setpoints
+    day_schedule = rule.daySchedule
+    values = day_schedule.values
+    assert_equal(1, values.size)
+    assert_in_epsilon(cooling_setpoint_temp, UnitConversions.convert(values[0], 'C', 'F'), 0.01)
+  end
+
   def _test_measure(args_hash)
     # create an instance of the measure
     measure = HPXMLtoOpenStudio.new

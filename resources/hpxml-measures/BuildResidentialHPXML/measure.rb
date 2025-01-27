@@ -343,7 +343,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
     arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('geometry_unit_num_occupants', false)
     arg.setDisplayName('Geometry: Unit Number of Occupants')
     arg.setUnits('#')
-    arg.setDescription('The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301-2019. If provided, an *operational* calculation is instead performed in which the end use defaults are adjusted using the relationship between Number of Bedrooms and Number of Occupants from RECS 2015.')
+    arg.setDescription('The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301. If provided, an *operational* calculation is instead performed in which the end use defaults to reflect real-world data (where possible).')
     args << arg
 
     arg = OpenStudio::Measure::OSArgument::makeIntegerArgument('geometry_building_num_units', false)
@@ -3834,7 +3834,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
       return false
     end
 
-    Model.reset(model, runner)
+    Model.reset(runner, model)
 
     Version.check_openstudio_version()
 
@@ -4372,20 +4372,20 @@ module HPXMLFile
 
     case args[:geometry_unit_type]
     when HPXML::ResidentialTypeSFD
-      success = Geometry.create_single_family_detached(runner: runner, model: model, **args)
+      success = Geometry.create_single_family_detached(runner, model, **args)
     when HPXML::ResidentialTypeSFA
-      success = Geometry.create_single_family_attached(model: model, **args)
+      success = Geometry.create_single_family_attached(model, **args)
     when HPXML::ResidentialTypeApartment
-      success = Geometry.create_apartment(model: model, **args)
+      success = Geometry.create_apartment(model, **args)
     when HPXML::ResidentialTypeManufactured
-      success = Geometry.create_single_family_detached(runner: runner, model: model, **args)
+      success = Geometry.create_single_family_detached(runner, model, **args)
     end
     return false if not success
 
-    success = Geometry.create_doors(runner: runner, model: model, **args)
+    success = Geometry.create_doors(runner, model, **args)
     return false if not success
 
-    success = Geometry.create_windows_and_skylights(runner: runner, model: model, **args)
+    success = Geometry.create_windows_and_skylights(runner, model, **args)
     return false if not success
 
     return true
@@ -4956,7 +4956,7 @@ module HPXMLFile
       distance, neighbor_height = data
       next if distance == 0
 
-      azimuth = Geometry.get_azimuth_from_facade(facade: facade, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_azimuth_from_facade(facade, args[:geometry_unit_orientation])
 
       if (distance > 0) && (not neighbor_height.nil?)
         height = neighbor_height
@@ -5138,17 +5138,17 @@ module HPXMLFile
       next if surface.outsideBoundaryCondition != EPlus::BoundaryConditionOutdoors
       next if surface.surfaceType != EPlus::SurfaceTypeRoofCeiling
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next if [HPXML::LocationOtherHousingUnit].include? interior_adjacent_to
 
       if args[:geometry_attic_type] == HPXML::AtticTypeFlatRoof
         azimuth = nil
       else
-        azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+        azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
       end
 
       hpxml_bldg.roofs.add(id: "Roof#{hpxml_bldg.roofs.size + 1}",
-                           interior_adjacent_to: Geometry.get_adjacent_to(surface: surface),
+                           interior_adjacent_to: Geometry.get_surface_adjacent_to(surface),
                            azimuth: azimuth,
                            area: UnitConversions.convert(surface.grossArea, 'm^2', 'ft^2'),
                            roof_type: args[:roof_material_type],
@@ -5181,9 +5181,9 @@ module HPXMLFile
     sorted_surfaces.each do |surface|
       next if surface.surfaceType != EPlus::SurfaceTypeWall
       next unless [EPlus::BoundaryConditionOutdoors, EPlus::BoundaryConditionAdiabatic].include? surface.outsideBoundaryCondition
-      next unless Geometry.surface_is_rim_joist(surface: surface, height: args[:geometry_rim_joist_height])
+      next unless Geometry.surface_is_rim_joist(surface, args[:geometry_rim_joist_height])
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationBasementConditioned,
                    HPXML::LocationBasementUnconditioned,
                    HPXML::LocationCrawlspaceUnvented,
@@ -5192,7 +5192,7 @@ module HPXMLFile
 
       exterior_adjacent_to = HPXML::LocationOutside
       if surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic # can be adjacent to foundation space
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         if adjacent_surface.nil? # adjacent to a space that is not explicitly in the model
           unless [HPXML::ResidentialTypeSFD].include?(args[:geometry_unit_type])
             exterior_adjacent_to = interior_adjacent_to
@@ -5201,7 +5201,7 @@ module HPXMLFile
             end
           end
         else # adjacent to a space that is explicitly in the model
-          exterior_adjacent_to = Geometry.get_adjacent_to(surface: adjacent_surface)
+          exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
 
@@ -5215,7 +5215,7 @@ module HPXMLFile
         insulation_assembly_r_value = args[:rim_joist_assembly_r]
       end
 
-      azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
 
       hpxml_bldg.rim_joists.add(id: "RimJoist#{hpxml_bldg.rim_joists.size + 1}",
                                 exterior_adjacent_to: exterior_adjacent_to,
@@ -5243,23 +5243,23 @@ module HPXMLFile
   def self.set_walls(hpxml_bldg, model, args, sorted_surfaces)
     sorted_surfaces.each do |surface|
       next if surface.surfaceType != EPlus::SurfaceTypeWall
-      next if Geometry.surface_is_rim_joist(surface: surface, height: args[:geometry_rim_joist_height])
+      next if Geometry.surface_is_rim_joist(surface, args[:geometry_rim_joist_height])
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationConditionedSpace, HPXML::LocationAtticUnvented, HPXML::LocationAtticVented, HPXML::LocationGarage].include? interior_adjacent_to
 
       exterior_adjacent_to = HPXML::LocationOutside
       if surface.adjacentSurface.is_initialized
-        exterior_adjacent_to = Geometry.get_adjacent_to(surface: surface.adjacentSurface.get)
+        exterior_adjacent_to = Geometry.get_surface_adjacent_to(surface.adjacentSurface.get)
       elsif surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic # can be adjacent to conditioned space, attic
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         if adjacent_surface.nil? # adjacent to a space that is not explicitly in the model
           exterior_adjacent_to = interior_adjacent_to
           if exterior_adjacent_to == HPXML::LocationConditionedSpace # conditioned space adjacent to conditioned space
             exterior_adjacent_to = HPXML::LocationOtherHousingUnit
           end
         else # adjacent to a space that is explicitly in the model
-          exterior_adjacent_to = Geometry.get_adjacent_to(surface: adjacent_surface)
+          exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
 
@@ -5284,7 +5284,7 @@ module HPXMLFile
         end
       end
 
-      azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
 
       hpxml_bldg.walls.add(id: "Wall#{hpxml_bldg.walls.size + 1}",
                            exterior_adjacent_to: exterior_adjacent_to,
@@ -5338,9 +5338,9 @@ module HPXMLFile
     sorted_surfaces.each do |surface|
       next if surface.surfaceType != EPlus::SurfaceTypeWall
       next unless [EPlus::BoundaryConditionFoundation, EPlus::BoundaryConditionAdiabatic].include? surface.outsideBoundaryCondition
-      next if Geometry.surface_is_rim_joist(surface: surface, height: args[:geometry_rim_joist_height])
+      next if Geometry.surface_is_rim_joist(surface, args[:geometry_rim_joist_height])
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationBasementConditioned,
                    HPXML::LocationBasementUnconditioned,
                    HPXML::LocationCrawlspaceUnvented,
@@ -5349,7 +5349,7 @@ module HPXMLFile
 
       exterior_adjacent_to = HPXML::LocationGround
       if surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic # can be adjacent to foundation space
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         if adjacent_surface.nil? # adjacent to a space that is not explicitly in the model
           unless [HPXML::ResidentialTypeSFD].include?(args[:geometry_unit_type])
             exterior_adjacent_to = interior_adjacent_to
@@ -5358,7 +5358,7 @@ module HPXMLFile
             end
           end
         else # adjacent to a space that is explicitly in the model
-          exterior_adjacent_to = Geometry.get_adjacent_to(surface: adjacent_surface)
+          exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
 
@@ -5389,7 +5389,7 @@ module HPXMLFile
         end
       end
 
-      azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
 
       hpxml_bldg.foundation_walls.add(id: "FoundationWall#{hpxml_bldg.foundation_walls.size + 1}",
                                       exterior_adjacent_to: exterior_adjacent_to,
@@ -5435,12 +5435,12 @@ module HPXMLFile
       next if surface.outsideBoundaryCondition == EPlus::BoundaryConditionFoundation
       next unless [EPlus::SurfaceTypeFloor, EPlus::SurfaceTypeRoofCeiling].include? surface.surfaceType
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationConditionedSpace, HPXML::LocationGarage].include? interior_adjacent_to
 
       exterior_adjacent_to = HPXML::LocationOutside
       if surface.adjacentSurface.is_initialized
-        exterior_adjacent_to = Geometry.get_adjacent_to(surface: surface.adjacentSurface.get)
+        exterior_adjacent_to = Geometry.get_surface_adjacent_to(surface.adjacentSurface.get)
       elsif surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic
         exterior_adjacent_to = HPXML::LocationOtherHousingUnit
         if surface.surfaceType == EPlus::SurfaceTypeFloor
@@ -5510,7 +5510,7 @@ module HPXMLFile
       next unless [EPlus::BoundaryConditionFoundation].include? surface.outsideBoundaryCondition
       next if surface.surfaceType != EPlus::SurfaceTypeFloor
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next if [HPXML::LocationOutside, HPXML::LocationOtherHousingUnit].include? interior_adjacent_to
 
       has_foundation_walls = false
@@ -5521,7 +5521,7 @@ module HPXMLFile
           HPXML::LocationBasementConditioned].include? interior_adjacent_to
         has_foundation_walls = true
       end
-      exposed_perimeter = Geometry.calculate_exposed_perimeter(model: model, ground_floor_surfaces: [surface], has_foundation_walls: has_foundation_walls).round(1)
+      exposed_perimeter = Geometry.calculate_exposed_perimeter(model, ground_floor_surfaces: [surface], has_foundation_walls: has_foundation_walls).round(1)
       next if exposed_perimeter == 0
 
       if has_foundation_walls
@@ -5581,8 +5581,8 @@ module HPXMLFile
 
       surface = sub_surface.surface.get
 
-      sub_surface_height = Geometry.get_surface_height(surface: sub_surface)
-      sub_surface_facade = Geometry.get_facade_for_surface(surface: sub_surface)
+      sub_surface_height = Geometry.get_surface_height(sub_surface)
+      sub_surface_facade = Geometry.get_surface_facade(sub_surface)
 
       if (sub_surface_facade == Constants::FacadeFront) && ((args[:overhangs_front_depth] > 0) || args[:overhangs_front_distance_to_top_of_window] > 0)
         overhangs_depth = args[:overhangs_front_depth]
@@ -5604,7 +5604,7 @@ module HPXMLFile
         # Get max z coordinate of eaves
         eaves_z = args[:geometry_average_ceiling_height] * args[:geometry_unit_num_floors_above_grade] + args[:geometry_rim_joist_height]
         if args[:geometry_attic_type] == HPXML::AtticTypeConditioned
-          eaves_z += Geometry.get_conditioned_attic_height(spaces: model.getSpaces)
+          eaves_z += Geometry.get_conditioned_attic_height(model.getSpaces)
         end
         if args[:geometry_foundation_type] == HPXML::FoundationTypeAmbient
           eaves_z += args[:geometry_foundation_height]
@@ -5618,7 +5618,7 @@ module HPXMLFile
         overhangs_distance_to_bottom_of_window = (overhangs_distance_to_top_of_window + sub_surface_height).round(1)
       end
 
-      azimuth = Geometry.get_azimuth_from_facade(facade: sub_surface_facade, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_azimuth_from_facade(sub_surface_facade, args[:geometry_unit_orientation])
 
       wall_idref = @surface_ids[surface.name.to_s]
       next if wall_idref.nil?
@@ -5667,8 +5667,8 @@ module HPXMLFile
 
       surface = sub_surface.surface.get
 
-      sub_surface_facade = Geometry.get_facade_for_surface(surface: sub_surface)
-      azimuth = Geometry.get_azimuth_from_facade(facade: sub_surface_facade, orientation: args[:geometry_unit_orientation])
+      sub_surface_facade = Geometry.get_surface_facade(sub_surface)
+      azimuth = Geometry.get_azimuth_from_facade(sub_surface_facade, args[:geometry_unit_orientation])
 
       roof_idref = @surface_ids[surface.name.to_s]
       next if roof_idref.nil?
@@ -5708,10 +5708,10 @@ module HPXMLFile
 
       surface = sub_surface.surface.get
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
 
       if [HPXML::LocationOtherHousingUnit].include?(interior_adjacent_to)
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         next if adjacent_surface.nil?
       end
 

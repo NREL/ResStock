@@ -35195,7 +35195,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - None
-     - 23%
+     - 24%
      - Percent
      - 0
      - 0
@@ -35355,7 +35355,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - None
-     - 23%
+     - 24%
      - conditioned space
      - auto
      - auto
@@ -36387,13 +36387,13 @@ From ``project_national`` the list of options, option stock sturation, and optio
 
    * - Mobile Home
      - 6.2%
-   * - Multifamily with 2-4 Units
+   * - Multi-Family with 2 - 4 Units
      - 8%
-   * - Multifamily with 5+ units, 1-3 stories
+   * - Multi-Family with 5+ Units, 1-3 Stories
      - 13%
-   * - Multifamily with 5+ units, 4-7 stories
+   * - Multi-Family with 5+ Units, 4-7 Stories
      - 3.4%
-   * - Multifamily with 5+ units, 8+ stories
+   * - Multi-Family with 5+ Units, 8+ Stories
      - 2.1%
    * - Single-Family Attached
      - 5.9%
@@ -36701,7 +36701,7 @@ Assumption
 
 - \Because we need to assume a foundation type for ground-floor MF units, we use the lumped SFD+SFA distributions for MF2-4 and MF5+ building foundations. (RECS data for households in MF2-4 unit buildings are not useful since we do not know which floor the unitis on. RECS does not include foundation responses for households in MF5+ unit buildings.)
 
-- \For SFD and SFA, if no foundation type specified, then sample has Ambient foundation.
+- \For Single-Family Detached, if no foundation type specified, then sample has Ambient foundation.
 
 
 Arguments
@@ -38365,10 +38365,10 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - ``hvac_blower_fan_watts_per_cfm``
 
    * - No
-     - 23%
+     - 24%
      - auto
    * - Yes
-     - 77%
+     - 76%
      - auto
    * - Void
      - 0%
@@ -39266,7 +39266,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Boiler, 76% AFUE
-     - 0.83%
+     - 0.89%
      - Boiler
      - 0.76
      - auto
@@ -39311,7 +39311,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Boiler, 80% AFUE
-     - 3.2%
+     - 3.3%
      - Boiler
      - 0.8
      - auto
@@ -39356,7 +39356,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Boiler, 90% AFUE
-     - 0.48%
+     - 0.49%
      - Boiler
      - 0.9
      - auto
@@ -39626,7 +39626,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Wall/Floor Furnace, 68% AFUE
-     - 2.9%
+     - 2.8%
      - WallFurnace
      - 0.68
      - auto
@@ -39716,7 +39716,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - MSHP, SEER 29.3, 14 HSPF
-     - 0.014%
+     - 0.015%
      - none
      - 0
      - auto
@@ -40006,7 +40006,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
    * - Fuel Oil Fuel Furnace
      - 2.8%
    * - Fuel Oil Fuel Wall/Floor Furnace
-     - 0.3%
+     - 0.29%
    * - Fuel Oil Shared Heating
      - 0.51%
    * - Natural Gas Fuel Boiler
@@ -40020,7 +40020,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
    * - None
      - 1.1%
    * - Other Fuel Fuel Boiler
-     - 0.45%
+     - 0.46%
    * - Other Fuel Fuel Furnace
      - 0.24%
    * - Other Fuel Fuel Wall/Floor Furnace
@@ -40036,7 +40036,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
    * - Propane Shared Heating
      - 0.16%
    * - Void
-     - 0%
+     - 0.00039%
 
 .. _hvac_secondary_heating_efficiency:
 
@@ -42249,7 +42249,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - 1.1%
      - 3
    * - 3 months
-     - 0.35%
+     - 0.36%
      - 90
    * - Never
      - 96%
@@ -47669,17 +47669,29 @@ Misc Well Pump
 Description
 ***********
 
-Presence and efficiency of well pump.
+Presence of well pump according to the use of well for domestic water source.
 
 Created by
 **********
 
-manually created
+``sources/ahs/ahs2017_2019/tsv_maker.py``
 
 Source
 ******
 
-- \Wilson et al. 'Building America House Simulation Protocols' 2014, national average fraction used for saturation
+- \2017 and 2019 American Housing Survey (AHS) microdata.
+
+- \Core Based Statistical Area (CBSA) data based on the Feb 2013 CBSA delineation file.
+
+
+Assumption
+**********
+
+- \All well pumps are assumed to have typical efficiency.
+
+- \Where the number of samples < 10, the Census Division is aggregated up to Census Region.
+
+- \AHS has data for buildings up to 7 stories tall. Buildings with 8 or more stories are assumed not to have a well pump.
 
 
 Arguments
@@ -47737,18 +47749,18 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - ``misc_plug_loads_well_pump_usage_multiplier``
      - ``misc_plug_loads_well_pump_2_usage_multiplier``
 
-   * - Typical Efficiency
-     - 13%
-     - true
-     - auto
-     - 1.0
-     - 1.0
    * - None
      - 87%
      - false
      - 0
      - 0
      - 0
+   * - Typical Efficiency
+     - 13%
+     - true
+     - auto
+     - 1.0
+     - 1.0
 
 .. _natural_ventilation:
 
@@ -48031,7 +48043,7 @@ Arguments
      - #
      - Double
      - auto
-     - The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301-2019. If provided, an *operational* calculation is instead performed in which the end use defaults are adjusted using the relationship between Number of Bedrooms and Number of Occupants from RECS 2015.
+     - The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301. If provided, an *operational* calculation is instead performed in which the end use defaults to reflect real-world data (where possible).
    * - ``general_water_use_usage_multiplier``
      - false
      - 
@@ -63014,7 +63026,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - FIXME Fuel Oil Indirect
-     - 0.68%
+     - 0.69%
      - storage water heater
      - fuel oil
      - auto
@@ -63052,7 +63064,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
      - auto
    * - Fuel Oil Standard
-     - 1.3%
+     - 1.4%
      - storage water heater
      - fuel oil
      - auto

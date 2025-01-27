@@ -1892,13 +1892,15 @@ class HPXML < Object
     end
 
     # Calculates above-grade and below-grade thermal boundary wall areas.
-    # Used to calculate the window area in the ERI Reference Home per ANSI 301.
+    # Used to calculate the window area in the ERI Reference Home.
     #
     # Thermal boundary wall is any wall that separates conditioned space from
     # unconditioned space, outside, or soil. Above-grade thermal boundary
     # wall is any portion of a thermal boundary wall not in contact with soil.
     # Below-grade thermal boundary wall is any portion of a thermal boundary
     # wall in contact with soil.
+    #
+    # Source: ANSI/RESNET/ICC 301
     #
     # @return [Array<Double, Double>] Above-grade and below-grade thermal boundary wall areas (ft2)
     def thermal_boundary_wall_areas
@@ -1945,8 +1947,9 @@ class HPXML < Object
       return ag_cond_vol
     end
 
-    # Calculates common wall area.
-    # Used to calculate the window area in the ERI Reference Home per ANSI 301.
+    # Calculates common wall area. Used to calculate the window area in the ERI Reference Home.
+    #
+    # Source: ANSI/RESNET/ICC 301
     #
     # Common wall is the total wall area of walls adjacent to other unit's
     # conditioned space, not including foundation walls.
@@ -1968,12 +1971,14 @@ class HPXML < Object
 
     # Returns the total and exterior compartmentalization boundary area.
     # Used to convert between total infiltration and exterior infiltration for
-    # SFA/MF dwelling units per ANSI 301.
+    # SFA/MF dwelling units.
+    #
+    # Source: ANSI/RESNET/ICC 301
     #
     # @return [Array<Double, Double>] Total and exterior compartmentalization areas (ft2)
     def compartmentalization_boundary_areas
       total_area = 0.0 # Total surface area that bounds the Infiltration Volume
-      exterior_area = 0.0 # Same as above excluding surfaces attached to garage, other housing units, or other multifamily spaces (see 301-2019 Addendum B)
+      exterior_area = 0.0 # Same as above excluding surfaces attached to garage, other housing units, or other multifamily spaces
 
       # Determine which spaces are within infiltration volume
       spaces_within_infil_volume = HPXML::conditioned_locations_this_unit
