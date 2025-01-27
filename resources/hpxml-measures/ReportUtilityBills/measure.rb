@@ -199,8 +199,7 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
                        FT::Coal => HPXML::FuelTypeCoal }
 
     # Check for presence of fuels once
-    has_fuel = hpxml.has_fuels(hpxml.to_doc)
-    has_fuel[HPXML::FuelTypeElectricity] = true
+    has_fuel = hpxml.has_fuels()
 
     # Has production
     has_pv = @hpxml_buildings.count { |hpxml_bldg| !hpxml_bldg.pv_systems.empty? } > 0
@@ -543,7 +542,8 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
     utility_rates.each do |fuel_type, rate|
       next if fuels[[fuel_type, false]].timeseries.sum == 0
 
-      if fuel_type == FT::Elec
+      case fuel_type
+      when FT::Elec
         if bill_scenario.elec_tariff_filepath.nil?
           rate.fixed_charge_monthly = bill_scenario.elec_fixed_charge
           rate.flat_rate = bill_scenario.elec_marginal_rate
@@ -618,22 +618,22 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
 
         # Feed-In Tariff
         rate.feed_in_tariff_rate = bill_scenario.pv_feed_in_tariff_rate if bill_scenario.pv_compensation_type == HPXML::PVCompensationTypeFeedInTariff
-      elsif fuel_type == FT::Gas
+      when FT::Gas
         rate.fixed_charge_monthly = bill_scenario.natural_gas_fixed_charge
         rate.flat_rate = bill_scenario.natural_gas_marginal_rate
-      elsif fuel_type == FT::Oil
+      when FT::Oil
         rate.fixed_charge_monthly = bill_scenario.fuel_oil_fixed_charge
         rate.flat_rate = bill_scenario.fuel_oil_marginal_rate
-      elsif fuel_type == FT::Propane
+      when FT::Propane
         rate.fixed_charge_monthly = bill_scenario.propane_fixed_charge
         rate.flat_rate = bill_scenario.propane_marginal_rate
-      elsif fuel_type == FT::WoodCord
+      when FT::WoodCord
         rate.fixed_charge_monthly = bill_scenario.wood_fixed_charge
         rate.flat_rate = bill_scenario.wood_marginal_rate
-      elsif fuel_type == FT::WoodPellets
+      when FT::WoodPellets
         rate.fixed_charge_monthly = bill_scenario.wood_pellets_fixed_charge
         rate.flat_rate = bill_scenario.wood_pellets_marginal_rate
-      elsif fuel_type == FT::Coal
+      when FT::Coal
         rate.fixed_charge_monthly = bill_scenario.coal_fixed_charge
         rate.flat_rate = bill_scenario.coal_marginal_rate
       end

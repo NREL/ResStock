@@ -353,6 +353,35 @@ module Model
     return fan
   end
 
+  # Adds a PlantLoop object to the OpenStudio model.
+  #
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
+  # @param name [String] Name for the OpenStudio object
+  # @param fluid_type [String] Fluid type (Eplus::FluidXXX)
+  # @param glycol_concentration [Integer] Percent glycol concentration, only used if fluid is propylene glycol
+  # @param volume [Double] Volume of the entire loop, both demand and supply side (m^3)
+  # @param min_temp [Double] Minimum loop temperature (C)
+  # @param max_temp [Double] Maximum loop temperature (C)
+  # @param max_flow_rate [Double] Maximum loop flow rate (m^3/s)
+  # @return [OpenStudio::Model::PlantLoop] The model object
+  def self.add_plant_loop(model, name:, fluid_type: EPlus::FluidWater, glycol_concentration: 50, volume: nil, min_temp: nil, max_temp: nil, max_flow_rate: nil)
+    plant_loop = OpenStudio::Model::PlantLoop.new(model)
+    plant_loop.setName(name)
+    plant_loop.setFluidType(fluid_type)
+    if fluid_type == EPlus::FluidPropyleneGlycol
+      plant_loop.setGlycolConcentration(glycol_concentration)
+    end
+    plant_loop.setMinimumLoopTemperature(min_temp) unless min_temp.nil?
+    plant_loop.setMaximumLoopTemperature(max_temp) unless max_temp.nil?
+    plant_loop.setMaximumLoopFlowRate(max_flow_rate) unless max_flow_rate.nil?
+    if not volume.nil?
+      plant_loop.setPlantLoopVolume(volume)
+    else
+      plant_loop.autocalculatePlantLoopVolume()
+    end
+    return plant_loop
+  end
+
   # Adds a PumpVariableSpeed object to the OpenStudio model.
   #
   # @param model [OpenStudio::Model::Model] OpenStudio Model object
@@ -648,6 +677,7 @@ module Model
     sch.setNumberofHoursofData(num_hours)
     sch.setMinutesperItem(mins_per_item)
     sch.setTranslateFileWithRelativePath(true)
+    sch.setInterpolatetoTimestep(true)
     add_schedule_type_limits(model, schedule: sch, limits: limits)
     return sch
   end
@@ -835,10 +865,10 @@ module Model
 
   # Resets the existing model if it already has objects in it.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @return [nil]
-  def self.reset(model, runner)
+  def self.reset(runner, model)
     handles = OpenStudio::UUIDVector.new
     model.objects.each do |obj|
       handles << obj.handle
@@ -859,6 +889,8 @@ module Model
   # @return [nil]
   def self.merge_unit_models(model, hpxml_osm_map)
     # Map of OpenStudio IDD objects => OSM class names
+    # Note: ZoneCapacitanceMultiplierResearchSpecial is not actually unique, but we don't assign it to
+    # individual thermal zones, so we'll treat it as unique here.
     unique_object_map = { 'OS:ConvergenceLimits' => 'ConvergenceLimits',
                           'OS:Foundation:Kiva:Settings' => 'FoundationKivaSettings',
                           'OS:OutputControl:Files' => 'OutputControlFiles',
@@ -875,7 +907,8 @@ module Model
                           'OS:Site:WaterMainsTemperature' => 'SiteWaterMainsTemperature',
                           'OS:SurfaceConvectionAlgorithm:Inside' => 'InsideSurfaceConvectionAlgorithm',
                           'OS:SurfaceConvectionAlgorithm:Outside' => 'OutsideSurfaceConvectionAlgorithm',
-                          'OS:Timestep' => 'Timestep' }
+                          'OS:Timestep' => 'Timestep',
+                          'OS:ZoneCapacitanceMultiplier:ResearchSpecial' => 'ZoneCapacitanceMultiplierResearchSpecial' }
 
     # Handle unique objects first: Grab one from the first model we find the
     # object on (may not be the first unit).
