@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments</name>
   <uid>c984bb9e-4ac4-4930-a399-9d23f8f6936a</uid>
-  <version_id>e8fc0ce5-14c3-48ca-92fe-fc26926e9190</version_id>
-  <version_modified>2025-01-27T18:22:02Z</version_modified>
+  <version_id>a7e3379b-c124-49fa-af80-bfe012ecac99</version_id>
+  <version_modified>2025-01-27T19:36:48Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArguments</class_name>
   <display_name>ResStock Arguments</display_name>
@@ -5294,29 +5294,6 @@
       <default_value>4000</default_value>
     </argument>
     <argument>
-      <name>electric_panel_load_heat_pump_voltage</name>
-      <display_name>Electric Panel: Heat Pump Voltage</display_name>
-      <description>Specifies the panel load heat pump voltage. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
-      <type>Choice</type>
-      <units>V</units>
-      <required>false</required>
-      <model_dependent>false</model_dependent>
-      <choices>
-        <choice>
-          <value>auto</value>
-          <display_name>auto</display_name>
-        </choice>
-        <choice>
-          <value>120</value>
-          <display_name>120</display_name>
-        </choice>
-        <choice>
-          <value>240</value>
-          <display_name>240</display_name>
-        </choice>
-      </choices>
-    </argument>
-    <argument>
       <name>electric_panel_load_cooking_range_power</name>
       <display_name>Electric Panel: Cooking Range/Oven Power</display_name>
       <description>Specifies the panel load cooking range/oven power. Only applies to electric cooking range/oven. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
@@ -7716,7 +7693,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>0655CEC8</checksum>
+      <checksum>BB91B554</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -7739,7 +7716,7 @@
       <filename>constants.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>F2148A31</checksum>
+      <checksum>04EC9D93</checksum>
     </file>
     <file>
       <filename>electrical_panel/electrical_panel_breaker_space.csv</filename>

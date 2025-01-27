@@ -70,6 +70,7 @@ module Constants
                                    'electric_panel_load_permanent_spa_pump_power',
                                    'electric_panel_load_permanent_spa_heater_power',
                                    'electric_panel_load_other_power',
+                                   'electric_panel_load_heat_pump_voltage',
                                    'electric_panel_load_water_heater_voltage',
                                    'electric_panel_load_clothes_dryer_voltage',
                                    'electric_panel_load_cooking_range_voltage',
