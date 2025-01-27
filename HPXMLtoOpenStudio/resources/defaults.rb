@@ -3416,10 +3416,37 @@ module Defaults
       end
 
       branch_circuits.each do |branch_circuit|
-        if branch_circuit.occupied_spaces.nil?
-          branch_circuit.occupied_spaces = get_branch_circuit_occupied_spaces_default_values(runner, hpxml_bldg, branch_circuit, default_panels_csv_data)
-          branch_circuit.occupied_spaces_isdefaulted = true
+        next unless branch_circuit.occupied_spaces.nil?
+
+        occupied_spaces = get_branch_circuit_occupied_spaces_default_values(runner, hpxml_bldg, branch_circuit, default_panels_csv_data)
+        breakers_per_branch_circuit = Integer(Float(branch_circuit.voltage)) / 120
+
+        if occupied_spaces > 0
+          branch_circuit.occupied_spaces = breakers_per_branch_circuit
+        else
+          branch_circuit.occupied_spaces = 0
         end
+        branch_circuit.occupied_spaces_isdefaulted = true
+
+        n_spaces = occupied_spaces - breakers_per_branch_circuit
+        next unless n_spaces > 0
+
+        (1..(n_spaces / breakers_per_branch_circuit)).each do |_i|
+          branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
+                              voltage: branch_circuit.voltage,
+                              max_current_rating: branch_circuit.max_current_rating,
+                              occupied_spaces: breakers_per_branch_circuit,
+                              occupied_spaces_isdefaulted: true,
+                              component_idrefs: branch_circuit.component_idrefs)
+        end
+        next unless n_spaces % breakers_per_branch_circuit != 0
+
+        branch_circuits.add(id: "#{electric_panel.id}_BranchCircuit#{branch_circuits.size + 1}",
+                            voltage: branch_circuit.voltage,
+                            max_current_rating: branch_circuit.max_current_rating,
+                            occupied_spaces: 1,
+                            occupied_spaces_isdefaulted: true,
+                            component_idrefs: branch_circuit.component_idrefs)
       end
 
       electric_panel_default_values = get_electric_panel_values()
