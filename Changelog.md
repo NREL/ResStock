@@ -1,6 +1,9 @@
 ## OpenStudio-HPXML v1.10.0
 
 __New Features__
+- Electric panel calculations:
+  - Allows optional `ElectricPanel` inputs for describing branch circuits and service feeders
+  - Optionally reports breaker spaces and calculated loads for specified NEC calculation types
 
 __Bugfixes__
 - Fixes zero occupants specified for one unit in a whole MF building from being treated like zero occupants for every unit.
