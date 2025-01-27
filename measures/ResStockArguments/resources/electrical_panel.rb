@@ -74,7 +74,6 @@ class ElectricalPanelSampler
     end
     capacity_bins = get_row_headers(rated_capacity_map, lookup_array, header_size: 7)
     row_probability = get_row_probability(rated_capacity_map, lookup_array, header_size: 7)
-    @runner.registerWarning("cap bins: '#{capacity_bins}', row prob: '#{row_probability}'.")
     index = weighted_random(row_probability)
     return capacity_bins[index]
   end
