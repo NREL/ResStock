@@ -29,19 +29,13 @@ docker build -t github-actions-ubuntu22 .
 docker run -it -v $(pwd):/workspace github-actions-ubuntu22
 ```
 
-4. Install the full texlive package (only needs to be done the first time and might take a few minutes)
-
-```
-apt-get install texlive-full
-```
-
-5. Go to the workspace
+4. Go to the workspace
 
 ```
 cd workspace
 ```
 
-6. Compile the documentation (this command may need to be run two times for some parts of the documentation to show up in the output pdf)
+5. Compile the documentation (this command may need to be run two times for some parts of the documentation to show up in the output pdf)
 
 ```
 pdflatex ResStockTechnicalReferenceGuide.tex -file-line-error -interaction=nonstopmode
