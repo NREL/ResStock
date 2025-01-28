@@ -11,12 +11,12 @@
       <SimulationControl>
         <Timestep>60</Timestep>
       </SimulationControl>
-      <PanelCalculationTypes>
-        <Type>2023 Load-Based</Type>
-        <Type>2023 Meter-Based</Type>
-        <Type>2026 Load-Based</Type>
-        <Type>2026 Meter-Based</Type>
-      </PanelCalculationTypes>
+      <ElectricPanelLoadCalculations>
+        <ServiceFeeders>
+          <Type>2023 Existing Dwelling Load-Based</Type>
+          <Type>2023 Existing Dwelling Meter-Based</Type>
+        </ServiceFeeders>
+      </ElectricPanelLoadCalculations>
       <UtilityBillScenarios>
         <UtilityBillScenario>
           <Name>Bills</Name>
@@ -454,29 +454,35 @@
             <SystemIdentifier id='ElectricPanel1'/>
             <Voltage>240</Voltage>
             <MaxCurrentRating>100.0</MaxCurrentRating>
-            <extension>
-              <HeadroomBreakerSpaces>5</HeadroomBreakerSpaces>
-              <PanelLoads>
-                <PanelLoad>
-                  <LoadType>heating</LoadType>
-                  <AttachedToSystem idref='HeatingSystem1'/>
-                </PanelLoad>
-                <PanelLoad>
-                  <LoadType>cooling</LoadType>
-                  <PowerRating>3542.0</PowerRating>
-                  <AttachedToSystem idref='CoolingSystem1'/>
-                </PanelLoad>
-                <PanelLoad>
-                  <LoadType>mech vent</LoadType>
-                  <AttachedToSystem idref='VentilationFan1'/>
-                  <AttachedToSystem idref='VentilationFan2'/>
-                </PanelLoad>
-                <PanelLoad>
-                  <LoadType>other</LoadType>
-                  <PowerRating>559.0</PowerRating>
-                </PanelLoad>
-              </PanelLoads>
-            </extension>
+            <Headroom>5</Headroom>
+            <ServiceFeeders>
+              <ServiceFeeder>
+                <SystemIdentifier id='ElectricPanel1_ServiceFeeder1'/>
+                <LoadType>heating</LoadType>
+                <AttachedToComponent idref='HeatingSystem1'/>
+              </ServiceFeeder>
+              <ServiceFeeder>
+                <SystemIdentifier id='ElectricPanel1_ServiceFeeder2'/>
+                <LoadType>cooling</LoadType>
+                <PowerRating>3542.0</PowerRating>
+                <AttachedToComponent idref='CoolingSystem1'/>
+              </ServiceFeeder>
+              <ServiceFeeder>
+                <SystemIdentifier id='ElectricPanel1_ServiceFeeder3'/>
+                <LoadType>mech vent</LoadType>
+                <AttachedToComponent idref='VentilationFan1'/>
+              </ServiceFeeder>
+              <ServiceFeeder>
+                <SystemIdentifier id='ElectricPanel1_ServiceFeeder4'/>
+                <LoadType>mech vent</LoadType>
+                <AttachedToComponent idref='VentilationFan2'/>
+              </ServiceFeeder>
+              <ServiceFeeder>
+                <SystemIdentifier id='ElectricPanel1_ServiceFeeder5'/>
+                <LoadType>other</LoadType>
+                <PowerRating>559.0</PowerRating>
+              </ServiceFeeder>
+            </ServiceFeeders>
           </ElectricPanel>
         </ElectricPanels>
       </Systems>

@@ -94,6 +94,7 @@ def _run_xml(xml, worker_num, apply_unit_multiplier = false, annual_results_1x =
   annual_csv_path = File.join(rundir, 'results_annual.csv')
   monthly_csv_path = File.join(rundir, 'results_timeseries.csv')
   bills_csv_path = File.join(rundir, 'results_bills.csv')
+  panel_csv_path = File.join(rundir, 'results_panel.csv')
   assert(File.exist? annual_csv_path)
   assert(File.exist? monthly_csv_path)
 
@@ -109,7 +110,7 @@ def _run_xml(xml, worker_num, apply_unit_multiplier = false, annual_results_1x =
     end
     flunk "EPvalidator.xml error in #{hpxml_defaults_path}."
   end
-  annual_results = _get_simulation_annual_results(annual_csv_path, bills_csv_path)
+  annual_results = _get_simulation_annual_results(annual_csv_path, bills_csv_path, panel_csv_path)
   monthly_results = _get_simulation_monthly_results(monthly_csv_path)
   _verify_outputs(rundir, xml, annual_results, hpxml, unit_multiplier)
   if unit_multiplier > 1
@@ -119,7 +120,7 @@ def _run_xml(xml, worker_num, apply_unit_multiplier = false, annual_results_1x =
   return annual_results, monthly_results
 end
 
-def _get_simulation_annual_results(annual_csv_path, bills_csv_path)
+def _get_simulation_annual_results(annual_csv_path, bills_csv_path, panel_csv_path)
   # Grab all outputs from reporting measure CSV annual results
   results = {}
   CSV.foreach(annual_csv_path) do |row|
@@ -135,6 +136,15 @@ def _get_simulation_annual_results(annual_csv_path, bills_csv_path)
       next if (1..12).to_a.any? { |month| row[0].include?(": Month #{month}:") }
 
       results["Utility Bills: #{row[0]}"] = Float(row[1])
+    end
+  end
+
+  # Grab all outputs from reporting measure CSV panel results
+  if File.exist? panel_csv_path
+    CSV.foreach(panel_csv_path) do |row|
+      next if row.nil? || (row.size < 2)
+
+      results[row[0]] = Float(row[1])
     end
   end
 
@@ -1101,7 +1111,7 @@ def _check_unit_multiplier_results(xml, hpxml_bldg, annual_results_1x, annual_re
       # Check that the unmet hours difference is less than 10 hrs
       abs_delta_tol = 10
       abs_frac_tol = nil
-    elsif key.include?('HVAC Capacity:') || key.include?('HVAC Design Load:') || key.include?('HVAC Design Temperature:') || key.include?('Weather:') || key.include?('HVAC Geothermal Loop:') || key.include?('Electric Panel Load:') || key.include?('Electric Panel Capacity: Load-Based') || key.include?('Electric Panel Breaker Spaces:')
+    elsif key.include?('HVAC Capacity:') || key.include?('HVAC Design Load:') || key.include?('HVAC Design Temperature:') || key.include?('Weather:') || key.include?('HVAC Geothermal Loop:') || key.include?('Electric Panel Load:') || key.include?('Electric Panel Breaker Spaces:')
       # Check that there is no difference
       abs_delta_tol = 0
       abs_frac_tol = nil
@@ -1125,7 +1135,7 @@ def _check_unit_multiplier_results(xml, hpxml_bldg, annual_results_1x, annual_re
    'Utility Bills:',
    'HVAC Zone Design Load:',
    'HVAC Space Design Load:',
-   'Electric Panel Capacity: Meter-Based'].each do |key|
+   'Electric Panel Load: 2023 Existing Dwelling Meter-Based:'].each do |key|
     annual_results_1x.delete_if { |k, _v| k.start_with? key }
     annual_results_10x.delete_if { |k, _v| k.start_with? key }
     monthly_results_1x.delete_if { |k, _v| k.start_with? key }
@@ -1217,7 +1227,7 @@ def _write_results(results, csv_out, output_groups_filter: [])
     'hvac' => ['HVAC Design Temperature', 'HVAC Capacity', 'HVAC Design Load'],
     'misc' => ['Unmet Hours', 'Hot Water', 'Peak Electricity', 'Peak Load', 'Resilience'],
     'bills' => ['Utility Bills'],
-    'panel' => ['Electric Panel Load', 'Electric Panel Capacity', 'Electric Panel Breaker Spaces'],
+    'panel' => ['Electric Panel Load', 'Electric Panel Breaker Spaces'],
   }
 
   output_groups.each do |output_group, key_types|
@@ -1290,15 +1300,11 @@ def _write_hers_hvac_results(all_results, test_results_csv)
   all_results = all_results.sort_by { |k, _v| k.downcase }.to_h
   hvac_energy = {}
   CSV.open(test_results_csv, 'w') do |csv|
-    csv << ['Test Case', 'HVAC (kWh or therm)', 'HVAC Fan (kWh)']
+    csv << ['Test Case', 'Heat/Cool Energy (MBtu)', 'Fan Energy (MBtu)']
     all_results.each do |xml, results|
       csv << [xml, results[0], results[1]]
       test_name = File.basename(xml, File.extname(xml))
-      if xml.include?('HVAC2a') || xml.include?('HVAC2b')
-        hvac_energy[test_name] = results[0] / 10.0 + results[1] / 293.08
-      else
-        hvac_energy[test_name] = results[0] + results[1]
-      end
+      hvac_energy[test_name] = results[0] + results[1]
     end
   end
   puts "Wrote results to #{test_results_csv}."
@@ -1311,20 +1317,11 @@ def _write_hers_dse_results(all_results, test_results_csv)
   all_results = all_results.sort_by { |k, _v| k.downcase }.to_h
   dhw_energy = {}
   CSV.open(test_results_csv, 'w') do |csv|
-    csv << ['Test Case', 'Heat/Cool (kWh or therm)', 'HVAC Fan (kWh)']
+    csv << ['Test Case', 'Heat/Cool Energy (MBtu)', 'Fan Energy (MBtu)']
     all_results.each do |xml, results|
-      next unless ['HVAC3a.xml', 'HVAC3e.xml'].include? xml
-
       csv << [xml, results[0], results[1]]
       test_name = File.basename(xml, File.extname(xml))
-      dhw_energy[test_name] = results[0] / 10.0 + results[1] / 293.08
-    end
-    all_results.each do |xml, results|
-      next if ['HVAC3a.xml', 'HVAC3e.xml'].include? xml
-
-      csv << [xml, results[0], results[1]]
-      test_name = File.basename(xml, File.extname(xml))
-      dhw_energy[test_name] = results[0] / 10.0 + results[1] / 293.08
+      dhw_energy[test_name] = results[0] + results[1]
     end
   end
   puts "Wrote results to #{test_results_csv}."
@@ -1337,10 +1334,10 @@ def _write_hers_hot_water_results(all_results, test_results_csv)
   all_results = all_results.sort_by { |k, _v| k.downcase }.to_h
   dhw_energy = {}
   CSV.open(test_results_csv, 'w') do |csv|
-    csv << ['Test Case', 'DHW Energy (therms)', 'Recirc Pump (kWh)']
+    csv << ['Test Case', 'DHW Energy (MBtu)', 'Pump Energy (MBtu)']
     all_results.each do |xml, result|
       wh_energy, recirc_energy = result
-      csv << [xml, (wh_energy * 10.0).round(1), (recirc_energy * 293.08).round(1)]
+      csv << [xml, wh_energy, recirc_energy]
       test_name = File.basename(xml, File.extname(xml))
       dhw_energy[test_name] = wh_energy + recirc_energy
     end
@@ -1359,15 +1356,15 @@ end
 
 def _get_simulation_hvac_energy_results(results, is_heat, is_electric_heat)
   if not is_heat
-    hvac = UnitConversions.convert(results["End Use: #{FT::Elec}: #{EUT::Cooling} (MBtu)"], 'MBtu', 'kwh').round(2)
-    hvac_fan = UnitConversions.convert(results["End Use: #{FT::Elec}: #{EUT::CoolingFanPump} (MBtu)"], 'MBtu', 'kwh').round(2)
+    hvac = results["End Use: #{FT::Elec}: #{EUT::Cooling} (MBtu)"].round(2)
+    hvac_fan = results["End Use: #{FT::Elec}: #{EUT::CoolingFanPump} (MBtu)"].round(2)
   else
     if is_electric_heat
-      hvac = UnitConversions.convert(results["End Use: #{FT::Elec}: #{EUT::Heating} (MBtu)"], 'MBtu', 'kwh').round(2)
+      hvac = results["End Use: #{FT::Elec}: #{EUT::Heating} (MBtu)"].round(2)
     else
-      hvac = UnitConversions.convert(results["End Use: #{FT::Gas}: #{EUT::Heating} (MBtu)"], 'MBtu', 'therm').round(2)
+      hvac = results["End Use: #{FT::Gas}: #{EUT::Heating} (MBtu)"].round(2)
     end
-    hvac_fan = UnitConversions.convert(results["End Use: #{FT::Elec}: #{EUT::HeatingFanPump} (MBtu)"], 'MBtu', 'kwh').round(2)
+    hvac_fan = results["End Use: #{FT::Elec}: #{EUT::HeatingFanPump} (MBtu)"].round(2)
   end
 
   assert_operator(hvac, :>, 0)

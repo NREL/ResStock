@@ -101,9 +101,9 @@ Misc Gas Grill,3.0,0.0,manually created,Presence of a gas grill.
 Misc Gas Lighting,3.0,0.0,manually created,Presence of exterior gas lighting.
 Misc Hot Tub Spa,4.0,0.0,sources\recs\recs2020\tsv_maker.py,The presence and heating fuel of a hot tub/spa at the dwelling unit.
 Misc Pool,3.0,1.0,sources\recs\recs2020\tsv_maker.py,The presence of a pool at the dwelling unit.
-Misc Pool Heater,4.0,1.0,sources\recs\recs2020\tsv_maker.py,The heating fuel of the pool heater if there is a pool.
+Misc Pool Heater,5.0,1.0,sources\recs\recs2020\tsv_maker.py,The heating fuel of the pool heater if there is a pool.
 Misc Pool Pump,4.0,1.0,manually created,Presence and size of pool pump.
-Misc Well Pump,4.0,0.0,manually created,Presence and efficiency of well pump.
+Misc Well Pump,2.0,0.0,sources\ahs\ahs2017_2019\tsv_maker.py,Presence of well pump according to the use of well for domestic water source.
 Natural Ventilation,2.0,0.0,manually created,Schedule of natural ventilation from windows.
 Neighbors,6.0,0.0,manually created,Presence and distance between the dwelling unit and the nearest neighbors to the left and right.
 Occupants,11.0,1.0,sources\pums\pums2019_5yrs\tsv_maker.py,The number of occupants living in the dwelling unit.

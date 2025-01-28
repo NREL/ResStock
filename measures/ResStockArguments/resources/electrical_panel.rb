@@ -297,7 +297,7 @@ class ElectricalPanelSampler
 
   def get_row_headers(prob_table, lookup_array, header_size:)
     len = lookup_array.length()
-    row_headers = prob_table[0][len..len + header_size-1]
+    row_headers = prob_table[0][len..len + header_size - 1]
     return row_headers
   end
 
@@ -307,7 +307,7 @@ class ElectricalPanelSampler
     prob_table.each do |row|
       next if row[0..len - 1] != lookup_array
 
-      row_probability = row[len..len + header_size-1].map(&:to_f)
+      row_probability = row[len..len + header_size - 1].map(&:to_f)
     end
 
     if row_probability.length() != header_size

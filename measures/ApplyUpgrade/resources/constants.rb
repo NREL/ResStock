@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Constants
-  NumApplyUpgradeOptions = 25
+  NumApplyUpgradeOptions = 100
   NumApplyUpgradesCostsPerOption = 2
 
   CostMultiplierChoices = [

@@ -133,7 +133,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
 
     arg = OpenStudio::Measure::OSArgument::makeBoolArgument('include_annual_panel_summary', false)
     arg.setDisplayName('Generate Annual Output: Electric Panel Summary')
-    arg.setDescription('Generates electric panel loads, capacities, and breaker spaces.')
+    arg.setDescription('Generates electric panel breaker spaces and loads.')
     arg.setDefaultValue(true)
     args << arg
 
@@ -1652,7 +1652,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     runner.registerInfo("Wrote annual output results to #{annual_output_path}.")
 
     # Panel data
-    if args[:include_annual_panel_summary]
+    if args[:include_annual_panel_summary] && @hpxml_bldgs.map { |hpxml_bldg| hpxml_bldg.electric_panels.size }.sum > 0
       electric_panel_results_out = []
       Outputs.append_panel_results(@hpxml_header, @hpxml_bldgs, @peak_fuels, electric_panel_results_out)
 

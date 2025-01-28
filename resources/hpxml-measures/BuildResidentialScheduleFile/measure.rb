@@ -269,7 +269,7 @@ class BuildResidentialScheduleFile < OpenStudio::Measure::ModelMeasure
     args[:column_names] = args[:schedules_column_names].split(',').map(&:strip) if !args[:schedules_column_names].nil?
 
     if hpxml_bldg.building_occupancy.number_of_residents.nil?
-      args[:geometry_num_occupants] = Geometry.get_occupancy_default_num(nbeds: hpxml_bldg.building_construction.number_of_bedrooms)
+      args[:geometry_num_occupants] = Geometry.get_occupancy_default_num(hpxml_bldg.building_construction.number_of_bedrooms)
     else
       args[:geometry_num_occupants] = hpxml_bldg.building_occupancy.number_of_residents
     end

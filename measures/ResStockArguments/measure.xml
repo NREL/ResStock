@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments</name>
   <uid>c984bb9e-4ac4-4930-a399-9d23f8f6936a</uid>
-  <version_id>02145022-2148-4f02-a2e2-f4307f0dfc71</version_id>
-  <version_modified>2024-12-04T19:27:20Z</version_modified>
+  <version_id>a7e3379b-c124-49fa-af80-bfe012ecac99</version_id>
+  <version_modified>2025-01-27T19:36:48Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArguments</class_name>
   <display_name>ResStock Arguments</display_name>
@@ -648,7 +648,7 @@
     <argument>
       <name>geometry_unit_num_occupants</name>
       <display_name>Geometry: Unit Number of Occupants</display_name>
-      <description>The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301-2019. If provided, an *operational* calculation is instead performed in which the end use defaults are adjusted using the relationship between Number of Bedrooms and Number of Occupants from RECS 2015.</description>
+      <description>The number of occupants in the unit. If not provided, an *asset* calculation is performed assuming standard occupancy, in which various end use defaults (e.g., plug loads, appliances, and hot water usage) are calculated based on Number of Bedrooms and Conditioned Floor Area per ANSI/RESNET/ICC 301. If provided, an *operational* calculation is instead performed in which the end use defaults to reflect real-world data (where possible).</description>
       <type>String</type>
       <units>#</units>
       <required>false</required>
@@ -5296,7 +5296,7 @@
     <argument>
       <name>electric_panel_load_cooking_range_power</name>
       <display_name>Electric Panel: Cooking Range/Oven Power</display_name>
-      <description>Specifies the panel load cooking range/oven power. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
+      <description>Specifies the panel load cooking range/oven power. Only applies to electric cooking range/oven. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads'&gt;Panel Loads&lt;/a&gt;) is used.</description>
       <type>String</type>
       <units>W</units>
       <required>false</required>
@@ -7693,7 +7693,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>88A13ADB</checksum>
+      <checksum>BB91B554</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -7710,37 +7710,49 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>78F14364</checksum>
+      <checksum>522F34CA</checksum>
     </file>
     <file>
       <filename>constants.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>E4976995</checksum>
+      <checksum>04EC9D93</checksum>
     </file>
     <file>
-      <filename>electrical_panel.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>F8555523</checksum>
-    </file>
-    <file>
-      <filename>electrical_panel_resources/electrical_panel_breaker_space.csv</filename>
+      <filename>electrical_panel/electrical_panel_breaker_space.csv</filename>
       <filetype>csv</filetype>
       <usage_type>resource</usage_type>
       <checksum>DF922E1E</checksum>
     </file>
     <file>
-      <filename>electrical_panel_resources/electrical_panel_rated_capacity__electric_heating.csv</filename>
+      <filename>electrical_panel/electrical_panel_rated_capacity__multi_family.csv</filename>
       <filetype>csv</filetype>
       <usage_type>resource</usage_type>
-      <checksum>E977F59E</checksum>
+      <checksum>49D707DF</checksum>
     </file>
     <file>
-      <filename>electrical_panel_resources/electrical_panel_rated_capacity__nonelectric_heating.csv</filename>
+      <filename>electrical_panel/electrical_panel_rated_capacity__single_family_electric_heating.csv</filename>
       <filetype>csv</filetype>
       <usage_type>resource</usage_type>
-      <checksum>FBEBCE30</checksum>
+      <checksum>AAC795D7</checksum>
+    </file>
+    <file>
+      <filename>electrical_panel/electrical_panel_rated_capacity__single_family_nonelectric_heating.csv</filename>
+      <filetype>csv</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>FFF0B8A5</checksum>
+    </file>
+    <file>
+      <filename>electrical_panel.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>5665EDFF</checksum>
+    </file>
+    <file>
+      <filename>measure.txt</filename>
+      <filetype>txt</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>E8A56B92</checksum>
     </file>
     <file>
       <filename>resstock_arguments_test.rb</filename>

@@ -1618,7 +1618,7 @@
     "dishwasher_present": false,
     "kitchen_fans_quantity": 1,
     "bathroom_fans_quantity": 2,
-    "electric_panel_load_calculation_types": "2023 Load-Based, 2023 Meter-Based, 2026 Load-Based, 2026 Meter-Based",
+    "electric_panel_service_feeders_load_calculation_types": "2023 Existing Dwelling Load-Based, 2023 Existing Dwelling Meter-Based",
     "electric_panel_service_voltage": "240",
     "electric_panel_service_rating": 100,
     "electric_panel_breaker_spaces_type": "headroom",
@@ -3551,6 +3551,10 @@
     "parent_hpxml": "sample_files/base.xml",
     "unit_multiplier": "10"
   },
+  "sample_files/base-misc-unit-multiplier-detailed-electric-panel.xml": {
+    "parent_hpxml": "sample_files/base-misc-unit-multiplier.xml",
+    "electric_panel_service_feeders_load_calculation_types": "2023 Existing Dwelling Load-Based, 2023 Existing Dwelling Meter-Based"
+  },
   "sample_files/base-misc-usage-multiplier.xml": {
     "parent_hpxml": "sample_files/base.xml",
     "general_water_use_usage_multiplier": 0.9,
@@ -3625,6 +3629,10 @@
     "heating_system_heating_efficiency": 1,
     "heating_system_heating_capacity": 12000,
     "clothes_dryer_present": false
+  },
+  "sample_files/base-bldgtype-mf-whole-building-detailed-electric-panel.xml": {
+    "parent_hpxml": "sample_files/base-bldgtype-mf-whole-building.xml",
+    "electric_panel_service_feeders_load_calculation_types": "2023 Existing Dwelling Load-Based, 2023 Existing Dwelling Meter-Based"
   },
   "sample_files/base-pv.xml": {
     "parent_hpxml": "sample_files/base.xml",
@@ -3717,10 +3725,6 @@
   "sample_files/base-residents-0.xml": {
     "parent_hpxml": "sample_files/base.xml",
     "geometry_unit_num_occupants": 0
-  },
-  "sample_files/base-residents-0-runperiod-1-month.xml": {
-    "parent_hpxml": "sample_files/base-residents-0.xml",
-    "simulation_control_run_period": "Feb 1 - Feb 28"
   },
   "sample_files/base-residents-1.xml": {
     "parent_hpxml": "sample_files/base.xml",

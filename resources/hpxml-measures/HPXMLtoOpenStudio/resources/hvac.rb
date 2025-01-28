@@ -10,7 +10,7 @@ module HVAC
   AirSourceCoolRatedIWB = 67.0 # degF, Rated indoor wetbulb for air-source systems, cooling
   CrankcaseHeaterTemp = 50.0 # degF
 
-  # TODO
+  # Adds any HVAC Systems to the OpenStudio model.
   #
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @param model [OpenStudio::Model::Model] OpenStudio Model object
@@ -92,7 +92,7 @@ module HVAC
       case cooling_system.cooling_system_type
       when HPXML::HVACTypeCentralAirConditioner, HPXML::HVACTypeRoomAirConditioner,
            HPXML::HVACTypeMiniSplitAirConditioner, HPXML::HVACTypePTAC
-        airloop_map[sys_id] = apply_air_source_hvac_systems(model, runner, weather, cooling_system, heating_system, hvac_sequential_load_fracs,
+        airloop_map[sys_id] = apply_air_source_hvac_systems(runner, model, weather, cooling_system, heating_system, hvac_sequential_load_fracs,
                                                             conditioned_zone, hvac_unavailable_periods, schedules_file, hpxml_bldg, hpxml_header)
       when HPXML::HVACTypeEvaporativeCooler
         airloop_map[sys_id] = apply_evaporative_cooler(model, cooling_system, hvac_sequential_load_fracs, conditioned_zone, hvac_unavailable_periods,
@@ -152,10 +152,10 @@ module HVAC
       sys_id = heating_system.id
       case heating_system.heating_system_type
       when HPXML::HVACTypeFurnace
-        airloop_map[sys_id] = apply_air_source_hvac_systems(model, runner, weather, nil, heating_system, hvac_sequential_load_fracs,
+        airloop_map[sys_id] = apply_air_source_hvac_systems(runner, model, weather, nil, heating_system, hvac_sequential_load_fracs,
                                                             conditioned_zone, hvac_unavailable_periods, schedules_file, hpxml_bldg, hpxml_header)
       when HPXML::HVACTypeBoiler
-        airloop_map[sys_id] = apply_boiler(model, runner, heating_system, hvac_sequential_load_fracs, conditioned_zone, hvac_unavailable_periods)
+        airloop_map[sys_id] = apply_boiler(runner, model, heating_system, hvac_sequential_load_fracs, conditioned_zone, hvac_unavailable_periods)
       when HPXML::HVACTypeElectricResistance
         apply_electric_baseboard(model, heating_system, hvac_sequential_load_fracs, conditioned_zone, hvac_unavailable_periods)
       when HPXML::HVACTypeStove, HPXML::HVACTypeSpaceHeater, HPXML::HVACTypeWallFurnace,
@@ -215,10 +215,10 @@ module HVAC
         airloop_map[sys_id] = apply_water_loop_to_air_heat_pump(model, heat_pump, hvac_sequential_load_fracs, conditioned_zone, hvac_unavailable_periods)
       when HPXML::HVACTypeHeatPumpAirToAir, HPXML::HVACTypeHeatPumpMiniSplit,
            HPXML::HVACTypeHeatPumpPTHP, HPXML::HVACTypeHeatPumpRoom
-        airloop_map[sys_id] = apply_air_source_hvac_systems(model, runner, weather, heat_pump, heat_pump, hvac_sequential_load_fracs,
+        airloop_map[sys_id] = apply_air_source_hvac_systems(runner, model, weather, heat_pump, heat_pump, hvac_sequential_load_fracs,
                                                             conditioned_zone, hvac_unavailable_periods, schedules_file, hpxml_bldg, hpxml_header)
       when HPXML::HVACTypeHeatPumpGroundToAir
-        airloop_map[sys_id] = apply_ground_to_air_heat_pump(model, runner, weather, heat_pump, hvac_sequential_load_fracs,
+        airloop_map[sys_id] = apply_ground_to_air_heat_pump(runner, model, weather, heat_pump, hvac_sequential_load_fracs,
                                                             conditioned_zone, hpxml_bldg.site.ground_conductivity, hpxml_bldg.site.ground_diffusivity,
                                                             hvac_unavailable_periods, hpxml_bldg.building_construction.number_of_units)
       end
@@ -235,8 +235,8 @@ module HVAC
 
   # TODO
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param weather [WeatherFile] Weather object containing EPW information
   # @param cooling_system [TODO] TODO
   # @param heating_system [TODO] TODO
@@ -247,7 +247,7 @@ module HVAC
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param hpxml_header [HPXML::Header] HPXML Header object (one per HPXML file)
   # @return [OpenStudio::Model::AirLoopHVAC] The newly created air loop hvac object
-  def self.apply_air_source_hvac_systems(model, runner, weather, cooling_system, heating_system, hvac_sequential_load_fracs,
+  def self.apply_air_source_hvac_systems(runner, model, weather, cooling_system, heating_system, hvac_sequential_load_fracs,
                                          control_zone, hvac_unavailable_periods, schedules_file, hpxml_bldg, hpxml_header)
     is_heatpump = false
 
@@ -465,7 +465,7 @@ module HVAC
 
     add_supplemental_coil_ems_program(model, htg_supp_coil, control_zone, htg_coil, is_onoff_thermostat_ddb, cooling_system)
 
-    add_variable_speed_power_ems_program(model, runner, air_loop_unitary, control_zone, heating_system, cooling_system, htg_supp_coil, clg_coil, htg_coil, schedules_file)
+    add_variable_speed_power_ems_program(runner, model, air_loop_unitary, control_zone, heating_system, cooling_system, htg_supp_coil, clg_coil, htg_coil, schedules_file)
 
     if is_heatpump && hpxml_header.defrost_model_type == HPXML::AdvancedResearchDefrostModelTypeAdvanced
       apply_advanced_defrost(model, htg_coil, air_loop_unitary, control_zone.spaces[0], htg_supp_coil, cooling_system, q_dot_defrost)
@@ -535,8 +535,8 @@ module HVAC
 
   # TODO
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param weather [WeatherFile] Weather object containing EPW information
   # @param heat_pump [TODO] TODO
   # @param hvac_sequential_load_fracs [Array<Double>] Array of daily fractions of remaining heating/cooling load to bet met by the HVAC system
@@ -546,7 +546,7 @@ module HVAC
   # @param hvac_unavailable_periods [Hash] Map of htg/clg => HPXML::UnavailablePeriods for heating/cooling
   # @param unit_multiplier [Integer] Number of similar dwelling units
   # @return [OpenStudio::Model::AirLoopHVAC] The newly created air loop hvac object
-  def self.apply_ground_to_air_heat_pump(model, runner, weather, heat_pump, hvac_sequential_load_fracs,
+  def self.apply_ground_to_air_heat_pump(runner, model, weather, heat_pump, hvac_sequential_load_fracs,
                                          control_zone, ground_conductivity, ground_diffusivity,
                                          hvac_unavailable_periods, unit_multiplier)
 
@@ -663,20 +663,19 @@ module HVAC
     xing.setAverageSoilSurfaceTemperature(ground_heat_exch_vert.groundTemperature.get)
 
     # Plant Loop
-    plant_loop = OpenStudio::Model::PlantLoop.new(model)
-    plant_loop.setName(obj_name + ' condenser loop')
-    plant_loop.setFluidType(hp_ap.fluid_type)
-    if hp_ap.fluid_type != EPlus::FluidWater
-      plant_loop.setGlycolConcentration((hp_ap.frac_glycol * 100).to_i)
-    end
-    plant_loop.setMaximumLoopTemperature(48.88889)
-    plant_loop.setMinimumLoopTemperature(UnitConversions.convert(hp_ap.design_hw, 'F', 'C'))
-    plant_loop.setMinimumLoopFlowRate(0)
-    plant_loop.setLoadDistributionScheme('SequentialLoad')
+    plant_loop = Model.add_plant_loop(
+      model,
+      name: "#{obj_name} condenser loop",
+      fluid_type: hp_ap.fluid_type,
+      glycol_concentration: (hp_ap.frac_glycol * 100).to_i,
+      min_temp: UnitConversions.convert(hp_ap.design_hw, 'F', 'C'),
+      max_temp: 48.88889,
+      max_flow_rate: UnitConversions.convert(geothermal_loop.loop_flow, 'gal/min', 'm^3/s')
+    )
+
     plant_loop.addSupplyBranchForComponent(ground_heat_exch_vert)
     plant_loop.addDemandBranchForComponent(htg_coil)
     plant_loop.addDemandBranchForComponent(clg_coil)
-    plant_loop.setMaximumLoopFlowRate(UnitConversions.convert(geothermal_loop.loop_flow, 'gal/min', 'm^3/s'))
 
     sizing_plant = plant_loop.sizingPlant
     sizing_plant.setLoopType('Condenser')
@@ -727,7 +726,7 @@ module HVAC
     add_pump_power_ems_program(model, pump_w, pump, air_loop_unitary)
 
     if heat_pump.is_shared_system
-      # Shared pump power per ANSI/RESNET/ICC 301-2019 Section 4.4.5.1 (pump runs 8760)
+      # Shared pump power per ANSI/RESNET/ICC 301-2022 Section 4.4.5.1 (pump runs 8760)
       design_level = heat_pump.shared_loop_watts / heat_pump.number_of_units_served.to_f
 
       equip = Model.add_electric_equipment(
@@ -812,25 +811,17 @@ module HVAC
     return air_loop
   end
 
-  # FIXME
-  # Get the outdoor unit (compressor) power (W) using regression based on heating rated (output) capacity.
+  # Get the outdoor unit (compressor) power (W) using regression based on (output) capacity.
   #
-  # @param heating_capacity [Double] Direct expansion coil heating rated (output) capacity [kBtu/hr].
+  # @param capacity [Double] Direct expansion coil rated (output) capacity [kBtu/hr].
+  # @param voltage [String] '120' or '240'
   # @return [Double] Direct expansion coil rated (input) capacity (W)
-  def self.get_dx_heating_coil_power_watts_from_capacity(heating_capacity)
-    return 240 * (0.626 * heating_capacity + 1.634)
+  def self.get_dx_coil_power_watts_from_capacity(capacity, voltage)
+    required_amperage = 0.631 * capacity + 1.615
+    power = required_amperage * Float(voltage)
+    return power
   end
 
-  # FIXME
-  # Get the outdoor unit (compressor) power (W) using regression based on cooling rated (output) capacity.
-  #
-  # @param cooling_capacity [Double] Direct expansion coil cooling rated (output) capacity [kBtu/hr].
-  # @return [Double] Direct expansion coil rated (input) capacity (W)
-  def self.get_dx_cooling_coil_power_watts_from_capacity(cooling_capacity)
-    return 240 * (0.626 * cooling_capacity + 1.634)
-  end
-
-  # FIXME
   # Get the indoor unit (air handler) power (W).
   #
   # @param fan_watts_per_cfm [Double] Blower fan watts per cfm [W/cfm]
@@ -852,7 +843,6 @@ module HVAC
     return electric_auxiliary_energy / 2.08
   end
 
-  # FIXME
   # Returns the heating input capacity, calculated as the heating rated (output) capacity divided by the rated efficiency.
   #
   # @param heating_capacity [Double] Heating output capacity
@@ -871,14 +861,14 @@ module HVAC
 
   # TODO
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param heating_system [TODO] TODO
   # @param hvac_sequential_load_fracs [Array<Double>] Array of daily fractions of remaining heating/cooling load to bet met by the HVAC system
   # @param control_zone [OpenStudio::Model::ThermalZone] Conditioned space thermal zone
   # @param hvac_unavailable_periods [Hash] Map of htg/clg => HPXML::UnavailablePeriods for heating/cooling
   # @return [OpenStudio::Model::ZoneHVACFourPipeFanCoil or OpenStudio::Model::ZoneHVACBaseboardConvectiveWater] The newly created zone hvac object
-  def self.apply_boiler(model, runner, heating_system, hvac_sequential_load_fracs, control_zone, hvac_unavailable_periods)
+  def self.apply_boiler(runner, model, heating_system, hvac_sequential_load_fracs, control_zone, hvac_unavailable_periods)
     obj_name = Constants::ObjectTypeBoiler
     is_condensing = false # FUTURE: Expose as input; default based on AFUE
     oat_reset_enabled = false
@@ -896,13 +886,10 @@ module HVAC
     end
 
     # Plant Loop
-    plant_loop = OpenStudio::Model::PlantLoop.new(model)
-    plant_loop.setName(obj_name + ' hydronic heat loop')
-    plant_loop.setFluidType(EPlus::FluidWater)
-    plant_loop.setMaximumLoopTemperature(100)
-    plant_loop.setMinimumLoopTemperature(0)
-    plant_loop.setMinimumLoopFlowRate(0)
-    plant_loop.autocalculatePlantLoopVolume()
+    plant_loop = Model.add_plant_loop(
+      model,
+      name: "#{obj_name} hydronic heat loop"
+    )
 
     loop_sizing = plant_loop.sizingPlant
     loop_sizing.setLoopType('Heating')
@@ -1345,19 +1332,23 @@ module HVAC
   # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
   # @return [nil]
   def self.apply_ceiling_fans(runner, model, spaces, weather, hpxml_bldg, hpxml_header, schedules_file)
+    if hpxml_bldg.building_occupancy.number_of_residents == 0
+      # Operational calculation w/ zero occupants, zero out energy use
+      return
+    end
     return if hpxml_bldg.ceiling_fans.size == 0
 
     ceiling_fan = hpxml_bldg.ceiling_fans[0]
 
     obj_name = Constants::ObjectTypeCeilingFan
-    hrs_per_day = 10.5 # From ANSI 301-2019
+    hrs_per_day = 10.5 # From ANSI/RESNET/ICC 301-2022
     cfm_per_w = ceiling_fan.efficiency
     label_energy_use = ceiling_fan.label_energy_use
     count = ceiling_fan.count
     if !label_energy_use.nil? # priority if both provided
       annual_kwh = UnitConversions.convert(count * label_energy_use * hrs_per_day * 365.0, 'Wh', 'kWh')
     elsif !cfm_per_w.nil?
-      medium_cfm = 3000.0 # cfm, per ANSI 301-2019
+      medium_cfm = 3000.0 # cfm, per ANSI/RESNET/ICC 301-2019
       annual_kwh = UnitConversions.convert(count * medium_cfm / cfm_per_w * hrs_per_day * 365.0, 'Wh', 'kWh')
     end
 
@@ -1399,15 +1390,15 @@ module HVAC
 
   # Adds an HPXML HVAC Control to the OpenStudio model.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param weather [WeatherFile] Weather object containing EPW information
   # @param spaces [Hash] Map of HPXML locations => OpenStudio Space objects
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param hpxml_header [HPXML::Header] HPXML Header object (one per HPXML file)
   # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
   # @return [Hash] Map of htg/clg => Array of 365 days with 1s during the heating/cooling season and 0s otherwise
-  def self.apply_setpoints(model, runner, weather, spaces, hpxml_bldg, hpxml_header, schedules_file)
+  def self.apply_setpoints(runner, model, weather, spaces, hpxml_bldg, hpxml_header, schedules_file)
     return {} if hpxml_bldg.hvac_controls.size == 0
 
     hvac_control = hpxml_bldg.hvac_controls[0]
@@ -1443,7 +1434,7 @@ module HVAC
     end
 
     if cooling_sch.nil?
-      clg_wd_setpoints, clg_we_setpoints = get_cooling_setpoints(hvac_control, has_ceiling_fan, year, weather, onoff_thermostat_ddb)
+      clg_wd_setpoints, clg_we_setpoints = get_cooling_setpoints(hpxml_bldg, hvac_control, has_ceiling_fan, year, weather, onoff_thermostat_ddb)
     else
       runner.registerWarning("Both '#{SchedulesFile::Columns[:CoolingSetpoint].name}' schedule file and cooling setpoint temperature provided; the latter will be ignored.") if !hvac_control.cooling_setpoint_temp.nil?
     end
@@ -1572,13 +1563,14 @@ module HVAC
 
   # TODO
   #
+  # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param [HPXML::HVACControl] The HPXML HVAC control of interest
   # @param has_ceiling_fan [TODO] TODO
   # @param year [Integer] the calendar year
   # @param weather [WeatherFile] Weather object containing EPW information
   # @param offset_db [Double] On-off thermostat deadband (F)
   # @return [TODO] TODO
-  def self.get_cooling_setpoints(hvac_control, has_ceiling_fan, year, weather, offset_db)
+  def self.get_cooling_setpoints(hpxml_bldg, hvac_control, has_ceiling_fan, year, weather, offset_db)
     num_days = Calendar.num_days_in_year(year)
 
     if hvac_control.weekday_cooling_setpoints.nil? || hvac_control.weekend_cooling_setpoints.nil?
@@ -1604,8 +1596,9 @@ module HVAC
       clg_we_setpoints = hvac_control.weekend_cooling_setpoints.split(',').map { |i| Float(i) }
       clg_we_setpoints = [clg_we_setpoints] * num_days
     end
+
     # Apply cooling setpoint offset due to ceiling fan?
-    if has_ceiling_fan
+    if has_ceiling_fan && hpxml_bldg.building_occupancy.number_of_residents != 0 # If operational calculation w/ zero occupants, exclude ceiling fan setpoint adjustment
       clg_ceiling_fan_offset = hvac_control.ceiling_fan_cooling_setpoint_temp_offset
       if not clg_ceiling_fan_offset.nil?
         months = Defaults.get_ceiling_fan_months(weather)
@@ -3975,8 +3968,8 @@ module HVAC
   # Apply maximum power ratio schedule for variable speed system.
   # Creates EMS program to determine and control the stage that can reach the maximum power constraint.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param air_loop_unitary [OpenStudio::Model::AirLoopHVACUnitarySystem] Air loop for the HVAC system
   # @param control_zone [OpenStudio::Model::ThermalZone] Conditioned space thermal zone
   # @param heating_system [HPXML::HeatingSystem or HPXML::HeatPump] The HPXML heating system or heat pump of interest
@@ -3986,7 +3979,7 @@ module HVAC
   # @param htg_coil [OpenStudio::Model::CoilHeatingDXMultiSpeed] OpenStudio MultiStage Heating Coil object
   # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
   # @return [nil]
-  def self.add_variable_speed_power_ems_program(model, runner, air_loop_unitary, control_zone, heating_system, cooling_system, htg_supp_coil, clg_coil, htg_coil, schedules_file)
+  def self.add_variable_speed_power_ems_program(runner, model, air_loop_unitary, control_zone, heating_system, cooling_system, htg_supp_coil, clg_coil, htg_coil, schedules_file)
     return if schedules_file.nil?
     return if clg_coil.nil? && htg_coil.nil?
 
@@ -4185,7 +4178,8 @@ module HVAC
         program.addLine("  If #{clg_tot_sensor.name} > 0")
         program.addLine("    Set #{cap_multiplier} = #{clg_sens_sensor.name} / #{clg_tot_sensor.name}")
         program.addLine('  Else')
-        program.addLine("    Set #{cap_multiplier} = 0.0")
+        # Missing dynamic SHR, set rated instead
+        program.addLine("    Set #{cap_multiplier} = #{coil.stages[-1].grossRatedSensibleHeatRatio}")
         program.addLine('  EndIf')
         program.addLine('EndIf')
       end
@@ -5343,7 +5337,7 @@ module HVAC
             aux_dweq = cooling_system.fan_coil_watts
           end
         end
-        # ANSI/RESNET/ICC 301-2019 Equation 4.4-2
+        # ANSI/RESNET/ICC 301-2022 Equation 4.4-2
         seer_eq = (cap - 3.41 * aux - 3.41 * aux_dweq * n_dweq) / (chiller_input + aux + aux_dweq * n_dweq)
 
       elsif cooling_system.cooling_system_type == HPXML::HVACTypeCoolingTower
@@ -5356,7 +5350,7 @@ module HVAC
             wlhp_input = wlhp_cap / wlhp.cooling_efficiency_eer
           end
         end
-        # ANSI/RESNET/ICC 301-2019 Equation 4.4-3
+        # ANSI/RESNET/ICC 301-2022 Equation 4.4-3
         seer_eq = (wlhp_cap - 3.41 * aux / n_dweq) / (wlhp_input + aux / n_dweq)
 
       else
@@ -5449,7 +5443,7 @@ module HVAC
       if heating_system.heating_system_type == HPXML::HVACTypeBoiler && hydronic_type.to_s == HPXML::HydronicTypeWaterLoop
 
         # Shared boiler w/ water loop heat pump
-        # Per ANSI/RESNET/ICC 301-2019 Section 4.4.7.2, model as:
+        # Per ANSI/RESNET/ICC 301-2022 Section 4.4.7.2, model as:
         # A) heat pump with constant efficiency and duct losses, fraction heat load served = 1/COP
         # B) boiler, fraction heat load served = 1-1/COP
         fraction_heat_load_served = heating_system.fraction_heat_load_served
@@ -5641,7 +5635,7 @@ module HVAC
   # Calculates rated SEER (older metric) from rated SEER2 (newer metric).
   #
   # Source: ANSI/RESNET/ICC 301 Table 4.4.4.1(1) SEER2/HSPF2 Conversion Factors
-  # This is based on a regression of products, not a translation.
+  # Note that this is a regression based on products on the market, not a conversion.
   #
   # @param seer2 [Double] Cooling efficiency (Btu/Wh)
   # @param is_ducted [Boolean] True if a ducted HVAC system
