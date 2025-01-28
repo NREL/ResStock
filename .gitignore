@@ -18,9 +18,11 @@
 /measures/UpgradeCosts/tests/in*
 /measures/UpgradeCosts/tests/*.xml
 /project_national/national_baseline
-/project_national/national_upgrades
+/project_national/sdr_upgrades_tmy3*
 /project_testing/testing_baseline
-/project_testing/testing_upgrades
+/national_baseline
+/testing_baseline
+/sdr_upgrades_tmy3*
 /resources/buildstock.csv
 /project_*/**/*.csv
 !/project_*/resources/source_report.csv
@@ -29,6 +31,7 @@
 /weather
 .vscode/
 .DS_Store
+buildstockbatch_crash_details.log
 **/.ipynb_checkpoints/*
 **/data/*
 !/resources/data/dictionary/outputs.csv
