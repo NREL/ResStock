@@ -366,7 +366,7 @@ Row Index,Sums To,Annual Name,Annual Units,Timeseries ResStock Name,Timeseries B
 365,,report_utility_bills.<scenario_name>_coal_total_usd_2007_12_01,$,,,,Scenario December total charges for coal.
 366,369,report_utility_bills.<scenario_name>_electricity_energy_usd,$,,,,Scenario annual energy charges for electricity.
 367,369,report_utility_bills.<scenario_name>_electricity_fixed_usd,$,,,,Scenario annual fixed charges for electricity.
-368,269,report_utility_bills.<scenario_name>_electricity_pv_credit_usd,$,,,,Scenario annual production credit (negative value) for PV.
+368,369,report_utility_bills.<scenario_name>_electricity_pv_credit_usd,$,,,,Scenario annual production credit (negative value) for PV.
 369,427,report_utility_bills.<scenario_name>_electricity_total_usd,$,,,,Scenario annual total charges for electricity.
 370,,report_utility_bills.<scenario_name>_electricity_total_usd_2007_01_01,$,,,,Scenario January total charges for electricity.
 371,,report_utility_bills.<scenario_name>_electricity_total_usd_2007_02_01,$,,,,Scenario February total charges for electricity.
