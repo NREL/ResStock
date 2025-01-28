@@ -4653,9 +4653,9 @@ Individual branch circuits entered in ``BranchCircuits/BranchCircuit``.
   .. [#] Voltage choices are "120" or "240".
   .. [#] If Voltage not provided, defaults based on optional referenced components as follows:
          
-         - **No referenced components, non-electric heating systems, room air conditioners, dishwashers, ventilation fans, plug loads**: 120
+         \- **No referenced components, non-electric heating systems, room air conditioners, dishwashers, ventilation fans, plug loads**: 120
          
-         - **All other referenced components**: 240
+         \- **All other referenced components**: 240
   
   .. [#] If MaxCurrentRating not provided, defaults based on Voltage as follows:
   

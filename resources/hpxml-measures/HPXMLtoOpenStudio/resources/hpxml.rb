@@ -6416,19 +6416,21 @@ class HPXML < Object
     attr_reader(*CLASS_ATTRS)
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -6443,10 +6445,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -6758,19 +6756,21 @@ class HPXML < Object
     attr_reader(*CLASS_ATTRS)
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -6785,10 +6785,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -7122,19 +7118,21 @@ class HPXML < Object
       return false
     end
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -7149,10 +7147,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -8318,19 +8312,21 @@ class HPXML < Object
              :cfis_vent_mode_airflow_fraction]                 # [Double] extension/VentilationOnlyModeAirflowFraction (frac)
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -8345,10 +8341,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -8722,19 +8714,21 @@ class HPXML < Object
              :number_of_bedrooms_served] # [Integer] extension/NumberofBedroomsServed
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -8749,10 +8743,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -10323,19 +10313,21 @@ class HPXML < Object
              :monthly_multipliers]    # [String] extension/MonthlyScheduleMultipliers
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -10350,10 +10342,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -10468,19 +10456,21 @@ class HPXML < Object
              :monthly_multipliers]          # [String] extension/MonthlyScheduleMultipliers
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -10495,10 +10485,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -10912,19 +10898,21 @@ class HPXML < Object
              :monthly_multipliers] # [String] MonthlyScheduleMultipliers
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -10939,10 +10927,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -11390,19 +11374,21 @@ class HPXML < Object
              :heater_monthly_multipliers] # [String] Heater/MonthlyScheduleMultipliers
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def pump_branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def pump_branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@pump_id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -11419,26 +11405,24 @@ class HPXML < Object
         end
       end
 
-      if list.size == 0
-        return
-      end
-
       return list
     end
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def heater_branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def heater_branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@heater_id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -11453,10 +11437,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -11606,19 +11586,21 @@ class HPXML < Object
              :heater_monthly_multipliers] # [String] Heater/MonthlyScheduleMultipliers
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def pump_branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def pump_branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@pump_id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -11635,26 +11617,24 @@ class HPXML < Object
         end
       end
 
-      if list.size == 0
-        return
-      end
-
       return list
     end
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def heater_branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def heater_branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@heater_id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -11669,10 +11649,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
@@ -11878,19 +11854,21 @@ class HPXML < Object
              :monthly_multipliers] # [String] MonthlyScheduleMultipliers
     attr_accessor(*ATTRS)
 
-    # Returns the branch circuit that the component may be attached to.
+    # Returns any branch circuits that the component may be attached to.
     #
-    # @return [HPXML::BranchCircuit] Branch circuit object
-    def branch_circuit
+    # @return [Array<HPXML::BranchCircuit>] List of branch circuit objects
+    def branch_circuits
+      list = []
       @parent_object.electric_panels.each do |electric_panel|
         electric_panel.branch_circuits.each do |branch_circuit|
-          next if branch_circuit.component_idrefs.empty?
+          next if branch_circuit.component_idrefs.nil? || branch_circuit.component_idrefs.empty?
           next unless branch_circuit.component_idrefs.include?(@id)
 
-          return branch_circuit
+          list << branch_circuit
         end
       end
-      return
+
+      return list
     end
 
     # Returns any service feeders that the component may be attached to.
@@ -11905,10 +11883,6 @@ class HPXML < Object
 
           list << service_feeder
         end
-      end
-
-      if list.size == 0
-        return
       end
 
       return list
