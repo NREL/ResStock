@@ -30,6 +30,12 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
     arg.setDescription('Absolute/relative path of the HPXML file.')
     args << arg
 
+    # add building_id
+    arg = OpenStudio::Measure::OSArgument::makeStringArgument('building_id', false)
+    arg.setDisplayName('Building ID')
+    arg.setDescription('ID of the building to be processed.')
+    args << arg
+
     arg = OpenStudio::Measure::OSArgument::makeStringArgument('output_csv_path', false)
     arg.setDisplayName('Schedules: Output CSV Path')
     arg.setDescription('Absolute/relative path of the csv file containing user-specified occupancy schedules. Relative paths are relative to the HPXML output path.')
