@@ -17,6 +17,12 @@ RUN apt-get update && apt-get install -y \
     jq \
     && apt-get clean
 
+# Update and install texlive-full
+RUN apt-get update && \
+apt-get install -y texlive-full && \
+apt-get clean && \
+rm -rf /var/lib/apt/lists/*
+
 # Install Node.js (as done in GitHub runners)
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get install -y nodejs
