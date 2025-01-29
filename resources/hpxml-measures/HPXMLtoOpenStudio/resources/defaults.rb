@@ -6440,7 +6440,7 @@ module Defaults
       end
     end
 
-    return watts.round
+    return watts.round(1)
   end
 
   # Gets the default breaker spaces for a branch circuit based on power rating, voltage, amps, and attached components.

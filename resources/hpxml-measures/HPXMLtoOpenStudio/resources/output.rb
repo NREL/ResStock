@@ -1043,7 +1043,7 @@ module Outputs
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @return [Array<Double * 14>] Total breaker spaces for each service feeder load type (W)
   def self.get_total_breaker_spaces(hpxml_bldg)
-    htg, clg, hw, cd, dw, ov, vf, sh, sp, ph, pp, wp, ev, oth = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    htg, clg, hw, cd, dw, ov, vf, sh, sp, ph, pp, wp, ev, oth = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     unit_multiplier = hpxml_bldg.building_construction.number_of_units
     hpxml_bldg.electric_panels.each do |electric_panel|
       electric_panel.service_feeders.each do |service_feeder|
@@ -1055,6 +1055,9 @@ module Outputs
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypeCooling
           service_feeder.components.each do |component|
+            # So we don't double-count, e.g., heat pump breaker spaces since it is shared across two service feeder types
+            next unless component.service_feeders.select { |sf| sf.type == HPXML::ElectricPanelLoadTypeHeating }.empty?
+
             component.branch_circuits.each do |branch_circuit|
               clg += branch_circuit.occupied_spaces * unit_multiplier
             end
@@ -1325,9 +1328,9 @@ module Outputs
 
     # Total breaker spaces
     results_out << [line_break]
-    results_out << ['Electric Panel Breaker Spaces: Total Count', hpxml_bldgs.map { |hpxml_bldg| hpxml_bldg.electric_panels.map { |electric_panel| electric_panel.breaker_spaces_total }.sum(0.0) * hpxml_bldg.building_construction.number_of_units }.sum(0.0).round]
-    results_out << ['Electric Panel Breaker Spaces: Occupied Count', hpxml_bldgs.map { |hpxml_bldg| hpxml_bldg.electric_panels.map { |electric_panel| electric_panel.breaker_spaces_occupied }.sum(0.0) * hpxml_bldg.building_construction.number_of_units }.sum(0.0).round]
-    results_out << ['Electric Panel Breaker Spaces: Headroom Count', hpxml_bldgs.map { |hpxml_bldg| hpxml_bldg.electric_panels.map { |electric_panel| electric_panel.breaker_spaces_headroom }.sum(0.0) * hpxml_bldg.building_construction.number_of_units }.sum(0.0).round]
+    results_out << ['Electric Panel Breaker Spaces: Total Count', hpxml_bldgs.map { |hpxml_bldg| hpxml_bldg.electric_panels.map { |electric_panel| electric_panel.breaker_spaces_total }.sum(0.0) * hpxml_bldg.building_construction.number_of_units }.sum(0.0)]
+    results_out << ['Electric Panel Breaker Spaces: Occupied Count', hpxml_bldgs.map { |hpxml_bldg| hpxml_bldg.electric_panels.map { |electric_panel| electric_panel.breaker_spaces_occupied }.sum(0.0) * hpxml_bldg.building_construction.number_of_units }.sum(0.0)]
+    results_out << ['Electric Panel Breaker Spaces: Headroom Count', hpxml_bldgs.map { |hpxml_bldg| hpxml_bldg.electric_panels.map { |electric_panel| electric_panel.breaker_spaces_headroom }.sum(0.0) * hpxml_bldg.building_construction.number_of_units }.sum(0.0)]
 
     # Summary panel loads
     results_out << [line_break]
