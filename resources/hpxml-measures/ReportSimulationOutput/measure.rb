@@ -657,13 +657,14 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
 
       # Convert from EnergyPlus default (end-of-timestep) to start-of-timestep convention
       if args[:timeseries_timestamp_convention] == 'start'
-        if args[:timeseries_frequency] == 'timestep'
+        case args[:timeseries_frequency]
+        when 'timestep'
           ts_offset = hpxml_header.timestep * 60 # seconds
-        elsif args[:timeseries_frequency] == 'hourly'
+        when 'hourly'
           ts_offset = 60 * 60 # seconds
-        elsif args[:timeseries_frequency] == 'daily'
+        when 'daily'
           ts_offset = 60 * 60 * 24 # seconds
-        elsif args[:timeseries_frequency] == 'monthly'
+        when 'monthly'
           ts_offset = Calendar.num_days_in_months(year)[month - 1] * 60 * 60 * 24 # seconds
         else
           fail "Unexpected timeseries_frequency: #{args[:timeseries_frequency]}."
@@ -1836,13 +1837,14 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
         year = @hpxml_header.sim_calendar_year
         start_day = Calendar.get_day_num_from_month_day(year, @hpxml_header.sim_begin_month, @hpxml_header.sim_begin_day)
         start_hr = (start_day - 1) * 24
-        if args[:timeseries_frequency] == 'timestep'
+        case args[:timeseries_frequency]
+        when 'timestep'
           interval_hrs = @hpxml_header.timestep / 60.0
-        elsif args[:timeseries_frequency] == 'hourly'
+        when 'hourly'
           interval_hrs = 1.0
-        elsif args[:timeseries_frequency] == 'daily'
+        when 'daily'
           interval_hrs = 24.0
-        elsif args[:timeseries_frequency] == 'monthly'
+        when 'monthly'
           interval_hrs = Calendar.num_days_in_year(year) * 24.0 / 12
         end
         header_data = [['wxDVFileHeaderVer.1'],

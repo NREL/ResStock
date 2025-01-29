@@ -594,7 +594,7 @@ Building occupancy is entered in ``/HPXML/Building/BuildingDetails/BuildingSumma
 
          \- **single-family attached**: NumberofBedrooms = -1.98 + 1.89 * NumberofResidents
 
-         \- **apartment unit or multifamily**: NumberofBedrooms = -1.36 + 1.49 * NumberofResidents
+         \- **apartment unit**: NumberofBedrooms = -1.36 + 1.49 * NumberofResidents
 
   .. [#] If WeekdayScheduleFractions or WeekendScheduleFractions not provided (and :ref:`schedules_detailed` not used), then :ref:`schedules_default` are used.
   .. [#] If MonthlyScheduleMultipliers not provided (and :ref:`schedules_detailed` not used), then :ref:`schedules_default` are used.
@@ -3523,12 +3523,12 @@ If using Manual J default duct factor tables, additional information is entered 
   ================================  =======  ============  ===========  ========  =========  =========================================================
   Element                           Type     Units         Constraints  Required  Default    Notes
   ================================  =======  ============  ===========  ========  =========  =========================================================
-  `TableNumber`                     string                 See [#]_     Yes                  Manual J Default Duct Factor Table number
-  `LookupFloorArea`                 double   ft2           > 0          Yes                  Lookup floor area value for the Manual J table [#]_
-  `LeakageLevel`                    string                 See [#]_     Yes                  Leakage tightness value for the Manual J table
-  `InsulationRValue`                double   F-ft2-hr/Btu  >= 2         Yes                  Insulation R-value for the Manual J table
-  `SupplySurfaceArea` or `DSF`      double   ft2 or frac   >= 0         No        DSF=1      Surface area or estimated fraction of supply ducts in unconditioned space
-  `ReturnSurfaceArea` or `DSF`      double   ft2 or frac   >= 0         No        DSF=1      Surface area or estimated fraction of return ducts in unconditioned space
+  ``TableNumber``                   string                 See [#]_     Yes                  Manual J Default Duct Factor Table number
+  ``LookupFloorArea``               double   ft2           > 0          Yes                  Lookup floor area value for the Manual J table [#]_
+  ``LeakageLevel``                  string                 See [#]_     Yes                  Leakage tightness value for the Manual J table
+  ``InsulationRValue``              double   F-ft2-hr/Btu  >= 2         Yes                  Insulation R-value for the Manual J table
+  ``SupplySurfaceArea`` or ``DSF``  double   ft2 or frac   >= 0         No        DSF=1      Surface area or estimated fraction of supply ducts in unconditioned space
+  ``ReturnSurfaceArea`` or ``DSF``  double   ft2 or frac   >= 0         No        DSF=1      Surface area or estimated fraction of return ducts in unconditioned space
   ================================  =======  ============  ===========  ========  =========  =========================================================
 
   .. [#] TableNumber choices are "7A-R", "7A-T", "7B-R", "7B-T", "7A-AE", "7B-AE", "7C-AE", "7C-R", "7C-T", "7D-R", "7D-T", "7E-R", "7E-T", "7F-R", "7F-T", "7G-R", "7G-T", "7H", "7I", "7D-AE", "7J-1", "7J-2", "7K", "7L", "7M", "7N", "7O-1", "7O-2", "7O-3", "7O-4", "7P-1", "7P-2", "7P-3", or "7P-4".
@@ -3802,7 +3802,7 @@ Central Fan Integrated Supply (CFIS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each central fan integrated supply (CFIS) system is entered as a ``/HPXML/Building/BuildingDetails/Systems/MechanicalVentilation/VentilationFans/VentilationFan``.
-A CFIS system is a supply ventilation system that provides outdoor air to the return duct of a forced-air HVAC system.
+A CFIS system is a supply ventilation system with an outdoor air inlet duct on the return side of a forced-air HVAC system.
 
   =============================================================================================  ========  =======  =============================  ========  ===============  =========================================
   Element                                                                                        Type      Units    Constraints                    Required  Default          Notes
