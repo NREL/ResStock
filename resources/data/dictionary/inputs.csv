@@ -132,6 +132,7 @@ build_existing_model.orientation,:ref:`orientation`
 build_existing_model.overhangs,:ref:`overhangs`
 build_existing_model.plug_load_diversity,:ref:`plug_load_diversity`
 build_existing_model.plug_loads,:ref:`plug_loads`
+build_existing_model.project_name,The name of the housing characteristics project.
 build_existing_model.puma,:ref:`puma`
 build_existing_model.puma_metro_status,:ref:`puma_metro_status`
 build_existing_model.pv_orientation,:ref:`pv_orientation`
