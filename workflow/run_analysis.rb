@@ -120,7 +120,7 @@ def run_workflow(yml, in_threads, measures_only, debug_arg, overwrite, building_
   bld_exist_model_args = {
     'buildstock_csv_path': buildstock_csv_path,
     'building_id': '',
-    'project_name': project_directory,
+    'project_directory': project_directory,
     'sample_weight': Float(cfg['baseline']['n_buildings_represented']) / n_datapoints # aligns with buildstockbatch
   }
 
@@ -325,7 +325,7 @@ def run_workflow(yml, in_threads, measures_only, debug_arg, overwrite, building_
     if upgrade_name != 'Baseline'
       apply_upgrade_measure = { 'measure_dir_name' => 'ApplyUpgrade',
                                 'arguments' => { 'run_measure' => 1, 
-                                  'project_name': project_directory
+                                  'project_directory': project_directory
                                   } }
       measure_d = cfg['upgrades'].find { |u| u['upgrade_name'].gsub(/[^0-9A-Za-z]/, '') == upgrade_name }
       apply_upgrade_measure['arguments']['upgrade_name'] = measure_d['upgrade_name']
