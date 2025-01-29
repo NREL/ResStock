@@ -7,6 +7,7 @@
 
 require 'csv'
 require_relative 'buildstock'
+require 'pathname'
 
 class RunSampling
   def run(project_dir_name, num_samples, outfile, housing_characteristics_dir = 'housing_characteristics', lookup_file = nil)
