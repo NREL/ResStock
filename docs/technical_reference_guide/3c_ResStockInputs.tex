@@ -7,7 +7,7 @@ Water heating describes the system that provides domestic hot water and distribu
 A water heater can be a standalone in-unit appliance or a centrally located system that serves multiple units in a multifamily or single-family attached building. ResStock models different water heating technologies, heating fuels, installation locations, and storage options. ResStock defines the heating efficiency and location using probability distributions. ResStock relies on OpenStudio-HPXML default assumptions for other technical details. To this end, all water heaters are modeled with a setpoint of 125\degree F. All fuel water heaters with an energy factor less than 0.63 are assumed to have an open flue, which increases the housing unit’s air infiltration for water heaters located in conditioned space. 
 
 \paragraph{Tank Water Heaters}
-Conventional storage water heaters are modeled as mixed tanks without additional tank insulation. ResStock calculates the amount of tank losses and the burner efficiency using an energy factor and recovery efficiency \citep{tank_model_parameters}. The recovery efficiency is 0.98 for electric tanks by fiat. The tank volume and heating capacity are calculated based on the number of bedrooms and bathrooms, per Table 8 of the 2014 House simulation protocol (which is based upon guidance from the U.S. Department of Housing and Urban Development [HUD]).
+Conventional storage water heaters are modeled as mixed tanks without additional tank insulation. ResStock calculates the amount of tank losses and the burner efficiency using an energy factor and recovery efficiency \citep{tank_model_parameters}. The recovery efficiency is 0.98 for electric tanks by fiat. The tank volume and heating capacity are calculated based on the number of bedrooms and bathrooms, per Table 8 of the 2014 House Simulation Protocol (which is based upon guidance from the U.S. Department of Housing and Urban Development [HUD]).
 
 \paragraph{Tankless Water Heaters}
 Tankless water heaters, unlike storage water heaters, are designed to produce hot water on demand. To this end, they are typically equipped with a burner or electric elements several times larger in capacity. They are also much more compact. In ResStock, their heating performance is defined using an energy factor, which is further derated by 8\% to account for cycling \citep{ansi_resnet_301_2019}.
@@ -29,7 +29,7 @@ The water heater fuel type.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+  U.S. EIA 2020 RECS microdata
 \item
   Alaska-specific distribution is based on Alaska Retrofit Information
   System (2008 to 2022), maintained by Alaska Housing Finance
@@ -67,7 +67,7 @@ State: National
 \item
   For Alaska, we are using a field in ARIS that lumps multifamily 2--4
   units and multifamily 5+ units buildings together. Data from the
-  American Community Survey are used to distribute the between these two
+  American Community Survey are used to distribute between these two
   building types.
 \item
   For Alaska, wood and coal heating is modeled as other fuel.
@@ -83,7 +83,7 @@ Presence of an individual water heater in the housing unit that solely serves th
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+  U.S. EIA 2020 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -109,7 +109,7 @@ In the ResStock baseline, all housing units have access to hot water and use ene
   \item
     State: Census Division RECS
   \item
-    Vintage ACS: Combining Vintage pre 1960s and post 2000
+    Vintage ACS: Combining Vintage pre-1960s and post-2000
   \item
     State: Census Region.
   \end{itemize}
@@ -122,7 +122,7 @@ Location of the water heater.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+  U.S. EIA 2020 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -197,7 +197,7 @@ non-freezing space & The location of water heater. \\
 \item
   3 + Garage combined.
 \item
-  Single-/Multifamily + Foundation combined + Attic combined +
+  Single/Multifamily + Foundation combined + Attic combined +
   Garage combined.
 \item
   5 + pre-1960 combined.
@@ -218,16 +218,16 @@ The efficiency and type of the water heater by heating fuel.
 \paragraph{Distribution Sources}
 \begin{itemize}
 \item
-  U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+  U.S. EIA 2020 RECS microdata.
 \item
-  (Heat pump water heaters) 2016-17 RBSA II for WA and OR and Butzbaugh
-  et al. 2017 US HPWH Market Transformation - Where
-  We've Been and Where to Go Next for remainder of
+  Heat pump water heaters: 2016-17 RBSA II for WA and OR; Butzbaugh
+  et al. (\href{https://www.osti.gov/biblio/1433775}{2017}). \textit{US HPWH Market Transformation: Where
+  We've Been and Where to Go Next} for remainder of
   regions.
 \item
   Penetration of HPWH for Maine (6.71\%) calculated based on total
-  number of HPWH units (AWHI Stakeholder Meeting 12/08/2022) and total
-  housing units \url{https://www.census.gov/quickfacts/ME}.
+  number of HPWH units (from AWHI Stakeholder Meeting 12/08/2022) and total
+  housing units (from \url{https://www.census.gov/quickfacts/ME}).
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -262,26 +262,26 @@ For heat pump water heaters the \texttt{water\_heater\_efficiency\_type} Uniform
 \texttt{water\_heater\_efficiency\_type} &
 \texttt{water\_heater\_recovery\_efficiency}} 
 Electric Heat Pump, 50 gal, 3.45 UEF & heat pump water heater &
-electricity & 50 & 3.45 & 0  \\
+electricity & 50 & 3.45 & 0  \\ \hline
 Electric Heat Pump, 66 gal, 3.35 UEF & heat pump water heater &
-electricity & 66 & 3.35 & 0 \\
+electricity & 66 & 3.35 & 0 \\ \hline
 Electric Heat Pump, 80 gal, 3.45 UEF & heat pump water heater &
-electricity & 80 & 3.45 & 0 \\
-Electric Premium & storage water heater & electricity & auto & 0.95 & 0\\
-Electric Standard & storage water heater & electricity & auto & 0.92 & 0 \\
-Electric Tankless & instantaneous water heater & electricity & 0 & 0.99 & 0 \\
+electricity & 80 & 3.45 & 0 \\ \hline
+Electric Premium & storage water heater & electricity & auto & 0.95 & 0\\ \hline
+Electric Standard & storage water heater & electricity & auto & 0.92 & 0 \\ \hline
+Electric Tankless & instantaneous water heater & electricity & 0 & 0.99 & 0 \\ \hline
 FIXME Fuel Oil Indirect & storage water heater & fuel oil &
-auto & 0.62 & 0.78 \\
-Fuel Oil Premium & storage water heater & fuel oil & auto & 0.68 & 0.9 \\
-Fuel Oil Standard & storage water heater & fuel oil & auto & 0.62 & 0.78 \\
-Natural Gas Premium & storage water heater & natural gas & auto & 0.67 & 0.78 \\
-Natural Gas Standard & storage water heater & natural gas & auto & 0.59 & 0.76 \\
+auto & 0.62 & 0.78 \\ \hline
+Fuel Oil Premium & storage water heater & fuel oil & auto & 0.68 & 0.9 \\ \hline
+Fuel Oil Standard & storage water heater & fuel oil & auto & 0.62 & 0.78 \\ \hline
+Natural Gas Premium & storage water heater & natural gas & auto & 0.67 & 0.78 \\ \hline
+Natural Gas Standard & storage water heater & natural gas & auto & 0.59 & 0.76 \\ \hline
 Natural Gas Tankless & instantaneous water heater & natural gas
-& 0 & 0.82 & 0 \\
+& 0 & 0.82 & 0 \\ \hline
 Other Fuel & storage water heater & wood & auto
-& 0.59 & 0.76 \\
-Propane Premium & storage water heater & propane & auto & 0.67 & 0.78 \\
-Propane Standard & storage water heater & propane & auto & 0.59 & 0.76 \\
+& 0.59 & 0.76 \\ \hline
+Propane Premium & storage water heater & propane & auto & 0.67 & 0.78 \\ \hline
+Propane Standard & storage water heater & propane & auto & 0.59 & 0.76 \\ \hline
 Propane Tankless & instantaneous water heater & propane & 0 & 0.82 & 0 \\
 \end{customLongTable}
 
@@ -397,7 +397,7 @@ Presence, size, orientation, and location of solar hot water system.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  Not applicable.
+  Not applicable
 \item
   All homes are assumed to not have solar water heating.
 \end{itemize}
@@ -496,7 +496,7 @@ the piping. \\
 \texttt{hot\_water\_distribution\_recirc\_control\_type} & false & &
 Choice & auto, no control, timer, temperature, presence sensor demand
 control, manual demand control & If the distribution system is
-Recirculation, the type of hot water recirculation control, if any. \\
+Recirculation, the type of hot water recirculation control, if any. \\ \hline
 \texttt{hot\_water\_distribution\_recirc\_piping\_length} & false & ft &
 Double & auto & If the distribution system is Recirculation, the length
 of the recirculation piping.  \\
@@ -632,7 +632,7 @@ Refrigeration energy is modeled for both refrigerators and standalone freezers. 
 \paragraph{Description}
 The presence and rated efficiency of the primary refrigerator.
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata. Age of refrigerator converted to efficiency levels using ENERGY STAR shipment-weighted efficiencies by year data from Home Energy Saver\footnote{For more information, see http://hes-documentation.lbl.gov/.}. 
+Constructed using U.S. EIA 2020 RECS microdata. Age of refrigerator converted to efficiency levels using ENERGY STAR shipment-weighted efficiencies by year data from Home Energy Saver.\footnote{For more information, see http://hes-documentation.lbl.gov/.} 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
     \item Federal Poverty Level
@@ -705,7 +705,12 @@ The current year is assumed to be 2022. Currently, each year has its own distrib
 \paragraph{Description}
 Refrigerator energy usage level multiplier.
 \paragraph{Distribution Data Source(s)}
+\begin{itemize}
+\item 
+
 Not applicable---direct translation of the \ref{usage_level} Usage input file.
+\end{itemize}
+
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -753,7 +758,13 @@ None
 The presence and rated efficiency of the secondary refrigerator.
 
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata. Age of refrigerator converted to efficiency levels using ENERGY STAR shipment-weighted efficiencies by year data from Home Energy Saver\footnote{For more information, see http://hes-documentation.lbl.gov/.}. %Check the comments in: HES-Refrigerator\_Age\_vs\_Efficiency.tsv 
+\begin{itemize}
+\item 
+
+Constructed using U.S. EIA 2020 RECS microdata. 
+\item Age of refrigerator converted to efficiency levels using ENERGY STAR shipment-weighted efficiencies by year data from Home Energy Saver.\footnote{For more information, see http://hes-documentation.lbl.gov/.} %Check the comments in: HES-Refrigerator\_Age\_vs\_Efficiency.tsv 
+\end{itemize}
+
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -839,7 +850,13 @@ In combining the housing unit sub-input file and household sub-input file, the c
 \paragraph{Description}
 The presence and rated efficiency of a standalone freezer.
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+\begin{itemize}
+\item 
+
+Constructed using U.S. EIA 2020 RECS microdata.
+\end{itemize}
+
+
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
     \item Federal Poverty Level
@@ -912,9 +929,12 @@ The next sections describe the building stock distributions for cooking, their a
 Presence and fuel type of the cooking range.
 
 \paragraph{Distribution Data Source(s)}
+\begin{itemize}
+\item 
 
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata. 
 
+Constructed using U.S. EIA 2020 RECS microdata. 
+\end{itemize}
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
     \item Federal Poverty Level
@@ -930,22 +950,17 @@ ResStock baseline has four cooking range options, which include electric inducti
  \texttt{cooking\_range\_oven\_is\_convection} ResStock arguments (Table \ref{table:hc_opt_cooking}). The \texttt{cooking\_range\_oven\_is\_convection} and \texttt{cooking\_range\_oven\_location} is always set to auto.
 
 %options table
-\begin{longtable}[]{ |p{3.5cm}|p{3.5cm}|p{3.5cm}|p{3.5cm}| }
-\caption{Cooking Range options and arguments that vary for each option} \label{table:hc_opt_cooking} \\
-\toprule\noalign{}
-Option name & \texttt{cooking\_range\_oven\_present} &
+\begin{customLongTable}{ |p{3.5cm}|p{3.5cm}|p{3.5cm}|p{3.5cm}| }
+{Cooking Range options and arguments that vary for each option} {table:hc_opt_cooking} 
+{Option name & \texttt{cooking\_range\_oven\_present} &
 \texttt{cooking\_range\_oven\_fuel\_type} &
-\texttt{cooking\_range\_oven\_is\_induction} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Electric Induction  & true & electricity & true \\
-Electric Resistance & true & electricity & false \\
-Gas & true & natural gas & false \\
-None & false & natural gas & false \\
+\texttt{cooking\_range\_oven\_is\_induction}} 
+Electric Induction  & true & electricity & true \\ \hline
+Electric Resistance & true & electricity & false \\\hline
+Gas & true & natural gas & false \\\hline
+None & false & natural gas & false \\\hline
 Propane & true & propane & false \\
-\end{longtable}
+\end{customLongTable}
 For the argument definitions, see Table \ref{table:hc_arg_def_cooking_range}. See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-cooking-range-oven}{Cooking Range/Oven} documentation for the available HPXML schema elements, default values, and constraints.
 
 %arguments table
@@ -972,7 +987,7 @@ auto, true, false & Whether the oven is convection. \\
 For Dual Fuel Range, the distribution is split equally between Electric and Natural Gas. 
 
 Due to low sample count, the input file is constructed by downscaling a housing unit sub-input file with a household sub-input file. The sub-input files have the following dependencies: 
-housing unit sub-input file: deps = 'Geometry Building Type RECS', 'State', 'Heating Fuel', and 'Vintage,' with the following fallback coarsening order:
+housing unit sub-input file: deps = `Geometry Building Type RECS', `State', `Heating Fuel', and `Vintage,' with the following fallback coarsening order:
 \begin{enumerate}
     \item  State coarsened to Census Division RECS with AK/HI separate 
     \item Heating Fuel coarsened to Other Fuel, Wood and Propane combined 
@@ -986,7 +1001,7 @@ housing unit sub-input file: deps = 'Geometry Building Type RECS', 'State', 'Hea
     \item Census Division RECS to Census Region 
     \item Census Region to National. 
 \end{enumerate}
-Household sub-input file : deps = 'Geometry Building Type RECS', 'State' 'Tenure', 'Federal Poverty Level,' with the following fallback coarsening order
+Household sub-input file : deps = `Geometry Building Type RECS', `State' `Tenure', `Federal Poverty Level,' with the following fallback coarsening order
 \begin{enumerate}
 \item   State coarsened to Census Division RECS with AK/HI separate 
 \item  Geometry Building Type RECS coarsened to SF/MF/MH 
@@ -997,14 +1012,17 @@ Household sub-input file : deps = 'Geometry Building Type RECS', 'State' 'Tenure
 \item Census Division RECS to Census Region 
 \item Census Region to National. 
 \end{enumerate}
-In combining the housing unit sub-input file and household sub-input file, the conditional relationships are ignored across 'Heating Fuel' and 'Vintage', as well as for 'Tenure' and 'Federal Poverty Level'.
+In combining the housing unit sub-input file and household sub-input file, the conditional relationships are ignored across `Heating Fuel' and `Vintage', as well as for `Tenure' and `Federal Poverty Level'.
 
 \subsubsection{Cooking Range Usage Level}\label{cooking_range_usage_level}
 \paragraph{Description}
 Cooking range energy usage level multiplier.
 
 \paragraph{Distribution Data Source(s)}
+\begin{itemize}
+\item 
 Not applicable---direct translation of the Usage Level input file; see Section \ref{usage_level}.
+\end{itemize}
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
     \item Usage Level.
@@ -1059,7 +1077,9 @@ The following subsections describe the characteristics, distributions, data sour
 The presence and rated efficiency of the dishwasher.
 
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata. 
+\begin{itemize}
+\item Constructed using U.S. EIA 2020 RECS microdata. 
+\end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1134,7 +1154,10 @@ Due to the low sample count, the input file is constructed with the following co
 Dishwasher energy usage level multiplier.
 
 \paragraph{Distribution Data Source(s)}
+\begin{itemize}
+\item 
 Not applicable---direct translation of  Usage Level; see Section \ref{usage_level}.
+\end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1142,21 +1165,17 @@ Not applicable---direct translation of  Usage Level; see Section \ref{usage_leve
 \end{itemize}
 
 \paragraph{Options}
-The dishwasher usage level is set based on the usage level characteristic; See section \ref{usage_level}. It is 80\% Usage when the usage level is Low, 100\% Usage when the usage level is Medium, and 120\% Usage when the usage level is High. The characteristic sets the \texttt{dishwasher\_usage\_multiplier} ResStock argument (Table \ref{table:hc_opt_dish_use}).
+The dishwasher usage level is set based on the usage level characteristic; see Section \ref{usage_level}. It is 80\% Usage when the usage level is Low, 100\% Usage when the usage level is Medium, and 120\% Usage when the usage level is High. The characteristic sets the \texttt{dishwasher\_usage\_multiplier} ResStock argument (Table \ref{table:hc_opt_dish_use}).
 
 %options table
-\begin{longtable}[]{ |p{3cm}|p{8cm}| }
-\caption{Dishwasher Usage Level options and arguments that vary for each option} \label{table:hc_opt_dish_use} \\\toprule\noalign{}
-Option name &
-\texttt{dishwasher\_usage\_multiplier} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-80\% Usage & 0.8 \\
-100\% Usage & 1.0 \\
+\begin{customLongTable}{ |p{3cm}|p{8cm}| }
+{Dishwasher Usage Level options and arguments that vary for each option} {table:hc_opt_dish_use} 
+{Option name &
+\texttt{dishwasher\_usage\_multiplier}} 
+80\% Usage & 0.8 \\ \hline
+100\% Usage & 1.0 \\ \hline
 120\% Usage & 1.2 \\
-\end{longtable}
+\end{customLongTable}
 
 For the argument definitions, see Table \ref{table:hc_arg_def_dishwasher_usage_level}. 
 
@@ -1193,7 +1212,10 @@ The following subsections describe the characteristics, the distributions, assum
 Presence and rated efficiency of the clothes washer.
 
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+\begin{itemize}
+\item 
+Constructed using U.S. EIA 2020 RECS microdata.
+\end{itemize}
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
     \item Clothes Washer Presence
@@ -1288,7 +1310,10 @@ In combining the housing unit sub-input file and household sub-input file, the c
 The presence of a clothes washer in the housing unit.
 
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata. 
+\begin{itemize}
+\item 
+Constructed using U.S. EIA 2020 RECS microdata. 
+\end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1331,7 +1356,7 @@ Whether there is a clothes washer present. \\
 \end{longtable}
 
 \paragraph{Distribution Assumption(s)}
-Due to the low sample count, the input file is constructed by downscaling a housing unit sub-input file with a household sub-input file. The sub-input files have the following dependencies. housing unit sub-input file: dependencies = Geometry Building Type RECS, State, Heating Fuel, and Vintage, with the following coarsening order:
+Due to the low sample count, the input file is constructed by downscaling a housing unit sub-input file with a household sub-input file. The sub-input files have the following dependencies. Housing unit sub-input file: dependencies = Geometry Building Type RECS, State, Heating Fuel, and Vintage, with the following coarsening order:
 \begin{enumerate}
     \item State coarsened to Census Division RECS with AK/HI separate
     \item  Geometry Building Type RECS coarsened to SF/MF/MH
@@ -1405,8 +1430,10 @@ Multiplier on the clothes washer energy and hot water usage that can
 reflect, e.g., high/low usage occupants.  \\
 \end{longtable}
 \paragraph{Distribution Assumption(s)}
+\begin{itemize}
+\item 
 Engineering judgment.
-
+\end{itemize}
 
 \subsection{Clothes Dryer}
 \subsubsection{Modeling Approach}
@@ -1423,7 +1450,7 @@ ResStock provides distributions for what housing units have a clothes dryer, the
 The presence, rated efficiency, and fuel type of the clothes dryer in a housing unit.
 
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata. 
+Constructed using U.S. EIA 2020 RECS microdata. 
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1569,7 +1596,7 @@ Ceiling fans are characterized in a single housing characteristic. The distribut
 Presence and efficiency of ceiling fans.
 
 \paragraph{Distribution Data Source(s)}
-Wilson et al. 'Building America House Simulation Protocols' 2014, national average used as saturation.
+Building America House Simulation Protocols (\cite{Wilson2014}); national average used as saturation.
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1598,14 +1625,9 @@ Standard Efficiency, No usage & auto & 0 \\
 For the argument definitions, see Table \ref{table:hc_arg_def_ceiling_fans}. See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-ceiling-fans}{Ceiling Fans} documentation for the available HPXML schema elements, default values, and constraints.
 
 %arguments table
-\begin{longtable}[]{ |p{3.cm}|p{1.5cm}|p{1cm}|p{1.1cm}|p{3.4cm}|p{4cm}| }
-\caption{The ResStock argument definitions set in the Ceiling Fan characteristic} \label{table:hc_arg_def_ceiling_fans} \\
-\toprule\noalign{}
-Name & Required & Units & Type & Choices & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
+\begin{customLongTable}{ |p{3.cm}|p{1.5cm}|p{1cm}|p{1.1cm}|p{3.4cm}|p{4cm}| }
+{The ResStock argument definitions set in the Ceiling Fan characteristic} {table:hc_arg_def_ceiling_fans} 
+{Name & Required & Units & Type & Choices & Description} 
 \texttt{ceiling\_fan\_present} & true & & Boolean & true, false &
 Whether there are any ceiling fans. \\ \hline
 \texttt{ceiling\_fan\_label\_energy\_use} & false & W & Double & auto &
@@ -1625,7 +1647,7 @@ number of ceiling fans.  \\ \hline
 Double & auto & The cooling setpoint temperature offset during months
 when the ceiling fans are operating. Only applies if ceiling fan
 quantity is greater than zero.  \\
-\end{longtable}
+\end{customLongTable}
 
 \paragraph{Distribution Assumption(s)}
 If the unit is vacant, there is no ceiling fan energy.
@@ -1643,7 +1665,7 @@ The building stock characterization distributions, data sources, assumptions, an
 The presence of a pool.
 
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata. 
+Constructed using U.S. EIA 2020 RECS microdata. 
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1706,7 +1728,7 @@ Due to the low sample count, the input file is constructed with the following fa
 The heating fuel of the pool heater if there is a pool.
 
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+Constructed using U.S. EIA 2020 RECS microdata.
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1764,7 +1786,7 @@ None.
 \paragraph{Description}
 Presence and size of pool pump.
 \paragraph{Distribution Data Source(s)}
-Wilson et al. 'Building America House Simulation Protocols' 2014, national average fraction used for saturation.
+Building America House Simulation Protocols (\cite{Wilson2014});  national average fraction used for saturation.
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1813,7 +1835,7 @@ None
 The presence and heating fuel of a hot tub/spa at the housing unit.
 
 \paragraph{Distribution Data Source(s)}
-Constructed using U.S. EIA 2020 Residential Energy Consumption Survey (RECS) microdata. 
+Constructed using U.S. EIA 2020 RECS microdata. 
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -1854,13 +1876,9 @@ Other Fuel & false & none \\
 
 For the argument definitions, see Table \ref{table:hc_arg_def_hot_tub}. See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-permanent-spas}{Permanent Spas} documentation for the available HPXML schema elements, default values, and constraints.
 
-\begin{longtable}[]{|p{3.cm}|p{1.5cm}|p{1.5cm}|p{1.1cm}|p{2.4cm}|p{4.5cm}|}
-\caption{The ResStock argument definitions set in the Misc Hot Tub Spa characteristic} \label{table:hc_arg_def_hot_tub} \\\toprule\noalign{}
-Name & Required & Units & Type & Choices & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
+\begin{customLongTable}{|p{3.cm}|p{1.5cm}|p{1.5cm}|p{1.1cm}|p{2.4cm}|p{4.5cm}|}
+{The ResStock argument definitions set in the Misc Hot Tub Spa characteristic} {table:hc_arg_def_hot_tub} 
+{Name & Required & Units & Type & Choices & Description} 
 \texttt{permanent\_spa\_present} & true & & Boolean & true, false &
 Whether there is a permanent spa. \\
 \hline
@@ -1890,7 +1908,7 @@ spa heater.  \\
 \texttt{permanent\_spa\_heater\_usage\_multiplier} & false & & Double &
 auto & Multiplier on the permanent spa heater energy usage that can
 reflect, e.g., high/low usage occupants. \\
-\end{longtable}
+\end{customLongTable}
 
 \paragraph{Distribution Assumption(s)}
 Due to the low sample count, the input file is constructed by downscaling a housing unit sub-input file with a household sub-input file. The sub-input files have the following dependencies: 
@@ -1911,8 +1929,8 @@ Household sub-input file: dependencies = Geometry Building Type RECS, State, Ten
     \item State coarsened to Census Division RECS with AK/HI separate 
     \item  Geometry Building Type RECS coarsened to SF/MF/MH 
     \item  Geometry Building Type RECS coarsened to SF and MH/MF 
-    \item  Federal Poverty Level coarsened every 100 percent 
-    \item Federal Poverty Level coarsened every 200 percent 
+    \item  Federal Poverty Level coarsened every 100\% 
+    \item Federal Poverty Level coarsened every 200\% 
     \item Census Division RECS with AK/HI separate coarsened to Census Division RECS 
     \item Census Division RECS to Census Region 
     \item Census Region to National. 
@@ -1928,7 +1946,7 @@ Well pumps are used to extract potable water from a well. Well pumps are not wel
 Presence and efficiency of well pump.
 
 \paragraph{Distribution Data Source(s)}
-Wilson et al. 'Building America House Simulation Protocols' 2014, national average fraction used for saturation.
+Building America House Simulation Protocols (\cite{Wilson2014}); national average fraction used for saturation.
 
 \paragraph{Direct Conditional Dependencies}
 None.
@@ -1982,14 +2000,14 @@ None.
 
 \subsection{Miscellaneous Gas Uses}
 \subsubsection{Modeling Approach}
-ResStock models miscellaneous gas loads including fireplaces, grills, and lighting. ResStock randomly assigns these gas appliances to housing units based on saturation estimated by \citet{bahsp_2014}.  Gas grill and gas lighting are assumed to be outdoor and therefore do not generate internal gains for the housing unit. For each gas appliance, the annual energy is estimated based on conditioned floor area and number of bedrooms converted from occupants using an equation from \citet{bahsp_2010} and can be adjusted by a usage multiplier. The annual energy is then multiplied by a default simple schedule to produce the end-use load profile. The gas lighting characteristic distribution is in Section \ref{misc_gas_lighting}.
+ResStock models miscellaneous gas loads including fireplaces, grills, and lighting. ResStock randomly assigns these gas appliances to housing units based on saturation estimated by \citet{Wilson2014}.  Gas grill and gas lighting are assumed to be outdoor and therefore do not generate internal gains for the housing unit. For each gas appliance, the annual energy is estimated based on conditioned floor area and number of bedrooms converted from occupants using an equation from \citet{bahsp_2010} and can be adjusted by a usage multiplier. The annual energy is then multiplied by a default simple schedule to produce the end-use load profile. The gas lighting characteristic distribution is in Section \ref{misc_gas_lighting}.
 
 \subsubsection{Misc Gas Fireplace}
 \paragraph{Description}
 Presence of a gas fireplace.
 
 \paragraph{Distribution Data Source(s)}
-Wilson et al. 'Building America House Simulation Protocols' 2014, national average fraction used for saturation.
+Building America House Simulation Protocols (\cite{Wilson2014}); national average fraction used for saturation.
 
 \paragraph{Direct Conditional Dependencies}
 None.
@@ -2056,14 +2074,14 @@ None.
 Presence of a gas grill.
 
 \paragraph{Distribution Data Source(s)}
-Wilson et al. 'Building America House Simulation Protocols' 2014, national average fraction used for saturation.
+Building America House Simulation Protocols (\cite{Wilson2014}); national average fraction used for saturation.
 
 \paragraph{Direct Conditional Dependencies}
 None.
 
 \paragraph{Options}
 
-The options for Misc Gas Grill are ``Gas Grill'' if the housing unit has a gas grill or ``None'' if the housing unit does not have a gas grill. The characteristic sets the \texttt{misc\_fuel\_loads\_grill\_present}, \texttt{misc\_fuel\_loads\_grill\_fuel\_type}, \texttt{misc\_fuel\_loads\_grill\_annual\_therm}, and \texttt{misc\_fuel\_loads\_grill\_usage\_multiplier} ResStock arguments (Table \ref{table:hc_opt_def_gas_grill}).  The \texttt{misc\_fuel\_loads\_grill\_fuel\_type} is always set to natural gas.
+The options for Misc Gas Grill are ``Gas Grill'' if the housing unit has a gas grill or ``None'' if the housing unit does not have a gas grill. The characteristic sets the \texttt{misc\_fuel\_loads\_grill\_present}, \texttt{misc\_fuel\_loads\_grill\_fuel\_type}, \texttt{misc\_fuel\_loads\_grill\_annual\_therm}, and \texttt{misc\_fuel\_loads\_grill\_usage\_multiplier} ResStock arguments (Table \ref{table:hc_opt_def_gas_grill}). The \texttt{misc\_fuel\_loads\_grill\_fuel\_type} is always set to natural gas.
 
 \begin{longtable}[]{ |p{2.5cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}| }
 \caption{Misc Gas Grill options and arguments that vary for each option} \label{table:hc_opt_def_gas_grill} \\
@@ -2165,21 +2183,16 @@ West & 270 \\
 
 For the argument definitions, see Table \ref{table:hc_arg_def_pv_orient}. See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-photovoltaics}{Photovoltaics} documentation for the available HPXML schema elements, default values, and constraints.
 
-\begin{longtable}[]{|p{3.cm}|p{1.5cm}|p{1.5cm}|p{1.1cm}|p{2.4cm}|p{4.5cm}|}
-\caption{The ResStock argument definitions set in the PV Orientation characteristic} \label{table:hc_arg_def_pv_orient} \\
-\toprule\noalign{}
-Name & Required & Units & Type & Choices & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{pv\_system\_array\_azimuth} & true & degrees & Double & & Array
+\begin{customLongTable}{|p{3.cm}|p{1.5cm}|p{1.5cm}|p{2.4cm}|p{5.5cm}|}
+{The ResStock argument definitions set in the PV Orientation characteristic} {table:hc_arg_def_pv_orient} 
+{Name & Required & Units & Type &  Description} 
+\texttt{pv\_system\_array\_azimuth} & true & degrees & Double & Array
 azimuth of the PV system. Azimuth is measured clockwise from north
 (e.g., North=0, East=90, South=180, West=270). \\
-\texttt{pv\_system\_2\_array\_azimuth} & true & degrees & Double & &
+\texttt{pv\_system\_2\_array\_azimuth} & true & degrees & Double &
 Array azimuth of the second PV system. Azimuth is measured clockwise
 from north (e.g., North=0, East=90, South=180, West=270). \\
-\end{longtable}
+\end{customLongTable}
 
 \paragraph{Distribution Assumption(s)}
 \begin{itemize}
@@ -2205,15 +2218,10 @@ The options for the PV System Size characteristic are a set of PV system sizes r
 
 The following arguments are set to auto: \texttt{pv\_system\_module\_type}, \texttt{pv\_system\_tracking}, \texttt{pv\_system\_max\_power\_output}, \texttt{pv\_system\_inverter\_efficiency}, \texttt{pv\_system\_system\_losses\_fraction}, \texttt{pv\_system\_2\_module\_type}, \texttt{pv\_system\_2\_tracking}, and \texttt{pv\_system\_2\_max\_power\_output}. The \texttt{pv\_system\_location} and \texttt{pv\_system\_2\_location} are set to roof. \texttt{pv\_system\_array\_tilt} and \texttt{pv\_system\_2\_array\_tilt} are always set to roofpitch. \texttt{pv\_system\_2\_present} is always false. \texttt{pv\_system\_2\_max\_power\_output} is always 0.
 
-\begin{longtable}[]{ |p{2.5cm}|p{4cm}|p{4cm}| }
-\caption{PV System Size options and arguments that vary for each option} \label{table:hc_opt_def_pv_size} \\
-\toprule\noalign{}
-Option name & \texttt{pv\_system\_present} &
-\texttt{pv\_system\_max\_power\_output} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
+\begin{customLongTable}{ |p{2.5cm}|p{4cm}|p{4cm}| }
+{PV System Size options and arguments that vary for each option} {table:hc_opt_def_pv_size} 
+{Option name & \texttt{pv\_system\_present} &
+\texttt{pv\_system\_max\_power\_output}} 
 1.0 kWDC & true & 100\\
 3.0 kWDC & true & 3,000 \\
 5.0 kWDC & true & 5,000 \\
@@ -2222,17 +2230,13 @@ Option name & \texttt{pv\_system\_present} &
 11.0 kWDC &true & 11,000 \\
 13.0 kWDC & true & 13,000 \\
 None & false & 0 \\
-\end{longtable}
+\end{customLongTable}
 
 For the argument definitions, see Table \ref{table:hc_arg_def_pv_size}. See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-photovoltaics}{Photovoltaics} documentation for the available HPXML schema elements, default values, and constraints.
 
-\begin{longtable}[]{|p{3.cm}|p{1.5cm}|p{1.5cm}|p{1.1cm}|p{2.4cm}|p{4.5cm}|}
-\caption{The ResStock argument definitions set in the PV System Size characteristic} \label{table:hc_arg_def_pv_size} \\\toprule\noalign{}
-Name & Required & Units & Type & Choices & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
+\begin{customLongTable}{|p{3.cm}|p{1.5cm}|p{1.5cm}|p{1.1cm}|p{2.4cm}|p{4.5cm}|}
+{The ResStock argument definitions set in the PV System Size characteristic} {table:hc_arg_def_pv_size} 
+{Name & Required & Units & Type & Choices & Description} 
 \texttt{pv\_system\_present} & true & & Boolean & true, false & Whether
 there is a PV system present. \\
 \hline
@@ -2281,7 +2285,7 @@ RoofPitch+20, Latitude, Latitude-15, etc. \\
 \texttt{pv\_system\_2\_max\_power\_output} & true & W & Double & &
 Maximum power output of the second PV system. For a shared system, this
 is the total building maximum power output. \\
-\end{longtable}
+\end{customLongTable}
 
 \paragraph{Distribution Assumption(s)}
 Installations of unknown mount type are assumed to be rooftop. States without data are backfilled with aggregates at the Census Region. ``East South Central'' assumed the same distribution as ``West South Central.''
@@ -2420,7 +2424,7 @@ Five ResStock input files provide the options and arguments for lighting, but on
     \item{Lighting}---Electric lighting: interior, exterior, and garage 
     \item{Misc Gas Lighting}---Exterior natural gas lighting
     \item{Holiday Lighting}---Not used
-    \item{Lighting Interior Use}--Not used
+    \item{Lighting Interior Use}---Not used
     \item{Lighting Other Use}---Not used.
 \end{itemize}
 
@@ -2438,7 +2442,7 @@ Specifies the type of lighting technology used in the housing unit.
 \begin{itemize}
  
 \item
-  U.S. EIA 2015 Residential Energy Consumption Survey (RECS) microdata.
+  U.S. EIA 2015 RECS microdata.
 \item
   2019 Energy Savings Forecast of Solid-State Lighting in General
   Illumination Applications.\footnote{https://www.energy.gov/sites/prod/files/2019/12/f69/2019\_ssl-energy-savings-forecast.pdf}
@@ -2484,47 +2488,47 @@ Option name & Interior argument & Exterior argument & Garage argument\\
 
 For the argument definitions, see Table \ref{table:hc_arg_def_lighting}. See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-lighting}{Lighting} documentation for the available HPXML schema elements, default values, and constraints.
 
-\begin{customLongTable}{ |p{3.cm}|p{1.5cm}|p{1cm}|p{1.1cm}|p{1.4cm}|p{6cm}| }
+\begin{customLongTable}{ |p{3.cm}|p{1.5cm}|p{1.1cm}|p{1.4cm}|p{6cm}| }
 {The ResStock arguments set in the Lighting characteristic} {table:hc_arg_def_lighting} 
-{Name & Required & Units & Type & Choices & Description} 
+{Name & Required & Type & Choices & Description} 
 \texttt{lighting\_present} & true & & Boolean & true, false & Whether
 there is lighting energy use. \\
 \hline
-\texttt{lighting\_interior\_fraction\_cfl} & true & & Double & &
+\texttt{lighting\_interior\_fraction\_cfl} & true  & Double & &
 Fraction of all lamps (interior) that are compact fluorescent. Lighting
 not specified as CFL, LFL, or LED is assumed to be incandescent. \\
 \hline
-\texttt{lighting\_interior\_fraction\_lfl} & true & & Double & &
+\texttt{lighting\_interior\_fraction\_lfl} & true & Double & &
 Fraction of all lamps (interior) that are linear fluorescent. Lighting
 not specified as CFL, LFL, or LED is assumed to be incandescent. \\
 \hline
-\texttt{lighting\_interior\_fraction\_led} & true & & Double & &
+\texttt{lighting\_interior\_fraction\_led} & true & Double & &
 Fraction of all lamps (interior) that are light emitting diodes.
 Lighting not specified as CFL, LFL, or LED is assumed to be
 incandescent. \\
 \hline
-\texttt{lighting\_exterior\_fraction\_cfl} & true & & Double & &
+\texttt{lighting\_exterior\_fraction\_cfl} & true & Double & &
 Fraction of all lamps (exterior) that are compact fluorescent. Lighting
 not specified as CFL, LFL, or LED is assumed to be incandescent. \\
 \hline
-\texttt{lighting\_exterior\_fraction\_lfl} & true & & Double & &
+\texttt{lighting\_exterior\_fraction\_lfl} & true & Double & &
 Fraction of all lamps (exterior) that are linear fluorescent. Lighting
 not specified as CFL, LFL, or LED is assumed to be incandescent. \\
 \hline
-\texttt{lighting\_exterior\_fraction\_led} & true & & Double & &
+\texttt{lighting\_exterior\_fraction\_led} & true & Double & &
 Fraction of all lamps (exterior) that are light emitting diodes.
 Lighting not specified as CFL, LFL, or LED is assumed to be
 incandescent. \\
 \hline
-\texttt{lighting\_garage\_fraction\_cfl} & true & & Double & & Fraction
+\texttt{lighting\_garage\_fraction\_cfl} & true & Double & & Fraction
 of all lamps (garage) that are compact fluorescent. Lighting not
 specified as CFL, LFL, or LED is assumed to be incandescent. \\
 \hline
-\texttt{lighting\_garage\_fraction\_lfl} & true & & Double & & Fraction
+\texttt{lighting\_garage\_fraction\_lfl} & true & Double & & Fraction
 of all lamps (garage) that are linear fluorescent. Lighting not
 specified as CFL, LFL, or LED is assumed to be incandescent. \\
 \hline
-\texttt{lighting\_garage\_fraction\_led} & true & & Double & & Fraction
+\texttt{lighting\_garage\_fraction\_led} & true & Double & & Fraction
 of all lamps (garage) that are light emitting diodes. Lighting not
 specified as CFL, LFL, or LED is assumed to be incandescent. \\
 
@@ -2559,9 +2563,7 @@ Presence of exterior natural gas lighting.
 \begin{itemize}
  
 \item
-  Wilson et al. \textquotesingle Building America House Simulation
-  Protocols\textquotesingle{} 2014, national average fraction used for
-  saturation.
+ Building America House Simulation Protocols (\cite{Wilson2014}); national average fraction used for saturation.
 \end{itemize}
 \paragraph{Direct Conditional Dependencies}
 None.
@@ -2709,7 +2711,6 @@ e.g., high/low usage occupants. \\
 \texttt{lighting\_garage\_usage\_multiplier} & false & & Double & auto &
 Multiplier on the lighting energy usage (garage) that can reflect, e.g.,
 high/low usage occupants. \\
- \\
 \end{longtable}
 
 \paragraph{Distribution Assumption(s)}
@@ -2738,7 +2739,7 @@ Plug load usage level as a percentage of the national average.
 \begin{itemize}
  
 \item
-  U.S. EIA 2015 Residential Energy Consumption Survey (RECS) microdata.
+  U.S. EIA 2015 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -2758,15 +2759,10 @@ ResStock provides a range of percentages for plug load usage that are multiplier
     \item \texttt{misc\_plug\_loads\_other\_frac\_latent} = 0.021.
 \end{itemize}
 
-\begin{longtable}[] {|p{3.5cm}|p{2.5cm}|p{2.5cm}|}\caption{The ResStock arguments set in the Plug Loads characteristic} \label{table:hc_opt_plug_load}  \\
-\toprule\noalign{}
-Option name &
+\begin{customLongTable} {|p{3.5cm}|p{2.5cm}|p{2.5cm}|}{The ResStock arguments set in the Plug Loads characteristic} {table:hc_opt_plug_load}  
+{Option name &
 \texttt{misc\_plug\_loads\_television\_usage\_multiplier} &
-\texttt{misc\_plug\_loads\_other\_usage\_multiplier} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
+\texttt{misc\_plug\_loads\_other\_usage\_multiplier}} 
 78\% & 0.78 &  0.78 \\
 79\% & 0.79 & 0.79 \\
 82\% & 0.82 & 0.82 \\
@@ -2798,7 +2794,7 @@ Option name &
 140\% & 1.4 & 1.4 \\
 144\% & 1.44 & 1.44 \\
 166\% & 1.66 &  1.66 \\
-\end{longtable}
+\end{customLongTable}
 
 For the argument definitions, see Table \ref{table:hc_arg_def_plug_load}. See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-plug-loads}{Plug Loads} documentation for the available HPXML schema elements, default values, and constraints.
 
@@ -2836,8 +2832,7 @@ high/low usage occupants. \\
 \begin{itemize}
  
 \item
-  Multipliers are based on ratio of the ResStock MELS regression
-  equations and the MELS modeled in RECS.
+  Multipliers are based on ratio of the ResStock miscellaneous electric loads (MELS) regression equations and the MELS modeled in RECS.
 \end{itemize}
 
 \subsubsection{Plug Load Diversity}\label{plug_load_diversity}
@@ -2847,7 +2842,7 @@ Plug load diversity multiplier intended to add additional variation in plug load
 \begin{itemize}
  
 \item
-  Engineering Judgment, Calibration.
+  Engineering judgment, calibration.
 \end{itemize}
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -2924,7 +2919,7 @@ The ACS reports both household and family incomes in continuous values, which ar
 
 Per Table \ref{tab:fpl}, the poverty line is \$25,750 for a household of four in the contiguous U.S. A household of the same size making \$40,000 per year in Colorado is therefore at 150\%--200\% of FPL (40,000/25,750*100\% = 155\%). However, that exact household would be considered 100\%--150\% of FPL if living in Hawaii instead (40,000/29,620*100\% = 135\%). FPL is used to determine eligibility for several federal assistance programs, including Low-Income Home Energy Assistance Program (LIHEAP) and Weatherization Assistance for Low-Income Persons (\cite{aspe_fpl_use}).
 
-Similar to FPL, Area Median Income in ResStock is household income standardized as a percentage of the \href{https://www.huduser.gov/portal/datasets/il.html#data_2019}{2019 Income Limits}, which are annually updated by HUD. The Income Limits are means-testing metrics intended to determine financial assistance eligibility, such as Section 8 housing, based on family income (\cite{hud2019_inc_lim_method}). Since ResStock does not model multiple families sharing a single housing unit, household income is treated the same as family income, and household income is used to calculate percent Area Median Income instead. Like FPL, the income limits vary by family size. But unlike FPL, they adjust for local housing costs and vary by county subdivisions. Generally, 0\%--80\% Area Median Income is regarded as Low-to-Moderate Income and the threshold for receiving most types of financial assistance. Sometimes 80\%--150\% Area Median Income are eligible for partial financial assistance, such as in Section 50122 of the Inflation Reduction Act (\cite{2022IRA}) for home electrification rebates.
+Similar to FPL, Area Median Income in ResStock is household income standardized as a percentage of the \href{https://www.huduser.gov/portal/datasets/il.html#data_2019}{2019 Income Limits}, which are annually updated by HUD. The Income Limits are means-testing metrics intended to determine financial assistance eligibility, such as Section 8 housing, based on family income (\cite{hud2019_inc_lim_method}). Since ResStock does not model multiple families sharing a single housing unit, household income is treated the same as family income, and household income is used to calculate percent Area Median Income instead. Like FPL, the income limits vary by family size. But unlike FPL, they adjust for local housing costs and vary by county subdivisions. Generally, 0\%--80\% Area Median Income is regarded as Low-to-Moderate Income and the threshold for receiving most types of financial assistance. Sometimes 80\%--150\% Area Median Income households are eligible for partial financial assistance, such as in Section 50122 of the Inflation Reduction Act (\cite{2022IRA}) for home electrification rebates.
 
 State Metro Median Income (SMMI) is a variant of Area Median Income. As the name suggests, SMMI standardizes the household income based on 2019 Income Limits set at the state level while differentiating between metropolitan and non-metropolitan areas. This metric is created primarily for the integration of socio-demographically differentiated time-use schedules from the American Time Use Survey, which tags respondents by state and metro status.
 
@@ -2970,8 +2965,7 @@ Income of the household occupying the housing unit.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University
-  of Minnesota, www.ipums.org.
+  2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -3014,8 +3008,7 @@ Consumption Survey.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University
-  of Minnesota, www.ipums.org.
+  2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -3041,8 +3034,7 @@ Consumption Survey.
 \paragraph{Distribution Data Sources}
 \begin{itemize} 
 \item
-  2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University
-  of Minnesota, www.ipums.org.
+  2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -3066,7 +3058,7 @@ Income as a percent of the federal poverty line of the household occupying the h
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  Income from 2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University of Minnesota, www.ipums.org.
+  Income from 2019 5-year PUMS from the University of Minnesota.
 \item
   2019 federal poverty guidelines from \href{https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines/prior-hhs-poverty-guidelines-federal-register-references/2019-poverty-guidelines}{Office of the Assistant Secretary for Planning and Evaluation within the U.S. Department of Health and Human Services}.
 \end{itemize}
@@ -3084,7 +3076,7 @@ The Federal Poverty Level options are the following bins: \%0--100\%, 100\%--150
 \begin{itemize}
 \item
   Percent Federal Poverty Level is calculated using annual household income
-  in 2019 USD (continuous, not binned) from 2019-5yrs PUMS data and 2019
+  in 2019 USD (continuous, not binned) from 2019 5-year PUMS data and 2019
   Federal Poverty Lines for contiguous U.S., where the FPL threshold for
   1-occupant household is \$12,490 and \$4,420 for every additional person
   in the household.
@@ -3097,7 +3089,7 @@ Income as a percent of area median income of the household occupying the housing
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item 
-  Income from 2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University of Minnesota, www.ipums.org.
+  Income from 2019 5-year PUMS from the University of Minnesota.
 \item 
   Area Median Income definitions based on \href{https://www.huduser.gov/portal/datasets/il.html#data_2019}{2019 Income Limits from HUD}.
   
@@ -3117,7 +3109,7 @@ The Area Median Income options are the following bins: 0\%--30\%, 30\%--60\%, 60
 \begin{enumerate}
 \item
     Percent Area Median Income is calculated using annual household income in
-  2019 USD (continuous, not binned) from 2019-5yrs PUMS data and 2019
+  2019 USD (continuous, not binned) from 2019 5-year PUMS data and 2019
   income limits from HUD. These limits adjust for household size AND
   local housing costs (i.e., fair market rents). Income limits reported at
   county subdivisions are consolidated to County using a \href{https://mcdc.missouri.edu/applications/geocorr2014.html}{crosswalk}
@@ -3139,9 +3131,9 @@ differentiated by metro and nonmetro regions of the state.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  Income from 2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University of Minnesota, www.ipums.org.
+  Income from 2019 5-year PUMS from the University of Minnesota.
 \item
-  Income Limits derived from \href{Income from 2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University of Minnesota, www.ipums.org.}{2019 median income by state and metro/nonmetro area from HUD}.
+  Income Limits derived from 2019 5-year PUMS from the University of Minnesota and 2019 median income by state and metro/nonmetro area from HUD.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -3158,7 +3150,7 @@ The State Metro Median Income options are the following bins: 0\%--30\%, 30\%--6
 \begin{itemize}
 \item
   Percent State Metro Median Income is calculated using annual household
-  income in 2019 USD (continuous, not binned) from 2019-5yrs PUMS data
+  income in 2019 USD (continuous, not binned) from 2019 5-year PUMS data
   and 2019 median income by state and metro/nonmetro area from HUD. A
   County Metro Status-differentiated Income Limits table is derived from
   the median income table by adjusting for household size, which is consistent with the method of generating state income limits by HUD.
@@ -3171,8 +3163,7 @@ The number of occupants living in the housing unit.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University
-  of Minnesota, www.ipums.org.
+  2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -3188,13 +3179,8 @@ The number of occupants living in the housing unit.
 \paragraph{Options}
 The Occupants options range from 0 to 10+ for the the ResStock baseline baseline (Table \ref{table:hc_arg_def_occupants}). This characteristic assigns value to \texttt{geometry\_unit\_num\_occupants} accordingly, with \texttt{geometry\_unit\_num\_occupants}=11 for Occupants=10+. Occupants=0 corresponds to vacant units. \texttt{general\_water\_use\_usage\_multiplier} is auto-calculated from occupants.
 
-\begin{longtable}[]{|p{3.5cm}|p{1.5cm}|p{1cm}|p{1.1cm}|p{1.9cm}|p{5cm}|} \caption{The ResStock arguments set in the Occupants characteristic} \label{table:hc_arg_def_occupants}  \\
-\toprule\noalign{}
-Name & Required & Units & Type & Choices & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
+\begin{customLongTable}{|p{3.5cm}|p{1.5cm}|p{1cm}|p{1.1cm}|p{1.9cm}|p{5cm}|} {The ResStock arguments set in the Occupants characteristic} {table:hc_arg_def_occupants} 
+{Name & Required & Units & Type & Choices & Description} 
 \texttt{geometry\_unit\_num\_occupants} & false & \# & Double & & The
 number of occupants in the unit. If not provided, an \emph{asset}
 calculation is performed assuming standard occupancy, in which various
@@ -3210,7 +3196,7 @@ auto & Multiplier on internal gains from general water use (floor
 mopping, shower evaporation, water films on showers, tubs \& sinks
 surfaces, plant watering, etc.) that can reflect, e.g., high/low usage
 occupants.  \\
-\end{longtable}
+\end{customLongTable}
 
 \paragraph{Distribution Assumptions}
 \begin{itemize}
@@ -3243,8 +3229,7 @@ The vacancy status (occupied or vacant) of the housing unit.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University
-  of Minnesota, www.ipums.org.
+  2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -3300,8 +3285,7 @@ unit.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University
-  of Minnesota, www.ipums.org.
+  2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -3335,8 +3319,7 @@ in the household.
 \paragraph{Distribution Data Sources}
 \begin{itemize}
 \item
-  2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University
-  of Minnesota, www.ipums.org.
+  2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
