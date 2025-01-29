@@ -5411,7 +5411,7 @@ Arguments
      - W
      - Double
      - auto
-     - Specifies the panel load cooking range/oven power. If not provided, the OS-HPXML default (see `Panel Loads <https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads>`_) is used.
+     - Specifies the panel load cooking range/oven power. Only applies to electric cooking range/oven. If not provided, the OS-HPXML default (see `Panel Loads <https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads>`_) is used.
    * - ``cooking_range_oven_present``
      - true
      - 

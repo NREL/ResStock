@@ -1049,55 +1049,81 @@ module Outputs
       electric_panel.service_feeders.each do |service_feeder|
         if service_feeder.type == HPXML::ElectricPanelLoadTypeHeating
           service_feeder.components.each do |component|
-            htg += component.branch_circuit.occupied_spaces * unit_multiplier unless component.branch_circuit.nil?
+            component.branch_circuits.each do |branch_circuit|
+              htg += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypeCooling
           service_feeder.components.each do |component|
-            clg += component.branch_circuit.occupied_spaces * unit_multiplier unless component.branch_circuit.nil?
+            component.branch_circuits.each do |branch_circuit|
+              clg += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypeWaterHeater
           service_feeder.components.each do |component|
-            hw += component.branch_circuit.occupied_spaces * unit_multiplier unless component.branch_circuit.nil?
+            component.branch_circuits.each do |branch_circuit|
+              hw += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypeClothesDryer
           service_feeder.components.each do |component|
-            cd += component.branch_circuit.occupied_spaces * unit_multiplier unless component.branch_circuit.nil?
+            component.branch_circuits.each do |branch_circuit|
+              cd += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypeDishwasher
           service_feeder.components.each do |component|
-            dw += component.branch_circuit.occupied_spaces * unit_multiplier unless component.branch_circuit.nil?
+            component.branch_circuits.each do |branch_circuit|
+              dw += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypeRangeOven
           service_feeder.components.each do |component|
-            ov += component.branch_circuit.occupied_spaces * unit_multiplier unless component.branch_circuit.nil?
+            component.branch_circuits.each do |branch_circuit|
+              ov += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypeMechVent
           service_feeder.components.each do |component|
-            vf += component.branch_circuit.occupied_spaces * unit_multiplier unless component.branch_circuit.nil?
+            component.branch_circuits.each do |branch_circuit|
+              vf += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypePermanentSpaHeater
           service_feeder.components.each do |component|
-            sh += component.heater_branch_circuit.occupied_spaces * unit_multiplier unless component.heater_branch_circuit.nil?
+            component.heater_branch_circuits.each do |branch_circuit|
+              sh += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypePermanentSpaPump
           service_feeder.components.each do |component|
-            sp += component.pump_branch_circuit.occupied_spaces * unit_multiplier unless component.pump_branch_circuit.nil?
+            component.pump_branch_circuits.each do |branch_circuit|
+              sp += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypePoolHeater
           service_feeder.components.each do |component|
-            ph += component.heater_branch_circuit.occupied_spaces * unit_multiplier unless component.heater_branch_circuit.nil?
+            component.heater_branch_circuits.each do |branch_circuit|
+              ph += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypePoolPump
           service_feeder.components.each do |component|
-            pp += component.pump_branch_circuit.occupied_spaces * unit_multiplier unless component.pump_branch_circuit.nil?
+            component.pump_branch_circuits.each do |branch_circuit|
+              pp += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypeWellPump
           service_feeder.components.each do |component|
-            wp += component.branch_circuit.occupied_spaces * unit_multiplier unless component.branch_circuit.nil?
+            component.branch_circuits.each do |branch_circuit|
+              wp += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         elsif service_feeder.type == HPXML::ElectricPanelLoadTypeElectricVehicleCharging
           service_feeder.components.each do |component|
-            ev += component.branch_circuit.occupied_spaces * unit_multiplier unless component.branch_circuit.nil?
+            component.branch_circuits.each do |branch_circuit|
+              ev += branch_circuit.occupied_spaces * unit_multiplier
+            end
           end
         end
       end

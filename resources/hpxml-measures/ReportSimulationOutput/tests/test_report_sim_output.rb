@@ -1374,30 +1374,41 @@ class ReportSimulationOutputTest < Minitest::Test
     sf = service_feeders.find { |sf| sf.type == HPXML::ElectricPanelLoadTypeHeating }
     sf.power = 17942
     sf.is_new_load = true
+    branch_circuits.add(id: "BranchCircuit#{branch_circuits.size + 1}",
+                        voltage: HPXML::ElectricPanelVoltage240,
+                        occupied_spaces: 5,
+                        component_idrefs: [hpxml_bldg.heating_systems[0].id])
     sf = service_feeders.find { |sf| sf.type == HPXML::ElectricPanelLoadTypeCooling }
     sf.power = 17942
     sf.is_new_load = true
+    branch_circuits.add(id: "BranchCircuit#{branch_circuits.size + 1}",
+                        voltage: HPXML::ElectricPanelVoltage240,
+                        occupied_spaces: 0,
+                        component_idrefs: [hpxml_bldg.cooling_systems[0].id])
     service_feeders.add(type: HPXML::ElectricPanelLoadTypeWaterHeater,
                         power: 4500,
                         is_new_load: true,
                         component_idrefs: [hpxml_bldg.water_heating_systems[0].id])
     branch_circuits.add(id: "BranchCircuit#{branch_circuits.size + 1}",
                         voltage: HPXML::ElectricPanelVoltage240,
-                        occupied_spaces: 2)
+                        occupied_spaces: 2,
+                        component_idrefs: [hpxml_bldg.water_heating_systems[0].id])
     service_feeders.add(type: HPXML::ElectricPanelLoadTypeClothesDryer,
                         power: 5760,
                         is_new_load: true,
                         component_idrefs: [hpxml_bldg.clothes_dryers[0].id])
     branch_circuits.add(id: "BranchCircuit#{branch_circuits.size + 1}",
                         voltage: HPXML::ElectricPanelVoltage120,
-                        occupied_spaces: 2)
+                        occupied_spaces: 2,
+                        component_idrefs: [hpxml_bldg.clothes_dryers[0].id])
     service_feeders.add(type: HPXML::ElectricPanelLoadTypeRangeOven,
                         power: 12000,
                         is_new_load: true,
                         component_idrefs: [hpxml_bldg.cooking_ranges[0].id])
     branch_circuits.add(id: "BranchCircuit#{branch_circuits.size + 1}",
                         voltage: HPXML::ElectricPanelVoltage240,
-                        occupied_spaces: 2)
+                        occupied_spaces: 2,
+                        component_idrefs: [hpxml_bldg.cooking_ranges[0].id])
     hpxml_bldg.plug_loads.add(id: "PlugLoad#{hpxml_bldg.plug_loads.size + 1}",
                               plug_load_type: HPXML::PlugLoadTypeElectricVehicleCharging)
     service_feeders.add(type: HPXML::ElectricPanelLoadTypeElectricVehicleCharging,

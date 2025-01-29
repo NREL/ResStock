@@ -323,7 +323,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
 
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 561 + 5839 + 10551)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 600 + 5839)
-    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 6)
+    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 4)
 
     # Switchover temperature should only be used for a heat pump with fossil fuel backup; use compressor lockout temperature instead.
     # test_name = 'ASHP w/integrated electric backup switchover'
@@ -336,7 +336,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
 
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 561 + 5839)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 600 + 5839)
-    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 4)
+    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 3)
 
     test_name = 'ASHP w/separate gas backup'
     hpxml, _hpxml_bldg = _create_hpxml('base-hvac-air-to-air-heat-pump-var-speed-backup-boiler.xml', test_name)
@@ -363,7 +363,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
 
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 561 + 5839 + 10551)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 0)
-    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 6)
+    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 4)
 
     test_name = 'ASHP cooling only w/out backup'
     hpxml, _hpxml_bldg = _create_hpxml('base-hvac-air-to-air-heat-pump-1-speed-cooling-only.xml', test_name)
@@ -382,7 +382,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
 
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 202 + 5839)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 216 + 5839)
-    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 4)
+    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 2)
 
     test_name = 'Ducted MSHP w/integrated electric backup'
     hpxml, _hpxml_bldg = _create_hpxml('base-hvac-mini-split-heat-pump-ducted.xml', test_name)
@@ -391,7 +391,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
 
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 202 + 5839 + 10551)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 216 + 5839)
-    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 6)
+    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 4)
 
     test_name = 'Ducted MSHP w/integrated gas backup switchover'
     hpxml, _hpxml_bldg = _create_hpxml('base-hvac-dual-fuel-mini-split-heat-pump-ducted.xml', test_name)
@@ -400,7 +400,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
 
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 202 + 5839)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 216 + 5839)
-    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 4)
+    _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating, HPXML::ElectricPanelLoadTypeCooling], 3)
 
     test_name = 'Ductless MSHP w/out backup'
     hpxml, _hpxml_bldg = _create_hpxml('base-hvac-mini-split-heat-pump-ductless.xml', test_name)
