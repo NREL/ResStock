@@ -1,4 +1,5 @@
 Input Name,Input Description
+build_existing_model.project_name,The name of the housing characteristics project.
 building_id,The building unit number (between 1 and the number of samples).
 job_id,The unique identifier of the job/processor.
 started_at,Simulation start time.
