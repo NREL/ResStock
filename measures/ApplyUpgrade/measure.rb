@@ -186,8 +186,8 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
     end
 
     # Get file/dir paths
-    resources_dir = File.absolute_path(File.join(File.dirname(__FILE__), "../../#{args[:project_name]}/lib/resources"))
-    characteristics_dir = File.absolute_path(File.join(File.dirname(__FILE__), "../../#{args[:project_name]}/lib/housing_characteristics"))
+    resources_dir = File.absolute_path(File.join(File.dirname(__FILE__), '../../resources'))
+    characteristics_dir = File.absolute_path(File.join(File.dirname(__FILE__), "../../#{args[:project_name]}/housing_characteristics"))
     measures_dir = File.join(File.dirname(__FILE__), '../../measures')
     hpxml_measures_dir = File.join(File.dirname(__FILE__), '../../resources/hpxml-measures')
     lookup_file = File.join(resources_dir, 'options_lookup.tsv')
