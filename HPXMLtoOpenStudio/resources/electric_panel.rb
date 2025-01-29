@@ -21,8 +21,8 @@ module ElectricPanel
 
       capacity_types << service_feeders_load_calculation_type
       capacity_total_watts << load_based_capacity_values.LoadBased_CapacityW.round(1)
-      capacity_total_amps << load_based_capacity_values.LoadBased_CapacityA.round
-      capacity_headroom_amps << load_based_capacity_values.LoadBased_HeadRoomA.round
+      capacity_total_amps << load_based_capacity_values.LoadBased_CapacityA.round(1)
+      capacity_headroom_amps << load_based_capacity_values.LoadBased_HeadRoomA.round(1)
     end
     electric_panel.capacity_types = capacity_types
     electric_panel.capacity_total_watts = capacity_total_watts

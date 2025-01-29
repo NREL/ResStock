@@ -247,7 +247,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
     XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
     _model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
-    _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 96)
+    _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 96.2)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 0)
     _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating], 1)
     _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeCooling], 0)
@@ -278,7 +278,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
     XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
     _model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
-    _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 96)
+    _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 96.2)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 400 + 4022)
     _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating], 1)
     _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeCooling], 3)
@@ -289,7 +289,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
     XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
     _model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
-    _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 96 + 11468)
+    _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 96.2 + 11468)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 400 + 4022)
     _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating], 2)
     _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeCooling], 3)
@@ -301,7 +301,7 @@ class HPXMLtoOpenStudioElectricPanelTest < Minitest::Test
     XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
     _model, _hpxml, hpxml_bldg = _test_measure(args_hash)
 
-    _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 96 + 15291)
+    _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeHeating, 96.2 + 15291)
     _test_service_feeder_power(hpxml_bldg, HPXML::ElectricPanelLoadTypeCooling, 400 + 4022)
     _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeHeating], 4)
     _test_occupied_spaces(hpxml_bldg, [HPXML::ElectricPanelLoadTypeCooling], 3)
