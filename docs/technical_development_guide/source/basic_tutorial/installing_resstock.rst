@@ -1,5 +1,5 @@
-Installation
-============
+Installing ResStock
+===================
 
 Download ResStock
 -----------------
@@ -9,9 +9,11 @@ There are two options for downloading `ResStock <https://github.com/NREL/resstoc
 1. download a released version
 2. clone the repository
 
-For the first option, go to the `releases page <https://github.com/NREL/resstock/releases>`_ on GitHub and select a release. Note the OpenStudio version requirements associated with each version of ResStock. For example, ResStock v2.4.0 requires that you have OpenStudio v2.9.0 installed.
+For the first option, go to the `releases page <https://github.com/NREL/resstock/releases>`_ on GitHub and select a release.
+Note the OpenStudio version requirements associated with each version of ResStock. For example, ResStock v2.4.0 requires that you have OpenStudio v2.9.0 installed.
 
-For the second option, you will need to have `Git <https://git-scm.com>`_ or some other Git-based tool installed. Cloning the ResStock repository gives you access to the ``develop`` branch of ResStock. The ``develop`` branch is under active development.
+For the second option, you will need to have `Git <https://git-scm.com>`_ or some other Git-based tool installed.
+Cloning the ResStock repository gives you access to the ``develop`` branch of ResStock. The ``develop`` branch is under active development.
 
 .. note::
 
@@ -29,4 +31,5 @@ Download the version of OpenStudio software (corresponding to the ResStock versi
 Developer Instructions
 ----------------------
 
-If you will be developing residential measures and testing residential building models, see the :ref:`advanced_tutorial`. If you are a developer, make sure that you have checked out the ``develop`` branch of the repository.
+If you will be developing residential measures and testing residential building models, see the :ref:`advanced_tutorial`.
+If you are a developer, make sure that you have checked out the ``develop`` or ``latest-os-hpxml`` branch of the repository.

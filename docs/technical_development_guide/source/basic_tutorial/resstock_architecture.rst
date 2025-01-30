@@ -1,7 +1,7 @@
-.. _architecture:
+.. _resstock_architecture:
 
-Architecture
-============
+ResStock Architecture
+=====================
 
 The key ResStock workflow components are described below.
 
@@ -17,7 +17,7 @@ The national project contains inputs describing the existing residential buildin
 The testing project contains inputs to test our OpenStudio workflows.
 Within each project folder are sample "baseline" and "upgrades" input files that may serve as examples for how to set up different types of ResStock analyses.
 The contents of the input file ultimately determines the set of workflow steps (i.e., OpenStudio measures) for each ResStock sample.
-See :doc:`run_project` for more information about running ResStock analyses.
+See :doc:`running_a_project` for more information about running ResStock analyses.
 
 Sampling
 --------
