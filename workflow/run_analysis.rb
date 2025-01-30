@@ -55,14 +55,9 @@ def run_workflow(yml, in_threads, measures_only, debug_arg, overwrite, building_
 
   thisdir = File.dirname(__FILE__)
 
-  buildstock_directory = cfg['buildstock_directory']
   project_directory = cfg['project_directory']
   output_directory = cfg['output_directory']
   n_datapoints = cfg['sampler']['args']['n_datapoints']
-
-  if !(Pathname.new buildstock_directory).absolute?
-    buildstock_directory = File.absolute_path(File.join(File.dirname(yml), buildstock_directory))
-  end
 
   if (Pathname.new output_directory).absolute?
     results_dir = output_directory

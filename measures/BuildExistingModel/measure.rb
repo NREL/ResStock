@@ -34,7 +34,7 @@ class BuildExistingModel < OpenStudio::Measure::ModelMeasure
     arg.setDescription("Absolute/relative path of the buildstock CSV file. Relative is compared to the 'lib/housing_characteristics' directory.")
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument.makeStringArgument('project_directory', false)
+    arg = OpenStudio::Measure::OSArgument.makeStringArgument('project_directory', true)
     arg.setDisplayName('Project Directory')
     arg.setDescription('The directory containing the housing characteristics folder (e.g., project_national).')
     args << arg
