@@ -3,9 +3,11 @@
 Basic Tutorial
 ==============
 
+This basic tutorial describes:
+
 .. toctree::
    :maxdepth: 2
    
-   installation
-   architecture
-   run_project
+   installing_resstock
+   resstock_architecture
+   running_a_project
