@@ -7,6 +7,23 @@ Development Changelog
     :released: pending
 
     .. change::
+        :tags: characteristics
+        :pullreq: 1339
+
+        **Date**: 2025-01-30
+
+        Title:
+        Add Hawaii to TSVs
+
+        Description:
+        Add Hawaii in all TSVs - includes a change to PV System Size.tsv to give samples to Hawaii in anticipation of adding to Hawaii to Has PV.tsv. Update TRG to include Hawaii.
+
+        resstock-estimation: `pull request 441 <https://github.com/NREL/resstock-estimation/pull/441>`
+
+        Assignees: Janet Reyna
+
+
+    .. change::
         :tags: docs, technical development guide
         :pullreq: 1330
 
