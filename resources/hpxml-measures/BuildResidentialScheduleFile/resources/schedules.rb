@@ -176,7 +176,7 @@ class ScheduleGenerator
     plugload_tv_monthly_multiplier = Schedule.validate_values(schedules_csv_data[SchedulesFile::Columns[:PlugLoadsTV].name]['PlugLoadsTVMonthlyMultipliers'], 12, 'monthly') # American Time Use Survey
     ceiling_fan_weekday_sch = Schedule.validate_values(default_schedules_csv_data[SchedulesFile::Columns[:CeilingFan].name]['WeekdayScheduleFractions'], 24, 'weekday') # Table C.3(5) of ANSI/RESNET/ICC 301-2022 Addendum C
     ceiling_fan_weekend_sch = Schedule.validate_values(default_schedules_csv_data[SchedulesFile::Columns[:CeilingFan].name]['WeekendScheduleFractions'], 24, 'weekend') # Table C.3(5) of ANSI/RESNET/ICC 301-2022 Addendum C
-    ceiling_fan_monthly_multiplier = Schedule.validate_values(Defaults.get_ceiling_fan_months(weather).join(', '), 12, 'monthly') # based on monthly average outdoor temperatures per ANSI/RESNET/ICC 301-2019
+    ceiling_fan_monthly_multiplier = Schedule.validate_values(Defaults.get_ceiling_fan_months(weather).join(', '), 12, 'monthly') # based on monthly average outdoor temperatures per ANSI/RESNET/ICC 301
 
     sch = get_building_america_lighting_schedule(args[:time_zone_utc_offset], args[:latitude], args[:longitude], schedules_csv_data)
     interior_lighting_schedule = []

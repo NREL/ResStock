@@ -31,8 +31,9 @@ jobs:
       - name: Upload formatted options_lookup 
         uses: actions/upload-artifact@v4
         with:
-          path: resources/options_lookup.tsv
           name: options_lookup
+          path: resources/options_lookup.tsv
+          if-no-files-found: error
 
   unit-tests:
     runs-on: ubuntu-22.04
@@ -69,14 +70,16 @@ jobs:
       - name: Upload feature samples
         uses: actions/upload-artifact@v4
         with:
-          path: resources/buildstock.csv
           name: feature_samples
+          path: resources/buildstock.csv
+          if-no-files-found: error
 
       - name: Store code coverage
         uses: actions/upload-artifact@v4
         with:
-          path: coverage
           name: coverage
+          path: coverage
+          if-no-files-found: error
 
   analysis-tests:
     runs-on: ubuntu-22.04
@@ -121,18 +124,19 @@ jobs:
       - name: Upload precomputed buildstocks
         uses: actions/upload-artifact@v4
         with:
-          path: test/tests_yml_files/yml_precomputed*/buildstock*.csv
           name: precomputed_buildstocks
+          path: test/tests_yml_files/yml_precomputed*/buildstock*.csv
+          if-no-files-found: error
 
       - name: Upload run_analysis.rb results
         uses: actions/upload-artifact@v4
         with:
+          name: run_analysis_results_csvs
           path: |
             project_national/results-Baseline.csv
             project_testing/results-Baseline.csv
-            project_national/results-PackageUpgrade.csv
-            project_testing/results-PackageUpgrade.csv
-          name: run_analysis_results_csvs
+            project_national/results-EnvelopeOnlyLightTouchEnvelope.csv
+          if-no-files-found: error
 
   integration-tests:
     runs-on: ubuntu-22.04
@@ -166,23 +170,17 @@ jobs:
           
           buildstock_local project_national/national_baseline.yml
           buildstock_local project_testing/testing_baseline.yml
-          
-          buildstock_local project_national/national_upgrades.yml
-          buildstock_local project_testing/testing_upgrades.yml
+          buildstock_local project_national/sdr_upgrades_tmy3.yml
 
       - name: Unzip results
         run: |
           gunzip -v project_national/national_baseline/results_csvs/*.csv.gz
           gunzip -v project_testing/testing_baseline/results_csvs/*.csv.gz
-          
-          gunzip -v project_national/national_upgrades/results_csvs/*.csv.gz
-          gunzip -v project_testing/testing_upgrades/results_csvs/*.csv.gz
+          gunzip -v project_national/sdr_upgrades_tmy3/results_csvs/*.csv.gz
           
           tar -xvf project_national/national_baseline/simulation_output/*.tar.gz -C project_national/national_baseline/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw'
           tar -xvf project_testing/testing_baseline/simulation_output/*.tar.gz -C project_testing/testing_baseline/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw' --wildcards '*in.osm' --wildcards '*in.idf'
-          
-          tar -xvf project_national/national_upgrades/simulation_output/*.tar.gz -C project_national/national_upgrades/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw'
-          tar -xvf project_testing/testing_upgrades/simulation_output/*.tar.gz -C project_testing/testing_upgrades/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw' --wildcards '*in.osm' --wildcards '*in.idf'
+          tar -xvf project_national/sdr_upgrades_tmy3/simulation_output/*.tar.gz -C project_national/sdr_upgrades_tmy3/simulation_output --wildcards '*results_timeseries.csv' --wildcards '*.xml' --wildcards '*data_point_out.json' --wildcards '*.osw'
 
       - name: Process results
         run: |
@@ -192,20 +190,21 @@ jobs:
       - name: Upload integration results
         uses: actions/upload-artifact@v4
         with:
+          name: feature_results
           path: |
             baseline
             upgrades
-          name: feature_results
+          if-no-files-found: error
 
       - name: Upload buildstockbatch results
         uses: actions/upload-artifact@v4
         with:
+          name: buildstockbatch_results_csvs
           path: |
             project_national/national_baseline/results_csvs/results_up00.csv
             project_testing/testing_baseline/results_csvs/results_up00.csv
-            project_national/national_upgrades/results_csvs/results_up17.csv
-            project_testing/testing_upgrades/results_csvs/results_up17.csv
-          name: buildstockbatch_results_csvs
+            project_national/sdr_upgrades_tmy3/results_csvs/results_up16.csv
+          if-no-files-found: error
 
       - name: Run tests
         run: |
@@ -253,8 +252,9 @@ jobs:
       - name: Upload base results
         uses: actions/upload-artifact@v4
         with:
-          path: test/base_results
           name: base_results
+          path: test/base_results
+          if-no-files-found: error
 
       - uses: actions/checkout@v4
         with:
@@ -308,8 +308,9 @@ jobs:
       - name: Upload comparisons
         uses: actions/upload-artifact@v4
         with:
-          path: test/base_results/comparisons
           name: comparisons
+          path: test/base_results/comparisons
+          if-no-files-found: error
 
   update-results:
     runs-on: ubuntu-22.04
@@ -349,20 +350,29 @@ jobs:
           path: test/tests_yml_files
           name: precomputed_buildstocks
 
-      - name: Build documentation
+      - name: Build technical development guide
         run: |
           sudo gem install oga
-          ruby docs/read_the_docs/source/workflow_inputs/create_characteristics_rst.rb
-          ruby docs/read_the_docs/source/workflow_outputs/csv_tables.rb
-          cd docs/read_the_docs
+          ruby docs/technical_development_guide/source/workflow_inputs/create_characteristics_rst.rb
+          ruby docs/technical_development_guide/source/workflow_outputs/csv_tables.rb
+          cd docs/technical_development_guide
           pip install changelog
           make html SPHINXOPTS="-W --keep-going -n"
+      
+      - name: Build technical reference guide
+        uses: dante-ev/latex-action@2023-A
+        with:
+          working_directory: docs/technical_reference_guide
+          root_file: ResStockTechnicalReferenceGuide.tex
 
-      - name: Save Docs
+      - name: Save documentation
         uses: actions/upload-artifact@v4
         with:
           name: documentation
-          path: docs/read_the_docs/_build/html/
+          path: |
+            docs/technical_development_guide/_build/html/
+            docs/technical_reference_guide/ResStockTechnicalReferenceGuide.pdf
+          if-no-files-found: error
 
       - name: Commit latest results
         shell: bash        

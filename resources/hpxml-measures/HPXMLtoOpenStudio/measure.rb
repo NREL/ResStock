@@ -109,7 +109,7 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     end
 
     Version.check_openstudio_version()
-    Model.reset(model, runner)
+    Model.reset(runner, model)
 
     args = runner.getArgumentValues(arguments(model), user_arguments)
     set_file_paths(args)
@@ -327,7 +327,7 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     # Conditioned space & setpoints
     spaces = {} # Map of HPXML locations => OpenStudio Space objects
     Geometry.create_or_get_space(model, spaces, HPXML::LocationConditionedSpace, hpxml_bldg)
-    hvac_days = HVAC.apply_setpoints(model, runner, weather, spaces, hpxml_bldg, hpxml.header, schedules_file)
+    hvac_days = HVAC.apply_setpoints(runner, model, weather, spaces, hpxml_bldg, hpxml.header, schedules_file)
 
     # Geometry & Enclosure
     Geometry.apply_roofs(runner, model, spaces, hpxml_bldg, hpxml.header)
@@ -406,20 +406,6 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     # Hidden feature: Whether to override certain assumptions to better match the ASHRAE 140 specification
     if hpxml_header.apply_ashrae140_assumptions.nil?
       hpxml_header.apply_ashrae140_assumptions = false
-    end
-
-    if not hpxml_bldg.building_occupancy.number_of_residents.nil?
-      # If zero occupants, ensure end uses of interest are zeroed out
-      if (hpxml_bldg.building_occupancy.number_of_residents == 0) && (not hpxml_header.apply_ashrae140_assumptions)
-        hpxml_header.unavailable_periods.add(column_name: 'Vacancy',
-                                             begin_month: hpxml_header.sim_begin_month,
-                                             begin_day: hpxml_header.sim_begin_day,
-                                             begin_hour: 0,
-                                             end_month: hpxml_header.sim_end_month,
-                                             end_day: hpxml_header.sim_end_day,
-                                             end_hour: 24,
-                                             natvent_availability: HPXML::ScheduleUnavailable)
-      end
     end
   end
 end

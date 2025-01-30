@@ -1434,17 +1434,19 @@ class SchedulesFile
       @tmp_schedules.keys.each do |schedule_name|
         next if column_names.include? schedule_name
 
-        schedule_name2 = schedule_name
-        if [SchedulesFile::Columns[:HotWaterDishwasher].name].include?(schedule_name)
+        case schedule_name
+        when SchedulesFile::Columns[:HotWaterDishwasher].name
           schedule_name2 = SchedulesFile::Columns[:Dishwasher].name
-        elsif [SchedulesFile::Columns[:HotWaterClothesWasher].name].include?(schedule_name)
+        when SchedulesFile::Columns[:HotWaterClothesWasher].name
           schedule_name2 = SchedulesFile::Columns[:ClothesWasher].name
-        elsif [SchedulesFile::Columns[:HeatingSetpoint].name].include?(schedule_name)
+        when SchedulesFile::Columns[:HeatingSetpoint].name
           schedule_name2 = SchedulesFile::Columns[:SpaceHeating].name
-        elsif [SchedulesFile::Columns[:CoolingSetpoint].name].include?(schedule_name)
+        when SchedulesFile::Columns[:CoolingSetpoint].name
           schedule_name2 = SchedulesFile::Columns[:SpaceCooling].name
-        elsif [SchedulesFile::Columns[:WaterHeaterSetpoint].name].include?(schedule_name)
+        when SchedulesFile::Columns[:WaterHeaterSetpoint].name
           schedule_name2 = SchedulesFile::Columns[:WaterHeater].name
+        else
+          schedule_name2 = schedule_name
         end
 
         # Skip those unaffected
