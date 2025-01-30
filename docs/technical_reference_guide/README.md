@@ -43,5 +43,5 @@ mkdir _build
 5. Compile the documentation (this command may need to be run two times for some parts of the documentation to show up in the output pdf)
 
 ```
-pdflatex  -file-line-error -interaction=nonstopmode -recorder -output-directory="_build"  "ResStockTechnicalReferenceGuide.tex"
+latexmk -pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode -output-directory=_build -halt-on-error ResStockTechnicalReferenceGuide.tex 
 ```
