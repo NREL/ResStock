@@ -364,6 +364,7 @@ jobs:
         with:
           working_directory: docs/technical_reference_guide
           root_file: ResStockTechnicalReferenceGuide.tex
+          args: -pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode -output-directory=_build
 
       - name: Save documentation
         uses: actions/upload-artifact@v4
