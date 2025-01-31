@@ -47,11 +47,10 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
     upgrade_name.setDefaultValue('My Upgrade')
     args << upgrade_name
 
-    project_name = OpenStudio::Measure::OSArgument::makeStringArgument('project_name', true)
-    project_name.setDisplayName('Project Name')
-    project_name.setDescription('Name of the project.')
-    project_name.setDefaultValue('My Project')
-    args << project_name
+    project_directory = OpenStudio::Measure::OSArgument::makeStringArgument('project_directory', true)
+    project_directory.setDisplayName('Project Directory')
+    project_directory.setDescription('The directory containing the housing characteristics folder (e.g., project_national).')
+    args << project_directory
 
     for option_num in 1..num_options
 
@@ -126,7 +125,6 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
       return true
     end
 
-    upgrade_name = runner.getStringArgumentValue('upgrade_name', user_arguments)
     args = runner.getArgumentValues(arguments(model), user_arguments)
     # Retrieve Option X argument values
     options = {}
@@ -187,7 +185,7 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
 
     # Get file/dir paths
     resources_dir = File.absolute_path(File.join(File.dirname(__FILE__), '../../resources'))
-    characteristics_dir = File.absolute_path(File.join(File.dirname(__FILE__), "../../#{args[:project_name]}/housing_characteristics"))
+    characteristics_dir = File.absolute_path(File.join(File.dirname(__FILE__), "../../#{args[:project_directory]}/housing_characteristics"))
     measures_dir = File.join(File.dirname(__FILE__), '../../measures')
     hpxml_measures_dir = File.join(File.dirname(__FILE__), '../../resources/hpxml-measures')
     lookup_file = File.join(resources_dir, 'options_lookup.tsv')
@@ -312,7 +310,7 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
     end # apply_package_upgrade
 
     # Register the upgrade name
-    register_value(runner, 'upgrade_name', upgrade_name)
+    register_value(runner, 'upgrade_name', args[:upgrade_name])
 
     if halt_workflow(runner, measures)
       return false
@@ -525,21 +523,11 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
       register_logs(runner, new_runner)
       return false
     end
-    measures['ResStockArgumentsPostHPXML'] = [{}] if !measures.keys.include?('ResStockArgumentsPostHPXML')
-    measures['ResStockArgumentsPostHPXML'][0]['hpxml_path'] = hpxml_path
-    measures['ResStockArgumentsPostHPXML'][0]['output_csv_path'] = File.expand_path('../schedules.csv')
-    measures['ResStockArgumentsPostHPXML'][0]['building_id'] = values['building_id']
-    measures_hash = { 'ResStockArgumentsPostHPXML' => measures['ResStockArgumentsPostHPXML'] }
-    if not apply_measures(measures_dir, measures_hash, new_runner, model, true, 'OpenStudio::Measure::ModelMeasure', nil)
-      register_logs(runner, new_runner)
-      return false
-    end
 
     # Specify measures to run
     measures_to_apply_hash = { measures_dir => {} }
 
-    upgrade_measures = measures.keys - ['ResStockArguments', 'BuildResidentialHPXML', 'BuildResidentialScheduleFile',
-                                        'ResStockArgumentsPostHPXML']
+    upgrade_measures = measures.keys - ['ResStockArguments', 'BuildResidentialHPXML', 'BuildResidentialScheduleFile']
     upgrade_measures.each do |upgrade_measure|
       measures_to_apply_hash[measures_dir][upgrade_measure] = measures[upgrade_measure]
     end
@@ -553,6 +541,7 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
       register_logs(runner, new_runner)
       return false
     end
+
     # Copy upgraded.xml to home.xml for downstream HPXMLtoOpenStudio
     # This will overwrite home.xml from BuildExistingModel
     # We need upgraded.xml (and not just home.xml) for UpgradeCosts
@@ -560,7 +549,6 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
     FileUtils.cp(hpxml_path, in_path)
 
     register_logs(runner, resstock_arguments_runner)
-    register_logs(runner, new_runner)
 
     return true
   end
