@@ -34,8 +34,12 @@ class HVACScheduleModifier
 
   def modify_setpoints(setpoints, flexibility_inputs)
     log_inputs(flexibility_inputs)
-    dst_info = _daylight_savings_month_day()
+    dst_info = {dst_begin_month: @hpxml_bldg.dst_begin_month,
+                dst_begin_day: @hpxml_bldg.dst_begin_day,
+                dst_end_month: @hpxml_bldg.dst_end_month,
+                dst_end_day: @hpxml_bldg.dst_end_day}
     puts dst_info
+    
     heating_setpoint = setpoints[:heating_setpoint].dup
     cooling_setpoint = setpoints[:cooling_setpoint].dup
     raise "heating_setpoint.length != cooling_setpoint.length" unless heating_setpoint.length == cooling_setpoint.length
@@ -78,9 +82,11 @@ class HVACScheduleModifier
 
     pre_peak_duration = flexibility_inputs.pre_peak_duration_steps
     peak_hour_start, peak_hour_end = _get_peak_hour(pre_peak_duration, month:)
-    dst_adjust_hour = _dst_ajustment(month, day, dst_info)
-    peak_hour_start += dst_adjust_hour
-    peak_hour_end += dst_adjust_hour
+    if dst_info.values.all? { |v| !v.nil? }
+      dst_adjust_hour = _dst_ajustment(month, day, dst_info)
+      peak_hour_start += dst_adjust_hour
+      peak_hour_end += dst_adjust_hour
+    end
 
     peak_times = DailyPeakIndices.new
     random_shift_steps = flexibility_inputs.random_shift_steps
@@ -133,42 +139,6 @@ class HVACScheduleModifier
     else
       return peak_hours["intermediate_peak_start"][11..12].to_i, peak_hours["intermediate_peak_end"][11..12].to_i
     end
-  end
-
-  def _daylight_savings_month_day()
-    if @hpxml_bldg.dst_enabled
-      if @hpxml_bldg.dst_begin_month.nil? || @hpxml_bldg.dst_begin_day.nil? || @hpxml_bldg.dst_end_month.nil? || @hpxml_bldg.dst_end_day.nil?
-        if (not @weather.header.DSTStartDate.nil?) && (not @weather.header.DSTEndDate.nil?)
-          # Use weather file DST dates if available
-          dst_start_date = @weather.header.DSTStartDate
-          dst_end_date = @weather.header.DSTEndDate
-          @hpxml_bldg.dst_begin_month = dst_start_date.monthOfYear.value
-          @hpxml_bldg.dst_begin_day = dst_start_date.dayOfMonth
-          @hpxml_bldg.dst_end_month = dst_end_date.monthOfYear.value
-          @hpxml_bldg.dst_end_day = dst_end_date.dayOfMonth
-        else
-          # Roughly average US dates according to https://en.wikipedia.org/wiki/Daylight_saving_time_in_the_United_States
-          @hpxml_bldg.dst_begin_month = 3
-          @hpxml_bldg.dst_begin_day = 12
-          @hpxml_bldg.dst_end_month = 11
-          @hpxml_bldg.dst_end_day = 5
-        end
-        @hpxml_bldg.dst_begin_month_isdefaulted = true
-        @hpxml_bldg.dst_begin_day_isdefaulted = true
-        @hpxml_bldg.dst_end_month_isdefaulted = true
-        @hpxml_bldg.dst_end_day_isdefaulted = true
-      end
-    else
-      @hpxml_bldg.dst_begin_month = 0
-      @hpxml_bldg.dst_begin_day = 0
-      @hpxml_bldg.dst_end_month = 0
-      @hpxml_bldg.dst_end_day = 0
-    end
-    dst_info = {dst_begin_month: @hpxml_bldg.dst_begin_month,
-                dst_begin_day: @hpxml_bldg.dst_begin_day,
-                dst_end_month: @hpxml_bldg.dst_end_month,
-                dst_end_day: @hpxml_bldg.dst_end_day}
-    return dst_info
   end
 
   def _dst_ajustment(month, day, dst_info)
