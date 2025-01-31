@@ -7,10 +7,19 @@ require_relative '../measure.rb'
 
 class ResStockArgumentsPostHPXMLTest < Minitest::Test
   def test_load_flexibility_measure
+    # daylight_saving is false
     osw_file = 'baseline.osw'
     puts "\nTesting #{File.basename(osw_file)}..."
     _test_measure(osw_file)
   end
+
+  def test_load_flexibility_measure_dst_impacted
+    # daylight_saving is true
+    osw_file = 'baseline_dst_impacted.osw'
+    puts "\nTesting #{File.basename(osw_file)}..."
+    _test_measure(osw_file)
+  end
+
   private
 
 
@@ -104,6 +113,13 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
     # indices for 05-09 13:00:00-14:00:00, 14:00:00-15:00:00, 16:00:00-17:00:00,
     # the on-peak hour in CO in summer starts from 16:00:00
     cooling_indices = [3085, 3086, 3087, 3088]
+
+    # if daylight savings is impacted, add 1 hour to on-peak start and end time
+    # the on-peak hour in CO in summer starts from 16:00:00, but it should start from 17:00:00 due to daylight savings
+    if osw_file.include?("dst_impacted")
+      cooling_indices = cooling_indices.map { |num| num + 1 }
+    end
+
     heating_rows = []
     cooling_rows = []
 

@@ -137,7 +137,9 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
                                                 weather: weather,
                                                 epw_path: epw_path,
                                                 minutes_per_step: minutes_per_step,
-                                                runner: runner)
+                                                runner: runner,
+                                                hpxml: hpxml,
+                                                building_index: building_index)
     flexibility_inputs = get_flexibility_inputs(args, minutes_per_step, building_id)
     schedule_modifier.modify_setpoints(schedule, flexibility_inputs)
   end
