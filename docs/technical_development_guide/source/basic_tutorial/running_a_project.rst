@@ -1,7 +1,7 @@
-.. _run_project:
+.. _running_a_project:
 
-Run the Project
-===============
+Running a Project
+=================
 
 Both buildstockbatch and run_analysis.rb can used to run ResStock analyses.
 They use a common project definition, the YAML file, to provide the details of the analysis.
