@@ -423,7 +423,7 @@ class TestRunAnalysis < Minitest::Test
     end
   end
 
-  def _verify_outputs(cli_output_log, testing = false)
+  def _verify_outputs(cli_output_log, _testing = false)
     # Check cli_output.log warnings
     File.readlines(cli_output_log).each do |message|
       next if message.strip.empty?
@@ -481,7 +481,7 @@ class TestRunAnalysis < Minitest::Test
       next if _expected_warning_message(message, "Specified incompatible corridor; setting corridor position to 'Single Exterior (Front)'.")
       next if _expected_warning_message(message, 'DistanceToTopOfWindow is greater than 12 feet; this may indicate incorrect units. [context: /HPXML/Building/BuildingDetails/Enclosure/Windows/Window/Overhangs[number(Depth) > 0]')
       next if _expected_warning_message(message, 'Not calculating emissions because an electricity filepath for at least one emissions scenario could not be located.') # these are AK/HI samples
-      next if _expected_warning_message(message, 'Could not find State=AK')  # these are AK samples
+      next if _expected_warning_message(message, 'Could not find State=AK') # these are AK samples
       next if _expected_warning_message(message, 'No design condition info found; calculating design conditions from EPW weather data.')
 
       if !testing
