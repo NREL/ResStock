@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
+  <schema_version>3.1</schema_version>
   <name>res_stock_arguments_post_hpxml</name>
   <uid>db102ce5-ac96-4ef9-90d3-abbe53478716</uid>
-  <version_id>e9a3773b-66b5-48a6-95e5-4ce42262a640</version_id>
-  <version_modified>20221103T232039Z</version_modified>
+  <version_id>70f50e69-fc1d-4e7a-b408-9f1ff7470abb</version_id>
+  <version_modified>2025-01-31T03:46:20Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArgumentsPostHPXML</class_name>
   <display_name>ResStock Arguments Post-HPXML</display_name>
@@ -15,6 +15,14 @@
       <name>hpxml_path</name>
       <display_name>HPXML File Path</display_name>
       <description>Absolute/relative path of the HPXML file.</description>
+      <type>String</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>building_id</name>
+      <display_name>Building ID</display_name>
+      <description>ID of the building to be processed.</description>
       <type>String</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -50,7 +58,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>5A9AF6DF</checksum>
+      <checksum>06F3217D</checksum>
     </file>
   </files>
 </measure>
