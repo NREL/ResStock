@@ -1,0 +1,71 @@
+schema_version: '0.5'
+os_version: 3.9.0
+os_sha: c77fbb9569
+buildstock_directory: ../ # Relative to this file or absolute
+project_directory: project_national # Relative to buildstock_directory
+output_directory: /projects/rescore/hawaii/ # add run number
+weather_files_path: /kfs2/shared-projects/buildstock/weather/BuildStock_2018_FIPS.zip
+
+sampler:
+  type: residential_quota_downselect
+  args:
+    n_datapoints: 7500
+    logic:
+      - State|HI
+    resample: true
+
+workflow_generator:
+  type: residential_hpxml
+  version: 2024.07.20
+  args:
+    build_existing_model:
+      simulation_control_timestep: 60
+      simulation_control_run_period_begin_month: 1
+      simulation_control_run_period_begin_day_of_month: 1
+      simulation_control_run_period_end_month: 12
+      simulation_control_run_period_end_day_of_month: 31
+      simulation_control_run_period_calendar_year: 2007
+
+    emissions:
+      - scenario_name: LRMER_MidCase_15
+        type: CO2e
+        elec_folder: data/emissions/cambium/2022/LRMER_MidCase_15
+
+    utility_bills:
+      - scenario_name: Bills
+
+    simulation_output_report:
+      timeseries_frequency: hourly
+      include_timeseries_total_consumptions: true
+      include_timeseries_fuel_consumptions: true
+      include_timeseries_end_use_consumptions: true
+      include_timeseries_emissions: false
+      include_timeseries_emission_fuels: false
+      include_timeseries_emission_end_uses: false
+      include_timeseries_hot_water_uses: true
+      include_timeseries_total_loads: true
+      include_timeseries_component_loads: false
+      include_timeseries_unmet_hours: true
+      include_timeseries_zone_temperatures: true
+      include_timeseries_airflows: false
+      include_timeseries_weather: true
+      include_timeseries_resilience: false
+
+    reporting_measures:
+      - measure_dir_name: QOIReport
+
+    server_directory_cleanup:
+      retain_schedules_csv: false
+
+baseline:
+  n_buildings_represented: 1447154 # 2021 HI-only, 139647020 American Community Survey 2021 5-year, B25001, does not include territories ( 138765649 without AK and HI )
+
+kestrel:
+  n_jobs: 100
+  minutes_per_sim: 30
+  account: rescore
+  postprocessing:
+    time: 60
+    n_workers: 1
+  sampling:
+    time: 180
