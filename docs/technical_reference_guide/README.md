@@ -20,7 +20,7 @@ cd <RESSTOCK_DIR>/docs/technical_reference_guide
 2. Pull a docker container with the full version of textlive (only needs to be done once)
 
 ```
-$ docker run --rm -it -v $(pwd):/data mfisherman/texlive-full /bin/sh
+$ docker run --rm -it -v $(pwd):/workspace mfisherman/texlive-full /bin/sh
 ```
 
 3. Run the container and mount the current directory contents in the workspace directory of the container. Use /bin/bash as the default shell.
