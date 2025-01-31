@@ -14,6 +14,21 @@ sampler:
       - State|HI
     resample: true
 
+# postprocessing:
+#   keep_individual_timeseries: true
+#   partition_columns:
+#     - State
+#     - County
+#   aws:
+#     region_name: us-west-2
+#     s3:
+#       bucket: resstock-core
+#       prefix: hawaii
+#     athena:
+#       glue_service_role: service-role/AWSGlueServiceRole-default
+#       database_name: rescore
+#       max_crawling_time: 1200
+
 workflow_generator:
   type: residential_hpxml
   version: 2024.07.20
