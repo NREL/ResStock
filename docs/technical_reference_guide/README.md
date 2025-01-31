@@ -17,10 +17,10 @@ Docker can be used to compile the ResStock Technical Reference Guide locally. Fi
 cd <RESSTOCK_DIR>/docs/technical_reference_guide
 ```
 
-2. Pull a docker container with the full version of textlive (only needs to be done once)
+2. Pull a docker container with the full version of textlive (this might take several minutes, but only needs to be done once. If you have issues, get off the VPN during the pull)
 
 ```
-$ docker run --rm -it -v $(pwd):/workspace mfisherman/texlive-full /bin/sh
+$ docker pull mfisherman/texlive-full
 ```
 
 3. Run the container and mount the current directory contents in the workspace directory of the container. Use /bin/bash as the default shell.
@@ -29,10 +29,10 @@ $ docker run --rm -it -v $(pwd):/workspace mfisherman/texlive-full /bin/sh
 docker run --rm -it -v $(pwd):/workspace mfisherman/texlive-full /bin/bash
 ```
 
-4. Go to the workspace
+4. Go to the workspace folder
 
 ```
-cd workspace
+cd ../workspace
 ```
 
 6. Create a _build directory for the output of `pdflatex` to be stored.
@@ -44,4 +44,6 @@ mkdir _build
 
 ```
 latexmk -pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode -output-directory=_build -halt-on-error ResStockTechnicalReferenceGuide.tex 
+
+6. All of the pdf and log files from the compile will be located in docs/technical_reference_guide/_build (Note: this won't show up as modified files in git because _build is in .gitignore)
 ```
