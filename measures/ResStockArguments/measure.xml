@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments</name>
   <uid>c984bb9e-4ac4-4930-a399-9d23f8f6936a</uid>
-  <version_id>2dd9c8d3-4821-4cd4-8713-63c7bf5af131</version_id>
-  <version_modified>2025-01-29T18:50:14Z</version_modified>
+  <version_id>e5b3a8b0-49f1-4214-a5a6-574051d7b69b</version_id>
+  <version_modified>2025-01-31T19:08:47Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArguments</class_name>
   <display_name>ResStock Arguments</display_name>
@@ -7722,7 +7722,7 @@
       <filename>electrical_panel/electrical_panel_breaker_space.csv</filename>
       <filetype>csv</filetype>
       <usage_type>resource</usage_type>
-      <checksum>EFEF6CC5</checksum>
+      <checksum>E902477F</checksum>
     </file>
     <file>
       <filename>electrical_panel/electrical_panel_rated_capacity__multi_family.csv</filename>
