@@ -21,7 +21,7 @@ kestrel:
   account: rescore
   postprocessing:
     time: 120
-    n_workers: 5
+    n_workers: 10
     n_procs: 20
   sampling:
     time: 30
