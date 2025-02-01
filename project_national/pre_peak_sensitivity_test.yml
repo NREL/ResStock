@@ -4,7 +4,7 @@ os_sha: c77fbb9569
 buildstock_directory: ../ # Relative to this file or absolute
 project_directory: project_national # Relative to buildstock_directory
 #output_directory: /Volumes/LaCie/load_flexibility/pre_peak_sensitivity_dec24
-output_directory: /projects/rescore/load_flex/pre_peak_sensitivity_dec29
+output_directory: /projects/rescore/load_flex/pre_peak_sensitivity_jan31
 # weather_files_path: /Users/radhikar/Documents/BuildStock_TMY3_FIPS.zip
 weather_files_path: kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIPS.zip
 # weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
@@ -12,7 +12,7 @@ weather_files_path: kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIPS
 sampler:
   type: residential_quota
   args:
-    n_datapoints: 1000
+    n_datapoints: 5000
 
 
 kestrel:
@@ -73,57 +73,42 @@ baseline:
   n_buildings_represented: 139647020 # American Community Survey 2021 5-year, B25001, does not include territories ( 138765649 without AK and HI )
 
 upgrades:
-  - upgrade_name: scenario1
+  - upgrade_name: peak_only_4hr_2deg
     options:
-      - option: LoadFlexibility|scenario1
-  - upgrade_name: scenario2
+      - option: LoadFlexibility|peak_only_4hr_2deg
+  - upgrade_name: pre_only_4hr_2deg
     options:
-      - option: LoadFlexibility|scenario2
-  - upgrade_name: scenario3
+      - option: LoadFlexibility|pre_only_4hr_2deg
+  - upgrade_name: both_4hr_2deg
     options:
-      - option: LoadFlexibility|scenario3
-  - upgrade_name: scenario4
+      - option: LoadFlexibility|both_4hr_2deg
+  - upgrade_name: peak_only_4hr_4deg
     options:
-      - option: LoadFlexibility|scenario4
-  - upgrade_name: scenario5
+      - option: LoadFlexibility|peak_only_4hr_4deg
+  - upgrade_name: pre_only_4hr_4deg
     options:
-      - option: LoadFlexibility|scenario5
-  - upgrade_name: scenario6
+      - option: LoadFlexibility|pre_only_4hr_4deg
+  - upgrade_name: both_4hr_4deg
     options:
-      - option: LoadFlexibility|scenario6
-  - upgrade_name: scenario7
+      - option: LoadFlexibility|both_4hr_4deg
+  - upgrade_name: peak_only_1hr_2deg
     options:
-      - option: LoadFlexibility|scenario7
-  - upgrade_name: scenario8
+      - option: LoadFlexibility|peak_only_1hr_2deg
+  - upgrade_name: pre_only_1hr_2deg
     options:
-      - option: LoadFlexibility|scenario8
-  - upgrade_name: scenario9
+      - option: LoadFlexibility|pre_only_1hr_2deg
+  - upgrade_name: both_1hr_2deg
     options:
-      - option: LoadFlexibility|scenario9
-  - upgrade_name: scenario10
+      - option: LoadFlexibility|both_1hr_2deg
+  - upgrade_name: peak_only_1hr_4deg
     options:
-      - option: LoadFlexibility|scenario10
-  - upgrade_name: scenario11
+      - option: LoadFlexibility|peak_only_1hr_4deg
+  - upgrade_name: pre_only_1hr_4deg
     options:
-      - option: LoadFlexibility|scenario11
-  - upgrade_name: scenario12
+      - option: LoadFlexibility|pre_only_1hr_4deg
+  - upgrade_name: both_1hr_4deg
     options:
-      - option: LoadFlexibility|scenario12
-  - upgrade_name: scenario13
-    options:
-      - option: LoadFlexibility|scenario13
-  - upgrade_name: scenario14
-    options:
-      - option: LoadFlexibility|scenario14
-  - upgrade_name: scenario15
-    options:
-      - option: LoadFlexibility|scenario15
-  - upgrade_name: scenario16
-    options:
-      - option: LoadFlexibility|scenario16
-  - upgrade_name: scenario17
-    options:
-      - option: LoadFlexibility|scenario17
+      - option: LoadFlexibility|both_1hr_4deg
 
 postprocessing:
   keep_individual_timeseries: true
