@@ -7,7 +7,6 @@ require 'openstudio'
 require 'pathname'
 require_relative '../../resources/buildstock'
 require_relative '../../resources/hpxml-measures/HPXMLtoOpenStudio/resources/meta_measure'
-
 # start the measure
 class BuildExistingModel < OpenStudio::Measure::ModelMeasure
   # human readable name
@@ -33,6 +32,11 @@ class BuildExistingModel < OpenStudio::Measure::ModelMeasure
     arg.setDefaultValue('buildstock.csv')
     arg.setDisplayName('Buildstock CSV File Path')
     arg.setDescription("Absolute/relative path of the buildstock CSV file. Relative is compared to the 'lib/housing_characteristics' directory.")
+    args << arg
+
+    arg = OpenStudio::Measure::OSArgument.makeStringArgument('project_directory', true)
+    arg.setDisplayName('Project Directory')
+    arg.setDescription('The directory containing the housing characteristics folder (e.g., project_national).')
     args << arg
 
     arg = OpenStudio::Measure::OSArgument.makeIntegerArgument('building_id', true)
@@ -237,10 +241,9 @@ class BuildExistingModel < OpenStudio::Measure::ModelMeasure
 
     # assign the user inputs to variables
     args = runner.getArgumentValues(arguments(model), user_arguments)
-
     # Get file/dir paths
-    resources_dir = File.absolute_path(File.join(File.dirname(__FILE__), '../../lib/resources'))
-    characteristics_dir = File.absolute_path(File.join(File.dirname(__FILE__), '../../lib/housing_characteristics'))
+    resources_dir = File.absolute_path(File.join(File.dirname(__FILE__), '../../resources'))
+    characteristics_dir = File.absolute_path(File.join(File.dirname(__FILE__), "../../#{args[:project_directory]}/housing_characteristics"))
     measures_dir = File.join(File.dirname(__FILE__), '../../measures')
     hpxml_measures_dir = File.join(File.dirname(__FILE__), '../../resources/hpxml-measures')
     lookup_file = File.join(resources_dir, 'options_lookup.tsv')
