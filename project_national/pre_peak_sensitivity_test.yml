@@ -6,7 +6,7 @@ project_directory: project_national # Relative to buildstock_directory
 #output_directory: /Volumes/LaCie/load_flexibility/pre_peak_sensitivity_dec24
 output_directory: /projects/rescore/load_flex/pre_peak_sensitivity_jan31
 # weather_files_path: /Users/radhikar/Documents/BuildStock_TMY3_FIPS.zip
-weather_files_path: kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIPS.zip
+weather_files_path: /kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIPS.zip
 # weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
 
 sampler:
