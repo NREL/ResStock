@@ -47,6 +47,11 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
     upgrade_name.setDefaultValue('My Upgrade')
     args << upgrade_name
 
+    project_directory = OpenStudio::Measure::OSArgument::makeStringArgument('project_directory', true)
+    project_directory.setDisplayName('Project Directory')
+    project_directory.setDescription('The directory containing the housing characteristics folder (e.g., project_national).')
+    args << project_directory
+
     for option_num in 1..num_options
 
       # Option name argument
@@ -120,8 +125,7 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
       return true
     end
 
-    upgrade_name = runner.getStringArgumentValue('upgrade_name', user_arguments)
-
+    args = runner.getArgumentValues(arguments(model), user_arguments)
     # Retrieve Option X argument values
     options = {}
     for option_num in 1..num_options
@@ -180,8 +184,8 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
     end
 
     # Get file/dir paths
-    resources_dir = File.absolute_path(File.join(File.dirname(__FILE__), '../../lib/resources'))
-    characteristics_dir = File.absolute_path(File.join(File.dirname(__FILE__), '../../lib/housing_characteristics'))
+    resources_dir = File.absolute_path(File.join(File.dirname(__FILE__), '../../resources'))
+    characteristics_dir = File.absolute_path(File.join(File.dirname(__FILE__), "../../#{args[:project_directory]}/housing_characteristics"))
     measures_dir = File.join(File.dirname(__FILE__), '../../measures')
     hpxml_measures_dir = File.join(File.dirname(__FILE__), '../../resources/hpxml-measures')
     lookup_file = File.join(resources_dir, 'options_lookup.tsv')
@@ -306,7 +310,7 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
     end # apply_package_upgrade
 
     # Register the upgrade name
-    register_value(runner, 'upgrade_name', upgrade_name)
+    register_value(runner, 'upgrade_name', args[:upgrade_name])
 
     if halt_workflow(runner, measures)
       return false

@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>apply_upgrade</name>
   <uid>33f1654c-f734-43d1-b35d-9d2856e41b5a</uid>
-  <version_id>a9610e0a-c95e-41e0-999b-c53e981b844f</version_id>
-  <version_modified>2025-01-27T16:55:35Z</version_modified>
+  <version_id>aaa06043-5c7e-4fd3-aa36-90957ce7b6be</version_id>
+  <version_modified>2025-02-03T16:04:55Z</version_modified>
   <xml_checksum>9339BE01</xml_checksum>
   <class_name>ApplyUpgrade</class_name>
   <display_name>Apply Upgrade</display_name>
@@ -19,6 +19,14 @@
       <required>true</required>
       <model_dependent>false</model_dependent>
       <default_value>My Upgrade</default_value>
+    </argument>
+    <argument>
+      <name>project_directory</name>
+      <display_name>Project Directory</display_name>
+      <description>The directory containing the housing characteristics folder (e.g., project_national).</description>
+      <type>String</type>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
     </argument>
     <argument>
       <name>option_1</name>
@@ -25000,7 +25008,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>2A0F08F6</checksum>
+      <checksum>601CF1E9</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -25017,7 +25025,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>D982A17C</checksum>
+      <checksum>520A2997</checksum>
     </file>
     <file>
       <filename>constants.rb</filename>
