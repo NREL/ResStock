@@ -5406,6 +5406,12 @@ Arguments
      - Type
      - Choices
      - Description
+   * - ``electric_panel_load_cooking_range_power``
+     - false
+     - W
+     - Double
+     - auto
+     - Specifies the panel load cooking range/oven power. Only applies to electric cooking range/oven. If not provided, the OS-HPXML default (see `Panel Loads <https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#panel-loads>`_) is used.
    * - ``cooking_range_oven_present``
      - true
      - 
@@ -5449,6 +5455,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
 
    * - Option name
      - Stock saturation
+     - ``electric_panel_load_cooking_range_power``
      - ``cooking_range_oven_present``
      - ``cooking_range_oven_location``
      - ``cooking_range_oven_fuel_type``
@@ -5457,6 +5464,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
 
    * - Electric Induction
      - 2.8%
+     - 10000
      - true
      - auto
      - electricity
@@ -5464,6 +5472,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
    * - Electric Resistance
      - 60%
+     - 12000
      - true
      - auto
      - electricity
@@ -5471,6 +5480,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
    * - Gas
      - 33%
+     - 0
      - true
      - auto
      - natural gas
@@ -5478,6 +5488,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
    * - None
      - 0.096%
+     - 0
      - false
      - auto
      - natural gas
@@ -5485,6 +5496,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
    * - Propane
      - 4.9%
+     - 0
      - true
      - auto
      - propane
@@ -5492,6 +5504,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
      - auto
    * - Void
      - 0%
+     - 
      - 
      - 
      - 
