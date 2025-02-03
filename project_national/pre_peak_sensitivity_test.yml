@@ -3,16 +3,16 @@ os_version: 3.9.0
 os_sha: c77fbb9569
 buildstock_directory: ../ # Relative to this file or absolute
 project_directory: project_national # Relative to buildstock_directory
-#output_directory: /Volumes/LaCie/load_flexibility/pre_peak_sensitivity_dec24
-output_directory: /projects/rescore/load_flex/pre_peak_sensitivity_jan31
-# weather_files_path: /Users/radhikar/Documents/BuildStock_TMY3_FIPS.zip
+# output_directory: /Volumes/LaCie/load_flexibility/pre_peak_sensitivity_feb2
+output_directory: /projects/rescore/load_flex/pre_peak_sensitivity_feb2
+#weather_files_path: ../BuildStock_2020_FIPS.zip
 weather_files_path: /kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIPS.zip
 # weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
 
 sampler:
   type: residential_quota
   args:
-    n_datapoints: 5000
+    n_datapoints: 2000
 
 
 kestrel:
@@ -91,18 +91,18 @@ upgrades:
   - upgrade_name: both_4hr_4deg
     options:
       - option: LoadFlexibility|both_4hr_4deg
-  - upgrade_name: peak_only_1hr_2deg
-    options:
-      - option: LoadFlexibility|peak_only_1hr_2deg
+  # - upgrade_name: peak_only_1hr_2deg
+  #   options:
+  #     - option: LoadFlexibility|peak_only_1hr_2deg
   - upgrade_name: pre_only_1hr_2deg
     options:
       - option: LoadFlexibility|pre_only_1hr_2deg
   - upgrade_name: both_1hr_2deg
     options:
       - option: LoadFlexibility|both_1hr_2deg
-  - upgrade_name: peak_only_1hr_4deg
-    options:
-      - option: LoadFlexibility|peak_only_1hr_4deg
+  # - upgrade_name: peak_only_1hr_4deg
+  #   options:
+  #     - option: LoadFlexibility|peak_only_1hr_4deg
   - upgrade_name: pre_only_1hr_4deg
     options:
       - option: LoadFlexibility|pre_only_1hr_4deg
