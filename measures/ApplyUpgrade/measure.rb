@@ -559,6 +559,7 @@ class ApplyUpgrade < OpenStudio::Measure::ModelMeasure
     FileUtils.cp(hpxml_path, in_path)
 
     register_logs(runner, resstock_arguments_runner)
+    register_logs(runner, new_runner)
 
     return true
   end

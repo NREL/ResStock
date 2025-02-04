@@ -282,7 +282,7 @@ class TestRunAnalysis < Minitest::Test
     assert(File.exist?(cli_output_log))
     cli_output = File.readlines(cli_output_log)
     _assert_and_puts(cli_output, 'ERROR', false)
-    _verify_outputs(cli_output_log, true)
+    _verify_outputs(cli_output_log)
 
     _test_measure_order(File.join(@testing_baseline, 'testing_baseline-Baseline.osw'))
     results_baseline = File.join(@testing_baseline, 'results-Baseline.csv')
@@ -316,7 +316,7 @@ class TestRunAnalysis < Minitest::Test
     assert(File.exist?(cli_output_log))
     cli_output = File.readlines(cli_output_log)
     _assert_and_puts(cli_output, 'ERROR', false)
-    _verify_outputs(cli_output_log, true)
+    _verify_outputs(cli_output_log)
 
     _test_measure_order(File.join(@national_baseline, 'national_baseline-Baseline.osw'))
     results_baseline = File.join(@national_baseline, 'results-Baseline.csv')
@@ -351,7 +351,7 @@ class TestRunAnalysis < Minitest::Test
     assert(File.exist?(cli_output_log))
     cli_output = File.readlines(cli_output_log)
     _assert_and_puts(cli_output, 'ERROR', false)
-    _verify_outputs(cli_output_log, true)
+    _verify_outputs(cli_output_log)
 
     _test_measure_order(File.join(@sdr_upgrades_tmy3, 'sdr_upgrades_tmy3-Baseline.osw'))
     results_baseline = File.join(@sdr_upgrades_tmy3, 'results-Baseline.csv')
@@ -423,7 +423,7 @@ class TestRunAnalysis < Minitest::Test
     end
   end
 
-  def _verify_outputs(cli_output_log, _testing = false)
+  def _verify_outputs(cli_output_log)
     # Check cli_output.log warnings
     File.readlines(cli_output_log).each do |message|
       next if message.strip.empty?
