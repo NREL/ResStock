@@ -71,7 +71,7 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
     puts "\nTesting #{osw_file}..."
     this_dir = File.dirname(__FILE__)
 
-    values = { 'hpxml_output' => {} }
+    _values = { 'hpxml_output' => {} }
 
     # Existing
     model = OpenStudio::Model::Model.new
@@ -79,10 +79,10 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
     _run_osw(model, osw)
 
     hpxml_path = File.join(this_dir, 'in.xml')
-    hpxml_in = HPXML.new(hpxml_path: hpxml_path)
+    _hpxml_in = HPXML.new(hpxml_path: hpxml_path)
 
     existing_path = File.join(this_dir, osw_file.gsub('osw', 'xml'))
-    existing_hpxml = HPXML.new(hpxml_path: existing_path)
+    _existing_hpxml = HPXML.new(hpxml_path: existing_path)
 
     # Upgraded with load flexibility measure
     upgrade_osw_file = "Upgrade_#{osw_file}"
@@ -97,10 +97,10 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
     _run_osw(model, upgrade_osw)
 
     upgraded_path = File.join(this_dir, upgrade_osw_file.gsub('osw', 'xml'))
-    upgraded_hpxml = HPXML.new(hpxml_path: upgraded_path)
+    _upgraded_hpxml = HPXML.new(hpxml_path: upgraded_path)
 
     # Create instance of the measures
-    load_flexibility = ResStockArgumentsPostHPXML.new
+    _load_flexibility = ResStockArgumentsPostHPXML.new
 
     # validate setpoint temperature is modified according to measure
     schedule_file_path = File.join(this_dir, 'in.schedules.csv')
