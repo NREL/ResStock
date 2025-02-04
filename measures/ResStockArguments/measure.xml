@@ -3,13 +3,13 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments</name>
   <uid>c984bb9e-4ac4-4930-a399-9d23f8f6936a</uid>
-  <version_id>d4503561-5947-467e-a470-7e3a3244d991</version_id>
-  <version_modified>2025-02-04T20:54:44Z</version_modified>
+  <version_id>27b979ce-cb82-48ef-9e9a-2d09f4f2cac8</version_id>
+  <version_modified>2025-02-04T22:10:39Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArguments</class_name>
   <display_name>ResStock Arguments</display_name>
   <description>Measure that pre-processes the arguments passed to the BuildResidentialHPXML and BuildResidentialScheduleFile measures.</description>
-  <modeler_description>Passes in all arguments from the options lookup, processes them, and then registers values to the runner to be used by other measures.</modeler_description>
+  <modeler_description>Passes in all ResStockArguments arguments from the options lookup, processes them, and then registers values to the runner to be used by other measures.</modeler_description>
   <arguments>
     <argument>
       <name>simulation_control_daylight_saving_enabled</name>
@@ -7713,7 +7713,7 @@
       <filename>measure.txt</filename>
       <filetype>txt</filetype>
       <usage_type>resource</usage_type>
-      <checksum>5505BBDE</checksum>
+      <checksum>96A4BB9E</checksum>
     </file>
     <file>
       <filename>resstock_arguments_test.rb</filename>

@@ -139,11 +139,11 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
     epw_path = Location.get_epw_path(hpxml_bldg, args[:hpxml_path])
     weather = WeatherFile.new(epw_path: epw_path, runner: runner, hpxml: hpxml)
     schedule_modifier = HVACScheduleModifier.new(state: state,
-                                                sim_year: sim_year,
-                                                weather: weather,
-                                                epw_path: epw_path,
-                                                minutes_per_step: minutes_per_step,
-                                                runner: runner)
+                                                 sim_year: sim_year,
+                                                 weather: weather,
+                                                 epw_path: epw_path,
+                                                 minutes_per_step: minutes_per_step,
+                                                 runner: runner)
     flexibility_inputs = get_flexibility_inputs(args, minutes_per_step, building_id)
     schedule_modifier.modify_setpoints(schedule, flexibility_inputs)
   end

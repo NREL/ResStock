@@ -5,12 +5,12 @@ require 'openstudio'
 
 Dir["#{File.dirname(__FILE__)}/../../../../resources/hpxml-measures/HPXMLtoOpenStudio/resources/*.rb"].each do |resource_file|
   next if resource_file.include? 'minitest_helper.rb'
+
   require resource_file
 end
 
 FlexibilityInputs = Struct.new(:peak_duration_steps, :peak_offset, :pre_peak_duration_steps, :pre_peak_offset, :random_shift_steps, keyword_init: true)
 DailyPeakIndices = Struct.new(:pre_peak_start_index, :peak_start_index, :peak_end_index)
-
 
 class HVACScheduleModifier
   def initialize(state:, sim_year:, weather:, epw_path:, minutes_per_step:, runner:)
@@ -34,7 +34,7 @@ class HVACScheduleModifier
     log_inputs(flexibility_inputs)
     heating_setpoint = setpoints[:heating_setpoint].dup
     cooling_setpoint = setpoints[:cooling_setpoint].dup
-    raise "heating_setpoint.length != cooling_setpoint.length" unless heating_setpoint.length == cooling_setpoint.length
+    raise 'heating_setpoint.length != cooling_setpoint.length' unless heating_setpoint.length == cooling_setpoint.length
 
     total_indices = heating_setpoint.length
     total_indices.times do |index|
@@ -136,7 +136,8 @@ class HVACScheduleModifier
 
   def log_inputs(inputs)
     return unless @runner
-    @runner.registerInfo("Modifying setpoints ...")
+
+    @runner.registerInfo('Modifying setpoints ...')
     @runner.registerInfo("peak_duration_steps=#{inputs.peak_duration_steps}")
     @runner.registerInfo("pre_peak_duration_steps=#{inputs.pre_peak_duration_steps}")
     @runner.registerInfo("random_shift_steps=#{inputs.random_shift_steps}")
