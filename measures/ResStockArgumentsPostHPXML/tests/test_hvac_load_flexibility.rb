@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'csv'
 require 'parallel'
 require 'openstudio'
@@ -11,8 +13,8 @@ require 'pathname'
 class ResStockArgumentsPostHPXMLTest < Minitest::Test
   def setup
     @runner = OpenStudio::Measure::OSRunner.new(OpenStudio::WorkflowJSON.new)
-    parent_path = File.expand_path("../../../../", __FILE__)
-    epw_path = File.join(parent_path, "resources/hpxml-measures/weather/USA_CO_Denver.Intl.AP.725650_TMY3.epw")
+    parent_path = File.expand_path('../../../../', __FILE__)
+    epw_path = File.join(parent_path, 'resources/hpxml-measures/weather/USA_CO_Denver.Intl.AP.725650_TMY3.epw')
     weather = WeatherFile.new(epw_path: epw_path, runner: nil)
     dst_info = DSTInfo.new(dst_begin_month: 3,
                            dst_begin_day: 12,
@@ -64,11 +66,10 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
   end
 
   def test_modify_setpoints
-
     setpoints = {
-        heating_setpoint: [71] * 365 * 24 * 4,
-        cooling_setpoint: [78] * 365 * 24 * 4
-      }
+      heating_setpoint: [71] * 365 * 24 * 4,
+      cooling_setpoint: [78] * 365 * 24 * 4
+    }
     flexibility_inputs = FlexibilityInputs.new(
         random_shift_steps: 0,
         pre_peak_duration_steps: 4 * 4,
@@ -136,7 +137,7 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
     assert_equal(78 + 2, modified_setpoints_15[:cooling_setpoint][winter_peak - 2])  # peak offset
     assert_equal(71 - 2, modified_setpoints_15[:heating_setpoint][winter_peak - 2])  # peak offset
     assert_equal(78, modified_setpoints_15[:cooling_setpoint][winter_peak - 2 - 1])  # end of pre-peak period
-    assert_equal(71 + 0, modified_setpoints_15[:heating_setpoint][winter_peak - 2 - 1])  # end of pre-peak period
+    assert_equal(71 + 0, modified_setpoints_15[:heating_setpoint][winter_peak - 2 - 1]) # end of pre-peak period
 
     assert_equal(71, modified_setpoints_15[:heating_setpoint][summer_midnight])
     assert_equal(78, modified_setpoints_15[:cooling_setpoint][summer_midnight])

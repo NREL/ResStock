@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'openstudio'
 require_relative '../../../../resources/hpxml-measures/HPXMLtoOpenStudio/resources/meta_measure'
 require_relative '../../../../resources/hpxml-measures/HPXMLtoOpenStudio/resources/constants'
@@ -11,11 +13,11 @@ Dir["#{File.dirname(__FILE__)}/../../../../resources/hpxml-measures/BuildResiden
 end
 Dir["#{File.dirname(__FILE__)}/../../../../resources/hpxml-measures/HPXMLtoOpenStudio/resources/*.rb"].each do |resource_file|
   next if resource_file.include? 'minitest_helper.rb'
+
   require resource_file
 end
 
 class HVACScheduleGenerator
-
   def initialize(hpxml, hpxml_path, runner, building_index)
     @hpxml_path = hpxml_path
     @hpxml = hpxml
@@ -29,7 +31,6 @@ class HVACScheduleGenerator
     @minutes_per_step = @hpxml.header.timestep
     @steps_in_day = 24 * 60 / @minutes_per_step
   end
-
 
   def get_heating_cooling_setpoint_schedule()
     @runner.registerInfo("Creating heating and cooling setpoint schedules for building #{@hpxml_path}")
@@ -54,7 +55,7 @@ class HVACScheduleGenerator
         cooling_setpoint << cooling_setpoint_sch[day][hour]
       end
     end
-    return {heating_setpoint: heating_setpoint, cooling_setpoint: cooling_setpoint}
+    return { heating_setpoint: heating_setpoint, cooling_setpoint: cooling_setpoint }
   end
 
   def c2f(setpoint_sch)
@@ -85,14 +86,13 @@ class HVACScheduleGenerator
     clg_end_day = hvac_control.seasons_cooling_end_day || 31
     heating_days = Calendar.get_daily_season(@sim_year, htg_start_month, htg_start_day, htg_end_month, htg_end_day)
     cooling_days = Calendar.get_daily_season(@sim_year, clg_start_month, clg_start_day, clg_end_month, clg_end_day)
-    return {:clg=>cooling_days, :htg=>heating_days}
+    return { :clg => cooling_days, :htg => heating_days }
   end
 
   def main(hpxml_path)
     hpxml = HPXML.new(hpxml_path: hpxml_path)
-    sf = SchedulesFile.new(schedules_paths: hpxml.buildings[0].header.schedules_filepaths,
-                             year: @year,
-                             output_path: @tmp_schedule_file_path)
-
+    _ = SchedulesFile.new(schedules_paths: hpxml.buildings[0].header.schedules_filepaths,
+                          year: @year,
+                          output_path: @tmp_schedule_file_path)
   end
 end

@@ -10,7 +10,6 @@ require_relative 'resources/hvac_flexibility/setpoint_modifier'
 class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
   # human readable name
   def name
-    # Measure name should be the title case of the class name.
     return 'ResStock Arguments Post-HPXML'
   end
 
@@ -57,14 +56,14 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
     arg.setDefaultValue(0)
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeStringArgument('output_csv_path', false)
-    arg.setDisplayName('Schedules: Output CSV Path')
-    arg.setDescription('Absolute/relative path of the csv file containing user-specified occupancy schedules. Relative paths are relative to the HPXML output path.')
-    args << arg
-
-    arg = OpenStudio::Measure::OSArgument.makeIntegerArgument('building_id', false)
+    arg = OpenStudio::Measure::OSArgument::makeStringArgument('building_id', false)
     arg.setDisplayName('Building Unit ID')
     arg.setDescription('The building unit number (between 1 and the number of samples).')
+    args << arg
+
+    arg = OpenStudio::Measure::OSArgument::makeStringArgument('output_csv_path', false)
+    arg.setDisplayName('Schedules: Output CSV Path')
+    arg.setDescription('Absolute/relative path of the csv file containing occupancy schedules. Relative paths are relative to the HPXML output path.')
     args << arg
 
     return args

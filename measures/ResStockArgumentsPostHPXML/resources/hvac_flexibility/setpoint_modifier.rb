@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'date'
 require 'csv'
 require 'json'
@@ -5,6 +7,7 @@ require 'openstudio'
 
 Dir["#{File.dirname(__FILE__)}/../../../../resources/hpxml-measures/HPXMLtoOpenStudio/resources/*.rb"].each do |resource_file|
   next if resource_file.include? 'minitest_helper.rb'
+
   require resource_file
 end
 
@@ -35,7 +38,7 @@ class HVACScheduleModifier
     log_inputs(flexibility_inputs)
     heating_setpoint = setpoints[:heating_setpoint].dup
     cooling_setpoint = setpoints[:cooling_setpoint].dup
-    raise "heating_setpoint.length != cooling_setpoint.length" unless heating_setpoint.length == cooling_setpoint.length
+    raise 'heating_setpoint.length != cooling_setpoint.length' unless heating_setpoint.length == cooling_setpoint.length
 
     total_indices = heating_setpoint.length
     total_indices.times do |index|
