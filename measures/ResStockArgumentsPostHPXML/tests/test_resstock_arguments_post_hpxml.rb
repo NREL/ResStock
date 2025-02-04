@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'openstudio'
 require 'openstudio/measure/ShowRunnerOutput'
 require 'minitest/autorun'
@@ -16,5 +18,4 @@ class ModelMeasureNameTest < Minitest::Test
       assert_includes(argument_names, expected_name, "Expected argument '#{expected_name}' not found")
     end
   end
-  
 end

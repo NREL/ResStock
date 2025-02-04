@@ -423,7 +423,7 @@ class TestRunAnalysis < Minitest::Test
     end
   end
 
-  def _verify_outputs(cli_output_log, testing = false)
+  def _verify_outputs(cli_output_log, _testing = false)
     # Check cli_output.log warnings
     File.readlines(cli_output_log).each do |message|
       next if message.strip.empty?
