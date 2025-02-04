@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments_post_hpxml</name>
   <uid>db102ce5-ac96-4ef9-90d3-abbe53478716</uid>
-  <version_id>af8086d5-c9cc-4774-96dd-3708a815023d</version_id>
-  <version_modified>2025-02-04T20:54:45Z</version_modified>
+  <version_id>6566f1b1-977e-47da-9d62-b4cd3fae0553</version_id>
+  <version_modified>2025-02-04T21:19:03Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArgumentsPostHPXML</class_name>
   <display_name>ResStock Arguments Post-HPXML</display_name>
@@ -21,8 +21,8 @@
     </argument>
     <argument>
       <name>building_id</name>
-      <display_name>Building ID</display_name>
-      <description>ID of the building to be processed.</description>
+      <display_name>Building Unit ID</display_name>
+      <description>The building unit number (between 1 and the number of samples).</description>
       <type>String</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -30,7 +30,7 @@
     <argument>
       <name>output_csv_path</name>
       <display_name>Schedules: Output CSV Path</display_name>
-      <description>Absolute/relative path of the csv file containing user-specified occupancy schedules. Relative paths are relative to the HPXML output path.</description>
+      <description>Absolute/relative path of the csv file containing occupancy schedules. Relative paths are relative to the HPXML output path.</description>
       <type>String</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -58,7 +58,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>06F3217D</checksum>
+      <checksum>A81E9245</checksum>
     </file>
     <file>
       <filename>test_resstock_arguments_post_hpxml.rb</filename>
