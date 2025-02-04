@@ -166,7 +166,7 @@ jobs:
 
       - name: Run buildstockbatch
         run: |
-          pip install git+https://github.com/NREL/buildstockbatch.git@no_lib
+          pip install git+https://github.com/NREL/buildstockbatch.git@develop
           
           buildstock_local project_national/national_baseline.yml
           buildstock_local project_testing/testing_baseline.yml
@@ -364,6 +364,7 @@ jobs:
         with:
           working_directory: docs/technical_reference_guide
           root_file: ResStockTechnicalReferenceGuide.tex
+          args: -pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode -output-directory=_build
 
       - name: Save documentation
         uses: actions/upload-artifact@v4

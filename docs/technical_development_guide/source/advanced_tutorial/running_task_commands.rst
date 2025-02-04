@@ -1,5 +1,5 @@
-Running Tasks
-=============
+Running Tasks Commands
+======================
 
 Run ``openstudio tasks.rb`` to see available task commands:
 
@@ -31,6 +31,8 @@ Use ``openstudio tasks.rb update_measures`` to apply rubocop auto-correct to mea
   91 files inspected, no offenses detected
   Updating measure.xmls...
   Done.
+
+.. _update-resources:
 
 Update Resources
 ----------------
@@ -65,7 +67,8 @@ Run ``openstudio tasks.rb integrity_check_<project_name>``, where ``<project_nam
   Checking for issues with project_national/Usage Level...
   ...
 
-If the integrity check for a given project fails, you will need to update either your tsv files and/or the ``resources/options_lookup.tsv`` file. See :doc:`options_lookup` for information about the ``options_lookup.tsv`` file.
+If the integrity check for a given project fails, you will need to update either your tsv files and/or the ``resources/options_lookup.tsv`` file.
+See :doc:`updating_options_lookup` for information about the ``options_lookup.tsv`` file.
 
 .. download-weather:
 
@@ -81,20 +84,3 @@ Run ``openstudio tasks.rb download_weather`` to download available EPW weather f
   Downloading /files/156/BuildStock_TMY3_FIPS.zip (  2%) 
   Downloading /files/156/BuildStock_TMY3_FIPS.zip (  3%)
   ...
-
-.. rakefile:
-
-Rakefile
---------
-
-Once you have completed instructions found in :doc:`installer_setup`, you can then use the `Rakefile <https://github.com/NREL/resstock/blob/develop/Rakefile>`_ contained at the top level of this repository. You can run rake task(s) for :ref:`performing integrity checks on project inputs <integrity-checks>` as well as executing various tests.
-
-Run ``rake -T`` to see the list of possible rake tasks. The ``-T`` is replaced with the chosen task.
-
-.. code:: bash
-
-  $ rake -T
-  rake unit_tests:integrity_check_tests     # Run tests for integrity_check_t...
-  rake unit_tests:measure_tests             # Run tests for measure_tests
-  rake unit_tests:project_integrity_checks  # Run tests for project_integrity...
-  rake workflow:analysis_tests              # Run tests for analysis_tests
