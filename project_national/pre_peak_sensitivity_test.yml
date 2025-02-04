@@ -12,7 +12,7 @@ weather_files_path: /kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIP
 sampler:
   type: residential_quota
   args:
-    n_datapoints: 2000
+    n_datapoints: 1000
 
 
 kestrel:
