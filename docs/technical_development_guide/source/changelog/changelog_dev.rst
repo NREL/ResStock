@@ -7,6 +7,22 @@ Development Changelog
     :released: pending
 
     .. change::
+        :tags: workflow, feature
+        :pullreq: 929
+        :tickets: 927
+
+        **Date**: 2025-02-05
+
+        Title:
+        New ResStockArgumentsPostHPXML measure
+
+        Description:
+        This measure is added to the workflow for postprocessing the output of the BuildResidentialHPXML and BuildResidentialScheduleFile measures.
+
+        Assignees: Joe Robertson, Rajendra Adhikari
+
+
+    .. change::
         :tags: characteristics
         :pullreq: 1339
 
