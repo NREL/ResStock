@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'openstudio'
 require_relative '../../../../resources/hpxml-measures/HPXMLtoOpenStudio/resources/meta_measure'
 require_relative '../../../../resources/hpxml-measures/HPXMLtoOpenStudio/resources/constants'
@@ -89,8 +91,8 @@ class HVACScheduleGenerator
 
   def main(hpxml_path)
     hpxml = HPXML.new(hpxml_path: hpxml_path)
-    sf = SchedulesFile.new(schedules_paths: hpxml.buildings[0].header.schedules_filepaths,
-                           year: @year,
-                           output_path: @tmp_schedule_file_path)
+    _ = SchedulesFile.new(schedules_paths: hpxml.buildings[0].header.schedules_filepaths,
+                          year: @year,
+                          output_path: @tmp_schedule_file_path)
   end
 end

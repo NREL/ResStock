@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments_post_hpxml</name>
   <uid>db102ce5-ac96-4ef9-90d3-abbe53478716</uid>
-  <version_id>297d4aec-34a1-4334-a281-6dd29d4e3975</version_id>
-  <version_modified>2025-02-04T22:10:40Z</version_modified>
+  <version_id>e3117250-0d7f-4cfa-95c6-d298ab8132f1</version_id>
+  <version_modified>2025-02-04T22:13:58Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArgumentsPostHPXML</class_name>
   <display_name>ResStock Arguments Post-HPXML</display_name>
@@ -109,13 +109,13 @@
       <filename>hvac_flexibility/detailed_schedule_generator.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>5E012E87</checksum>
+      <checksum>752C564B</checksum>
     </file>
     <file>
       <filename>hvac_flexibility/setpoint_modifier.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>029C0B35</checksum>
+      <checksum>47995102</checksum>
     </file>
     <file>
       <filename>hvac_flexibility/state_summer_peak_hour_dict.json</filename>
@@ -415,7 +415,7 @@
       <filename>test_hvac_load_flexibility.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>2D622078</checksum>
+      <checksum>BBE86099</checksum>
     </file>
     <file>
       <filename>test_resstock_arguments_post_hpxml.rb</filename>

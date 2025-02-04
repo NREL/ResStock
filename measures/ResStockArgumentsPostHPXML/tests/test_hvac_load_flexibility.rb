@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'csv'
 require 'parallel'
 require 'openstudio'
@@ -41,7 +43,7 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
   end
 
   def test_get_month
-    assert_equal(2, @schedule_modifier_15._get_month(index: 31 * 24 * 4 + 28 * 24 * 4 + 1))  # First 15 minutes of Feb 29
+    assert_equal(2, @schedule_modifier_15._get_month(index: 31 * 24 * 4 + 28 * 24 * 4 + 1)) # First 15 minutes of Feb 29
     assert_equal(2, @schedule_modifier_60._get_month(index: 31 * 24 + 28 * 24 + 1)) # First 1 hour of Feb 29
     assert_equal(3, @non_leap_modifier._get_month(index: 31 * 24 * 4 + 28 * 24 * 4 + 1)) # First 15 minutes of March 1
 
