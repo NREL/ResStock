@@ -1,0 +1,87 @@
+schema_version: '0.3'
+buildstock_directory: ../../../ # Relative to this file or absolute
+project_directory: project_testing # Relative to buildstock_directory
+output_directory: test_upgrade_name
+weather_files_url: https://data.nrel.gov/system/files/156/Buildstock_TMY3_FIPS-1678817889.zip
+# weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
+
+sampler:
+  type: residential_quota
+  args:
+    n_datapoints: 2
+
+workflow_generator:
+  type: residential_hpxml
+  args:
+    build_existing_model:
+      simulation_control_timestep: 60
+      simulation_control_run_period_begin_month: 1
+      simulation_control_run_period_begin_day_of_month: 1
+      simulation_control_run_period_end_month: 12
+      simulation_control_run_period_end_day_of_month: 31
+      simulation_control_run_period_calendar_year: 2007
+
+    simulation_output_report:
+      timeseries_frequency: hourly
+      include_timeseries_fuel_consumptions: true
+      include_timeseries_end_use_consumptions: true
+      include_timeseries_emissions: true
+      include_timeseries_total_loads: true
+
+    reporting_measures:
+      - measure_dir_name: QOIReport
+
+    server_directory_cleanup:
+      debug: true
+
+baseline:
+  n_buildings_represented: 110000000
+
+upgrades:
+  - upgrade_name: Windows
+    options:
+      - &windows_triple_low_e_non_metal_l_gain
+        option: Windows|Triple, Low-E, Non-metal, Air, L-Gain
+        costs:
+          - value: 45.77
+            multiplier: Window Area (ft^2)
+        lifetime: 30
+
+  - upgrade_name: Walls
+    options:
+      - &insulation_wall_wood_stud_r_13
+        option: Insulation Wall|Wood Stud, R-13
+        costs:
+          - value: 2.21
+            multiplier: Wall Area, Above-Grade, Conditioned (ft^2)
+        lifetime: 999
+
+  - upgrade_name: Sheathing
+    options:
+      - &insulation_sheathing_r_5
+        option: Insulation Sheathing|R-5
+        costs:
+          - value: 2.01
+            multiplier: Wall Area, Above-Grade, Conditioned (ft^2)
+        lifetime: 999
+
+  - upgrade_name: Foundation Type
+    package_apply_logic:
+      and:
+        - Geometry Foundation Type|Vented Crawlspace
+        - or: # Ensure that the dwelling unit being modeled is either (1) not in a multifamily building, or (2) on the bottom floor of a multifamily building and therefore above the crawlspace.
+            - Geometry Building Level MF|None
+            - Geometry Building Level MF|Bottom
+    options:
+      - &geometry_foundation_type_unvented_crawlspace
+        option: Geometry Foundation Type|Unvented Crawlspace
+        costs:
+          - value: 0.84
+            multiplier: Floor Area, Foundation (ft^2)
+        lifetime: 999
+      - &insulation_foundation_wall_wall_r_10_exterior
+        option: Insulation Foundation Wall|Wall R-10, Exterior
+        costs:
+          - value: 1.05
+            multiplier: Wall Area, Below-Grade (ft^2)
+        lifetime: 999
