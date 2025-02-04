@@ -7,6 +7,24 @@ Development Changelog
     :released: pending
 
     .. change::
+        :tags: workflow, feature
+        :pullreq: 929
+        :tickets: 927
+
+        **Date**: 2025-02-04
+
+        Title:
+        New ResStockArgumentsPostHPXML measure
+
+        Description:
+        This measure is introduced to the workflow for postprocessing the output of the BuildResidentialHPXML and BuildResidentialScheduleFile measures.
+        In short, we can use generated schedules (e.g., occupant schedule) to create other detailed schedules (e.g., setpoint schedules).
+        Currently, this is just a stubbed version of the measure -- future versions will actually take advantage of the new functionality.        
+
+        Assignees: Joe Robertson, Rajendra Adhikari
+
+
+    .. change::
         :tags: characteristics
         :pullreq: 1339
 

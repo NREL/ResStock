@@ -6,7 +6,7 @@
 ## Description
 Measure that pre-processes the arguments passed to the BuildResidentialHPXML and BuildResidentialScheduleFile measures.
 
-Passes in all arguments from the options lookup, processes them, and then registers values to the runner to be used by other measures.
+Passes in all ResStockArguments arguments from the options lookup, processes them, and then registers values to the runner to be used by other measures.
 
 ## Arguments
 
