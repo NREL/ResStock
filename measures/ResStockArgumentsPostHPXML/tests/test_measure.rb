@@ -22,7 +22,6 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
 
   private
 
-
   def _run_osw(model, osw)
     measures = {}
 
@@ -49,7 +48,6 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
     assert(success)
   end
 
-
   def _upgrade_osw(osw, loadflex_peak_offset, loadflex_pre_peak_duration_hours, loadflex_pre_peak_offset)
     upgrades = { 'loadflex_peak_offset' => loadflex_peak_offset,
                  'loadflex_pre_peak_duration_hours' => loadflex_pre_peak_duration_hours,
@@ -65,7 +63,6 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
     end
     File.open(osw, 'w') { |json| json.write(JSON.pretty_generate(osw_hash)) }
   end
-
 
   def _test_measure(osw_file)
     require 'json'
@@ -116,7 +113,7 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
 
     # if daylight savings is impacted, add 1 hour to on-peak start and end time
     # the on-peak hour in CO in summer starts from 16:00:00, but it should start from 17:00:00 due to daylight savings
-    if osw_file.include?("dst_impacted")
+    if osw_file.include?('dst_impacted')
       cooling_indices = cooling_indices.map { |num| num + 1 }
     end
 
@@ -134,22 +131,22 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
       end
     end
 
-    heating_setpoint_base = celsius_to_fahrenheit(heating_rows[0]["heating_setpoint"].to_f)
-    heating_setpoint_pre_peak = celsius_to_fahrenheit(heating_rows[1]["heating_setpoint"].to_f)
-    heating_setpoint_on_peak = celsius_to_fahrenheit(heating_rows[3]["heating_setpoint"].to_f)
+    heating_setpoint_base = celsius_to_fahrenheit(heating_rows[0]['heating_setpoint'].to_f)
+    heating_setpoint_pre_peak = celsius_to_fahrenheit(heating_rows[1]['heating_setpoint'].to_f)
+    heating_setpoint_on_peak = celsius_to_fahrenheit(heating_rows[3]['heating_setpoint'].to_f)
 
-    cooling_setpoint_base = celsius_to_fahrenheit(cooling_rows[0]["cooling_setpoint"].to_f)
-    cooling_setpoint_pre_peak = celsius_to_fahrenheit(cooling_rows[1]["cooling_setpoint"].to_f)
-    cooling_setpoint_on_peak = celsius_to_fahrenheit(cooling_rows[3]["cooling_setpoint"].to_f)
+    cooling_setpoint_base = celsius_to_fahrenheit(cooling_rows[0]['cooling_setpoint'].to_f)
+    cooling_setpoint_pre_peak = celsius_to_fahrenheit(cooling_rows[1]['cooling_setpoint'].to_f)
+    cooling_setpoint_on_peak = celsius_to_fahrenheit(cooling_rows[3]['cooling_setpoint'].to_f)
 
-    puts "Testing heating pre peak setpoint offset"
+    puts 'Testing heating pre peak setpoint offset'
     assert_equal(loadflex_pre_peak_offset, heating_setpoint_pre_peak - heating_setpoint_base)
-    puts "Testing heating on peak setpoint offset"
+    puts 'Testing heating on peak setpoint offset'
     assert_equal(loadflex_peak_offset, heating_setpoint_base - heating_setpoint_on_peak)
 
-    puts "Testing cooling pre peak setpoint offset"
+    puts 'Testing cooling pre peak setpoint offset'
     assert_equal(loadflex_pre_peak_offset, cooling_setpoint_base - cooling_setpoint_pre_peak)
-    puts "Testing cooling on peak setpoint offset"
+    puts 'Testing cooling on peak setpoint offset'
     assert_equal(loadflex_peak_offset, cooling_setpoint_on_peak - cooling_setpoint_base)
 
     # Clean up
@@ -158,12 +155,10 @@ class ResStockArgumentsPostHPXMLTest < Minitest::Test
     File.delete(File.join(File.dirname(__FILE__), upgrade_osw_file.gsub('.osw', '.xml')))
     Dir.glob(File.join(File.dirname(__FILE__), 'in.*')).each { |f| File.delete(f) }
     Dir.glob(File.join(File.dirname(__FILE__), '*.csv')).each { |f| File.delete(f) }
-
   end
 
   def celsius_to_fahrenheit(celsius)
     fahrenheit = (celsius * 9.0 / 5.0) + 32
     return fahrenheit.round
   end
-  
 end

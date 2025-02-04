@@ -76,6 +76,7 @@ class HVACScheduleModifier
   def _clip_setpoints(setpoint)
     return 82 if setpoint > 82
     return 55 if setpoint < 55
+
     setpoint
   end
 
@@ -113,11 +114,11 @@ class HVACScheduleModifier
       peak_hours = @peak_hours_dict_shift[@state]
     end
     if [6, 7, 8, 9].include?(month)
-      return peak_hours["summer_peak_start"][11..12].to_i, peak_hours["summer_peak_end"][11..12].to_i
+      return peak_hours['summer_peak_start'][11..12].to_i, peak_hours['summer_peak_end'][11..12].to_i
     elsif [1, 2, 3, 12].include?(month)
-      return peak_hours["winter_peak_start"][11..12].to_i, peak_hours["winter_peak_end"][11..12].to_i
+      return peak_hours['winter_peak_start'][11..12].to_i, peak_hours['winter_peak_end'][11..12].to_i
     else
-      return peak_hours["intermediate_peak_start"][11..12].to_i, peak_hours["intermediate_peak_end"][11..12].to_i
+      return peak_hours['intermediate_peak_start'][11..12].to_i, peak_hours['intermediate_peak_end'][11..12].to_i
     end
   end
 
@@ -166,7 +167,8 @@ class HVACScheduleModifier
 
   def log_inputs(inputs)
     return unless @runner
-    @runner.registerInfo("Modifying setpoints ...")
+
+    @runner.registerInfo('Modifying setpoints ...')
     @runner.registerInfo("pre_peak_duration_steps=#{inputs.pre_peak_duration_steps}")
     @runner.registerInfo("random_shift_steps=#{inputs.random_shift_steps}")
     @runner.registerInfo("pre_peak_offset=#{inputs.pre_peak_offset}")

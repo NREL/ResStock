@@ -136,12 +136,12 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
                            dst_end_month: hpxml_bldg.dst_end_month,
                            dst_end_day: hpxml_bldg.dst_end_day)
     schedule_modifier = HVACScheduleModifier.new(state: state,
-                                                sim_year: sim_year,
-                                                weather: weather,
-                                                epw_path: epw_path,
-                                                minutes_per_step: minutes_per_step,
-                                                runner: runner,
-                                                dst_info: dst_info)
+                                                 sim_year: sim_year,
+                                                 weather: weather,
+                                                 epw_path: epw_path,
+                                                 minutes_per_step: minutes_per_step,
+                                                 runner: runner,
+                                                 dst_info: dst_info)
     flexibility_inputs = get_flexibility_inputs(args, minutes_per_step, building_id)
     schedule_modifier.modify_setpoints(schedule, flexibility_inputs)
   end
