@@ -385,6 +385,13 @@
             <Azimuth>180</Azimuth>
             <RValue>4.4</RValue>
           </Door>
+          <Door>
+            <SystemIdentifier id='Door2'/>
+            <AttachedToWall idref='Wall1'/>
+            <Area>70.0</Area>
+            <Azimuth>180</Azimuth>
+            <RValue>4.4</RValue>
+          </Door>
         </Doors>
       </Enclosure>
       <Systems>
@@ -503,7 +510,7 @@
         </WaterHeating>
         <Vehicles>
           <Vehicle>
-            <SystemIdentifier id='ElectricVehicle1'/>
+            <SystemIdentifier id='Vehicle1'/>
             <VehicleType>
               <BatteryElectricVehicle>
                 <Battery>
@@ -516,6 +523,10 @@
                     <Value>80.0</Value>
                   </UsableCapacity>
                 </Battery>
+                <FractionChargedLocation>
+                  <Location>Home</Location>
+                  <Percentage>0.75</Percentage>
+                </FractionChargedLocation>
                 <ConnectedCharger idref='EVCharger1'/>
               </BatteryElectricVehicle>
             </VehicleType>
@@ -524,6 +535,18 @@
             <FuelEconomyCombined>
               <Units>kWh/mile</Units>
               <Value>0.25</Value>
+            </FuelEconomyCombined>
+          </Vehicle>
+          <Vehicle>
+            <SystemIdentifier id='Vehicle2'/>
+            <VehicleType>
+              <HybridElectricVehicle/>
+            </VehicleType>
+            <MilesDrivenPerYear>15000.0</MilesDrivenPerYear>
+            <HoursDrivenPerWeek>10.0</HoursDrivenPerWeek>
+            <FuelEconomyCombined>
+              <Units>mpg</Units>
+              <Value>44.0</Value>
             </FuelEconomyCombined>
           </Vehicle>
         </Vehicles>

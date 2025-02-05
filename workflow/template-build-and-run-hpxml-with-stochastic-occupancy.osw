@@ -118,6 +118,7 @@
         "include_annual_resilience": true,
         "timeseries_frequency": "none",
         "include_timeseries_total_consumptions": false,
+        "include_timeseries_fuel_consumptions": false,
         "include_timeseries_end_use_consumptions": false,
         "include_timeseries_system_use_consumptions": false,
         "include_timeseries_emissions": false,
@@ -134,7 +135,8 @@
         "timeseries_timestamp_convention": "start",
         "add_timeseries_dst_column": false,
         "add_timeseries_utc_column": false,
-        "user_output_variables": ""
+        "user_output_variables": "",
+        "user_output_meters": ""
       },
       "measure_dir_name": "ReportSimulationOutput"
     },

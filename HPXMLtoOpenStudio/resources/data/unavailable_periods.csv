@@ -16,6 +16,7 @@ clothes_dryer,1,1,0,0
 ceiling_fan,1,1,0,0
 plug_loads_other,1,1,0,0
 plug_loads_tv,1,1,0,0
+plug_loads_vehicle,1,1,0,0
 plug_loads_well_pump,1,1,0,0
 fuel_loads_grill,1,1,0,0
 fuel_loads_lighting,1,1,0,0
@@ -37,5 +38,5 @@ bath_fan,1,1,0,0
 whole_house_fan,0,1,0,0
 battery_charging,0,1,0,0
 battery_discharging,0,1,0,0
-ev_battery_charging,0,1,0,0
-ev_battery_discharging,0,1,0,0
+electric_vehicle_charging,0,1,0,0
+electric_vehicle_discharging,0,1,0,0

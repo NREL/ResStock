@@ -1,7 +1,7 @@
 # OpenStudio®-HPXML
 
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/NREL/OpenStudio-HPXML?include_prereleases)](https://github.com/NREL/OpenStudio-HPXML/releases)
-[![ci](https://github.com/NREL/OpenStudio-HPXML/workflows/ci/badge.svg)](https://github.com/NREL/OpenStudio-HPXML/actions)
+[![ci](https://github.com/NREL/OpenStudio-HPXML/actions/workflows/config.yml/badge.svg?branch=master)](https://github.com/NREL/OpenStudio-HPXML/actions/workflows/config.yml)
 [![Documentation Status](https://readthedocs.org/projects/openstudio-hpxml/badge/?version=latest)](https://openstudio-hpxml.readthedocs.io/en/latest/?badge=latest)
 
 OpenStudio-HPXML allows running residential [EnergyPlus™ simulations](https://energyplus.net/) using an [HPXML file](https://hpxml.nrel.gov/) for the building description.
@@ -48,6 +48,7 @@ This repository contains several OpenStudio measures:
 OpenStudio-HPXML is used by a number of software products or organizations, including:
 
 - [BEopt](https://beopt.nrel.gov)
+- [Clarity Heat Pump Toolkit](https://psdconsulting.com/solutions/)
 - [Energy Rating Index (ERI)](https://github.com/NREL/OpenStudio-ERI)
 - [Home Energy Score](https://www.homeenergyscore.gov)
 - [OptiMiser](https://optimiserenergy.com)

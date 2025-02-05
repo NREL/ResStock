@@ -1,10 +1,13 @@
 ## OpenStudio-HPXML v1.10.0
 
 __New Features__
+- Allows detailed modeling of electric vehicles (batteries and charging/discharging) using `Vehicles` as an alternative to the simple EV charging plug load.
+- Allows requesting timeseries EnergyPlus output meters (e.g., `--hourly "MainsWater:Facility"`), similar to requesting EnergyPlus output variables.
 
 __Bugfixes__
 - Fixes zero occupants specified for one unit in a whole MF building from being treated like zero occupants for every unit.
 - Fixes using detailed schedules with higher resolution (e.g., 10-min data) than the simulation timestep (e.g., 60-min).
+- Fixes possible heating/cooling spikes when using maximum power ratio detailed schedule for variable-speed HVAC systems.
 
 ## OpenStudio-HPXML v1.9.1
 

@@ -29,7 +29,7 @@ module MiscLoads
         obj_name = Constants::ObjectTypeMiscWellPump
       end
       if obj_name.nil?
-        runner.registerWarning("Unexpected plug load type '#{plug_load.plug_load_type}'. The plug load will not be modeled.")
+        # Warning issued by Schematron validator
         next
       end
 
@@ -65,9 +65,7 @@ module MiscLoads
     when HPXML::PlugLoadTypeTelevision
       col_name = SchedulesFile::Columns[:PlugLoadsTV].name
     when HPXML::PlugLoadTypeElectricVehicleCharging
-      col_name = SchedulesFile::Columns[:EVBattery].name
-      plug_load.weekday_fractions, _ = Schedule.split_signed_charging_schedule(plug_load.weekday_fractions) if !plug_load.weekday_fractions.nil?
-      plug_load.weekend_fractions, _ = Schedule.split_signed_charging_schedule(plug_load.weekend_fractions) if !plug_load.weekend_fractions.nil?
+      col_name = SchedulesFile::Columns[:PlugLoadsVehicle].name
     when HPXML::PlugLoadTypeWellPump
       col_name = SchedulesFile::Columns[:PlugLoadsWellPump].name
     end
@@ -134,7 +132,7 @@ module MiscLoads
         obj_name = Constants::ObjectTypeMiscFireplace
       end
       if obj_name.nil?
-        runner.registerWarning("Unexpected fuel load type '#{fuel_load.fuel_load_type}'. The fuel load will not be modeled.")
+        # Warning issued by Schematron validator
         next
       end
 

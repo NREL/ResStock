@@ -1751,6 +1751,7 @@
 										</xs:annotation>
 									</xs:element>
 									<xs:element minOccurs="0" name="HPWHOperatingMode" type="HPWHOperatingMode"/>
+									<xs:element minOccurs="0" name="HPWHVoltage" type="HPWHVoltage"/>
 									<xs:element minOccurs="0" name="HPWHDucting">
 										<xs:complexType>
 											<xs:sequence>
@@ -1845,6 +1846,7 @@
 										</xs:annotation>
 									</xs:element>
 									<xs:element minOccurs="0" name="HasMixingValve" type="HPXMLBoolean"/>
+									<xs:element minOccurs="0" name="MixingValueSetpoint" type="TemperatureGreaterThanZero"/>
 									<xs:element minOccurs="0" name="UsesDesuperheater" type="HPXMLBoolean">
 										<xs:annotation>
 											<xs:documentation>Indicates whether this water heater uses a desuperheater. The attached heat pump or air conditioner can be referenced in the
@@ -2301,9 +2303,9 @@
 													<xs:complexType>
 														<xs:sequence>
 															<xs:element minOccurs="0" name="Battery" type="VehicleBattery"/>
-															<xs:element minOccurs="0" name="FractionChargedLocation">
+															<xs:element minOccurs="0" name="FractionChargedLocation" maxOccurs="unbounded">
 																<xs:annotation>
-																	<xs:documentation>The percentage of charging energy provided at a certain location.</xs:documentation>
+																	<xs:documentation>The percentage of charging energy provided at different locations.</xs:documentation>
 																</xs:annotation>
 																<xs:complexType>
 																	<xs:sequence>
@@ -2317,16 +2319,6 @@
 																	<xs:attribute name="dataSource" type="DataSource"/>
 																</xs:complexType>
 															</xs:element>
-															<xs:element minOccurs="0" name="GridConnected" type="HPXMLBoolean">
-																<xs:annotation>
-																	<xs:documentation>Has the ability to feed electricity back on to the grid.</xs:documentation>
-																</xs:annotation>
-															</xs:element>
-															<xs:element minOccurs="0" name="BuildingConnected" type="HPXMLBoolean">
-																<xs:annotation>
-																	<xs:documentation>Has the ability to feed electricity to the building.</xs:documentation>
-																</xs:annotation>
-															</xs:element>
 															<xs:element minOccurs="0" name="ConnectedCharger" type="LocalReference"/>
 															<xs:element ref="extension" minOccurs="0"/>
 														</xs:sequence>
@@ -2336,9 +2328,9 @@
 													<xs:complexType>
 														<xs:sequence>
 															<xs:element minOccurs="0" name="Battery" type="VehicleBattery"/>
-															<xs:element minOccurs="0" name="FractionChargedLocation">
+															<xs:element minOccurs="0" name="FractionChargedLocation" maxOccurs="unbounded">
 																<xs:annotation>
-																	<xs:documentation>The percentage of charging energy provided at a certain location.</xs:documentation>
+																	<xs:documentation>The percentage of charging energy provided at different locations.</xs:documentation>
 																</xs:annotation>
 																<xs:complexType>
 																	<xs:sequence>
@@ -2399,7 +2391,7 @@
 										</xs:complexType>
 									</xs:element>
 									<xs:element minOccurs="0" name="PrimaryLocation" type="VehicleLocation"/>
-									<xs:element minOccurs="0" name="Mileage" type="HPXMLDoubleGreaterThanOrEqualToZero"/>
+									<xs:element minOccurs="0" name="Mileage" type="HPXMLDoubleGreaterThanZero"/>
 									<xs:element minOccurs="0" name="MilesDrivenPerYear" type="HPXMLDoubleGreaterThanOrEqualToZero"/>
 									<xs:element minOccurs="0" name="HoursDrivenPerWeek" type="HPXMLDoubleGreaterThanOrEqualToZero"/>
 									<xs:element minOccurs="0" name="FuelEconomyCombined">
@@ -6426,6 +6418,14 @@
 					<xs:attribute name="dataSource" type="DataSource"/>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="BowstringRoof">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element minOccurs="0" ref="extension"/>
+					</xs:sequence>
+					<xs:attribute name="dataSource" type="DataSource"/>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="Other">
 				<xs:complexType>
 					<xs:sequence>
@@ -6463,7 +6463,7 @@
 					<xs:documentation>[W] The amount of power the battery typically generates under non-peak conditions.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="PeakPowerOutput" type="Power" minOccurs="0">
+			<xs:element minOccurs="0" name="PeakPowerOutput" type="Power">
 				<xs:annotation>
 					<xs:documentation>[W] The peak power that the battery can generate for a short period of time.</xs:documentation>
 				</xs:annotation>
@@ -6478,6 +6478,11 @@
 				<xs:annotation>
 					<xs:documentation>Not all the power that is used to charge the battery is available during discharge. Round trip efficiency is the ratio of the energy put
 												in to the energy retrieved from storage.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="0" name="MaximumChargingPower" type="Power">
+				<xs:annotation>
+					<xs:documentation>[W] The maximum charging power that can be accepted by the vehicle battery.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element minOccurs="0" name="extension" type="extensionType"/>
@@ -11814,6 +11819,22 @@
 	<xs:complexType name="HPWHOperatingMode">
 		<xs:simpleContent>
 			<xs:extension base="HPWHOperatingModeType_simple">
+				<xs:attribute name="dataSource" type="DataSource"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="HPWHVoltage_simple">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="240V"/>
+			<xs:pattern value="120V"/>
+			<xs:pattern value="120V dedicated circuit"/>
+			<xs:pattern value="120V shared circuit"/>
+			<xs:pattern value="other"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="HPWHVoltage">
+		<xs:simpleContent>
+			<xs:extension base="HPWHVoltage_simple">
 				<xs:attribute name="dataSource" type="DataSource"/>
 			</xs:extension>
 		</xs:simpleContent>

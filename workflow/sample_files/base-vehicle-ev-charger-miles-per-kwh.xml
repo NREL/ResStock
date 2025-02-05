@@ -385,6 +385,13 @@
             <Azimuth>180</Azimuth>
             <RValue>4.4</RValue>
           </Door>
+          <Door>
+            <SystemIdentifier id='Door2'/>
+            <AttachedToWall idref='Wall1'/>
+            <Area>70.0</Area>
+            <Azimuth>180</Azimuth>
+            <RValue>4.4</RValue>
+          </Door>
         </Doors>
       </Enclosure>
       <Systems>
@@ -503,14 +510,41 @@
         </WaterHeating>
         <Vehicles>
           <Vehicle>
-            <SystemIdentifier id='ElectricVehicle1'/>
+            <SystemIdentifier id='Vehicle1'/>
             <VehicleType>
               <BatteryElectricVehicle>
-                <Battery/>
+                <Battery>
+                  <NominalCapacity>
+                    <Units>kWh</Units>
+                    <Value>100.0</Value>
+                  </NominalCapacity>
+                  <UsableCapacity>
+                    <Units>kWh</Units>
+                    <Value>80.0</Value>
+                  </UsableCapacity>
+                </Battery>
+                <FractionChargedLocation>
+                  <Location>Home</Location>
+                  <Percentage>0.75</Percentage>
+                </FractionChargedLocation>
+                <ConnectedCharger idref='EVCharger1'/>
               </BatteryElectricVehicle>
             </VehicleType>
+            <MilesDrivenPerYear>10000.0</MilesDrivenPerYear>
+            <HoursDrivenPerWeek>14.0</HoursDrivenPerWeek>
+            <FuelEconomyCombined>
+              <Units>mile/kWh</Units>
+              <Value>4.0</Value>
+            </FuelEconomyCombined>
           </Vehicle>
         </Vehicles>
+        <ElectricVehicleChargers>
+          <ElectricVehicleCharger>
+            <SystemIdentifier id='EVCharger1'/>
+            <Location>garage</Location>
+            <ChargingPower>7000.0</ChargingPower>
+          </ElectricVehicleCharger>
+        </ElectricVehicleChargers>
       </Systems>
       <Appliances>
         <ClothesWasher>

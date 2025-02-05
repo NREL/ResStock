@@ -13,7 +13,7 @@ module InternalGains
   # @return [nil]
   def self.apply_building_occupants(runner, model, hpxml_bldg, hpxml_header, spaces, schedules_file)
     if hpxml_bldg.building_occupancy.number_of_residents.nil? # Asset calculation
-      n_occ = Geometry.get_occupancy_default_num(nbeds: hpxml_bldg.building_construction.number_of_bedrooms)
+      n_occ = Geometry.get_occupancy_default_num(hpxml_bldg.building_construction.number_of_bedrooms)
     else # Operational calculation
       n_occ = hpxml_bldg.building_occupancy.number_of_residents
     end

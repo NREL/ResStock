@@ -4497,22 +4497,35 @@ The round trip efficiency of the lithium ion battery. If not provided, the OS-HP
 
 <br/>
 
-**Electric Vehicle: Present**
+**Battery: Number of Bedrooms Served**
 
-Whether there is an electric vehicle battery present. If the `misc_plug_loads_vehicle_present` argument is true, this argument is superseded and vehicle charging will be modeled as a plug load only.
+Number of bedrooms served by the lithium ion battery. Only needed if single-family attached or apartment unit and it is a shared battery serving multiple dwelling units. Used to apportion battery charging/discharging to the unit of a SFA/MF building.
 
-- **Name:** ``ev_battery_present``
-- **Type:** ``Boolean``
+- **Name:** ``battery_num_bedrooms_served``
+- **Type:** ``Integer``
+
+- **Units:** ``#``
 
 - **Required:** ``false``
 
 <br/>
 
-**Electric Vehicle: Nominal Battery Capacity**
+**Vehicle: Type**
 
-The nominal capacity of the EV battery. If not provided, the OS-HPXML default is used.
+The type of vehicle present at the home.
 
-- **Name:** ``ev_battery_capacity``
+- **Name:** ``vehicle_type``
+- **Type:** ``String``
+
+- **Required:** ``false``
+
+<br/>
+
+**Vehicle: EV Battery Nominal Battery Capacity**
+
+The nominal capacity of the vehicle battery, only applies to electric vehicles. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
+
+- **Name:** ``vehicle_battery_capacity``
 - **Type:** ``Double``
 
 - **Units:** ``kWh``
@@ -4521,11 +4534,11 @@ The nominal capacity of the EV battery. If not provided, the OS-HPXML default is
 
 <br/>
 
-**Electric Vehicle: Usable Battery Capacity**
+**Vehicle: EV Battery Usable Capacity**
 
-The usable capacity of the EV battery. If not provided, the OS-HPXML default is used.
+The usable capacity of the vehicle battery, only applies to electric vehicles. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
 
-- **Name:** ``ev_battery_usable_capacity``
+- **Name:** ``vehicle_battery_usable_capacity``
 - **Type:** ``Double``
 
 - **Units:** ``kWh``
@@ -4534,24 +4547,35 @@ The usable capacity of the EV battery. If not provided, the OS-HPXML default is 
 
 <br/>
 
-**Electric Vehicle: Energy Efficiency**
+**Vehicle: Combined Fuel Economy Units**
 
-The efficiency of the EV. If not provided, the OS-HPXML default is used.
+The combined fuel economy units of the vehicle. Only 'kWh/mile', 'mile/kWh', or 'mpge' are allow for electric vehicles. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
 
-- **Name:** ``ev_energy_efficiency``
+- **Name:** ``vehicle_fuel_economy_units``
+- **Type:** ``Choice``
+
+- **Required:** ``false``
+
+- **Choices:** `kWh/mile`, `mile/kWh`, `mpge`, `mpg`
+
+<br/>
+
+**Vehicle: Combined Fuel Economy**
+
+The combined fuel economy of the vehicle. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
+
+- **Name:** ``vehicle_fuel_economy_combined``
 - **Type:** ``Double``
-
-- **Units:** ``kWh/mile``
 
 - **Required:** ``false``
 
 <br/>
 
-**Electric Vehicle: Miles Traveled**
+**Vehicle: Miles Driven Per Year**
 
-The annual miles traveled by the EV.
+The annual miles the vehicle is driven. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
 
-- **Name:** ``ev_miles_per_year``
+- **Name:** ``vehicle_miles_driven_per_year``
 - **Type:** ``Double``
 
 - **Units:** ``miles``
@@ -4560,11 +4584,11 @@ The annual miles traveled by the EV.
 
 <br/>
 
-**Electric Vehicle: Hours Driven per Week**
+**Vehicle: Hours Driven Per Week**
 
-The weekly hours traveled by the EV.
+The weekly hours the vehicle is driven. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
 
-- **Name:** ``ev_hours_per_week``
+- **Name:** ``vehicle_hours_driven_per_week``
 - **Type:** ``Double``
 
 - **Units:** ``hours``
@@ -4573,11 +4597,11 @@ The weekly hours traveled by the EV.
 
 <br/>
 
-**Electric Vehicle: Fraction Charged at Home**
+**Vehicle: Fraction Charged at Home**
 
-The fraction charging energy provided by the at-home charger.
+The fraction of charging energy provided by the at-home charger to the vehicle, only applies to electric vehicles. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
 
-- **Name:** ``ev_fraction_charged_home``
+- **Name:** ``vehicle_fraction_charged_home``
 - **Type:** ``Double``
 
 - **Required:** ``false``
@@ -4595,9 +4619,22 @@ Whether there is an electric vehicle charger present.
 
 <br/>
 
-**Electric Vehicle Charger: Rated Charger Power Output**
+**Electric Vehicle Charger: Charging Level**
 
-The rated power output of the EV charger. If not provided, the OS-HPXML default is used.
+The charging level of the EV charger. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-electric-vehicle-chargers'>HPXML Electric Vehicle Chargers</a>) is used.
+
+- **Name:** ``ev_charger_level``
+- **Type:** ``Choice``
+
+- **Required:** ``false``
+
+- **Choices:** `1`, `2`, `3`
+
+<br/>
+
+**Electric Vehicle Charger: Rated Charging Power**
+
+The rated power output of the EV charger. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-electric-vehicle-chargers'>HPXML Electric Vehicle Chargers</a>) is used.
 
 - **Name:** ``ev_charger_power``
 - **Type:** ``Double``
@@ -4610,7 +4647,7 @@ The rated power output of the EV charger. If not provided, the OS-HPXML default 
 
 **Electric Vehicle Charger: Location**
 
-The space type for the EV charger. If not provided, the OS-HPXML default is used.
+The space type for the EV charger. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-electric-vehicle-chargers'>HPXML Electric Vehicle Chargers</a>) is used.
 
 - **Name:** ``ev_charger_location``
 - **Type:** ``Choice``
@@ -4618,19 +4655,6 @@ The space type for the EV charger. If not provided, the OS-HPXML default is used
 - **Required:** ``false``
 
 - **Choices:** `garage`, `outside`
-
-<br/>
-
-**Battery: Number of Bedrooms Served**
-
-Number of bedrooms served by the lithium ion battery. Only needed if single-family attached or apartment unit and it is a shared battery serving multiple dwelling units. Used to apportion battery charging/discharging to the unit of a SFA/MF building.
-
-- **Name:** ``battery_num_bedrooms_served``
-- **Type:** ``Integer``
-
-- **Units:** ``#``
-
-- **Required:** ``false``
 
 <br/>
 
@@ -5641,7 +5665,7 @@ Multiplier on the well pump energy usage that can reflect, e.g., high/low usage 
 
 **Misc Plug Loads: Vehicle Present**
 
-Whether there is an electric vehicle. Specifying this argument will model EV charging as a plug load and take precendence over the `ev_battery_present` argument.
+Whether there is an electric vehicle.
 
 - **Name:** ``misc_plug_loads_vehicle_present``
 - **Type:** ``Boolean``

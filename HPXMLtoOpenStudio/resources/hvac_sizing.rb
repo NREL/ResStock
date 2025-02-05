@@ -4199,7 +4199,7 @@ module HVACSizing
       elsif m.duct_leakage_units == HPXML::UnitsCFM25
         cfms[m.duct_type] += m.duct_leakage_value
       elsif m.duct_leakage_units == HPXML::UnitsCFM50
-        cfms[m.duct_type] += Airflow.calc_air_leakage_at_diff_pressure(0.65, m.duct_leakage_value, 50.0, 25.0)
+        cfms[m.duct_type] += Airflow.calc_infiltration_at_diff_pressure(m.duct_leakage_value, 50.0, 25.0)
       end
     end
 
@@ -4340,7 +4340,7 @@ module HVACSizing
           ach = vented_attic.vented_attic_ach
         end
       end
-      ach = Airflow.get_infiltration_ACH_from_SLA(sla, 8.202, weather) if ach.nil?
+      ach = Airflow.get_infiltration_ACH_from_SLA(sla, Airflow::ReferenceHeight, Airflow::ReferenceHeight, weather) if ach.nil?
     else # Unvented space
       ach = Airflow::UnventedSpaceACH
     end
@@ -5479,7 +5479,7 @@ module HVACSizing
     #
     # @param obj [HPXML::Building or HPXML::Zone or HPXML::Space] The HPXML building, zone, or space of interest
     # @param additional_property_type [Symbol] Name of property on obj.additional_properties
-    # @return [Hash<Object, Object>] Map of HPXML::XXX object => DetailedOutputValues object
+    # @return [Hash] Map of HPXML::XXX object => DetailedOutputValues object
     def self.get_surfaces_with_property(obj, additional_property_type)
       objs = (obj.surfaces + obj.subsurfaces).select { |s| s.additional_properties.respond_to?(additional_property_type) }
       props = {}

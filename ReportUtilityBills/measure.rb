@@ -704,7 +704,7 @@ class ReportUtilityBills < OpenStudio::Measure::ReportingMeasure
   # @return [Hash] Fuel type, is_production => Fuel object
   def setup_fuel_outputs()
     fuels = {}
-    fuels[[FT::Elec, false]] = Fuel.new(meters: ["#{EPlus::FuelTypeElectricity}:Facility", "ElectricStorage:#{EPlus::FuelTypeElectricity}Produced", "Cogeneration:#{EPlus::FuelTypeElectricity}Produced"], units: UtilityBills.get_fuel_units(HPXML::FuelTypeElectricity))
+    fuels[[FT::Elec, false]] = Fuel.new(meters: ['ELECTRICITY:FACILITYEVCHARGING', "ElectricStorage:#{EPlus::FuelTypeElectricity}Produced", "Cogeneration:#{EPlus::FuelTypeElectricity}Produced"], units: UtilityBills.get_fuel_units(HPXML::FuelTypeElectricity))
     fuels[[FT::Elec, true]] = Fuel.new(meters: ["Photovoltaic:#{EPlus::FuelTypeElectricity}Produced", "PowerConversion:#{EPlus::FuelTypeElectricity}Produced"], units: UtilityBills.get_fuel_units(HPXML::FuelTypeElectricity))
     fuels[[FT::Gas, false]] = Fuel.new(meters: ["#{EPlus::FuelTypeNaturalGas}:Facility"], units: UtilityBills.get_fuel_units(HPXML::FuelTypeNaturalGas))
     fuels[[FT::Oil, false]] = Fuel.new(meters: ["#{EPlus::FuelTypeOil}:Facility"], units: UtilityBills.get_fuel_units(HPXML::FuelTypeOil))

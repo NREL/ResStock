@@ -11,18 +11,22 @@ module Battery
   # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
   # @return [nil]
   def self.apply(runner, model, spaces, hpxml_bldg, schedules_file)
+    charging_schedule, discharging_schedule = nil, nil
+    if not schedules_file.nil?
+      charging_schedule = schedules_file.create_schedule_file(model, col_name: SchedulesFile::Columns[:BatteryCharging].name)
+      discharging_schedule = schedules_file.create_schedule_file(model, col_name: SchedulesFile::Columns[:BatteryDischarging].name)
+    end
     hpxml_bldg.batteries.each do |battery|
-      apply_battery(runner, model, spaces, hpxml_bldg, battery, schedules_file)
+      apply_battery(runner, model, spaces, hpxml_bldg, battery, charging_schedule, discharging_schedule)
     end
   end
 
   # Add the HPXML Battery to the OpenStudio model.
   #
   # Apply a home battery or EV battery to the model using OpenStudio ElectricLoadCenterStorageLiIonNMCBattery, ElectricLoadCenterDistribution, ElectricLoadCenterStorageConverter, OtherEquipment, and EMS objects.
-  # Battery without PV specified, and no charging/discharging schedule provided; battery is assumed to operate as backup and will not be modeled.
-  # EV battery is not associated with a PV system and requires a charging/discharging schedule, otherwise it will not be modeled.
-  # The system may be shared, in which case nominal/usable capacity (kWh) and usable fraction are apportioned to the dwelling unit by total number of bedrooms served.
-  # A battery may share an ElectricLoadCenterDistribution object with PV; electric buss type and storage operation scheme are therefore changed.
+  # Home battery without PV specified, and no charging/discharging schedule provided; battery is assumed to operate as backup and will not be modeled.
+  # Home battery systems may be shared, in which case nominal/usable capacity (kWh) and usable fraction are apportioned to the dwelling unit by total number of bedrooms served.
+  # A home battery may share an ElectricLoadCenterDistribution object with PV; electric buss type and storage operation scheme are therefore changed.
   # Round trip efficiency is (temporarily) applied as an EMS program b/c E+ input is not hooked up.
   #
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
@@ -30,21 +34,14 @@ module Battery
   # @param spaces [Hash] Map of HPXML locations => OpenStudio Space objects
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param battery [HPXML::Battery, HPXML::Vehicle] Object that defines a single home battery or EV battery
-  # @param schedules_file [SchedulesFile] SchedulesFile wrapper class instance of detailed schedule files
+  # @param charging_schedule [OpenStudio::Model::ScheduleXXX] The battery charging schedule
+  # @param discharging_schedule [OpenStudio::Model::ScheduleXXX] The battery discharging schedule
   # @return [nil]
-  def self.apply_battery(runner, model, spaces, hpxml_bldg, battery, schedules_file)
+  def self.apply_battery(runner, model, spaces, hpxml_bldg, battery, charging_schedule, discharging_schedule)
     nbeds = hpxml_bldg.building_construction.number_of_bedrooms
     unit_multiplier = hpxml_bldg.building_construction.number_of_units
     pv_systems = hpxml_bldg.pv_systems
     is_ev = battery.is_a?(HPXML::Vehicle)
-
-    charging_schedule, discharging_schedule = nil, nil
-    if !is_ev && !schedules_file.nil?
-      charging_schedule = schedules_file.create_schedule_file(model, col_name: SchedulesFile::Columns[:BatteryCharging].name)
-      discharging_schedule = schedules_file.create_schedule_file(model, col_name: SchedulesFile::Columns[:BatteryDischarging].name)
-    elsif is_ev
-      charging_schedule, discharging_schedule = Vehicle.get_ev_charging_schedules(runner, model, battery, schedules_file)
-    end
 
     if !is_ev && pv_systems.empty? && charging_schedule.nil? && discharging_schedule.nil?
       runner.registerWarning('Battery without PV specified, and no charging/discharging schedule provided; battery is assumed to operate as backup and will not be modeled.')
@@ -52,10 +49,11 @@ module Battery
     end
 
     obj_name = battery.id
+    location = (is_ev ? battery.additional_properties.location : battery.location)
+    rated_power_output = (is_ev ? battery.additional_properties.rated_power_output : battery.rated_power_output) # W
 
-    space = Geometry.get_space_from_location(battery.location, spaces)
+    space = Geometry.get_space_from_location(location, spaces)
 
-    rated_power_output = battery.rated_power_output # W
     if not battery.nominal_capacity_kwh.nil?
       if battery.usable_capacity_kwh.nil?
         fail "UsableCapacity and NominalCapacity for Battery '#{battery.id}' must be in the same units."
@@ -85,18 +83,14 @@ module Battery
       rated_power_output = rated_power_output * nbeds.to_f / battery.number_of_bedrooms_served.to_f
     end
 
-    if is_ev
-      charging_power = battery.ev_charger.charging_power
-    else
-      charging_power = rated_power_output
-    end
+    charging_power = (is_ev ? battery.ev_charger.charging_power : rated_power_output)
 
     nominal_capacity_kwh *= unit_multiplier
     usable_capacity_kwh *= unit_multiplier
     rated_power_output *= unit_multiplier
     charging_power *= unit_multiplier
 
-    is_outside = (battery.location == HPXML::LocationOutside)
+    is_outside = (location == HPXML::LocationOutside)
     if !is_outside && !is_ev
       frac_sens = 1.0
     else # Internal gains outside unit
@@ -133,7 +127,6 @@ module Battery
     elcs.setNumberofCellsinSeries(number_of_cells_in_series)
     elcs.setNumberofStringsinParallel(number_of_strings_in_parallel)
     elcs.setBatteryMass(battery_mass)
-    elcs.setDCtoDCChargingEfficiency(battery.round_trip_efficiency) if !is_ev # Note: This is currently unused in E+, so we use an EMS program below instead
     elcs.setBatterySurfaceArea(battery_surface_area)
     elcs.setDefaultNominalCellVoltage(default_nominal_cell_voltage)
     elcs.setFullyChargedCellCapacity(default_cell_capacity)
@@ -146,28 +139,30 @@ module Battery
     end
     elcs.setFullyChargedCellVoltage(default_nominal_cell_voltage)
     elcs.setCellVoltageatEndofExponentialZone(default_nominal_cell_voltage)
-    elcs.additionalProperties.setFeature('is_ev', is_ev)
+    if is_ev
+      elcs.additionalProperties.setFeature('ObjectType', Constants::ObjectTypeVehicle)
+    else
+      elcs.additionalProperties.setFeature('ObjectType', Constants::ObjectTypeBattery)
+    end
 
     if is_ev
+      elcs.setDCtoDCChargingEfficiency(1.0) # Charging efficiency is captured in the ev_discharge_program
       # EVs always get their own ELCD, not PV
       elcd = OpenStudio::Model::ElectricLoadCenterDistribution.new(model)
       elcd.setName("#{obj_name} elec load center dist")
       elcd.setElectricalBussType('AlternatingCurrentWithStorage')
       elcs.setInitialFractionalStateofCharge(maximum_storage_state_of_charge_fraction)
     else
+      elcs.setDCtoDCChargingEfficiency(battery.round_trip_efficiency) # Note: This is currently unused in E+, so we use an EMS program below instead
       elcs.setInitialFractionalStateofCharge(0.0)
       elcds = model.getElectricLoadCenterDistributions
       elcds = elcds.select { |elcd| elcd.inverter.is_initialized } # i.e., not generators
       # Use PV ELCD if present
-      elcds.each do |elcd_|
-        next unless elcd_.name.to_s.include? 'PVSystem'
-
-        elcd = elcd_
+      elcd = elcds.find { |elcd| elcd.name.to_s.include?('PVSystem') }
+      if elcd
         elcd.setElectricalBussType('DirectCurrentWithInverterACStorage')
         elcd.setStorageOperationScheme('TrackFacilityElectricDemandStoreExcessOnSite')
-        break
-      end
-      if elcds.empty?
+      else
         elcd = OpenStudio::Model::ElectricLoadCenterDistribution.new(model)
         elcd.setName("#{obj_name} elec load center dist")
         elcd.setElectricalBussType('AlternatingCurrentWithStorage')
