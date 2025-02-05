@@ -424,6 +424,17 @@ Optionally generates timeseries EnergyPlus output variables. If multiple output 
 
 <br/>
 
+**Generate Timeseries Output: EnergyPlus Output Meters**
+
+Optionally generates timeseries EnergyPlus output meters. If multiple output meters are desired, use a comma-separated list. Example: "Electricity:Facility, HeatingCoils:EnergyTransfer"
+
+- **Name:** ``user_output_meters``
+- **Type:** ``String``
+
+- **Required:** ``false``
+
+<br/>
+
 **Annual Output File Name**
 
 If not provided, defaults to 'results_annual.csv' (or 'results_annual.json' or 'results_annual.msgpack').
