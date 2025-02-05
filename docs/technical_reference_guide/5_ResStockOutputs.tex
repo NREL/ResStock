@@ -377,6 +377,52 @@ ResStock results can also be used as inputs to calculate utility bills using oth
 Energy burden is calculated as the ratio of two values from ResStock data. The first is the energy bill, which is calculated for each individual housing unit model in an analysis as described in the above section. The second is the representative household income, which is converted from income bin and other household characteristics described in Section \ref{resstock_input_energy_burden}. The energy burden is the energy bill total divided by the representative household income, typically expressed as a percentage. As the utility bill does not account for financial assistance such as LIHEAP, energy burden may be overestimated for low-income households who may qualify for those assistance. Additionally, the representative income is in 2019 USD, reflecting the vintage of PUMS used to derived the data. The dollar value of the utility bill is typically more recent and thus may not align with that of the income denominator.
 
 When this field is available in public datasets, it begins with ``out.energy\_burden.''
+\section{Electrical Panels}
+For electrical panel, occupied capacity and breaker spaces are calculated and available as both a total aggregate and itemized by end use. In public ResStock datasets, these fields are prefixed with “out.electric_panel” and described in \ref{tab:panels}. 
+
+For capacity, total occupied load (W) can be calculated using different methods and will be labeled accordingly. In the public datasets, both methods for existing dwellings per 2023 NEC are used: load-based (220.83) from the bottom-up and meter-based (220.87) using the simulated annual peak electricity. See section XX for details on the methods. The occupied capacity (A) is converted from occupied load (W) by dividing it by 240V, the voltage service of the panel, and then subtracted from the electrical panel service rating (A) to get the headroom capacity (A). Users can use the headroom capacity to estimate the number of homes that may require an electrical intervention, such as panel or service upsizing, for a given electrification upgrade. If the headroom capacity value is negative, then the panel is said to be capacity-constrained, and an intervention may be required. If the headroom is positive, a capacity-related panel upgrade is not required. Headroom capacity is also calculated for the baseline and a negative value, while uncommon, can be interpreted as the home already being capacity-constrained prior to any upgrade. This is consistent with anecdotal observations that some homes do in fact trip their breakers often, an indication of a capacity shortfall. However, it's important to interpret any electrical panel outcomes as modeled estimates and that results with negative capacity headroom in the baseline have the same degree of uncertainty as those with positive capacity headroom.  
+
+For breaker spaces, headroom count is labeled as an output metric but is actually an input characteristic probabilistically assigned based on the panel service rating and the number of major electrical loads of the home. Because the headroom count is predetermined in the baseline, it can never be negative, unlike capacity. Using the input headroom count and a bottom-up tabulation of electrical equipment in the home, the total rated space count is determined for the baseline. In the upgrade simulations, this total rated count remains the same for the home and the headroom count is recalculated according to the content of the upgrade package. See section XX for details. Users can estimate the number of homes that are space-constrained and requiring mitigation by looking at the negative values of the headroom count, similar to capacity. 
+\begin{customLongTable}{ |p{6.cm}|p{1.8cm}|p{8.2cm}| }
+        {ResStock electrical panel output field names, units, and descriptions} {tab:panels} 
+        {\textbf{Field Name} & \textbf{Units} & \textbf{Field Description}} 
+                out.electric_panel_load.<method>.total_load.w & W & Total service feeder load calculated per selected NEC method \\ \hline
+                out.electric_panel_load.<method>.total_capacity.a & A & Total capacity occupied on the panel, calculated as total load (W) divided by panel voltage (240V) \\ \hline
+                out.electric_panel_load.<method>.headroom_capacity.a & A & Available capacity on the panel, calculated as panel service rating (A) minus total occupied capacity (A) \\ \hline
+                out.electric_panel_load.heating.w & W & Sum of heating system and heat pump heating demand loads \\ \hline
+                out.electric_panel_load.cooling.w & W & Sum of cooling system and heat pump cooling demand loads \\ \hline
+                out.electric_panel_load.hot_water.w & W & Sum of water heating system demand loads \\ \hline
+                out.electric_panel_load.clothes_dryer.w & W & Sum of clothes dryer demand loads \\ \hline
+                out.electric_panel_load.dishwasher.w & W & Sum of dishwasher demand loads \\ \hline
+                out.electric_panel_load.range_oven.w & W & Sum of range/oven demand loads \\ \hline
+                out.electric_panel_load.mech_vent.w & W & Sum of mechanical ventilation demand loads \\ \hline
+                out.electric_panel_load.permanent_spa_heater.w & W & Sum of permanent spa heater demand loads \\ \hline
+                out.electric_panel_load.permanent_spa_pump.w & W & Sum of permanent spa pump demand loads \\ \hline
+                out.electric_panel_load.pool_heater.w & W & Sum of pool heater demand loads \\ \hline
+                out.electric_panel_load.pool_pump.w & W & Sum of pool pump demand loads \\ \hline
+                out.electric_panel_load.well_pump.w & W & Sum of well pump demand loads \\ \hline
+                out.electric_panel_load.electric_vehicle_charging.w & W & Sum of electric vehicle charging demand loads \\ \hline
+                out.electric_panel_load.other.w & W & Sum of other electric demand loads \\ \line
+
+                out.electric_panel_breaker_spaces.total.count & count & Total rated number of spaces on the panel \\ \hline
+                out.electric_panel_breaker_spaces.occupied.count & count & Total number of occupied spaces on the panel \\ \hline
+                out.electric_panel_breaker_spaces.headroom.count & count & Available spaces, calculated as total rated spaces minus occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.heating.count & count & Sum of heating system and heat pump heating occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.cooling.count & count & Sum of cooling system and heat pump cooling occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.hot_water.count & count & Sum of water heating system occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.clothes_dryer.count & count & Sum of clothes dryer occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.dishwasher.count & count & Sum of dishwasher occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.range_oven.count & count & Sum of range/oven occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.mech_vent.count & count & Sum of mechanical ventilation occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.permanent_spa_heater.count & count & Sum of permanent spa heater occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.permanent_spa_pump.count & count & Sum of permanent spa pump occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.pool_heater.count & count & Sum of pool heater occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.pool_pump.count & count & Sum of pool pump occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.well_pump.count & count & Sum of well pump occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.electric_vehicle_charging.count & count & Sum of electric vehicle charging occupied spaces \\ \hline
+                out.electric_panel_breaker_spaces.other.count & count & Sum of other electric load occupied spaces \\
+\end{customLongTable}
+
 % \section{PRIORITY B Costs?}
 \section{Other Outputs}
 % \ stuff like loads, unmet hours, hot water, etc.
