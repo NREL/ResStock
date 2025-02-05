@@ -401,6 +401,11 @@ class ReportSimulationOutputTest < Minitest::Test
     'Surface Construction Index: Window4'
   ]
 
+  BaseHPXMLTimeseriesColsEnergyPlusOutputMeters = [
+    'MainsWater:Facility',
+    'HeatingCoils:EnergyTransfer'
+  ]
+
   def all_base_hpxml_timeseries_cols
     return (BaseHPXMLTimeseriesColsEnergy +
             BaseHPXMLTimeseriesColsFuels +
@@ -1318,6 +1323,26 @@ class ReportSimulationOutputTest < Minitest::Test
     assert_equal(1, _check_for_constant_timeseries_step(timeseries_cols[0]))
     _check_for_nonzero_avg_timeseries_value(timeseries_csv, BaseHPXMLTimeseriesColsEnergyPlusOutputVariables)
     assert(File.readlines(run_log).any? { |line| line.include?("Request for output variable 'Foo'") })
+  end
+
+  def test_timeseries_energyplus_output_meters
+    args_hash = { 'hpxml_path' => File.join(File.dirname(__FILE__), '../../workflow/sample_files/base.xml'),
+                  'skip_validation' => true,
+                  'add_component_loads' => true,
+                  'timeseries_frequency' => 'hourly',
+                  'user_output_meters' => 'MainsWater:Facility, Foo:Meter, HeatingCoils:EnergyTransfer' }
+    annual_csv, timeseries_csv, run_log = _test_measure(args_hash)
+    assert(File.exist?(annual_csv))
+    assert(File.exist?(timeseries_csv))
+    expected_timeseries_cols = ['Time'] + BaseHPXMLTimeseriesColsEnergyPlusOutputMeters
+    actual_timeseries_cols = File.readlines(timeseries_csv)[0].strip.split(',')
+    assert_equal(expected_timeseries_cols.sort, actual_timeseries_cols.sort)
+    timeseries_rows = CSV.read(timeseries_csv)
+    assert_equal(8760, timeseries_rows.size - 2)
+    timeseries_cols = timeseries_rows.transpose
+    assert_equal(1, _check_for_constant_timeseries_step(timeseries_cols[0]))
+    _check_for_nonzero_avg_timeseries_value(timeseries_csv, BaseHPXMLTimeseriesColsEnergyPlusOutputMeters)
+    assert(File.readlines(run_log).any? { |line| line.include?("Request for output meter 'Foo:Meter'") })
   end
 
   def test_for_unsuccessful_simulation_infinity

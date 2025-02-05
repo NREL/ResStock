@@ -396,11 +396,15 @@ class HPXMLtoOpenStudio < OpenStudio::Measure::ModelMeasure
     hpxml_bldg.delete_adiabatic_subsurfaces() # EnergyPlus doesn't allow this
 
     # Hidden feature: Version of the ANSI/RESNET/ICC 301 Standard to use for equations/assumptions
-    if hpxml_header.eri_calculation_version.nil?
-      hpxml_header.eri_calculation_version = 'latest'
+    if hpxml_header.eri_calculation_versions.size > 1
+      fail 'Only a single ERI version is supported.'
     end
-    if hpxml_header.eri_calculation_version == 'latest'
-      hpxml_header.eri_calculation_version = Constants::ERIVersions[-1]
+
+    if hpxml_header.eri_calculation_versions.empty?
+      hpxml_header.eri_calculation_versions = ['latest']
+    end
+    if hpxml_header.eri_calculation_versions == ['latest']
+      hpxml_header.eri_calculation_versions = [Constants::ERIVersions[-1]]
     end
 
     # Hidden feature: Whether to override certain assumptions to better match the ASHRAE 140 specification

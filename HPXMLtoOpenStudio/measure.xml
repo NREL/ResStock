@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>hpxm_lto_openstudio</name>
   <uid>b1543b30-9465-45ff-ba04-1d1f85e763bc</uid>
-  <version_id>ddf8813a-f35c-400b-890b-d26121d86506</version_id>
-  <version_modified>2025-01-17T00:21:50Z</version_modified>
+  <version_id>bd5c3b3f-ccda-4dd5-b16a-1b4f7a4d69e4</version_id>
+  <version_modified>2025-02-03T19:22:20Z</version_modified>
   <xml_checksum>D8922A73</xml_checksum>
   <class_name>HPXMLtoOpenStudio</class_name>
   <display_name>HPXML to OpenStudio Translator</display_name>
@@ -183,13 +183,13 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>28965567</checksum>
+      <checksum>1EEA4B7B</checksum>
     </file>
     <file>
       <filename>airflow.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>29D991BE</checksum>
+      <checksum>23B7B4AC</checksum>
     </file>
     <file>
       <filename>battery.rb</filename>
@@ -327,7 +327,7 @@
       <filename>defaults.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>EB4D5A1A</checksum>
+      <checksum>CF7C5504</checksum>
     </file>
     <file>
       <filename>energyplus.rb</filename>
@@ -351,13 +351,13 @@
       <filename>hotwater_appliances.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>0B205523</checksum>
+      <checksum>FA4DA1B3</checksum>
     </file>
     <file>
       <filename>hpxml.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>270F2EEB</checksum>
+      <checksum>89899516</checksum>
     </file>
     <file>
       <filename>hpxml_schema/HPXML.xsd</filename>
@@ -405,7 +405,7 @@
       <filename>lighting.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>7B7F6D4C</checksum>
+      <checksum>74899E6B</checksum>
     </file>
     <file>
       <filename>location.rb</filename>
@@ -633,7 +633,7 @@
       <filename>waterheater.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>ECEBF85F</checksum>
+      <checksum>A8560A5A</checksum>
     </file>
     <file>
       <filename>weather.rb</filename>
@@ -669,7 +669,7 @@
       <filename>test_defaults.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>7E9FC2FA</checksum>
+      <checksum>45AEFA27</checksum>
     </file>
     <file>
       <filename>test_enclosure.rb</filename>

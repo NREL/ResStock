@@ -518,43 +518,43 @@ For each conditioned zone (see :ref:`zones_spaces`), zone-level design loads are
 Zone design loads can also be found in the ``in.xml`` file.
 Additional detail related to zone design loads can be found in the :ref:`design_load_details`:.
 
-  =====================================================================  ====================
-  Type                                                                   Notes
-  =====================================================================  ====================
-  HVAC Zone Design Load: Heating: Total (Btu/h)                          Total heating design load
-  HVAC Zone Design Load: Heating: Ducts (Btu/h)                          Heating design load for ducts
-  HVAC Zone Design Load: Heating: Windows (Btu/h)                        Heating design load for windows
-  HVAC Zone Design Load: Heating: Skylights (Btu/h)                      Heating design load for skylights
-  HVAC Zone Design Load: Heating: Doors (Btu/h)                          Heating design load for doors
-  HVAC Zone Design Load: Heating: Walls (Btu/h)                          Heating design load for walls
-  HVAC Zone Design Load: Heating: Roofs (Btu/h)                          Heating design load for roofs
-  HVAC Zone Design Load: Heating: Floors (Btu/h)                         Heating design load for floors
-  HVAC Zone Design Load: Heating: Slabs (Btu/h)                          Heating design load for slabs
-  HVAC Zone Design Load: Heating: Ceilings (Btu/h)                       Heating design load for ceilings
-  HVAC Zone Design Load: Heating: Infiltration (Btu/h)                   Heating design load for infiltration
-  HVAC Zone Design Load: Heating: Ventilation (Btu/h)                    Heating design load for ventilation
-  HVAC Zone Design Load: Heating: Piping (Btu/h)                         Heating design load for hydronic piping
-  HVAC Zone Design Load: Cooling Sensible: Total (Btu/h)                 Total sensible cooling design load
-  HVAC Zone Design Load: Cooling Sensible: Ducts (Btu/h)                 Sensible cooling design load for ducts
-  HVAC Zone Design Load: Cooling Sensible: Windows (Btu/h)               Sensible cooling design load for windows
-  HVAC Zone Design Load: Cooling Sensible: Skylights (Btu/h)             Sensible cooling design load for skylights
-  HVAC Zone Design Load: Cooling Sensible: Doors (Btu/h)                 Sensible cooling design load for doors
-  HVAC Zone Design Load: Cooling Sensible: Walls (Btu/h)                 Sensible cooling design load for walls
-  HVAC Zone Design Load: Cooling Sensible: Roofs (Btu/h)                 Sensible cooling design load for roofs
-  HVAC Zone Design Load: Cooling Sensible: Floors (Btu/h)                Sensible cooling design load for floors
-  HVAC Zone Design Load: Cooling Sensible: Slabs (Btu/h)                 Sensible cooling design load for slabs
-  HVAC Zone Design Load: Cooling Sensible: Ceilings (Btu/h)              Sensible cooling design load for ceilings
-  HVAC Zone Design Load: Cooling Sensible: Infiltration (Btu/h)          Sensible cooling design load for infiltration
-  HVAC Zone Design Load: Cooling Sensible: Ventilation (Btu/h)           Sensible cooling design load for ventilation
-  HVAC Zone Design Load: Cooling Sensible: Internal Gains (Btu/h)        Sensible cooling design load for internal gains
-  HVAC Zone Design Load: Cooling Sensible: Blower Heat (Btu/h)           Sensible cooling design load for blower fan heat
-  HVAC Zone Design Load: Cooling Sensible: AED Excursion (Btu/h)         Sensible cooling design load for Adequate Exposure Diversity (AED) excursion
-  HVAC Zone Design Load: Cooling Latent: Total (Btu/h)                   Total latent cooling design load
-  HVAC Zone Design Load: Cooling Latent: Ducts (Btu/h)                   Latent cooling design load for ducts
-  HVAC Zone Design Load: Cooling Latent: Infiltration (Btu/h)            Latent cooling design load for infiltration
-  HVAC Zone Design Load: Cooling Latent: Ventilation (Btu/h)             Latent cooling design load for ventilation
-  HVAC Zone Design Load: Cooling Latent: Internal Gains (Btu/h)          Latent cooling design load for internal gains
-  =====================================================================  ====================
+  =====================================================================================  ====================
+  Type                                                                                   Notes
+  =====================================================================================  ====================
+  HVAC Zone Design Load: <ZoneID>: Heating: Total (Btu/h)                                Total heating design load
+  HVAC Zone Design Load: <ZoneID>: Heating: Ducts (Btu/h)                                Heating design load for ducts
+  HVAC Zone Design Load: <ZoneID>: Heating: Windows (Btu/h)                              Heating design load for windows
+  HVAC Zone Design Load: <ZoneID>: Heating: Skylights (Btu/h)                            Heating design load for skylights
+  HVAC Zone Design Load: <ZoneID>: Heating: Doors (Btu/h)                                Heating design load for doors
+  HVAC Zone Design Load: <ZoneID>: Heating: Walls (Btu/h)                                Heating design load for walls
+  HVAC Zone Design Load: <ZoneID>: Heating: Roofs (Btu/h)                                Heating design load for roofs
+  HVAC Zone Design Load: <ZoneID>: Heating: Floors (Btu/h)                               Heating design load for floors
+  HVAC Zone Design Load: <ZoneID>: Heating: Slabs (Btu/h)                                Heating design load for slabs
+  HVAC Zone Design Load: <ZoneID>: Heating: Ceilings (Btu/h)                             Heating design load for ceilings
+  HVAC Zone Design Load: <ZoneID>: Heating: Infiltration (Btu/h)                         Heating design load for infiltration
+  HVAC Zone Design Load: <ZoneID>: Heating: Ventilation (Btu/h)                          Heating design load for ventilation
+  HVAC Zone Design Load: <ZoneID>: Heating: Piping (Btu/h)                               Heating design load for hydronic piping
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Total (Btu/h)                       Total sensible cooling design load
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Ducts (Btu/h)                       Sensible cooling design load for ducts
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Windows (Btu/h)                     Sensible cooling design load for windows
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Skylights (Btu/h)                   Sensible cooling design load for skylights
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Doors (Btu/h)                       Sensible cooling design load for doors
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Walls (Btu/h)                       Sensible cooling design load for walls
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Roofs (Btu/h)                       Sensible cooling design load for roofs
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Floors (Btu/h)                      Sensible cooling design load for floors
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Slabs (Btu/h)                       Sensible cooling design load for slabs
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Ceilings (Btu/h)                    Sensible cooling design load for ceilings
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Infiltration (Btu/h)                Sensible cooling design load for infiltration
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Ventilation (Btu/h)                 Sensible cooling design load for ventilation
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Internal Gains (Btu/h)              Sensible cooling design load for internal gains
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: Blower Heat (Btu/h)                 Sensible cooling design load for blower fan heat
+  HVAC Zone Design Load: <ZoneID>: Cooling Sensible: AED Excursion (Btu/h)               Sensible cooling design load for Adequate Exposure Diversity (AED) excursion
+  HVAC Zone Design Load: <ZoneID>: Cooling Latent: Total (Btu/h)                         Total latent cooling design load
+  HVAC Zone Design Load: <ZoneID>: Cooling Latent: Ducts (Btu/h)                         Latent cooling design load for ducts
+  HVAC Zone Design Load: <ZoneID>: Cooling Latent: Infiltration (Btu/h)                  Latent cooling design load for infiltration
+  HVAC Zone Design Load: <ZoneID>: Cooling Latent: Ventilation (Btu/h)                   Latent cooling design load for ventilation
+  HVAC Zone Design Load: <ZoneID>: Cooling Latent: Internal Gains (Btu/h)                Latent cooling design load for internal gains
+  =====================================================================================  ====================
 
 .. _hvac_space_design_loads:
 
@@ -619,26 +619,26 @@ If multiple timeseries frequencies are requested (e.g., hourly and daily), the t
 
 Depending on the outputs requested, the file may include:
 
-  ===========================  ===================  ==================================================================================================================================
-  Type                         Argument [#]_        Notes
-  ===========================  ===================  ==================================================================================================================================
-  Total Consumptions           ``total``            Energy use for building total and net (i.e., subtracts any power produced by PV or generators).
-  Fuel Consumptions            ``fuels``            Energy use for each fuel type (in kBtu for fossil fuels and kWh for electricity).
-  End Use Consumptions         ``enduses``          Energy use for each end use type (in kBtu for fossil fuels and kWh for electricity).
-  System Use Consumptions      ``systemuses``       Energy use for each HVAC and water heating system (in kBtu).
-  Emissions                    ``emissions``        Emissions (e.g., CO2) for each scenario defined in the HPXML file.
-  Emission Fuels               ``emissionfuels``    Emissions (e.g., CO2) disaggregated by fuel type for each scenario defined in the HPXML file.
-  Emission End Uses            ``emissionenduses``  Emissions (e.g., CO2) disaggregated by end use for each scenario defined in the HPXML file.
-  Hot Water Uses               ``hotwater``         Water use for each end use type (in gallons).
-  Total Loads                  ``loads``            Heating, cooling, and hot water loads (in kBtu).
-  Component Loads              ``componentloads``   Heating and cooling loads (in kBtu) disaggregated by component (e.g., Walls, Windows, Infiltration, Ducts, etc.).
-  Unmet Hours                  ``unmethours``       Heating and cooling unmet hours.
-  Zone Temperatures            ``temperatures``     Zone temperatures (in deg-F) for each space (e.g., conditioned space, attic, garage, basement, crawlspace, etc.) plus heating/cooling setpoints.
-  Airflows                     ``airflows``         Airflow rates (in cfm) for infiltration, mechanical ventilation (including clothes dryer exhaust), natural ventilation, whole house fans.
-  Weather                      ``weather``          Weather file data including outdoor temperatures, relative humidity, wind speed, and solar.
-  Resilience                   ``resilience``       Resilience outputs (currently only average resilience hours for battery storage).
-  EnergyPlus Output Variables                       Any user-specified EnergyPlus output variables (e.g., 'Zone People Occupant Count').
-  ===========================  ===================  ==================================================================================================================================
+  ==================================  ===================  ==================================================================================================================================
+  Type                                Argument [#]_        Notes
+  ==================================  ===================  ==================================================================================================================================
+  Total Consumptions                  ``total``            Energy use for building total and net (i.e., subtracts any power produced by PV or generators).
+  Fuel Consumptions                   ``fuels``            Energy use for each fuel type (in kBtu for fossil fuels and kWh for electricity).
+  End Use Consumptions                ``enduses``          Energy use for each end use type (in kBtu for fossil fuels and kWh for electricity).
+  System Use Consumptions             ``systemuses``       Energy use for each HVAC and water heating system (in kBtu).
+  Emissions                           ``emissions``        Emissions (e.g., CO2) for each scenario defined in the HPXML file.
+  Emission Fuels                      ``emissionfuels``    Emissions (e.g., CO2) disaggregated by fuel type for each scenario defined in the HPXML file.
+  Emission End Uses                   ``emissionenduses``  Emissions (e.g., CO2) disaggregated by end use for each scenario defined in the HPXML file.
+  Hot Water Uses                      ``hotwater``         Water use for each end use type (in gallons).
+  Total Loads                         ``loads``            Heating, cooling, and hot water loads (in kBtu).
+  Component Loads                     ``componentloads``   Heating and cooling loads (in kBtu) disaggregated by component (e.g., Walls, Windows, Infiltration, Ducts, etc.).
+  Unmet Hours                         ``unmethours``       Heating and cooling unmet hours.
+  Zone Temperatures                   ``temperatures``     Zone temperatures (in deg-F) for each space (e.g., conditioned space, attic, garage, basement, crawlspace, etc.) plus heating/cooling setpoints.
+  Airflows                            ``airflows``         Airflow rates (in cfm) for infiltration, mechanical ventilation (including clothes dryer exhaust), natural ventilation, whole house fans.
+  Weather                             ``weather``          Weather file data including outdoor temperatures, relative humidity, wind speed, and solar.
+  Resilience                          ``resilience``       Resilience outputs (currently only average resilience hours for battery storage).
+  EnergyPlus Output Variables/Meters                       Any user-specified EnergyPlus output variables/meters (e.g., 'Zone People Occupant Count', 'MainsWater:Facility').
+  ==================================  ===================  ==================================================================================================================================
 
   .. [#] This is the argument provided to ``run_simulation.rb`` as described in the :ref:`basic_run` usage instructions.
 
