@@ -425,10 +425,9 @@
         </Batteries>
         <Vehicles>
           <Vehicle>
-            <SystemIdentifier id='ElectricVehicle1'/>
+            <SystemIdentifier id='Vehicle1'/>
             <VehicleType>
               <BatteryElectricVehicle>
-                <Battery/>
                 <ConnectedCharger idref='EVCharger1'/>
               </BatteryElectricVehicle>
             </VehicleType>
@@ -437,7 +436,6 @@
         <ElectricVehicleChargers>
           <ElectricVehicleCharger>
             <SystemIdentifier id='EVCharger1'/>
-            <Location>outside</Location>
           </ElectricVehicleCharger>
         </ElectricVehicleChargers>
       </Systems>

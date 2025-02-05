@@ -865,10 +865,10 @@ module Model
 
   # Resets the existing model if it already has objects in it.
   #
-  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
   # @return [nil]
-  def self.reset(model, runner)
+  def self.reset(runner, model)
     handles = OpenStudio::UUIDVector.new
     model.objects.each do |obj|
       handles << obj.handle

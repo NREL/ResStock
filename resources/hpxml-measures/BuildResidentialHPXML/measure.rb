@@ -2676,45 +2676,61 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
     arg.setUnits('Frac')
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeBoolArgument('ev_battery_present', false)
-    arg.setDisplayName('Electric Vehicle: Present')
-    arg.setDescription('Whether there is an electric vehicle battery present. If the `misc_plug_loads_vehicle_present` argument is true, this argument is superseded and vehicle charging will be modeled as a plug load only.')
-    arg.setDefaultValue(false)
+    arg = OpenStudio::Measure::OSArgument::makeIntegerArgument('battery_num_bedrooms_served', false)
+    arg.setDisplayName('Battery: Number of Bedrooms Served')
+    arg.setDescription("Number of bedrooms served by the lithium ion battery. Only needed if #{HPXML::ResidentialTypeSFA} or #{HPXML::ResidentialTypeApartment} and it is a shared battery serving multiple dwelling units. Used to apportion battery charging/discharging to the unit of a SFA/MF building.")
+    arg.setUnits('#')
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_battery_capacity', false)
-    arg.setDisplayName('Electric Vehicle: Nominal Battery Capacity')
-    arg.setDescription('The nominal capacity of the EV battery. If not provided, the OS-HPXML default is used.')
+    arg = OpenStudio::Measure::OSArgument::makeStringArgument('vehicle_type', false)
+    arg.setDisplayName('Vehicle: Type')
+    arg.setDescription('The type of vehicle present at the home.')
+    arg.setDefaultValue(Constants::None)
+    args << arg
+
+    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('vehicle_battery_capacity', false)
+    arg.setDisplayName('Vehicle: EV Battery Nominal Battery Capacity')
+    arg.setDescription("The nominal capacity of the vehicle battery, only applies to electric vehicles. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-vehicles'>HPXML Vehicles</a>) is used.")
     arg.setUnits('kWh')
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_battery_usable_capacity', false)
-    arg.setDisplayName('Electric Vehicle: Usable Battery Capacity')
-    arg.setDescription('The usable capacity of the EV battery. If not provided, the OS-HPXML default is used.')
+    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('vehicle_battery_usable_capacity', false)
+    arg.setDisplayName('Vehicle: EV Battery Usable Capacity')
+    arg.setDescription("The usable capacity of the vehicle battery, only applies to electric vehicles. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-vehicles'>HPXML Vehicles</a>) is used.")
     arg.setUnits('kWh')
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_energy_efficiency', false)
-    arg.setDisplayName('Electric Vehicle: Energy Efficiency')
-    arg.setDescription('The efficiency of the EV. If not provided, the OS-HPXML default is used.')
-    arg.setUnits('kWh/mile')
+    fuel_economy_units_choices = OpenStudio::StringVector.new
+    fuel_economy_units_choices << HPXML::UnitsKwhPerMile
+    fuel_economy_units_choices << HPXML::UnitsMilePerKwh
+    fuel_economy_units_choices << HPXML::UnitsMPGe
+    fuel_economy_units_choices << HPXML::UnitsMPG
+
+    arg = OpenStudio::Measure::OSArgument::makeChoiceArgument('vehicle_fuel_economy_units', fuel_economy_units_choices, false)
+    arg.setDisplayName('Vehicle: Combined Fuel Economy Units')
+    arg.setDescription("The combined fuel economy units of the vehicle. Only '#{HPXML::UnitsKwhPerMile}', '#{HPXML::UnitsMilePerKwh}', or '#{HPXML::UnitsMPGe}' are allow for electric vehicles. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-vehicles'>HPXML Vehicles</a>) is used.")
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_miles_per_year', false)
-    arg.setDisplayName('Electric Vehicle: Miles Traveled')
-    arg.setDescription('The annual miles traveled by the EV.')
+    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('vehicle_fuel_economy_combined', false)
+    arg.setDisplayName('Vehicle: Combined Fuel Economy')
+    arg.setDescription("The combined fuel economy of the vehicle. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-vehicles'>HPXML Vehicles</a>) is used.")
+    args << arg
+
+    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('vehicle_miles_driven_per_year', false)
+    arg.setDisplayName('Vehicle: Miles Driven Per Year')
+    arg.setDescription("The annual miles the vehicle is driven. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-vehicles'>HPXML Vehicles</a>) is used.")
     arg.setUnits('miles')
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_hours_per_week', false)
-    arg.setDisplayName('Electric Vehicle: Hours Driven per Week')
-    arg.setDescription('The weekly hours traveled by the EV.')
+    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('vehicle_hours_driven_per_week', false)
+    arg.setDisplayName('Vehicle: Hours Driven Per Week')
+    arg.setDescription("The weekly hours the vehicle is driven. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-vehicles'>HPXML Vehicles</a>) is used.")
     arg.setUnits('hours')
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_fraction_charged_home', false)
-    arg.setDisplayName('Electric Vehicle: Fraction Charged at Home')
-    arg.setDescription('The fraction charging energy provided by the at-home charger.')
+    arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('vehicle_fraction_charged_home', false)
+    arg.setDisplayName('Vehicle: Fraction Charged at Home')
+    arg.setDescription("The fraction of charging energy provided by the at-home charger to the vehicle, only applies to electric vehicles. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-vehicles'>HPXML Vehicles</a>) is used.")
     args << arg
 
     arg = OpenStudio::Measure::OSArgument::makeBoolArgument('ev_charger_present', false)
@@ -2723,9 +2739,19 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
     arg.setDefaultValue(false)
     args << arg
 
+    ev_charging_level_choices = OpenStudio::StringVector.new
+    ev_charging_level_choices << '1'
+    ev_charging_level_choices << '2'
+    ev_charging_level_choices << '3'
+
+    arg = OpenStudio::Measure::OSArgument::makeChoiceArgument('ev_charger_level', ev_charging_level_choices, false)
+    arg.setDisplayName('Electric Vehicle Charger: Charging Level')
+    arg.setDescription("The charging level of the EV charger. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-electric-vehicle-chargers'>HPXML Electric Vehicle Chargers</a>) is used.")
+    args << arg
+
     arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('ev_charger_power', false)
-    arg.setDisplayName('Electric Vehicle Charger: Rated Charger Power Output')
-    arg.setDescription('The rated power output of the EV charger. If not provided, the OS-HPXML default is used.')
+    arg.setDisplayName('Electric Vehicle Charger: Rated Charging Power')
+    arg.setDescription("The rated power output of the EV charger. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-electric-vehicle-chargers'>HPXML Electric Vehicle Chargers</a>) is used.")
     arg.setUnits('W')
     args << arg
 
@@ -2735,13 +2761,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
 
     arg = OpenStudio::Measure::OSArgument::makeChoiceArgument('ev_charger_location', ev_charger_location_choices, false)
     arg.setDisplayName('Electric Vehicle Charger: Location')
-    arg.setDescription('The space type for the EV charger. If not provided, the OS-HPXML default is used.')
-    args << arg
-
-    arg = OpenStudio::Measure::OSArgument::makeIntegerArgument('battery_num_bedrooms_served', false)
-    arg.setDisplayName('Battery: Number of Bedrooms Served')
-    arg.setDescription("Number of bedrooms served by the lithium ion battery. Only needed if #{HPXML::ResidentialTypeSFA} or #{HPXML::ResidentialTypeApartment} and it is a shared battery serving multiple dwelling units. Used to apportion battery charging/discharging to the unit of a SFA/MF building.")
-    arg.setUnits('#')
+    arg.setDescription("The space type for the EV charger. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-electric-vehicle-chargers'>HPXML Electric Vehicle Chargers</a>) is used.")
     args << arg
 
     arg = OpenStudio::Measure::OSArgument::makeBoolArgument('lighting_present', true)
@@ -3272,7 +3292,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
 
     arg = OpenStudio::Measure::OSArgument::makeBoolArgument('misc_plug_loads_vehicle_present', true)
     arg.setDisplayName('Misc Plug Loads: Vehicle Present')
-    arg.setDescription('Whether there is an electric vehicle. Specifying this argument will model EV charging as a plug load and take precendence over the `ev_battery_present` argument.')
+    arg.setDescription('Whether there is an electric vehicle.')
     arg.setDefaultValue(false)
     args << arg
 
@@ -3609,7 +3629,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
       return false
     end
 
-    Model.reset(model, runner)
+    Model.reset(runner, model)
 
     Version.check_openstudio_version()
 
@@ -4003,7 +4023,7 @@ module HPXMLFile
     set_solar_thermal(hpxml_bldg, args, weather)
     set_pv_systems(hpxml_bldg, args, weather)
     set_battery(hpxml_bldg, args)
-    set_electric_vehicle(hpxml_bldg, args)
+    set_vehicle(hpxml_bldg, args)
     set_lighting(hpxml_bldg, args)
     set_dehumidifier(hpxml_bldg, args)
     set_clothes_washer(hpxml_bldg, args)
@@ -4147,20 +4167,20 @@ module HPXMLFile
 
     case args[:geometry_unit_type]
     when HPXML::ResidentialTypeSFD
-      success = Geometry.create_single_family_detached(runner: runner, model: model, **args)
+      success = Geometry.create_single_family_detached(runner, model, **args)
     when HPXML::ResidentialTypeSFA
-      success = Geometry.create_single_family_attached(model: model, **args)
+      success = Geometry.create_single_family_attached(model, **args)
     when HPXML::ResidentialTypeApartment
-      success = Geometry.create_apartment(model: model, **args)
+      success = Geometry.create_apartment(model, **args)
     when HPXML::ResidentialTypeManufactured
-      success = Geometry.create_single_family_detached(runner: runner, model: model, **args)
+      success = Geometry.create_single_family_detached(runner, model, **args)
     end
     return false if not success
 
-    success = Geometry.create_doors(runner: runner, model: model, **args)
+    success = Geometry.create_doors(runner, model, **args)
     return false if not success
 
-    success = Geometry.create_windows_and_skylights(runner: runner, model: model, **args)
+    success = Geometry.create_windows_and_skylights(runner, model, **args)
     return false if not success
 
     return true
@@ -4727,7 +4747,7 @@ module HPXMLFile
       distance, neighbor_height = data
       next if distance == 0
 
-      azimuth = Geometry.get_azimuth_from_facade(facade: facade, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_azimuth_from_facade(facade, args[:geometry_unit_orientation])
 
       if (distance > 0) && (not neighbor_height.nil?)
         height = neighbor_height
@@ -4909,17 +4929,17 @@ module HPXMLFile
       next if surface.outsideBoundaryCondition != EPlus::BoundaryConditionOutdoors
       next if surface.surfaceType != EPlus::SurfaceTypeRoofCeiling
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next if [HPXML::LocationOtherHousingUnit].include? interior_adjacent_to
 
       if args[:geometry_attic_type] == HPXML::AtticTypeFlatRoof
         azimuth = nil
       else
-        azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+        azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
       end
 
       hpxml_bldg.roofs.add(id: "Roof#{hpxml_bldg.roofs.size + 1}",
-                           interior_adjacent_to: Geometry.get_adjacent_to(surface: surface),
+                           interior_adjacent_to: Geometry.get_surface_adjacent_to(surface),
                            azimuth: azimuth,
                            area: UnitConversions.convert(surface.grossArea, 'm^2', 'ft^2'),
                            roof_type: args[:roof_material_type],
@@ -4952,9 +4972,9 @@ module HPXMLFile
     sorted_surfaces.each do |surface|
       next if surface.surfaceType != EPlus::SurfaceTypeWall
       next unless [EPlus::BoundaryConditionOutdoors, EPlus::BoundaryConditionAdiabatic].include? surface.outsideBoundaryCondition
-      next unless Geometry.surface_is_rim_joist(surface: surface, height: args[:geometry_rim_joist_height])
+      next unless Geometry.surface_is_rim_joist(surface, args[:geometry_rim_joist_height])
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationBasementConditioned,
                    HPXML::LocationBasementUnconditioned,
                    HPXML::LocationCrawlspaceUnvented,
@@ -4963,7 +4983,7 @@ module HPXMLFile
 
       exterior_adjacent_to = HPXML::LocationOutside
       if surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic # can be adjacent to foundation space
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         if adjacent_surface.nil? # adjacent to a space that is not explicitly in the model
           unless [HPXML::ResidentialTypeSFD].include?(args[:geometry_unit_type])
             exterior_adjacent_to = interior_adjacent_to
@@ -4972,7 +4992,7 @@ module HPXMLFile
             end
           end
         else # adjacent to a space that is explicitly in the model
-          exterior_adjacent_to = Geometry.get_adjacent_to(surface: adjacent_surface)
+          exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
 
@@ -4986,7 +5006,7 @@ module HPXMLFile
         insulation_assembly_r_value = args[:rim_joist_assembly_r]
       end
 
-      azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
 
       hpxml_bldg.rim_joists.add(id: "RimJoist#{hpxml_bldg.rim_joists.size + 1}",
                                 exterior_adjacent_to: exterior_adjacent_to,
@@ -5014,23 +5034,23 @@ module HPXMLFile
   def self.set_walls(hpxml_bldg, model, args, sorted_surfaces)
     sorted_surfaces.each do |surface|
       next if surface.surfaceType != EPlus::SurfaceTypeWall
-      next if Geometry.surface_is_rim_joist(surface: surface, height: args[:geometry_rim_joist_height])
+      next if Geometry.surface_is_rim_joist(surface, args[:geometry_rim_joist_height])
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationConditionedSpace, HPXML::LocationAtticUnvented, HPXML::LocationAtticVented, HPXML::LocationGarage].include? interior_adjacent_to
 
       exterior_adjacent_to = HPXML::LocationOutside
       if surface.adjacentSurface.is_initialized
-        exterior_adjacent_to = Geometry.get_adjacent_to(surface: surface.adjacentSurface.get)
+        exterior_adjacent_to = Geometry.get_surface_adjacent_to(surface.adjacentSurface.get)
       elsif surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic # can be adjacent to conditioned space, attic
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         if adjacent_surface.nil? # adjacent to a space that is not explicitly in the model
           exterior_adjacent_to = interior_adjacent_to
           if exterior_adjacent_to == HPXML::LocationConditionedSpace # conditioned space adjacent to conditioned space
             exterior_adjacent_to = HPXML::LocationOtherHousingUnit
           end
         else # adjacent to a space that is explicitly in the model
-          exterior_adjacent_to = Geometry.get_adjacent_to(surface: adjacent_surface)
+          exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
 
@@ -5055,7 +5075,7 @@ module HPXMLFile
         end
       end
 
-      azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
 
       hpxml_bldg.walls.add(id: "Wall#{hpxml_bldg.walls.size + 1}",
                            exterior_adjacent_to: exterior_adjacent_to,
@@ -5109,9 +5129,9 @@ module HPXMLFile
     sorted_surfaces.each do |surface|
       next if surface.surfaceType != EPlus::SurfaceTypeWall
       next unless [EPlus::BoundaryConditionFoundation, EPlus::BoundaryConditionAdiabatic].include? surface.outsideBoundaryCondition
-      next if Geometry.surface_is_rim_joist(surface: surface, height: args[:geometry_rim_joist_height])
+      next if Geometry.surface_is_rim_joist(surface, args[:geometry_rim_joist_height])
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationBasementConditioned,
                    HPXML::LocationBasementUnconditioned,
                    HPXML::LocationCrawlspaceUnvented,
@@ -5120,7 +5140,7 @@ module HPXMLFile
 
       exterior_adjacent_to = HPXML::LocationGround
       if surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic # can be adjacent to foundation space
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         if adjacent_surface.nil? # adjacent to a space that is not explicitly in the model
           unless [HPXML::ResidentialTypeSFD].include?(args[:geometry_unit_type])
             exterior_adjacent_to = interior_adjacent_to
@@ -5129,7 +5149,7 @@ module HPXMLFile
             end
           end
         else # adjacent to a space that is explicitly in the model
-          exterior_adjacent_to = Geometry.get_adjacent_to(surface: adjacent_surface)
+          exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
 
@@ -5160,7 +5180,7 @@ module HPXMLFile
         end
       end
 
-      azimuth = Geometry.get_surface_azimuth(surface: surface, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
 
       hpxml_bldg.foundation_walls.add(id: "FoundationWall#{hpxml_bldg.foundation_walls.size + 1}",
                                       exterior_adjacent_to: exterior_adjacent_to,
@@ -5206,12 +5226,12 @@ module HPXMLFile
       next if surface.outsideBoundaryCondition == EPlus::BoundaryConditionFoundation
       next unless [EPlus::SurfaceTypeFloor, EPlus::SurfaceTypeRoofCeiling].include? surface.surfaceType
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next unless [HPXML::LocationConditionedSpace, HPXML::LocationGarage].include? interior_adjacent_to
 
       exterior_adjacent_to = HPXML::LocationOutside
       if surface.adjacentSurface.is_initialized
-        exterior_adjacent_to = Geometry.get_adjacent_to(surface: surface.adjacentSurface.get)
+        exterior_adjacent_to = Geometry.get_surface_adjacent_to(surface.adjacentSurface.get)
       elsif surface.outsideBoundaryCondition == EPlus::BoundaryConditionAdiabatic
         exterior_adjacent_to = HPXML::LocationOtherHousingUnit
         if surface.surfaceType == EPlus::SurfaceTypeFloor
@@ -5281,7 +5301,7 @@ module HPXMLFile
       next unless [EPlus::BoundaryConditionFoundation].include? surface.outsideBoundaryCondition
       next if surface.surfaceType != EPlus::SurfaceTypeFloor
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
       next if [HPXML::LocationOutside, HPXML::LocationOtherHousingUnit].include? interior_adjacent_to
 
       has_foundation_walls = false
@@ -5292,7 +5312,7 @@ module HPXMLFile
           HPXML::LocationBasementConditioned].include? interior_adjacent_to
         has_foundation_walls = true
       end
-      exposed_perimeter = Geometry.calculate_exposed_perimeter(model: model, ground_floor_surfaces: [surface], has_foundation_walls: has_foundation_walls).round(1)
+      exposed_perimeter = Geometry.calculate_exposed_perimeter(model, ground_floor_surfaces: [surface], has_foundation_walls: has_foundation_walls).round(1)
       next if exposed_perimeter == 0
 
       if has_foundation_walls
@@ -5352,8 +5372,8 @@ module HPXMLFile
 
       surface = sub_surface.surface.get
 
-      sub_surface_height = Geometry.get_surface_height(surface: sub_surface)
-      sub_surface_facade = Geometry.get_facade_for_surface(surface: sub_surface)
+      sub_surface_height = Geometry.get_surface_height(sub_surface)
+      sub_surface_facade = Geometry.get_surface_facade(sub_surface)
 
       if (sub_surface_facade == Constants::FacadeFront) && ((args[:overhangs_front_depth] > 0) || args[:overhangs_front_distance_to_top_of_window] > 0)
         overhangs_depth = args[:overhangs_front_depth]
@@ -5375,7 +5395,7 @@ module HPXMLFile
         # Get max z coordinate of eaves
         eaves_z = args[:geometry_average_ceiling_height] * args[:geometry_unit_num_floors_above_grade] + args[:geometry_rim_joist_height]
         if args[:geometry_attic_type] == HPXML::AtticTypeConditioned
-          eaves_z += Geometry.get_conditioned_attic_height(spaces: model.getSpaces)
+          eaves_z += Geometry.get_conditioned_attic_height(model.getSpaces)
         end
         if args[:geometry_foundation_type] == HPXML::FoundationTypeAmbient
           eaves_z += args[:geometry_foundation_height]
@@ -5389,7 +5409,7 @@ module HPXMLFile
         overhangs_distance_to_bottom_of_window = (overhangs_distance_to_top_of_window + sub_surface_height).round(1)
       end
 
-      azimuth = Geometry.get_azimuth_from_facade(facade: sub_surface_facade, orientation: args[:geometry_unit_orientation])
+      azimuth = Geometry.get_azimuth_from_facade(sub_surface_facade, args[:geometry_unit_orientation])
 
       wall_idref = @surface_ids[surface.name.to_s]
       next if wall_idref.nil?
@@ -5438,8 +5458,8 @@ module HPXMLFile
 
       surface = sub_surface.surface.get
 
-      sub_surface_facade = Geometry.get_facade_for_surface(surface: sub_surface)
-      azimuth = Geometry.get_azimuth_from_facade(facade: sub_surface_facade, orientation: args[:geometry_unit_orientation])
+      sub_surface_facade = Geometry.get_surface_facade(sub_surface)
+      azimuth = Geometry.get_azimuth_from_facade(sub_surface_facade, args[:geometry_unit_orientation])
 
       roof_idref = @surface_ids[surface.name.to_s]
       next if roof_idref.nil?
@@ -5479,10 +5499,10 @@ module HPXMLFile
 
       surface = sub_surface.surface.get
 
-      interior_adjacent_to = Geometry.get_adjacent_to(surface: surface)
+      interior_adjacent_to = Geometry.get_surface_adjacent_to(surface)
 
       if [HPXML::LocationOtherHousingUnit].include?(interior_adjacent_to)
-        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model: model, surface: surface)
+        adjacent_surface = Geometry.get_adiabatic_adjacent_surface(model, surface)
         next if adjacent_surface.nil?
       end
 
@@ -6940,45 +6960,44 @@ module HPXMLFile
                              number_of_bedrooms_served: number_of_bedrooms_served)
   end
 
-  # Set the electric vehicle properties, including:
-  # - rated power output
-  # - nominal and usable capacity
-  # - driving efficiency
+  # Set the vehicle and electric vehicle charger properties, including:
+  # - vehicle battery nominal and usable capacity
+  # - fuel economy
+  # - fuel economy units
   # - miles driven per year
   # - hours driven per week
   # - fraction charged at home
-  # - EV charger connection
+  # - EV charger reference
+  # - EV charger location
+  # - EV charger charging power
   #
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @param args [Hash] Map of :argument_name => value
   # @return [nil]
-  def self.set_electric_vehicle(hpxml_bldg, args)
-    if args[:ev_battery_present] != true
-      return
-    end
+  def self.set_vehicle(hpxml_bldg, args)
+    return unless args[:vehicle_type] || args[:ev_charger_present]
 
     charger_id = nil
     if args[:ev_charger_present]
-      if args[:ev_charger_location].nil?
-        args[:ev_charger_location] = 'outside'
-      end
-      location = get_location(args[:ev_charger_location], hpxml_bldg.foundations[-1].foundation_type, hpxml_bldg.attics[-1].attic_type)
-
       charger_id = "EVCharger#{hpxml_bldg.ev_chargers.size + 1}"
       hpxml_bldg.ev_chargers.add(id: charger_id,
-                                 location: location,
+                                 location: args[:ev_charger_location],
+                                 charging_level: args[:ev_charger_level],
                                  charging_power: args[:ev_charger_power])
     end
 
-    ev_ct = hpxml_bldg.vehicles.count { |vehicle| vehicle.vehicle_type == HPXML::VehicleTypeBEV }
-    hpxml_bldg.vehicles.add(id: "ElectricVehicle#{ev_ct + 1}",
-                            nominal_capacity_kwh: args[:ev_battery_capacity],
-                            usable_capacity_kwh: args[:ev_battery_usable_capacity],
-                            energy_efficiency: args[:ev_energy_efficiency],
-                            miles_per_year: args[:ev_miles_per_year],
-                            hours_per_week: args[:ev_hours_per_week],
-                            fraction_charged_home: args[:ev_fraction_charged_home],
-                            ev_charger_idref: charger_id)
+    if args[:vehicle_type] != Constants::None
+      hpxml_bldg.vehicles.add(id: "Vehicle#{hpxml_bldg.vehicles.size + 1}",
+                              vehicle_type: args[:vehicle_type],
+                              nominal_capacity_kwh: args[:vehicle_battery_capacity],
+                              usable_capacity_kwh: args[:vehicle_battery_usable_capacity],
+                              fuel_economy_combined: args[:vehicle_fuel_economy_combined],
+                              fuel_economy_units: args[:vehicle_fuel_economy_units],
+                              miles_per_year: args[:vehicle_miles_driven_per_year],
+                              hours_per_week: args[:vehicle_hours_driven_per_week],
+                              fraction_charged_home: args[:vehicle_fraction_charged_home],
+                              ev_charger_idref: charger_id)
+    end
   end
 
   # Set the lighting properties, including:

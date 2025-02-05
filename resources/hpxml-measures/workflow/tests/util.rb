@@ -227,32 +227,21 @@ def _verify_outputs(rundir, hpxml_path, results, hpxml, unit_multiplier)
     if hpxml_bldg.windows.empty?
       next if message.include? 'No windows specified, the model will not include window heat transfer.'
     end
-    check_battery_log = true
-    hpxml_bldg.batteries.each do |_battery|
-      next unless hpxml_bldg.pv_systems.empty? && hpxml_bldg.header.schedules_filepaths.empty?
+    if hpxml_bldg.pv_systems.empty? && !hpxml_bldg.batteries.empty? && hpxml_bldg.header.schedules_filepaths.empty?
       next if message.include? 'Battery without PV specified, and no charging/discharging schedule provided; battery is assumed to operate as backup and will not be modeled.'
-
-      check_battery_log = false
     end
-    # Battery with no schedule
-    hpxml_bldg.vehicles.each do |vehicle|
-      next unless vehicle.vehicle_type == HPXML::VehicleTypeBEV
-      next unless hpxml_bldg.header.schedules_filepaths.empty?
-      next unless not vehicle.ev_charger_idref.nil?
-      next if message.include? 'Electric vehicle battery specified with no charging/discharging schedule provided; battery will not be modeled.'
-
-      check_battery_log = false
+    if hpxml_bldg.vehicles.any? { |vehicle| vehicle.vehicle_type == HPXML::VehicleTypeBEV && vehicle.ev_charger_idref.nil? }
+      next if message.include? 'Electric vehicle specified with no charger provided; home EV charging will not be modeled.'
     end
-    # Battery with no charger
-    hpxml_bldg.vehicles.each do |vehicle|
-      next unless vehicle.vehicle_type == HPXML::VehicleTypeBEV
-      next unless vehicle.ev_charger_idref.nil?
-      next if message.include? 'Electric vehicle specified with no charger provided; battery will not be modeled.'
-
-      check_battery_log = false
+    if hpxml_bldg.vehicles.any? { |vehicle| vehicle.vehicle_type == HPXML::VehicleTypeBEV && !vehicle.ev_charger_idref.nil? && vehicle.ev_weekday_fractions.nil? } && !hpxml_bldg.header.schedules_filepaths.empty?
+      next if message.include? 'driving hours could not be met'
     end
-    next if check_battery_log
-
+    if hpxml_bldg.vehicles.any? { |vehicle| vehicle.vehicle_type == HPXML::VehicleTypeBEV } && hpxml_bldg.plug_loads.any? { |p| p.plug_load_type == HPXML::PlugLoadTypeElectricVehicleCharging }
+      next if message.include? 'Electric vehicle charging was specified as both a PlugLoad and a Vehicle, the latter will be ignored.'
+    end
+    if hpxml_bldg.vehicles.any? { |vehicle| vehicle.vehicle_type != HPXML::VehicleTypeBEV }
+      next if message.include?('Vehicle type') && message.include?('is not currently handled, the vehicle will not be modeled')
+    end
     if hpxml_path.include? 'base-location-capetown-zaf.xml'
       next if message.include? 'OS Message: Minutes field (60) on line 9 of EPW file'
       next if message.include? 'Could not find a marginal Electricity rate.'
@@ -1123,7 +1112,7 @@ def _check_unit_multiplier_results(xml, hpxml_bldg, annual_results_1x, annual_re
       # Check that airflow rate difference is less than 0.2 cfm or less than 1.0%
       abs_delta_tol = 0.2
       abs_frac_tol = 0.01
-    elsif key.include?('Unmet Hours:') || key.include?('Unmet Driving Hours')
+    elsif key.include?('Unmet Hours:')
       # Check that the unmet hours difference is less than 10 hrs
       abs_delta_tol = 10
       abs_frac_tol = nil

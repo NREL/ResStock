@@ -51,9 +51,6 @@
           <ConditionedFloorArea>2700.0</ConditionedFloorArea>
           <ConditionedBuildingVolume>21600.0</ConditionedBuildingVolume>
         </BuildingConstruction>
-        <extension>
-          <SchedulesFilePath>../../HPXMLtoOpenStudio/resources/schedule_files/battery-ev.csv</SchedulesFilePath>
-        </extension>
       </BuildingSummary>
       <ClimateandRiskZones>
         <ClimateZoneIECC>
@@ -388,6 +385,13 @@
             <Azimuth>180</Azimuth>
             <RValue>4.4</RValue>
           </Door>
+          <Door>
+            <SystemIdentifier id='Door2'/>
+            <AttachedToWall idref='Wall1'/>
+            <Area>70.0</Area>
+            <Azimuth>180</Azimuth>
+            <RValue>4.4</RValue>
+          </Door>
         </Doors>
       </Enclosure>
       <Systems>
@@ -506,37 +510,12 @@
         </WaterHeating>
         <Vehicles>
           <Vehicle>
-            <SystemIdentifier id='ElectricVehicle1'/>
+            <SystemIdentifier id='Vehicle1'/>
             <VehicleType>
-              <BatteryElectricVehicle>
-                <Battery>
-                  <NominalCapacity>
-                    <Units>kWh</Units>
-                    <Value>100.0</Value>
-                  </NominalCapacity>
-                  <UsableCapacity>
-                    <Units>kWh</Units>
-                    <Value>80.0</Value>
-                  </UsableCapacity>
-                </Battery>
-                <ConnectedCharger idref='EVCharger1'/>
-              </BatteryElectricVehicle>
+              <BatteryElectricVehicle/>
             </VehicleType>
-            <MilesDrivenPerYear>10000.0</MilesDrivenPerYear>
-            <HoursDrivenPerWeek>14.0</HoursDrivenPerWeek>
-            <FuelEconomyCombined>
-              <Units>kWh/mile</Units>
-              <Value>0.25</Value>
-            </FuelEconomyCombined>
           </Vehicle>
         </Vehicles>
-        <ElectricVehicleChargers>
-          <ElectricVehicleCharger>
-            <SystemIdentifier id='EVCharger1'/>
-            <Location>garage</Location>
-            <ChargingPower>7000.0</ChargingPower>
-          </ElectricVehicleCharger>
-        </ElectricVehicleChargers>
       </Systems>
       <Appliances>
         <ClothesWasher>
@@ -678,14 +657,6 @@
             <FracSensible>0.855</FracSensible>
             <FracLatent>0.045</FracLatent>
           </extension>
-        </PlugLoad>
-        <PlugLoad>
-          <SystemIdentifier id='PlugLoad3'/>
-          <PlugLoadType>electric vehicle charging</PlugLoadType>
-          <Load>
-            <Units>kWh/year</Units>
-            <Value>3000.0</Value>
-          </Load>
         </PlugLoad>
       </MiscLoads>
     </BuildingDetails>

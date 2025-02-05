@@ -1189,4 +1189,25 @@ module Outputs
       end
     end
   end
+
+  # Creates custom output meters that are used across reporting measures.
+  #
+  # @param model [OpenStudio::Model::Model] OpenStudio Model object
+  # @return [nil]
+  def self.create_custom_meters(model)
+    # Create custom meter w/ Facility:Electricity plus EV charging
+    key_vars = []
+    model.getElectricLoadCenterStorageLiIonNMCBatterys.each do |elcs|
+      next unless elcs.additionalProperties.getFeatureAsString('ObjectType').to_s == Constants::ObjectTypeVehicle
+
+      key_vars << [elcs.name.to_s.upcase, 'Electric Storage Charge Energy']
+    end
+    meter = OpenStudio::Model::MeterCustom.new(model)
+    meter.setName('Electricity:FacilityEVCharging')
+    meter.setFuelType(EPlus::FuelTypeElectricity)
+    meter.addKeyVarGroup('*', 'Electricity:Facility')
+    key_vars.each do |key_var|
+      meter.addKeyVarGroup(key_var[0], key_var[1])
+    end
+  end
 end

@@ -27,9 +27,10 @@ module Defaults
   # @param convert_shared_systems [Boolean] Whether to convert shared systems to equivalent in-unit systems per ANSI/RESNET/ICC 301
   # @return [Array<Hash, Hash>] Maps of HPXML::Zones => DesignLoadValues object, HPXML::Spaces => DesignLoadValues object
   def self.apply(runner, hpxml, hpxml_bldg, weather, schedules_file: nil, convert_shared_systems: true)
-    eri_version = hpxml.header.eri_calculation_version
-    if eri_version.nil?
+    if hpxml.header.eri_calculation_versions.nil? || hpxml.header.eri_calculation_versions.empty?
       eri_version = 'latest'
+    else
+      eri_version = hpxml.header.eri_calculation_versions[0]
     end
     if eri_version == 'latest'
       eri_version = Constants::ERIVersions[-1]
@@ -871,8 +872,9 @@ module Defaults
     cond_crawl_volume = hpxml_bldg.inferred_conditioned_crawlspace_volume()
     nbeds = hpxml_bldg.building_construction.number_of_bedrooms
     if hpxml_bldg.building_construction.average_ceiling_height.nil?
-      # ASHRAE 62.2 default for average floor to ceiling height
-      hpxml_bldg.building_construction.average_ceiling_height = 8.2
+      # Note: We do not try to calculate it from CFA & ConditionedBuildingVolume since
+      # that is not a reliable assumption if there is a, e.g., conditioned crawlspace.
+      hpxml_bldg.building_construction.average_ceiling_height = 8.2 # ASHRAE 62.2 default
       hpxml_bldg.building_construction.average_ceiling_height_isdefaulted = true
     end
     if hpxml_bldg.building_construction.conditioned_building_volume.nil?
@@ -3179,7 +3181,7 @@ module Defaults
   # @param hpxml_bldg [HPXML::Building] HPXML Building object representing an individual dwelling unit
   # @return [nil]
   def self.apply_vehicles(hpxml_bldg, schedules_file)
-    default_values = get_eletric_vehicle_values()
+    default_values = get_electric_vehicle_values
     hpxml_bldg.vehicles.each do |vehicle|
       next unless vehicle.vehicle_type == HPXML::VehicleTypeBEV
 
@@ -3188,48 +3190,46 @@ module Defaults
         vehicle.battery_type = default_values[:battery_type]
         vehicle.battery_type_isdefaulted = true
       end
-      if vehicle.energy_efficiency.nil?
-        vehicle.energy_efficiency = default_values[:energy_efficiency]
-        vehicle.energy_efficiency_isdefaulted = true
+      if vehicle.fuel_economy_combined.nil? || vehicle.fuel_economy_units.nil?
+        vehicle.fuel_economy_combined = default_values[:fuel_economy_combined]
+        vehicle.fuel_economy_combined_isdefaulted = true
+        vehicle.fuel_economy_units = default_values[:fuel_economy_units]
+        vehicle.fuel_economy_units_isdefaulted = true
       end
-      if vehicle.miles_per_year.nil?
+      miles_to_hrs_per_week = default_values[:miles_per_year] / default_values[:hours_per_week]
+      if vehicle.miles_per_year.nil? && vehicle.hours_per_week.nil?
         vehicle.miles_per_year = default_values[:miles_per_year]
         vehicle.miles_per_year_isdefaulted = true
-      end
-      if vehicle.hours_per_week.nil?
         vehicle.hours_per_week = default_values[:hours_per_week]
+        vehicle.hours_per_week_isdefaulted = true
+      elsif (not vehicle.hours_per_week.nil?) && vehicle.miles_per_year.nil?
+        vehicle.miles_per_year = vehicle.hours_per_week * miles_to_hrs_per_week
+        vehicle.miles_per_year_isdefaulted = true
+      elsif (not vehicle.miles_per_year.nil?) && vehicle.hours_per_week.nil?
+        vehicle.hours_per_week = vehicle.miles_per_year / miles_to_hrs_per_week
         vehicle.hours_per_week_isdefaulted = true
       end
       if vehicle.fraction_charged_home.nil?
         vehicle.fraction_charged_home = default_values[:fraction_charged_home]
         vehicle.fraction_charged_home_isdefaulted = true
       end
-      schedules_file_includes_ev_combined = (schedules_file.nil? ? false : schedules_file.includes_col_name(SchedulesFile::Columns[:EVBattery].name))
-      schedules_file_includes_ev_indiv = (schedules_file.nil? ? false : schedules_file.includes_col_name(SchedulesFile::Columns[:EVBatteryDischarging].name) && schedules_file.includes_col_name(SchedulesFile::Columns[:EVBatteryDischarging].name))
-      schedules_file_includes_ev = schedules_file_includes_ev_combined || schedules_file_includes_ev_indiv
-      if vehicle.ev_charging_weekday_fractions.nil? && !schedules_file_includes_ev
-        vehicle.ev_charging_weekday_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:EVBattery].name]['WeekdayScheduleFractions']
-        vehicle.ev_charging_weekday_fractions_isdefaulted = true
+      schedules_file_includes_ev = (schedules_file.nil? ? false : schedules_file.includes_col_name(SchedulesFile::Columns[:ElectricVehicleCharging].name) && schedules_file.includes_col_name(SchedulesFile::Columns[:ElectricVehicleDischarging].name))
+      if vehicle.ev_weekday_fractions.nil? && !schedules_file_includes_ev
+        vehicle.ev_weekday_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:ElectricVehicle].name]['WeekdayScheduleFractions']
+        vehicle.ev_weekday_fractions_isdefaulted = true
       end
-      if vehicle.ev_charging_weekend_fractions.nil? && !schedules_file_includes_ev
-        vehicle.ev_charging_weekend_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:EVBattery].name]['WeekendScheduleFractions']
-        vehicle.ev_charging_weekend_fractions_isdefaulted = true
+      if vehicle.ev_weekend_fractions.nil? && !schedules_file_includes_ev
+        vehicle.ev_weekend_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:ElectricVehicle].name]['WeekendScheduleFractions']
+        vehicle.ev_weekend_fractions_isdefaulted = true
       end
-      if vehicle.ev_charging_monthly_multipliers.nil? && !schedules_file_includes_ev
-        vehicle.ev_charging_monthly_multipliers = @default_schedules_csv_data[SchedulesFile::Columns[:EVBattery].name]['MonthlyScheduleMultipliers']
-        vehicle.ev_charging_monthly_multipliers_isdefaulted = true
+      if vehicle.ev_monthly_multipliers.nil? && !schedules_file_includes_ev
+        vehicle.ev_monthly_multipliers = @default_schedules_csv_data[SchedulesFile::Columns[:ElectricVehicle].name]['MonthlyScheduleMultipliers']
+        vehicle.ev_monthly_multipliers_isdefaulted = true
       end
-      ev_charger = nil
-      if not vehicle.ev_charger_idref.nil?
-        hpxml_bldg.ev_chargers.each do |charger|
-          next unless vehicle.ev_charger_idref == charger.id
 
-          ev_charger = charger
-        end
-      end
-      next if ev_charger.nil?
+      next if vehicle.ev_charger.nil?
 
-      apply_ev_charger(hpxml_bldg, ev_charger)
+      apply_ev_charger(hpxml_bldg, vehicle.ev_charger)
     end
   end
 
@@ -3244,8 +3244,16 @@ module Defaults
       ev_charger.location = default_values[:location]
       ev_charger.location_isdefaulted = true
     end
+    if ev_charger.charging_level.nil? && ev_charger.charging_power.nil?
+      ev_charger.charging_level = default_values[:charging_level]
+      ev_charger.charging_level_isdefaulted = true
+    end
     if ev_charger.charging_power.nil?
-      ev_charger.charging_power = default_values[:charging_power]
+      if ev_charger.charging_level == 1
+        ev_charger.charging_power = default_values[:level1_charging_power]
+      elsif ev_charger.charging_level >= 2
+        ev_charger.charging_power = default_values[:level2_charging_power]
+      end
       ev_charger.charging_power_isdefaulted = true
     end
   end
@@ -3297,7 +3305,7 @@ module Defaults
       elsif not battery.usable_capacity_ah.nil?
         battery.nominal_capacity_ah = (battery.usable_capacity_ah / default_values[:usable_fraction]).round(2)
         battery.nominal_capacity_ah_isdefaulted = true
-      elsif not battery.rated_power_output.nil?
+      elsif battery.respond_to?(:rated_power_output) && (not battery.rated_power_output.nil?)
         battery.nominal_capacity_kwh = (UnitConversions.convert(battery.rated_power_output, 'W', 'kW') / 0.5).round(2)
         battery.nominal_capacity_kwh_isdefaulted = true
       else
@@ -3315,7 +3323,7 @@ module Defaults
         battery.usable_capacity_ah_isdefaulted = true
       end
     end
-    return unless battery.rated_power_output.nil? || battery.is_a?(HPXML::Vehicle) # EV battery rated power is set using other inputs in vehicle.rb
+    return unless battery.respond_to?(:rated_power_output) && battery.rated_power_output.nil?
 
     # Calculate rated power from nominal capacity
     if not battery.nominal_capacity_kwh.nil?
@@ -3969,17 +3977,17 @@ module Defaults
           plug_load.frac_latent = 0.0
           plug_load.frac_latent_isdefaulted = true
         end
-        schedules_file_includes_plug_loads_vehicle = (schedules_file.nil? ? false : schedules_file.includes_col_name(SchedulesFile::Columns[:EVBattery].name))
+        schedules_file_includes_plug_loads_vehicle = (schedules_file.nil? ? false : schedules_file.includes_col_name(SchedulesFile::Columns[:PlugLoadsVehicle].name))
         if plug_load.weekday_fractions.nil? && !schedules_file_includes_plug_loads_vehicle
-          plug_load.weekday_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:EVBattery].name]['WeekdayScheduleFractions']
+          plug_load.weekday_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:PlugLoadsVehicle].name]['WeekdayScheduleFractions']
           plug_load.weekday_fractions_isdefaulted = true
         end
         if plug_load.weekend_fractions.nil? && !schedules_file_includes_plug_loads_vehicle
-          plug_load.weekend_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:EVBattery].name]['WeekendScheduleFractions']
+          plug_load.weekend_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:PlugLoadsVehicle].name]['WeekendScheduleFractions']
           plug_load.weekend_fractions_isdefaulted = true
         end
         if plug_load.monthly_multipliers.nil? && !schedules_file_includes_plug_loads_vehicle
-          plug_load.monthly_multipliers = @default_schedules_csv_data[SchedulesFile::Columns[:EVBattery].name]['MonthlyScheduleMultipliers']
+          plug_load.monthly_multipliers = @default_schedules_csv_data[SchedulesFile::Columns[:PlugLoadsVehicle].name]['MonthlyScheduleMultipliers']
           plug_load.monthly_multipliers_isdefaulted = true
         end
       when HPXML::PlugLoadTypeWellPump
@@ -4002,7 +4010,7 @@ module Defaults
           plug_load.weekday_fractions_isdefaulted = true
         end
         if plug_load.weekend_fractions.nil? && !schedules_file_includes_plug_loads_well_pump
-          plug_load.weekend_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:PlugLoadsWellPump].name]['WeekdayScheduleFractions']
+          plug_load.weekend_fractions = @default_schedules_csv_data[SchedulesFile::Columns[:PlugLoadsWellPump].name]['WeekendScheduleFractions']
           plug_load.weekend_fractions_isdefaulted = true
         end
         if plug_load.monthly_multipliers.nil? && !schedules_file_includes_plug_loads_well_pump
@@ -4815,7 +4823,7 @@ module Defaults
     unit_type = hpxml_bldg.building_construction.residential_facility_type
 
     nl = Airflow.get_infiltration_NL_from_SLA(infil_values[:sla], infil_values[:height])
-    q_inf = Airflow.get_infiltration_Qinf_from_NL(nl, weather, cfa)
+    q_inf = Airflow.get_mech_vent_qinf_cfm(nl, weather, cfa)
     q_tot = Airflow.get_mech_vent_qtot_cfm(nbeds, cfa)
     if vent_fan.is_balanced
       is_balanced, frac_imbal = true, 0.0
@@ -4858,7 +4866,7 @@ module Defaults
   # @param cfa [Double] Conditioned floor area in the dwelling unit (ft2)
   # @param ncfl_ag [Double] Number of conditioned floors above grade
   # @param year_built [Integer] Year the dwelling unit is built
-  # @param avg_ceiling_height [Double] Average floor to ceiling height within conditioned space (ft2)
+  # @param avg_ceiling_height [Double] Average floor to ceiling height within conditioned space (ft)
   # @param infil_volume [Double] Volume of space most impacted by the blower door test (ft3)
   # @param iecc_cz [String] IECC climate zone
   # @param fnd_type_fracs [Hash] Map of foundation type => area fraction
@@ -4965,7 +4973,9 @@ module Defaults
     # Specific Leakage Area
     sla = nl / (1000.0 * ncfl_ag**0.3)
 
-    ach50 = Airflow.get_infiltration_ACH50_from_SLA(sla, 0.65, cfa, infil_volume)
+    # ACH50
+    infil_avg_ceil_height = infil_volume / cfa
+    ach50 = Airflow.get_infiltration_ACH50_from_SLA(sla, infil_avg_ceil_height)
 
     return ach50
   end
@@ -5721,15 +5731,16 @@ module Defaults
   # and usable fraction for an electric vehicle and its battery.
   #
   # @return [Hash] map of EV properties to default values
-  def self.get_eletric_vehicle_values()
+  def self.get_electric_vehicle_values()
     return { battery_type: HPXML::BatteryTypeLithiumIon,
              lifetime_model: HPXML::BatteryLifetimeModelNone,
              miles_per_year: 10900,
-             hours_per_week: 11.6,
+             hours_per_week: 8.88,
              nominal_capacity_kwh: 63,
              nominal_voltage: 50.0,
-             energy_efficiency: 0.22, # kwh/mile
-             fraction_charged_home: 1.0,
+             fuel_economy_combined: 0.22,
+             fuel_economy_units: HPXML::UnitsKwhPerMile,
+             fraction_charged_home: 0.8,
              usable_fraction: 0.8 } # Fraction of usable capacity to nominal capacity
   end
 
@@ -5746,8 +5757,9 @@ module Defaults
     end
 
     return { location: location,
-             charging_power: 5690, # Median L2 charging rate in EVWatts
-             charging_level: 2 }
+             charging_level: 2,
+             level1_charging_power: 1600,
+             level2_charging_power: 5690 } # Median L2 charging rate in EVWatts
   end
 
   # Gets the default values for a dehumidifier
@@ -5935,9 +5947,12 @@ module Defaults
   def self.get_electric_vehicle_charging_annual_energy()
     ev_charger_efficiency = 0.9
     ev_battery_efficiency = 0.9
-    vehicle_annual_miles_driven = 4500.0
-    vehicle_kWh_per_mile = 0.3
-    return vehicle_annual_miles_driven * vehicle_kWh_per_mile / (ev_charger_efficiency * ev_battery_efficiency)
+
+    # Use detailed vehicle model defaults
+    vehicle_defaults = get_electric_vehicle_values
+    kwh_per_year = vehicle_defaults[:miles_per_year] * vehicle_defaults[:fuel_economy_combined] * vehicle_defaults[:fraction_charged_home] / (ev_charger_efficiency * ev_battery_efficiency)
+
+    return kwh_per_year.round(1)
   end
 
   # Gets the default well pump annual energy use.

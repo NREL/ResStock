@@ -144,7 +144,6 @@ class BuildResidentialScheduleFile < OpenStudio::Measure::ModelMeasure
         epw_path = Location.get_epw_path(hpxml_bldg, hpxml_path)
         weather = WeatherFile.new(epw_path: epw_path, runner: runner, hpxml: hpxml)
       end
-
       # deterministically vary schedules across building units
       args[:random_seed] *= (i + 1)
 
@@ -244,8 +243,6 @@ class BuildResidentialScheduleFile < OpenStudio::Measure::ModelMeasure
       args[:minutes_per_step] = hpxml.header.timestep
     end
     args[:steps_in_day] = 24 * 60 / args[:minutes_per_step]
-    args[:mkc_ts_per_day] = 96
-    args[:mkc_ts_per_hour] = args[:mkc_ts_per_day] / 24
 
     calendar_year = Location.get_sim_calendar_year(hpxml.header.sim_calendar_year, weather)
     args[:sim_year] = calendar_year
@@ -269,7 +266,7 @@ class BuildResidentialScheduleFile < OpenStudio::Measure::ModelMeasure
     args[:column_names] = args[:schedules_column_names].split(',').map(&:strip) if !args[:schedules_column_names].nil?
 
     if hpxml_bldg.building_occupancy.number_of_residents.nil?
-      args[:geometry_num_occupants] = Geometry.get_occupancy_default_num(nbeds: hpxml_bldg.building_construction.number_of_bedrooms)
+      args[:geometry_num_occupants] = Geometry.get_occupancy_default_num(hpxml_bldg.building_construction.number_of_bedrooms)
     else
       args[:geometry_num_occupants] = hpxml_bldg.building_occupancy.number_of_residents
     end
