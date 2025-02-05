@@ -1,4 +1,12 @@
 {
+  "AK": {
+    "summer_peak_start": "2050-08-03 17:00:00",
+    "summer_peak_end": "2050-08-03 21:00:00",
+    "winter_peak_start": "2050-12-12 17:00:00",
+    "winter_peak_end": "2050-12-12 21:00:00",
+    "intermediate_peak_start": "2050-04-12 16:00:00",
+    "intermediate_peak_end": "2050-04-12 20:00:00"
+  },
   "IA": {
     "summer_peak_start": "2050-08-28 16:00:00",
     "summer_peak_end": "2050-08-28 20:00:00",
