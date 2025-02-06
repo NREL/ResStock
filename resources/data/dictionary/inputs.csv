@@ -250,7 +250,7 @@ report_simulation_output.timeseries_num_decimal_places,"Allows overriding the de
 report_simulation_output.add_timeseries_dst_column,"Optionally add, in addition to the default local standard Time column, a local clock TimeDST column. Requires that daylight saving time is enabled."
 report_simulation_output.add_timeseries_utc_column,"Optionally add, in addition to the default local standard Time column, a local clock TimeUTC column. If the time zone UTC offset is not provided in the HPXML file, the time zone in the EPW header will be used."
 report_simulation_output.user_output_variables,"Optionally generates timeseries EnergyPlus output variables. If multiple output variables are desired, use a comma-separated list. Do not include key values; by default all key values will be requested. Example: 'Zone People Occupant Count, Zone People Total Heating Energy'"
-report_simulation_output.user_output_variables,"Optionally generates timeseries EnergyPlus output meters. If multiple output meters are desired, use a comma-separated list. Example: 'Electricity:Facility, HeatingCoils:EnergyTransfer'"
+report_simulation_output.user_output_meters,"Optionally generates timeseries EnergyPlus output meters. If multiple output meters are desired, use a comma-separated list. Example: 'Electricity:Facility, HeatingCoils:EnergyTransfer'"
 report_utility_bills.applicable,The measure was applied to the workflow.
 report_utility_bills.output_format,"The file format of the annual (and timeseries, if requested) outputs."
 report_utility_bills.include_annual_bills,Generates output file containing annual utility bills.
