@@ -35463,13 +35463,13 @@ Arguments
      - Type
      - Choices
      - Description
-   * - ``ev_battery_usable_capacity``
+   * - ``vehicle_battery_usable_capacity``
      - false
      - kWh
      - Double
      - auto
      - The usable capacity of the EV battery. If not provided, the OS-HPXML default is used.
-   * - ``ev_energy_efficiency``
+   * - ``vehicle_fuel_economy_combined``
      - false
      - kWh/mile
      - Double
@@ -35494,8 +35494,8 @@ From ``project_national`` the list of options, option stock sturation, and optio
 
    * - Option name
      - Stock saturation
-     - ``ev_battery_usable_capacity``
-     - ``ev_energy_efficiency``
+     - ``vehicle_battery_usable_capacity``
+     - ``vehicle_fuel_economy_combined``
      - ``ev_average_mph``
 
    * - Compact, Battery Electric Vehicle, 200 mile range
@@ -35579,7 +35579,7 @@ Arguments
      - Type
      - Choices
      - Description
-   * - ``ev_fraction_charged_home``
+   * - ``vehicle_fraction_charged_home``
      - false
      - 
      - Double
@@ -35598,7 +35598,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
 
    * - Option name
      - Stock saturation
-     - ``ev_fraction_charged_home``
+     - ``vehicle_fraction_charged_home``
 
    * - 0-19%
      - 13%
@@ -35759,7 +35759,7 @@ Arguments
      - Type
      - Choices
      - Description
-   * - ``ev_miles_per_year``
+   * - ``vehicle_miles_driven_per_year``
      - false
      - miles
      - Double
@@ -35778,7 +35778,7 @@ From ``project_national`` the list of options, option stock sturation, and optio
 
    * - Option name
      - Stock saturation
-     - ``ev_miles_per_year``
+     - ``vehicle_miles_driven_per_year``
 
    * - 1000
      - 9.6%

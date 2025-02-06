@@ -151,7 +151,6 @@ class BuildResidentialScheduleFileTest < Minitest::Test
     }
     assert_full_load_hrs_match(sf, expected_values, @tol)
     assert(!sf.schedules.keys.include?(SchedulesFile::Columns[:Sleeping].name))
-
   end
 
   def test_stochastic_debug
@@ -577,7 +576,7 @@ class BuildResidentialScheduleFileTest < Minitest::Test
     suggested_values = {}
     missing_cols = []
     schedule_col_names = []
-    cols_to_ignore = Set.new(["Vacancy", "Power Outage", "No Space Heating", "No Space Cooling"])
+    cols_to_ignore = Set.new(['Vacancy', 'Power Outage', 'No Space Heating', 'No Space Cooling'])
     expected_values.each do |col_name, expected_value|
       unless SchedulesFile::Columns.key?(col_name.to_sym)
         puts "Error: Column '#{col_name}' not found in SchedulesFile::Columns"
@@ -595,7 +594,7 @@ class BuildResidentialScheduleFileTest < Minitest::Test
       diff = (actual_value - expected_value).abs
       if diff > delta
         mismatches << { col_name: col_name, expected_value: expected_value, actual_value: actual_value,
-                       message: "Expected |#{expected_value} - #{actual_value}| (#{diff}) to be <= #{delta}" }
+                        message: "Expected |#{expected_value} - #{actual_value}| (#{diff}) to be <= #{delta}" }
         suggested_values[col_name] = "#{format('%.1f', actual_value)}"
       else
         suggested_values[col_name] = "#{expected_value}"
@@ -626,14 +625,15 @@ class BuildResidentialScheduleFileTest < Minitest::Test
       end
 
       puts "\nTo fix this, you can update the expected values to match the actual values and columns:"
-      puts "    expected_values = {"
+      puts '    expected_values = {'
       expected_values.keys.each do |col_name|
         if missing_cols.include?(col_name)
           next
         end
+
         puts "      :#{col_name} => #{suggested_values[col_name]},"
       end
-      puts "    }"
+      puts '    }'
       assert(false)
     end
   end

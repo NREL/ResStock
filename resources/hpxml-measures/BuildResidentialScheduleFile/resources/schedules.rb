@@ -160,7 +160,7 @@ class ScheduleGenerator
     shower_activity_sch, bath_activity_sch = generate_bath_shower_schedules(mkc_activity_schedules)
 
     # Apply random offset to schdules to avoid synchronization
-    offset_range = 30  # +- 30 minutes offset
+    offset_range = 30 # +- 30 minutes offset
     random_offset = (@prngs[:main].rand * 2 * offset_range).to_i - offset_range
     if !@hpxml_bldg.dishwashers.to_a.empty?
       dw_hot_water_sch = generate_dishwasher_schedule(mkc_activity_schedules)
@@ -945,7 +945,7 @@ class ScheduleGenerator
     end
     if !@hpxml_bldg.ceiling_fans.to_a.empty?
       ceiling_fan = generate_plug_load_schedule(mkc_activity_schedules, daily_schedules, :ceiling_fan)
-        @schedules[SchedulesFile::Columns[:CeilingFan].name] = normalize(ceiling_fan)
+      @schedules[SchedulesFile::Columns[:CeilingFan].name] = normalize(ceiling_fan)
     end
   end
 
@@ -970,10 +970,8 @@ class ScheduleGenerator
         )
       end
     end
-      return schedule
+    return schedule
   end
-
-
 
   # Calculate the percentage of occupants that are actively present and awake.
   #

@@ -855,17 +855,17 @@ class ResStockArguments < OpenStudio::Measure::ModelMeasure
     args[:rim_joist_assembly_r] = rim_joist_assembly_r
 
     # Vehicle arguments
-    if (not args[:ev_miles_per_year].nil?) && (not args[:ev_fraction_charged_home].nil?)
-      args[:ev_miles_per_year] = args[:ev_miles_per_year] * args[:ev_fraction_charged_home]
+    if (not args[:vehicle_miles_driven_per_year].nil?) && (not args[:vehicle_fraction_charged_home].nil?)
+      args[:vehicle_miles_driven_per_year] = args[:vehicle_miles_driven_per_year] * args[:vehicle_fraction_charged_home]
     end
-    if (not args[:ev_miles_per_year].nil?) && (not args[:ev_average_mph].nil?)
-      hours_per_year = args[:ev_miles_per_year] / args[:ev_average_mph]
-      args[:ev_hours_per_week] = (hours_per_year / UnitConversions.convert(1, 'yr', 'day')) * 7
+    if (not args[:vehicle_miles_driven_per_year].nil?) && (not args[:ev_average_mph].nil?)
+      hours_per_year = args[:vehicle_miles_driven_per_year] / args[:ev_average_mph]
+      args[:vehicle_hours_driven_per_week] = (hours_per_year / UnitConversions.convert(1, 'yr', 'day')) * 7
     end
 
     if not args[:ev_efficiency_percent_increase].nil?
       # Adjust efficiency (in kWh/mile) to reflect a percentage improvement in efficiency.
-      args[:ev_energy_efficiency] = args[:ev_energy_efficiency] / (1 + args[:ev_efficiency_percent_increase])
+      args[:vehicle_fuel_economy_combined] = args[:vehicle_fuel_economy_combined] / (1 + args[:ev_efficiency_percent_increase])
     end
 
     args.each do |arg_name, arg_value|
