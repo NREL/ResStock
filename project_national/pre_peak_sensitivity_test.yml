@@ -73,40 +73,40 @@ baseline:
   n_buildings_represented: 139647020 # American Community Survey 2021 5-year, B25001, does not include territories ( 138765649 without AK and HI )
 
 upgrades:
-  - upgrade_name: peak_only_4hr_2deg
+  - upgrade_name: peak_only_4hr_2deg  # upgrade 1
     options:
       - option: LoadFlexibility|peak_only_4hr_2deg
-  - upgrade_name: pre_only_4hr_2deg
+  - upgrade_name: pre_only_4hr_2deg # upgrade 2
     options:
       - option: LoadFlexibility|pre_only_4hr_2deg
-  - upgrade_name: both_4hr_2deg
+  - upgrade_name: both_4hr_2deg # upgrade 3
     options:
       - option: LoadFlexibility|both_4hr_2deg
-  - upgrade_name: peak_only_4hr_4deg
+  - upgrade_name: peak_only_4hr_4deg # upgrade 4
     options:
       - option: LoadFlexibility|peak_only_4hr_4deg
-  - upgrade_name: pre_only_4hr_4deg
+  - upgrade_name: pre_only_4hr_4deg # upgrade 5
     options:
       - option: LoadFlexibility|pre_only_4hr_4deg
-  - upgrade_name: both_4hr_4deg
+  - upgrade_name: both_4hr_4deg # upgrade 6
     options:
       - option: LoadFlexibility|both_4hr_4deg
   # - upgrade_name: peak_only_1hr_2deg
   #   options:
   #     - option: LoadFlexibility|peak_only_1hr_2deg
-  - upgrade_name: pre_only_1hr_2deg
+  - upgrade_name: pre_only_1hr_2deg  # upgrade 7
     options:
       - option: LoadFlexibility|pre_only_1hr_2deg
-  - upgrade_name: both_1hr_2deg
+  - upgrade_name: both_1hr_2deg # upgrade 8
     options:
       - option: LoadFlexibility|both_1hr_2deg
   # - upgrade_name: peak_only_1hr_4deg
   #   options:
   #     - option: LoadFlexibility|peak_only_1hr_4deg
-  - upgrade_name: pre_only_1hr_4deg
+  - upgrade_name: pre_only_1hr_4deg # upgrade 9
     options:
       - option: LoadFlexibility|pre_only_1hr_4deg
-  - upgrade_name: both_1hr_4deg
+  - upgrade_name: both_1hr_4deg # upgrade 10
     options:
       - option: LoadFlexibility|both_1hr_4deg
 

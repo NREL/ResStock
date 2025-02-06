@@ -35,19 +35,19 @@ class ResStockArgumentsPostHPXML < OpenStudio::Measure::ModelMeasure
     arg = OpenStudio::Measure::OSArgument.makeIntegerArgument('loadflex_peak_offset', false)
     arg.setDisplayName('Load Flexibility: Peak Offset (deg F)')
     arg.setDescription('Offset of the peak period in degrees Fahrenheit.')
-    arg.setDefaultValue(2)
+    arg.setDefaultValue(0)
     args << arg
 
     arg = OpenStudio::Measure::OSArgument.makeDoubleArgument('loadflex_pre_peak_duration_hours', false)
     arg.setDisplayName('Load Flexibility: Pre-Peak Duration (hours)')
     arg.setDescription('Duration of the pre-peak period in hours.')
-    arg.setDefaultValue(2)
+    arg.setDefaultValue(0)
     args << arg
 
     arg = OpenStudio::Measure::OSArgument.makeIntegerArgument('loadflex_pre_peak_offset', false)
     arg.setDisplayName('Load Flexibility: Pre-Peak Offset (deg F)')
     arg.setDescription('Offset of the pre-peak period in degrees Fahrenheit.')
-    arg.setDefaultValue(3)
+    arg.setDefaultValue(0)
     args << arg
 
     arg = OpenStudio::Measure::OSArgument.makeIntegerArgument('loadflex_random_shift_minutes', false)
