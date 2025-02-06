@@ -1955,7 +1955,7 @@ Presence and efficiency of well pump.
 \begin{itemize}
     \item Census Division
     \item PUMA Metro Status
-    \item GEometry Building Type Height
+    \item Geometry Building Type Height
 \end{itemize}
 
 \paragraph{Options}
@@ -2894,26 +2894,80 @@ reflect, e.g., high/low usage occupants. \\
 None. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Electrical Panels}
-The electrical panel is a breaker box that distributes power at roughly 240V from the utility pole to the connected appliances and receptacles while protecting them from overload, short circuit, or ground fault. Inside the panel, two bus bars each carrying 120V service run down the breaker slots to allow either 120V or 240V branch circuits. Electric appliances and devices are organized into branch circuits and each circuit is protected by an overcurrent protection device (A.K.A. breaker). Typically, 120V breakers takes up one space and 240V take up two. Some breakers, such as tandem breakers, can serve more than one circuit while occupying the same number of spaces. The panel service rating refers to the maximum amps of current the panel can safely handle to power the circuits. This is often the same as the ampacity rating of the service entrance disconnect, which limits the amount of power entering the panel, though it is possible to have a panel rated larger than its service disconnect, and vice versa. 
+\section{Electrical Panels} \label{sec:input_panels}
+The electrical panel is a breaker box that distributes power from the utility pole to the connected appliances and receptacles while protecting them from overload, short circuit, or ground fault. Inside the panel, electric appliances are organized into branch circuits that are each protected by an overcurrent protection device (A.K.A. breaker). Two bus bars each carrying 120V service along with a neutral bus bar run down the breaker slots to supply power at either 120V or 240V. 120V circuits use single-pole breakers that take up one space while 240V require two-space double-pole breakers to draw the 240V potential between the two hot wires. Some breakers, such as tandem breakers, can serve multiple circuits without taking up more space. The panel service rating refers to the maximum amps of current the panel can safely handle to power the circuits. This is often the same as the ampacity rating of the service entrance disconnect, which limits the amount of power entering the panel, though it is possible to have a panel rated larger than its service disconnect, and vice versa. 
 
 \subsection{Overview}
 The electrical panel service load and breaker space calculations are used to assess whether the electrical panel has a capacity and a space constraint, respectively, during a home electrification. As new electric loads are introduced into the home, the panel may need to be reconfigured, extended, or replaced due to insufficient capacity or insufficient breaker space. For example, homes that are not already using electricity for heating and cooking are more likely to have capacity constraints, thus requiring an upgrade, load controls, or other interventions. A panel with all slots occupied cannot accommodate new circuits unless space-saving breakers are used, or a subpanel is added. When the panel is being upsized for capacity, an electrical service upgrade may also be required to upsize the service entrance wiring from the pole to the service disconnect. By estimating the panel capacity constraints, the service load calculation can serve as an upper bound estimate for service upgrades when applied to the housing stock. 
 
-To evaluate potential panel constraints, we first characterize the panel service rating and the number of available breaker spaces on the panels for the US housing stock using best available data. Then we perform service load calculations based on code to get the required capacity for a given upgrade scenario. The calculated value is compared with the rating of the panel to determine the capacity constraint. For the breaker space calculation, the number of occupied breaker spaces on the panel is estimated by tabulating from each appliance for a given modeled home. This pre-upgrade occupied space estimate is combined with the available breaker space input to determine the rated total number of spaces on the panel. Then the number of occupied breaker spaces is calculated for the modeled home post-upgrade and subtracted from the rated number of spaces to determine the space constraint for a given upgrade scenario. The following sections provide more detail on each of the two calculations. The electrical panel outputs can be found in Section XX.
+To evaluate potential panel constraints, we first characterize the panel service rating and the number of available breaker spaces on the panels for the US housing stock using best available data. Then we perform service load calculations based on code to get the required capacity for a given upgrade scenario. The calculated value is compared with the rating of the panel to determine the capacity constraint. For the breaker space calculation, the number of occupied breaker spaces on the panel is estimated by tabulating from each appliance for a given modeled home. This pre-upgrade occupied space estimate is combined with the available breaker space input to determine the rated total number of spaces on the panel. Then the number of occupied breaker spaces is calculated for the modeled home post-upgrade and subtracted from the rated number of spaces to determine the space constraint for a given upgrade scenario. The following sections provide more detail on each of the two calculations. The electrical panel outputs can be found in Section \ref{sec:output_panels}.
 
 \subsection{Input Characteristics}
-We derived the electrical panel service rating (A) and the breaker space headroom using a limited set of survey data. For single-family attached and detached dwellings, the data was used to train machine-learning models, which were then used to generate the distribution of the two panel attributes. For multi-family, the characteristic distributions were derived directly from the data due to insufficient sample size to support model training. As the dataset does not contain high-fidelity samples for mobile homes, we use the distributions for single-family detached to approximate mobile homes.
+We derived the electrical panel service rating (A) and the breaker space headroom using a limited set of survey data. For single-family attached and detached dwellings, the data was used to train machine-learning models, which were then used to generate the distribution of the panel attributes. For multi-family, the characteristic distributions were derived directly from the data due to insufficient samples to support model training. As the dataset does not contain high-fidelity samples for mobile homes, we use the distributions for single-family detached to approximate mobile homes.
 
-% Add table of dependencies
+79\% of the survey data comes from the Pacific regions via: TECH Clean California, Bay Area Renewable Energy Network, Home Energy Analytics, and Northwest Energy Efficiency Alliance Residential Building Stock Assessment, while 20\% comes from the Minnesota Center for Energy and the Environment and 1\% from LBL Citizen Science survey, which is administered nationally. 
+Due to the data bias towards the Pacific states, where gas heating is dominant, separate model is used for electrically heated and fuel heated single-family dwellings. Table \ref{tab:panel_deps} outlines the dependencies for each of the distributions generated for assigning the panel characteristics. The field values for electrical panel service rating are: <100, 100, 101-124, 125, 126-199, 200, 201+. The availale breaker space options range from 0 to 31.
+% TODO reference Task 1 paper when ready
+
+\begin{table}
+  \caption{Dependencies for the distributions of electrical panel service rating and breaker space.}
+  \label{tab:panel_deps}
+  \centering
+  \begin{tabular}{|c|c|c|c|}
+  \hline
+      Panel Metric & Building Type & Heating Type & Dependencies\\
+      \hline
+      Service rating & Single-Family & Electric & building type, floor area, vintage, water heater fuel, cooling type, clothes dryer, cooking range\\
+      Service rating & Single-Family & Non-electric & building type, floor area, vintage\\
+      Service rating & Multi-Family & All & Floor area, vintage, heating fuel\\
+      Breaker space headroom & Single-Family & All & Service rating, major electric load count, floor area\\
+      Breaker space headroom & Multi-Family & All & Service rating, major electric load count\\
+      \hline
+  \end{tabular}
+\end{table}
 
 \subsection{Service Load Calculations}
 The service and feeder load calculation refers to a type of load calculation used to size the service entrance wires (between the utility poles and the meter or service disconnect) or the feeder wires (between panels, such as those between a building’s main panel and subpanel in each apartment unit) according to Section 220 of the National Electrical Code (NEC). This calculation also applies to the sizing of panels to ensure electrical safety. The NEC updates every three years, and the adoption of NEC varies by municipality. Instead of capturing every NEC version currently in practice, which is impractical, we implemented the load calculations per the latest NEC release, 2023, which represents the best practice adoptable. For 2023, the service load calculation is different for new constructions and existing buildings undergoing an upgrade. Two methods are available for existing buildings, and both are implemented in ResStock: load-based and metered-based. The calculated loads (W) represent the total occuied load from installed electrical equipment and are converted to total occupied capacity (A) by dividing by 240V, the panel voltage. The occupied capacity is compared with the panel service rating to calculate headroom capacity and assess NEC compliance.
 
 \subsubsection{Load-based Method}
-The service rating of the panel is generally not the sum of individual branch circuit ratings because not all equipment is expected to be operating at full load simultaneously. Instead, there is some diversity in the loads expected to make up the coincidence peak, even at a worst-case scenario. Following this idea, NEC Section 220.83 provides guidance on estimating this peak from the bottom-up to assess whether a panel has sufficient capacity to serve new loads. Table X below summarizes the load-based method, and the assumptions made in ResStock to perform this calculation.
-% Add method table
-Of note, the demand factors applied and summation of the loads vary depending on whether new HVAC load is being introduced by an upgrade. If all or part of the HVAC load is considered new, a more conservative approach is taken by taking the HVAC load (maximum of either heating or cooling) at 100\% instead of subjecting the HVAC load to different demand tiers along with all other loads. For the baseline load calculation, the total occupied load is calculated using part (a) as no new load is introduced yet.
+The service rating of the panel is generally not the sum of individual branch circuit ratings because not all equipment is expected to be operating at full load simultaneously. Instead, there is some diversity in the loads expected to make up the coincidence peak, even at a worst-case scenario. Following this idea, NEC Section 220.83 provides guidance on estimating this peak from the bottom-up to assess whether a panel has sufficient capacity to serve new loads. Table \ref{tab:panel_load_method} below summarizes the load-based method, and the assumptions made in ResStock to perform this calculation.
+
+\begin{customLongTable}{ |p{3cm}|p{6.5cm}|p{6.5cm}| }
+  {Summary of load-based method per 2023 NEC 220.83} {tab:panel_load_method} 
+  {\textbf{Load Type} & \textbf{Load Amount} & \textbf{ResStock Assumptions}} 
+          General lighting/receptacle load & 3 W/sqft & Uses conditioned floor area \\ \hline
+          Kitchen small appliance circuits & Min two branches at 1500 W each & Two branches per dwelling \\ \hline
+          Laundry circuits & Min one branch at 1500 W & One branch per dwelling \\ \hline
+          Major electric loads & 
+            Nameplate rating of: 
+            \begin{itemize}
+              \item HVAC (larger of heating and cooling), 
+              \item water heaters, 
+              \item clothes dryers (not already on laundry circuits), 
+              \item cooking ranges/ovens, 
+              \item all other appliances that are "fastened in place, permanently connected, or located to be on a specific circuit" 
+            \end{itemize} & 
+            All other appliances include: 
+            \begin{itemize}
+              \item hot tub/spa, 
+              \item pool heaters and pumps, 
+              \item well pumps, 
+              \item electric vehicle supply equipment (EVSE), 
+              \item dishwashers, 
+              \item spot ventilations, 
+              \item selected plug loads – microwaves, garbage disposal, garage doors, 
+              \item low power (120V) appliances – water heaters, cooktops (not yet modeled) 
+            \end{itemize} \\ \hline
+          Demand factors and summation & 
+            Demand factors apply to both existing and new loads, depends on whether new HVAC is being installed:
+            \begin{itemize}
+              \item (a) If not adding new HVAC, take the first 8 kVA of all loads at 100\% and remainder loads at 40\%.
+              \item (b) If adding new HVAC, take HVAC load at 100\%, first 8 kVA of all other loads at 100\%, and remainder loads at 40\%.
+            \end{itemize}
+           & Total occupied capacity in the baseline is calculated using (a) \\ \hline
+\end{customLongTable}
+
+Of note, we accounted for selected plug loads in the load-based calculation that we do not explicitly model in terms of energy for which plug loads is a single end use category. We assumed all dwelling units have a microwave, 52\% homes have a garage disposal (per AHS 2013), and one garage door opener for homes with an attached garage. Additionally, the demand factors applied to sum up the loads vary depending on whether new HVAC load is being introduced by an upgrade. If all or part of the HVAC load is considered new, a more conservative approach is taken by taking the HVAC load (maximum of either heating or cooling) at 100\% instead of subjecting the HVAC load to different demand tiers along with all other loads. For the baseline load calculation, the total occupied load is calculated using part (a) as no new load is introduced yet.
 
 \subsubsection{Meter-based Method}
 The second method, metered-based, is a top-down approach by using the metered electricity peak of the preceding year to baseline the existing loading of the panel. Per NEC section 220.87, the total capacity needed for an upgrade is calculated as 1.25 of the baseline peak electricity plus any new loads at 100%. In ResStock, the annual electricity peak is used in place of the metered data and the new loads that are counted are the same as those outlined in the load-based method. 
@@ -2921,10 +2975,42 @@ The second method, metered-based, is a top-down approach by using the metered el
 For a given upgrade, the load-based method is generally more conservative than the metered-based at estimating the number of homes with a panel capacity constraint. However, this may not be the case for homes that have high equipment utilization factors or setpoints that drive up HVAC use. Additionally, as the metered-based method does not account for the removal of any legacy loads, the method may be more conservative for certain upgrade scenarios, e.g., homes upgrading an electric furnace or boiler to a heat pump with integrated heat strip, for which heating is captured in both the baseline electricity and as an upgrade load.
 
 \subsection{Breaker Space Calculations}
-The breaker space calculation is broken out into two parts. First the total rated breaker space is determined for the panel in the baseline home. This is done by combining the number of available breaker spaces (probabilistically assigned based on the panel service rating and the number of major electric loads) and the total occupied spaces from major electric equipments. Table X below lists electric equipments considered and their associated voltage and breaker space requirement. Generally 120V-rated equipment takes up one breaker space and 240V-rated equipment takes up two spaces in order to make contact with both bus bars to get the 240V service. While space-saving breakers, such as tandem, tri, and quad breakers, are available, they are not currently modeled in ResStock.
+The breaker space calculation is broken out into two parts. First the total rated breaker space is determined for the panel in the baseline home. This is done by combining the number of available breaker spaces (probabilistically assigned based on the panel service rating and the number of major electric loads) and the total occupied spaces from major electric equipments. Table \ref{tab:breaker_spaces} below lists electric equipments considered and their associated voltage and breaker space requirement. Generally 120V-rated equipment takes up one breaker space and 240V-rated equipment takes up two spaces in order to make contact with two live bus bars to get the 240V service. While space-saving breakers, such as tandem, tri, and quad breakers, are available, they are not currently modeled in ResStock.
 
-% Add breaker space table
-% Add heat pump breaker space table
+\begin{customLongTable}{ |p{4cm}|p{2.5cm}|p{2.5cm}|p{7cm}| }
+  {Default voltage and breaker space by load type.} {tab:breaker_spaces} 
+  {\textbf{Load Name} & \textbf{Voltage} & \textbf{Breaker Spaces} & \textbf{Notes}} 
+  lighting & 120 & 0 & 	 \\ \hline
+  kitchen & 120 & 2 & Two kitchen small appliance circuits. \\ \hline
+  laundry & 120 & 1 & One laundry circuit at 1.5 kVA. \\ \hline
+  electric vehicle charging & 120 & 1 & Level 1 - 120V EV charger. Assumes dedicated circuit. \\ \hline
+  electric vehicle charging & 240 &	2	& Level 2 - 240V EV charger. \\ \hline
+  well pump & 240 & 2	& \\ \hline
+  pool pump & 240 & 2 & 2 HP pool pump capacity. \\ \hline
+  pool heater & 240 & 6 & Electric resistance pool heater. Three 50A circuit breaker. \\ \hline
+  pool heater & 240 & 2 & Heat pump pool heater. \\ \hline
+  permanent spa heater & 240 & 2 & Electric resistance hot tub heater. \\ \hline
+  permanent spa heater & 240 & 2 & Heat pump hot tub heater. \\ \hline
+  permanent spa pump & 240 & 2 & Hot tub pump. \\ \hline
+  clothes dryer & 240 & 2 & Electric clothes dryer. \\ \hline
+  clothes dryer & 120 & 1 & 120V heat pump clothes dryer. \\ \hline
+  clothes dryer & 240 & 2 & 240V heat pump clothes dryer. \\ \hline
+  dishwasher & 120 & 1 & Dishwasher. \\ \hline
+  range/oven & 120 & 1 & 120V range-oven. \\ \hline
+  range/oven & 240 & 2 & 240V range-oven. \\ \hline
+  hot water & 240 & 4 & Tankless water heater - one bathroom. The default power rating is 1800W. Two 50A circuit breaker. \\ \hline
+  hot water & 240 & 4 & Tankless water heater - two bathrooms. The default power rating is 2400W. Two 50A circuit breaker. \\ \hline
+  hot water & 240 & 6 & Tankless water heater - three or more bathrooms. The default power rating is 3600W. Three 50A circuit breaker. \\ \hline
+  hot water &	240 &	auto & Storage water heater. The default power rating is auto sized. The number of breaker space = 2*(power rating in W/240V/50A).ceil. \\ \hline
+  hot water & 120 & auto & 120V heat pump water heater. Assumes dedicated circuit. The default power rating is auto sized. The number of breaker space = (power rating in W/240V/15A).ceil. \\ \hline
+  hot water & 240 &	auto & 240V heat pump water heater. The default power rating is auto sized. The number of breaker space = 2*(power rating in W/240V/50A).ceil. \\ \hline
+  heating & 240 & auto & The default power rating is auto sized. The number of breaker space = 2*(power rating in W/240V/50A).ceil. \\ \hline
+  cooling	& 240 &	auto & The default power rating is auto sized. The number of breaker space = 2*(power rating in W/240V/50A).ceil. \\ \hline
+  mech vent & 120 & 1	&  \\ \hline
+  other	& 120 &	1	& Only assumes 1 garage door opener if a garage is present and does not account for other permanent appliances (e.g. garbage disposal). \\
+\end{customLongTable}
+
+% TODO Add heat pump breaker space table
 
 Once the total rated breaker space is calculated, it is used to calculate the headroom breaker space in an upgrade simulation by subtracting from it the new total spaces occupied by electric loads in the upgraded home. Note, although the headroom breaker space for the baseline is an input characteristic, all space-related metrics are listed as output metrics to avoid confusion.
 
