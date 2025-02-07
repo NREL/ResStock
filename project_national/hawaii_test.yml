@@ -73,7 +73,7 @@ workflow_generator:
       retain_schedules_csv: false
 
 baseline:
-  n_buildings_represented: 1447154 # 2021 HI-only, 139647020 American Community Survey 2021 5-year, B25001, does not include territories ( 138765649 without AK and HI )
+  n_buildings_represented:  556937 #Hawaii state # 139647020 #American Community Survey 2021 5-year, B25001, does not include territories
 
 kestrel:
   n_jobs: 100
