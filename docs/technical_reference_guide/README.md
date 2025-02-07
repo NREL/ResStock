@@ -29,7 +29,7 @@ $ docker pull mfisherman/texlive-full
 docker run --rm -it -v $(pwd):/workspace mfisherman/texlive-full /bin/bash
 ```
 
-4. The container should start running imediately. The container by default will start in a "data" folder with nothing in the directory. Go to the workspace folder where the Technical Reference Guide directory is located.
+4. The container should start running immediately. Once in the container, your CLI looks something like this: `19603f1794b0:/data#`, with `19603f1794b0` likely being different. Go to the workspace folder where the Technical Reference Guide directory is located.
 
 ```
 cd ../workspace
@@ -47,4 +47,6 @@ latexmk -pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode
 ```
 
 6. All of the pdf and log files from the compile will be located in docs/technical_reference_guide/_build (Note: this won't show up as modified files in git because _build is in .gitignore)
+
+7. If the pdf does not compile successfully, look for fatal errors in the .log file, apply fixes, and recompile as needed by repeating step 5. To stop the workflow and exit out of the container, type exit in the CLI or hit Ctrl + D on your keyword.
 
