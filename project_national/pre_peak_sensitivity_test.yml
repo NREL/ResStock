@@ -1,0 +1,141 @@
+schema_version: "0.5"
+os_version: 3.9.0
+os_sha: c77fbb9569
+buildstock_directory: ../ # Relative to this file or absolute
+project_directory: project_national # Relative to buildstock_directory
+#output_directory: /Volumes/LaCie/load_flexibility/pre_peak_sensitivity_dec24
+output_directory: /projects/rescore/load_flex/pre_peak_sensitivity_dec29
+# weather_files_path: /Users/radhikar/Documents/BuildStock_TMY3_FIPS.zip
+weather_files_path: kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIPS.zip
+# weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
+
+sampler:
+  type: residential_quota
+  args:
+    n_datapoints: 1000
+
+
+kestrel:
+  n_jobs: 30
+  minutes_per_sim: 1
+  account: rescore
+  postprocessing:
+    time: 120
+    n_workers: 5
+    n_procs: 20
+  sampling:
+    time: 30
+
+workflow_generator:
+  type: residential_hpxml
+  version: 2024.07.20
+  args:
+    build_existing_model:
+      simulation_control_timestep: 15
+      simulation_control_run_period_begin_month: 1
+      simulation_control_run_period_begin_day_of_month: 1
+      simulation_control_run_period_end_month: 12
+      simulation_control_run_period_end_day_of_month: 31
+      simulation_control_run_period_calendar_year: 2007
+
+    simulation_output_report:
+      timeseries_frequency: timestep
+      include_timeseries_total_consumptions: true
+      include_timeseries_fuel_consumptions: true
+      include_timeseries_end_use_consumptions: true
+      include_timeseries_emissions: false
+      include_timeseries_emission_fuels: false
+      include_timeseries_emission_end_uses: false
+      include_timeseries_hot_water_uses: true
+      include_timeseries_total_loads: true
+      include_timeseries_component_loads: true
+      include_timeseries_unmet_hours: true
+      include_timeseries_zone_temperatures: true
+      include_timeseries_airflows: true
+      include_timeseries_weather: true
+      include_timeseries_resilience: true
+      output_variables:
+        - name: Zone Mean Air Temperature
+        - name: Zone Mean Radiant Temperature
+        - name: Zone Air Relative Humidity
+        - name: Site Outdoor Air Humidity Ratio
+        - name: Site Outdoor Air Drybulb Temperature
+        - name: Site Outdoor Air Wetbulb Temperature
+
+
+    reporting_measures:
+      - measure_dir_name: QOIReport
+
+    server_directory_cleanup:
+      retain_schedules_csv: true
+
+baseline:
+  n_buildings_represented: 139647020 # American Community Survey 2021 5-year, B25001, does not include territories ( 138765649 without AK and HI )
+
+upgrades:
+  - upgrade_name: scenario1
+    options:
+      - option: LoadFlexibility|scenario1
+  - upgrade_name: scenario2
+    options:
+      - option: LoadFlexibility|scenario2
+  - upgrade_name: scenario3
+    options:
+      - option: LoadFlexibility|scenario3
+  - upgrade_name: scenario4
+    options:
+      - option: LoadFlexibility|scenario4
+  - upgrade_name: scenario5
+    options:
+      - option: LoadFlexibility|scenario5
+  - upgrade_name: scenario6
+    options:
+      - option: LoadFlexibility|scenario6
+  - upgrade_name: scenario7
+    options:
+      - option: LoadFlexibility|scenario7
+  - upgrade_name: scenario8
+    options:
+      - option: LoadFlexibility|scenario8
+  - upgrade_name: scenario9
+    options:
+      - option: LoadFlexibility|scenario9
+  - upgrade_name: scenario10
+    options:
+      - option: LoadFlexibility|scenario10
+  - upgrade_name: scenario11
+    options:
+      - option: LoadFlexibility|scenario11
+  - upgrade_name: scenario12
+    options:
+      - option: LoadFlexibility|scenario12
+  - upgrade_name: scenario13
+    options:
+      - option: LoadFlexibility|scenario13
+  - upgrade_name: scenario14
+    options:
+      - option: LoadFlexibility|scenario14
+  - upgrade_name: scenario15
+    options:
+      - option: LoadFlexibility|scenario15
+  - upgrade_name: scenario16
+    options:
+      - option: LoadFlexibility|scenario16
+  - upgrade_name: scenario17
+    options:
+      - option: LoadFlexibility|scenario17
+
+postprocessing:
+  keep_individual_timeseries: true
+  partition_columns:
+    - State
+    - County
+  aws:
+    region_name: us-west-2
+    s3:
+      bucket: resstock-core
+      prefix: load_flexibility/test_runs
+    athena:
+      glue_service_role: service-role/AWSGlueServiceRole-default
+      database_name: load_flexibility
+      max_crawling_time: 1200
