@@ -4,7 +4,7 @@ os_sha: c77fbb9569
 buildstock_directory: ../ # Relative to this file or absolute
 project_directory: project_national # Relative to buildstock_directory
 # output_directory: /Volumes/LaCie/load_flexibility/pre_peak_sensitivity_feb2
-output_directory: /projects/rescore/load_flex/pre_peak_sensitivity_feb2
+output_directory: /projects/rescore/load_flex/pre_peak_sensitivity_feb6
 #weather_files_path: ../BuildStock_2020_FIPS.zip
 weather_files_path: /kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIPS.zip
 # weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
@@ -17,7 +17,7 @@ sampler:
 
 kestrel:
   n_jobs: 30
-  minutes_per_sim: 1
+  minutes_per_sim: 3
   account: rescore
   postprocessing:
     time: 120
@@ -28,7 +28,7 @@ kestrel:
 
 workflow_generator:
   type: residential_hpxml
-  version: 2024.07.20
+  version: 2025.01.29
   args:
     build_existing_model:
       simulation_control_timestep: 15
