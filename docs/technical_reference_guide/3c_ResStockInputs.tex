@@ -2910,22 +2910,15 @@ Due to the data bias towards the Pacific states, where gas heating is dominant, 
 % TODO reference Task 1 paper when ready
 % TODO reference OS-HPXML documentation when available
 
-\begin{table}
-  \caption{Dependencies for the distributions of electrical panel service rating and breaker space.}
-  \label{tab:panel_deps}
-  \centering
-  \begin{tabular}{|c|c|c|c|}
-  \hline
-      Panel Metric & Building Type & Heating Type & Dependencies\\
-      \hline
-      Service rating & Single-Family & Electric & building type, floor area, vintage, water heater fuel, cooling type, clothes dryer, cooking range\\
-      Service rating & Single-Family & Non-electric & building type, floor area, vintage\\
-      Service rating & Multi-Family & All & Floor area, vintage, heating fuel\\
-      Breaker space headroom & Single-Family & All & Service rating, major electric load count, floor area\\
-      Breaker space headroom & Multi-Family & All & Service rating, major electric load count\\
-      \hline
-  \end{tabular}
-\end{table}
+\begin{customLongTable}{ |p{3cm}|p{4cm}|p{7cm}| }
+  {Dependencies for the distributions of electrical panel service rating and breaker space.} {tab:panel_deps} 
+  {\textbf{Electrical Panel Input} & \textbf{Housing Segment} & \textbf{Dependencies}} 
+    Service rating & Single-Family, electric heat & Building type, floor area, vintage, water heater fuel, cooling type, clothes dryer, cooking range\\ \hline
+    Service rating & Single-Family, fuel heat & Building type, floor area, vintage\\ \hline
+    Service rating & Multi-Family & Floor area, vintage, heating fuel\\ \hline
+    Breaker space headroom & Single-Family & Service rating, major electric load count, floor area\\ \hline
+    Breaker space headroom & Multi-Family & Service rating, major electric load count\\
+\end{customLongTable}
 
 \subsection{Service Load Calculations}
 The service and feeder load calculation refers to a type of load calculation used to size the service entrance wires (between the utility poles and the meter or service disconnect) or the feeder wires (between panels, such as those between a building’s main panel and subpanel in each apartment unit) according to Section 220 of the National Electrical Code (NEC). This calculation also applies to the sizing of panels to ensure electrical safety. The NEC updates every three years, and the adoption of NEC varies by municipality. Instead of capturing every NEC version currently in practice, which is impractical, we implemented the load calculations per the latest NEC release, 2023, which represents the best practice adoptable. For 2023, the service load calculation is different for new constructions and existing buildings undergoing an upgrade. Two methods are available for existing buildings, and both are implemented in ResStock: load-based and metered-based. The calculated loads (W) represent the total occuied load from installed electrical equipment and are converted to total occupied capacity (A) by dividing by 240V, the panel voltage. The occupied capacity is compared with the panel service rating to calculate headroom capacity and assess NEC compliance.
@@ -2933,31 +2926,31 @@ The service and feeder load calculation refers to a type of load calculation use
 \subsubsection{Load-based Method}
 The service rating of the panel is generally not the sum of individual branch circuit ratings because not all equipment is expected to be operating at full load simultaneously. Instead, there is some diversity in the loads expected to make up the coincidence peak, even at a worst-case scenario. Following this idea, NEC Section 220.83 provides guidance on estimating this peak from the bottom-up to assess whether a panel has sufficient capacity to serve new loads. Table \ref{tab:panel_load_method} below summarizes the load-based method, and the assumptions made in ResStock to perform this calculation.
 
-\begin{customLongTable}{ |p{3cm}|p{6.5cm}|p{6.5cm}| }
+\begin{customLongTable}{ |p{3cm}|p{6cm}|p{6cm}| }
   {Summary of load-based method per 2023 NEC 220.83} {tab:panel_load_method} 
   {\textbf{Load Type} & \textbf{Load Amount} & \textbf{ResStock Assumptions}} 
-          General lighting/receptacle load & 3 W/sqft & Uses conditioned floor area \\ \hline
-          Kitchen small appliance circuits & Min two branches at 1500 W each & Two branches per dwelling \\ \hline
-          Laundry circuits & Min one branch at 1500 W & One branch per dwelling \\ \hline
+          General lighting / receptacle load & 3 W/sqft & Uses conditioned floor area \\ \hline
+          Kitchen small appliance circuits & Min two branches at 1500 W each & Two branches per dwelling unit \\ \hline
+          Laundry circuits & Min one branch at 1500 W & One branch per dwelling unit \\ \hline
           Major electric loads & 
             Nameplate rating of: 
             \begin{itemize}
-              \item HVAC (larger of heating and cooling), 
-              \item water heaters, 
-              \item clothes dryers (not already on laundry circuits), 
-              \item cooking ranges/ovens, 
-              \item all other appliances that are "fastened in place, permanently connected, or located to be on a specific circuit" 
+              \item HVAC (larger of heating and cooling)
+              \item Water heaters
+              \item Clothes dryers (not already on laundry circuits)
+              \item Cooking ranges/ovens
+              \item All other appliances that are "fastened in place, permanently connected, or located to be on a specific circuit" 
             \end{itemize} & 
             All other appliances include: 
             \begin{itemize}
-              \item hot tub/spa, 
-              \item pool heaters and pumps, 
-              \item well pumps, 
-              \item electric vehicle supply equipment (EVSE), 
-              \item dishwashers, 
-              \item spot ventilations, 
-              \item selected plug loads – microwaves, garbage disposal, garage doors, 
-              \item low power (120V) appliances – water heaters, cooktops (not yet modeled) 
+              \item Hot tub/spa
+              \item Pool heaters and pumps
+              \item Well pumps
+              \item Electric vehicle supply equipment (EVSE)
+              \item Dishwashers
+              \item Spot ventilations
+              \item Selected plug loads: microwaves, garbage disposal, garage doors
+              \item Low-power (120V) appliances: water heaters, cooktops (not yet modeled) 
             \end{itemize} \\ \hline
           Demand factors and summation & 
             Demand factors apply to both existing and new loads, depends on whether new HVAC is being installed:
@@ -2978,12 +2971,12 @@ For a given upgrade, the load-based method is generally more conservative than t
 \subsection{Breaker Space Calculations}
 The breaker space calculation is broken out into two parts. First the total rated breaker space is determined for the panel in the baseline home. This is done by summing the number of available breaker spaces (probabilistically assigned based on housing characteristics) and the estimated total occupied spaces by major electric equipment. Table \ref{tab:breaker_spaces} below lists the electric equipment considered and their associated voltage and breaker space requirement. Generally 120V-rated equipment take up one breaker space and 240V-rated equipment take up two spaces in order to make contact with two live bus bars to get the 240V service. While space-saving breakers, such as tandem, tri, and quad breakers, are available, they are not currently modeled in ResStock.
 
-\begin{customLongTable}{ |p{4cm}|p{2.5cm}|p{2.5cm}|p{7cm}| }
+\begin{customLongTable}{ |p{3cm}|p{1.5cm}|p{1.5cm}|p{8cm}| }
   {Default voltage and breaker space by load type.} {tab:breaker_spaces} 
   {\textbf{Load Name} & \textbf{Voltage} & \textbf{Breaker Spaces} & \textbf{Notes}} 
   lighting & 120 & 0 & 	 \\ \hline
   kitchen & 120 & 2 & Two kitchen small appliance circuits. \\ \hline
-  laundry & 120 & 1 & One laundry circuit at 1.5 kVA. \\ \hline
+  laundry & 120 & 1 & One laundry circuit. \\ \hline
   electric vehicle charging & 120 & 1 & Level 1 - 120V EV charger. Assumes dedicated circuit. \\ \hline
   electric vehicle charging & 240 &	2	& Level 2 - 240V EV charger. \\ \hline
   well pump & 240 & 2	& \\ \hline
@@ -3007,7 +3000,7 @@ The breaker space calculation is broken out into two parts. First the total rate
   hot water & 240 &	auto & 240V heat pump water heater. The default power rating is auto sized. The number of breaker space = 2*(power rating in W/240V/50A).ceil. \\ \hline
   heating & 240 & auto & The default power rating is auto sized. The number of breaker space = 2*(power rating in W/240V/50A).ceil. \\ \hline
   cooling	& 240 &	auto & The default power rating is auto sized. The number of breaker space = 2*(power rating in W/240V/50A).ceil. \\ \hline
-  mech vent & 120 & 1	&  \\ \hline
+  mechanical ventilation & 120 & 1	&  \\ \hline
   other	& 120 &	1	& Only assumes 1 garage door opener if a garage is present and does not account for other permanent appliances (e.g. garbage disposal). \\
 \end{customLongTable}
 
