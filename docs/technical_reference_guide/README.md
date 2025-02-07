@@ -35,18 +35,18 @@ docker run --rm -it -v $(pwd):/workspace mfisherman/texlive-full /bin/bash
 cd ../workspace
 ```
 
-6. Create a _build directory for the output of `pdflatex` to be stored.
+5. Create a _build directory for the output of `pdflatex` to be stored.
 ```
 mkdir _build
 ```
 
-5. Compile the documentation (this command may need to be run two times for some parts of the documentation to show up in the output pdf)
+6. Compile the documentation (this command may need to be run two times for some parts of the documentation to show up in the output pdf)
 
 ```
 latexmk -pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode -output-directory=_build -halt-on-error ResStockTechnicalReferenceGuide.tex 
 ```
 
-6. All of the pdf and log files from the compile will be located in docs/technical_reference_guide/_build (Note: this won't show up as modified files in git because _build is in .gitignore)
+7. All of the pdf and log files from the compile will be located in docs/technical_reference_guide/_build (Note: this won't show up as modified files in git because _build is in .gitignore)
 
-7. If the pdf does not compile successfully, look for fatal errors in the .log file, apply fixes, and recompile as needed by repeating step 5. To stop the workflow and exit out of the container, type exit in the CLI or hit Ctrl + D on your keyword.
+8. If the pdf does not compile successfully, look for fatal errors in the .log file, apply fixes, and recompile as needed by repeating step 5. To stop the workflow and exit out of the container, type exit in the CLI or hit Ctrl + D on your keyword.
 
