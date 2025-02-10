@@ -174,7 +174,7 @@ Enter a date range like 'Mar 15 - Dec 15'. If not provided, the OS-HPXML default
 Affects the transient calculation of indoor air temperatures. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-simulation-control'>HPXML Simulation Control</a>) is used.
 
 - **Name:** ``simulation_control_temperature_capacitance_multiplier``
-- **Type:** ``String``
+- **Type:** ``Double``
 
 - **Required:** ``false``
 

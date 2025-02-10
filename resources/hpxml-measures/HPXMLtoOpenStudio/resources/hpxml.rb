@@ -866,11 +866,11 @@ class HPXML < Object
              :software_program_version,                    # [String] SoftwareInfo/SoftwareProgramVersion
              :apply_ashrae140_assumptions,                 # [Boolean] SoftwareInfo/extension/ApplyASHRAE140Assumptions
              :whole_sfa_or_mf_building_sim,                # [Boolean] SoftwareInfo/extension/WholeSFAorMFBuildingSimulation
-             :eri_calculation_version,                     # [String] SoftwareInfo/extension/ERICalculation/Version
-             :co2index_calculation_version,                # [String] SoftwareInfo/extension/CO2IndexCalculation/Version
-             :energystar_calculation_version,              # [String] SoftwareInfo/extension/EnergyStarCalculation/Version
-             :iecc_eri_calculation_version,                # [String] SoftwareInfo/extension/IECCERICalculation/Version
-             :zerh_calculation_version,                    # [String] SoftwareInfo/extension/ZERHCalculation/Version
+             :eri_calculation_versions,                    # [Array<String>] SoftwareInfo/extension/ERICalculation/Version
+             :co2index_calculation_versions,               # [Array<String>] SoftwareInfo/extension/CO2IndexCalculation/Version
+             :energystar_calculation_versions,             # [Array<String>] SoftwareInfo/extension/EnergyStarCalculation/Version
+             :iecc_eri_calculation_versions,               # [Array<String>] SoftwareInfo/extension/IECCERICalculation/Version
+             :zerh_calculation_versions,                   # [Array<String>] SoftwareInfo/extension/ZERHCalculation/Version
              :timestep,                                    # [Integer] SoftwareInfo/extension/SimulationControl/Timestep (minutes)
              :sim_begin_month,                             # [Integer] SoftwareInfo/extension/SimulationControl/BeginMonth
              :sim_begin_day,                               # [Integer] SoftwareInfo/extension/SimulationControl/BeginDayOfMonth
@@ -929,16 +929,19 @@ class HPXML < Object
       XMLHelper.add_element(software_info, 'SoftwareProgramVersion', @software_program_version, :string) unless @software_program_version.nil?
       XMLHelper.add_extension(software_info, 'ApplyASHRAE140Assumptions', @apply_ashrae140_assumptions, :boolean) unless @apply_ashrae140_assumptions.nil?
       XMLHelper.add_extension(software_info, 'WholeSFAorMFBuildingSimulation', @whole_sfa_or_mf_building_sim, :boolean) unless @whole_sfa_or_mf_building_sim.nil?
-      { 'ERICalculation' => @eri_calculation_version,
-        'CO2IndexCalculation' => @co2index_calculation_version,
-        'EnergyStarCalculation' => @energystar_calculation_version,
-        'IECCERICalculation' => @iecc_eri_calculation_version,
-        'ZERHCalculation' => @zerh_calculation_version }.each do |element_name, calculation_version|
-        next if calculation_version.nil?
-
-        extension = XMLHelper.create_elements_as_needed(software_info, ['extension'])
-        calculation = XMLHelper.add_element(extension, element_name)
-        XMLHelper.add_element(calculation, 'Version', calculation_version, :string)
+      { 'ERICalculation' => @eri_calculation_versions,
+        'CO2IndexCalculation' => @co2index_calculation_versions,
+        'EnergyStarCalculation' => @energystar_calculation_versions,
+        'IECCERICalculation' => @iecc_eri_calculation_versions,
+        'ZERHCalculation' => @zerh_calculation_versions }.each do |element_name, calculation_versions|
+        calculation_versions = [] if calculation_versions.nil?
+        if not calculation_versions.empty?
+          extension = XMLHelper.create_elements_as_needed(software_info, ['extension'])
+          calculation = XMLHelper.add_element(extension, element_name)
+        end
+        calculation_versions.each do |calculation_version|
+          XMLHelper.add_element(calculation, 'Version', calculation_version, :string)
+        end
       end
       if (not @timestep.nil?) || (not @sim_begin_month.nil?) || (not @sim_begin_day.nil?) || (not @sim_end_month.nil?) || (not @sim_end_day.nil?) || (not @temperature_capacitance_multiplier.nil?) || (not @defrost_model_type.nil?) || (not @hvac_onoff_thermostat_deadband.nil?) || (not @heat_pump_backup_heating_capacity_increment.nil?)
         extension = XMLHelper.create_elements_as_needed(software_info, ['extension'])
@@ -975,11 +978,11 @@ class HPXML < Object
       @transaction = XMLHelper.get_value(hpxml, 'XMLTransactionHeaderInformation/Transaction', :string)
       @software_program_used = XMLHelper.get_value(hpxml, 'SoftwareInfo/SoftwareProgramUsed', :string)
       @software_program_version = XMLHelper.get_value(hpxml, 'SoftwareInfo/SoftwareProgramVersion', :string)
-      @eri_calculation_version = XMLHelper.get_value(hpxml, 'SoftwareInfo/extension/ERICalculation/Version', :string)
-      @co2index_calculation_version = XMLHelper.get_value(hpxml, 'SoftwareInfo/extension/CO2IndexCalculation/Version', :string)
-      @iecc_eri_calculation_version = XMLHelper.get_value(hpxml, 'SoftwareInfo/extension/IECCERICalculation/Version', :string)
-      @energystar_calculation_version = XMLHelper.get_value(hpxml, 'SoftwareInfo/extension/EnergyStarCalculation/Version', :string)
-      @zerh_calculation_version = XMLHelper.get_value(hpxml, 'SoftwareInfo/extension/ZERHCalculation/Version', :string)
+      @eri_calculation_versions = XMLHelper.get_values(hpxml, 'SoftwareInfo/extension/ERICalculation/Version', :string)
+      @co2index_calculation_versions = XMLHelper.get_values(hpxml, 'SoftwareInfo/extension/CO2IndexCalculation/Version', :string)
+      @iecc_eri_calculation_versions = XMLHelper.get_values(hpxml, 'SoftwareInfo/extension/IECCERICalculation/Version', :string)
+      @energystar_calculation_versions = XMLHelper.get_values(hpxml, 'SoftwareInfo/extension/EnergyStarCalculation/Version', :string)
+      @zerh_calculation_versions = XMLHelper.get_values(hpxml, 'SoftwareInfo/extension/ZERHCalculation/Version', :string)
       @timestep = XMLHelper.get_value(hpxml, 'SoftwareInfo/extension/SimulationControl/Timestep', :integer)
       @sim_begin_month = XMLHelper.get_value(hpxml, 'SoftwareInfo/extension/SimulationControl/BeginMonth', :integer)
       @sim_begin_day = XMLHelper.get_value(hpxml, 'SoftwareInfo/extension/SimulationControl/BeginDayOfMonth', :integer)

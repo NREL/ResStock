@@ -57,6 +57,11 @@ def run_workflow(basedir, rundir, hpxml, debug, skip_validation, add_comp_loads,
       'timestep' => timestep_outputs }.each do |timeseries_output_freq, timeseries_outputs|
       next if (timeseries_outputs.empty? && timeseries_output_freq != 'none')
 
+      comma_output = timeseries_outputs.find { |o| o.include? ',' }
+      if not comma_output.nil?
+        fail "Timeseries output request '#{comma_output}' cannot include a comma."
+      end
+
       if timeseries_outputs.include? 'ALL'
         # Replace 'ALL' with all individual timeseries types
         timeseries_outputs.delete('ALL')
@@ -85,8 +90,11 @@ def run_workflow(basedir, rundir, hpxml, debug, skip_validation, add_comp_loads,
       args['include_timeseries_airflows'] = timeseries_outputs.include? 'airflows'
       args['include_timeseries_weather'] = timeseries_outputs.include? 'weather'
       args['include_timeseries_resilience'] = timeseries_outputs.include? 'resilience'
-      user_output_variables = timeseries_outputs - $timeseries_types
-      args['user_output_variables'] = user_output_variables.join(', ') unless user_output_variables.empty?
+      remaining_outputs = timeseries_outputs - $timeseries_types
+      output_variables = remaining_outputs.select { |o| !o.include?(':') }
+      output_meters = remaining_outputs.select { |o| o.include?(':') }
+      args['user_output_variables'] = output_variables.join(', ') unless output_variables.empty?
+      args['user_output_meters'] = output_meters.join(', ') unless output_meters.empty?
       if n_timeseries_freqs > 1
         # Need to use different timeseries filenames
         args['timeseries_output_file_name'] = "results_timeseries_#{timeseries_output_freq}.#{output_format}"
@@ -125,22 +133,22 @@ OptionParser.new do |opts|
   end
 
   options[:hourly_outputs] = []
-  opts.on('--hourly NAME', 'Request hourly output category* or EnergyPlus output variable; can be called multiple times') do |t|
+  opts.on('--hourly NAME', 'Request hourly output category* or EnergyPlus output variable/meter; can be called multiple times') do |t|
     options[:hourly_outputs] << t
   end
 
   options[:daily_outputs] = []
-  opts.on('--daily NAME', 'Request daily output category* or EnergyPlus output variable; can be called multiple times') do |t|
+  opts.on('--daily NAME', 'Request daily output category* or EnergyPlus output variable/meter; can be called multiple times') do |t|
     options[:daily_outputs] << t
   end
 
   options[:monthly_outputs] = []
-  opts.on('--monthly NAME', 'Request monthly output category* or EnergyPlus output variable; can be called multiple times') do |t|
+  opts.on('--monthly NAME', 'Request monthly output category* or EnergyPlus output variable/meter; can be called multiple times') do |t|
     options[:monthly_outputs] << t
   end
 
   options[:timestep_outputs] = []
-  opts.on('--timestep NAME', 'Request timestep output category* or EnergyPlus output variable; can be called multiple times') do |t|
+  opts.on('--timestep NAME', 'Request timestep output category* or EnergyPlus output variable/meter; can be called multiple times') do |t|
     options[:timestep_outputs] << t
   end
 
