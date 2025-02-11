@@ -8,6 +8,7 @@ __Bugfixes__
 - Fixes using detailed schedules with higher resolution (e.g., 10-min data) than the simulation timestep (e.g., 60-min).
 - Fixes possible heating/cooling spikes when using maximum power ratio detailed schedule for variable-speed HVAC systems.
 - Fixes unavailable periods for two consecutive, but partial, days.
+- Fixes error when specifying a glass block window without interior shading coefficients.
 
 ## OpenStudio-HPXML v1.9.1
 
