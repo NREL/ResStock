@@ -938,6 +938,24 @@ module Schedule
       end
     end
   end
+
+  # Splits a comma separated schedule string into charging (positive) and discharging (negative) schedules
+  #
+  # @param schedule_str [String] schedule with values separated by commas
+  # @return [Array<String, String>] 24 hourly comma-separated charging and discharging schedules
+  def self.split_signed_charging_schedule(schedule_str)
+    charge_schedule, discharge_schedule = [], []
+    schedule_str.split(',').map(&:strip).map(&:to_f).each do |frac|
+      if frac >= 0
+        charge_schedule << frac.to_s
+        discharge_schedule << 0
+      elsif frac < 0
+        charge_schedule << 0
+        discharge_schedule << (-frac).to_s
+      end
+    end
+    return charge_schedule.join(', '), discharge_schedule.join(', ')
+  end
 end
 
 # Object that contains information for detailed schedule CSVs.
@@ -998,6 +1016,9 @@ class SchedulesFile
     Battery: Column.new('battery', false, false, :neg_one_to_one),
     BatteryCharging: Column.new('battery_charging', true, false, nil),
     BatteryDischarging: Column.new('battery_discharging', true, false, nil),
+    ElectricVehicle: Column.new('electric_vehicle', false, false, :neg_one_to_one),
+    ElectricVehicleCharging: Column.new('electric_vehicle_charging', true, false, nil),
+    ElectricVehicleDischarging: Column.new('electric_vehicle_discharging', true, false, nil),
     SpaceHeating: Column.new('space_heating', true, false, nil),
     SpaceCooling: Column.new('space_cooling', true, false, nil),
     HVACMaximumPowerRatio: Column.new('hvac_maximum_power_ratio', false, false, :frac),
@@ -1454,22 +1475,38 @@ class SchedulesFile
     end
   end
 
-  # Create separate charging (positive) and discharging (negative) detailed schedules from the battery schedule.
+  # Assign separate detailed battery charging and discharging schedules
+  # If a single column (e.g., 'battery' or 'electric_vehicle') is provided, it will be split into two columns based on the sign.
   #
   # @return [nil]
   def create_battery_charging_discharging_schedules
-    battery_col_name = Columns[:Battery].name
-    return if !@schedules.keys.include?(battery_col_name)
+    battery_col_hashes = [:Battery, :ElectricVehicle].map do |battery_type|
+      { col: SchedulesFile::Columns[battery_type].name, charging_col: SchedulesFile::Columns[:"#{battery_type}Charging"].name, discharging_col: SchedulesFile::Columns[:"#{battery_type}Discharging"].name }
+    end
+    battery_col_hashes.each do |battery_cols|
+      next unless @schedules.keys.include?(battery_cols[:col])
 
-    @schedules[SchedulesFile::Columns[:BatteryCharging].name] = Array.new(@schedules[battery_col_name].size, 0)
-    @schedules[SchedulesFile::Columns[:BatteryDischarging].name] = Array.new(@schedules[battery_col_name].size, 0)
-    @schedules[battery_col_name].each_with_index do |_ts, i|
-      if @schedules[battery_col_name][i] > 0
-        @schedules[SchedulesFile::Columns[:BatteryCharging].name][i] = @schedules[battery_col_name][i]
-      elsif @schedules[battery_col_name][i] < 0
-        @schedules[SchedulesFile::Columns[:BatteryDischarging].name][i] = -1 * @schedules[battery_col_name][i]
+      split_signed_column(battery_cols[:col], battery_cols[:charging_col], battery_cols[:discharging_col])
+    end
+  end
+
+  # Splits a single column from the @schedules object into two columns, one populated with the positive values and zeros, and one with the negative values and zeros, then deletes the original column.
+  #
+  # @param column [String] Column name in the @schedules object
+  # @param positive_col [String] Name of new positive column in the @schedules object
+  # @param negative_col [String] Name of new negative column in the @schedules object
+  #
+  # @return [nil]
+  def split_signed_column(column, positive_col, negative_col)
+    @schedules[positive_col] = Array.new(@schedules[column].size, 0)
+    @schedules[negative_col] = Array.new(@schedules[column].size, 0)
+    @schedules[column].each_with_index do |_ts, i|
+      if @schedules[column][i] > 0
+        @schedules[positive_col][i] = @schedules[column][i]
+      elsif @schedules[column][i] < 0
+        @schedules[negative_col][i] = -1 * @schedules[column][i]
       end
     end
-    @schedules.delete(battery_col_name)
+    @schedules.delete(column)
   end
 end

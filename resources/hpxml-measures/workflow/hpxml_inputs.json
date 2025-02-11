@@ -1006,6 +1006,65 @@
     "schedules_unavailable_period_types": "Power Outage",
     "schedules_unavailable_period_dates": "Jul 1 5 - Jul 31 14"
   },
+  "sample_files/base-vehicle-ev-no-charger.xml": {
+    "parent_hpxml": "sample_files/base-enclosure-garage.xml",
+    "vehicle_type": "BatteryElectricVehicle"
+  },
+  "sample_files/base-ev-charger.xml": {
+    "parent_hpxml": "sample_files/base.xml",
+    "ev_charger_present": true
+  },
+  "sample_files/base-vehicle-ev-charger.xml": {
+    "parent_hpxml": "sample_files/base-vehicle-ev-no-charger.xml",
+    "vehicle_battery_capacity": 100,
+    "vehicle_battery_usable_capacity": 80,
+    "vehicle_miles_driven_per_year": 10000,
+    "vehicle_hours_driven_per_week": 14,
+    "vehicle_fuel_economy_combined": 0.25,
+    "vehicle_fuel_economy_units": "kWh/mile",
+    "vehicle_fraction_charged_home": 0.75,
+    "ev_charger_present": true,
+    "ev_charger_power": 7000,
+    "ev_charger_location": "garage"
+  },
+  "sample_files/base-vehicle-ev-charger-level1.xml": {
+    "parent_hpxml": "sample_files/base-vehicle-ev-charger.xml",
+    "ev_charger_level": 1,
+    "ev_charger_power": null
+  },
+  "sample_files/base-vehicle-ev-charger-miles-per-kwh.xml": {
+    "parent_hpxml": "sample_files/base-vehicle-ev-charger.xml",
+    "vehicle_fuel_economy_combined": 4.0,
+    "vehicle_fuel_economy_units": "mile/kWh"
+  },
+  "sample_files/base-vehicle-ev-charger-mpge.xml": {
+    "parent_hpxml": "sample_files/base-vehicle-ev-charger.xml",
+    "vehicle_fuel_economy_combined": 135.0,
+    "vehicle_fuel_economy_units": "mpge"
+  },
+  "sample_files/base-vehicle-ev-charger-scheduled.xml": {
+    "parent_hpxml": "sample_files/base-vehicle-ev-charger.xml",
+    "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/vehicle-ev.csv"
+  },
+  "sample_files/base-vehicle-ev-charger-undercharged.xml": {
+    "parent_hpxml": "sample_files/base-vehicle-ev-charger.xml",
+    "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/vehicle-ev-undercharged.csv"
+  },
+  "sample_files/base-vehicle-ev-charger-plug-load-ev.xml": {
+    "parent_hpxml": "sample_files/base-vehicle-ev-charger-scheduled.xml",
+    "misc_plug_loads_vehicle_present": true,
+    "misc_plug_loads_vehicle_annual_kwh": 3000
+  },
+  "sample_files/base-vehicle-multiple.xml": {
+    "parent_hpxml": "sample_files/base-vehicle-ev-charger.xml"
+  },
+  "sample_files/base-pv-battery-and-vehicle-ev.xml": {
+    "parent_hpxml": "sample_files/base-pv-battery.xml",
+    "vehicle_type": "BatteryElectricVehicle",
+    "ev_charger_present": true,
+    "ev_charger_location": "outside",
+    "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/vehicle-ev.csv"
+  },
   "sample_files/base-bldgtype-sfa-unit.xml": {
     "parent_hpxml": "sample_files/base.xml",
     "geometry_unit_type": "single-family attached",
@@ -3401,6 +3460,8 @@
     "pv_system_array_tilt": 20,
     "pv_system_max_power_output": 4000,
     "battery_present": true,
+    "vehicle_type": "BatteryElectricVehicle",
+    "ev_charger_present": true,
     "clothes_washer_location": null,
     "clothes_washer_efficiency": null,
     "clothes_washer_rated_annual_kwh": null,
@@ -3431,7 +3492,7 @@
     "misc_plug_loads_other_frac_latent": null
   },
   "sample_files/base-misc-emissions.xml": {
-    "parent_hpxml": "sample_files/base-pv-battery.xml",
+    "parent_hpxml": "sample_files/base-pv-battery-and-vehicle-ev.xml",
     "emissions_scenario_names": "Cambium Hourly MidCase LRMER RMPA, Cambium Hourly LowRECosts LRMER RMPA, Cambium Annual MidCase AER National, eGRID RMPA, eGRID RMPA",
     "emissions_types": "CO2e, CO2e, CO2e, SO2, NOx",
     "emissions_electricity_units": "kg/MWh, kg/MWh, kg/MWh, lb/MWh, lb/MWh",
@@ -3461,6 +3522,8 @@
   "sample_files/base-misc-loads-large-uncommon.xml": {
     "parent_hpxml": "sample_files/base-schedules-simple.xml",
     "hot_water_distribution_system_type": "Standard",
+    "vehicle_type": "none",
+    "ev_charger_present": false,
     "extra_refrigerator_present": true,
     "extra_refrigerator_rated_annual_kwh": 700,
     "freezer_present": true,
@@ -3731,7 +3794,10 @@
     "hot_water_distribution_recirc_control_type": "no control",
     "hot_water_distribution_recirc_piping_length": 50,
     "hot_water_distribution_recirc_branch_piping_length": 50,
-    "hot_water_distribution_recirc_pump_power": 50
+    "hot_water_distribution_recirc_pump_power": 50,
+    "vehicle_type": "BatteryElectricVehicle",
+    "ev_charger_present": true,
+    "misc_plug_loads_vehicle_present": false
   },
   "sample_files/base-schedules-simple-vacancy.xml": {
     "parent_hpxml": "sample_files/base.xml",

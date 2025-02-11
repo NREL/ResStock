@@ -93,7 +93,7 @@ Annual energy outputs are listed below.
   ====================================  ===========================
   Type                                  Notes
   ====================================  ===========================
-  Energy Use: Total (MBtu)              Total energy consumption; includes any battery charging/discharging
+  Energy Use: Total (MBtu)              Total energy consumption; includes any home battery charging/discharging and EV charging
   Energy Use: Net (MBtu)                Subtracts any power produced by PV or generators
   ====================================  ===========================
 
@@ -105,7 +105,7 @@ Fuel uses are listed below.
   ====================================  ===========================
   Type                                  Notes
   ====================================  ===========================
-  Fuel Use: Electricity: Total (MBtu)   Total electricity consumption, includes any battery charging/discharging
+  Fuel Use: Electricity: Total (MBtu)   Total electricity consumption, includes any home battery charging/discharging and EV charging
   Fuel Use: Electricity: Net (MBtu)     Subtracts any power produced by PV or generators
   Fuel Use: Natural Gas: Total (MBtu)
   Fuel Use: Fuel Oil: Total (MBtu)      Includes "fuel oil", "fuel oil 1", "fuel oil 2", "fuel oil 4", "fuel oil 5/6", "kerosene", and "diesel"
@@ -154,7 +154,6 @@ So the sum of all end uses for a given fuel (e.g., sum of all "End Use: Natural 
   End Use: Electricity: Ceiling Fan (MBtu)
   End Use: Electricity: Television (MBtu)
   End Use: Electricity: Plug Loads (MBtu)                           Excludes independently reported plug loads (e.g., well pump)
-  End Use: Electricity: Electric Vehicle Charging (MBtu)
   End Use: Electricity: Well Pump (MBtu)
   End Use: Electricity: Pool Heater (MBtu)
   End Use: Electricity: Pool Pump (MBtu)
@@ -163,6 +162,7 @@ So the sum of all end uses for a given fuel (e.g., sum of all "End Use: Natural 
   End Use: Electricity: PV (MBtu)                                   Negative value for any power produced
   End Use: Electricity: Generator (MBtu)                            Negative value for any power produced
   End Use: Electricity: Battery (MBtu)                              Positive value for charging (including efficiency losses); negative value for discharging
+  End Use: Electricity: Electric Vehicle Charging (MBtu)
   End Use: Natural Gas: Heating (MBtu)                              Excludes heat pump backup
   End Use: Natural Gas: Heating Heat Pump Backup (MBtu)
   End Use: Natural Gas: Hot Water (MBtu)
@@ -251,7 +251,7 @@ Results for each emissions scenario defined in the HPXML file are listed as show
   =======================================================================  ==================================================================
   Type                                                                     Notes
   =======================================================================  ==================================================================
-  Emissions: <EmissionsType>: <ScenarioName>: Total (lb)                   Scenario total emissions, includes any battery charging/discharging
+  Emissions: <EmissionsType>: <ScenarioName>: Total (lb)                   Scenario total emissions, includes any home battery charging/discharging and EV charging
   Emissions: <EmissionsType>: <ScenarioName>: Net (lb)                     Subtracts any power produced by PV or generators
   =======================================================================  ==================================================================
 
@@ -263,7 +263,7 @@ Results for each emissions scenario defined in the HPXML file are listed as show
   =======================================================================  ==================================================================
   Type                                                                     Notes
   =======================================================================  ==================================================================
-  Emissions: <EmissionsType>: <ScenarioName>: Electricity: Total (lb)      Scenario total emissions for Electricity only, includes any battery charging/discharging
+  Emissions: <EmissionsType>: <ScenarioName>: Electricity: Total (lb)      Scenario total emissions for Electricity only, includes any home battery charging/discharging and EV charging
   Emissions: <EmissionsType>: <ScenarioName>: Electricity: Net (lb)        Subtracts any power produced by PV or generators
   Emissions: <EmissionsType>: <ScenarioName>: Natural Gas: Total (lb)      Scenario emissions for Natural Gas only
   Emissions: <EmissionsType>: <ScenarioName>: Fuel Oil: Total (lb)         Scenario emissions for Fuel Oil only
@@ -311,24 +311,32 @@ Annual building loads are listed below.
 Note that the "Delivered" loads represent the energy delivered by the HVAC/DHW system; if a system is significantly undersized, there will be unmet load not reflected by these values.
 If the home is not fully conditioned (e.g., a room air conditioner that only meets 30% of the cooling load), the reported load will be likewise reduced compared to a home that is fully conditioned.
 
+.. _annual_unmet_hours:
+
 Annual Unmet Hours
 ~~~~~~~~~~~~~~~~~~
 
 Annual unmet hours are listed below.
 
-  =========================  =====
-  Type                       Notes
-  =========================  =====
-  Unmet Hours: Heating (hr)  Number of hours where the heating setpoint is not maintained.
-  Unmet Hours: Cooling (hr)  Number of hours where the cooling setpoint is not maintained.
-  =========================  =====
+  ============================  =====
+  Type                          Notes
+  ============================  =====
+  Unmet Hours: Heating (hr)     Number of hours where the heating setpoint is not maintained. [#]_
+  Unmet Hours: Cooling (hr)     Number of hours where the cooling setpoint is not maintained.
+  Unmet Hours: EV Driving (hr)  Number of hours where the EV driving demand is not met. [#]_
+  ============================  =====
 
-These numbers reflect the number of hours during the heating/cooling season when the conditioned space temperature deviates more than 0.2 deg-C (0.36 deg-F) from the heating/cooling setpoint.
+  .. [#] The unmet heating and cooling numbers reflect the number of hours during the heating/cooling season when the conditioned space temperature deviates more than 0.2 deg-C (0.36 deg-F) from the heating/cooling setpoint.
+
+  .. [#] The unmet EV driving number represents the total time in which the electric vehicle discharge schedule exceeds zero while the EV battery's state of charge is at its minimum level.
+         Unmet EV driving hours indicate unrealized driving events and reduced EV charging energy.
+         Unmet hours will only occur when using the detailed electric vehicle model in :ref:`hpxml_vehicles`, not the simple EV charging in :ref:`plug_loads`.
 
 Peak Building Electricity
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Peak building electricity outputs are listed below.
+Values include any home battery charging/discharging and EV charging.
 
   ==================================  =============================================================
   Type                                Notes
@@ -632,7 +640,7 @@ Depending on the outputs requested, the file may include:
   Hot Water Uses                      ``hotwater``         Water use for each end use type (in gallons).
   Total Loads                         ``loads``            Heating, cooling, and hot water loads (in kBtu).
   Component Loads                     ``componentloads``   Heating and cooling loads (in kBtu) disaggregated by component (e.g., Walls, Windows, Infiltration, Ducts, etc.).
-  Unmet Hours                         ``unmethours``       Heating and cooling unmet hours.
+  Unmet Hours                         ``unmethours``       Heating, cooling, and/or EV driving unmet hours.
   Zone Temperatures                   ``temperatures``     Zone temperatures (in deg-F) for each space (e.g., conditioned space, attic, garage, basement, crawlspace, etc.) plus heating/cooling setpoints.
   Airflows                            ``airflows``         Airflow rates (in cfm) for infiltration, mechanical ventilation (including clothes dryer exhaust), natural ventilation, whole house fans.
   Weather                             ``weather``          Weather file data including outdoor temperatures, relative humidity, wind speed, and solar.

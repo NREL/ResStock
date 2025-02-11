@@ -1,6 +1,7 @@
 ## OpenStudio-HPXML v1.10.0
 
 __New Features__
+- Allows detailed modeling of electric vehicles (batteries and charging/discharging) using `Vehicles` as an alternative to the simple EV charging plug load.
 - Allows requesting timeseries EnergyPlus output meters (e.g., `--hourly "MainsWater:Facility"`), similar to requesting EnergyPlus output variables.
 
 __Bugfixes__
