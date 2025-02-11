@@ -4,7 +4,7 @@ os_sha: c77fbb9569
 buildstock_directory: ../ # Relative to this file or absolute
 project_directory: project_national # Relative to buildstock_directory
 # output_directory: /Volumes/LaCie/load_flexibility/pre_peak_sensitivity_feb2
-output_directory: /projects/rescore/load_flex/pre_peak_sensitivity_feb11
+output_directory: /projects/rescore/load_flex/final_test_run_feb11
 #weather_files_path: ../BuildStock_2020_FIPS.zip
 weather_files_path: /kfs2/shared-projects/buildstock/weather/BuildStock_2020_FIPS.zip
 # weather_files_path: c:/OpenStudio/BuildStock_TMY3_FIPS.zip
