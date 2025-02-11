@@ -10,6 +10,8 @@ module Constants
   # Object types
   ObjectTypeAirSourceHeatPump = 'air source heat pump'
   ObjectTypeBackupSuppHeat = 'back up supp heat'
+  ObjectTypeBEVDischargeProgram = 'bev discharge program'
+  ObjectTypeBattery = 'battery'
   ObjectTypeBatteryLossesAdjustment = 'battery losses adjustment'
   ObjectTypeBoiler = 'boiler'
   ObjectTypeCeilingFan = 'ceiling fan'
@@ -78,6 +80,7 @@ module Constants
   ObjectTypeTotalLoadsProgram = 'total loads program'
   ObjectTypeUnitHeater = 'unit heater'
   ObjectTypeUnmetHoursProgram = 'unmet hours program'
+  ObjectTypeVehicle = 'vehicle'
   ObjectTypeWaterHeater = 'water heater'
   ObjectTypeWaterHeaterSetpoint = 'water heater setpoint'
   ObjectTypeWaterHeaterAdjustment = 'water heater energy adjustment'
@@ -248,6 +251,7 @@ end
 module UHT
   Heating = 'Heating'
   Cooling = 'Cooling'
+  Driving = 'EV Driving'
 end
 
 # Resilience Types (Constants for output reporting)
