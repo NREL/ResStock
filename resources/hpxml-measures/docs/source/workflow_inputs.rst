@@ -1679,7 +1679,7 @@ Either winter/summer shading coefficients can be directly provided, or they can 
   ============================  ======  =====  ===========  ========  =========  =============================================================
 
   .. [#] Type choices are "light blinds", "medium blinds", "dark blinds", "light shades", "medium shades", "dark shades", "light curtains", "medium curtains", "dark curtains", "other", or "none".
-  .. [#] If Type not provided, and either SummerShadingCoefficient or WinterShadingCoefficient not provided, defaults to "light curtains".
+  .. [#] If Type not provided, and either SummerShadingCoefficient or WinterShadingCoefficient not provided, defaults to "light curtains" if not glass block windows and "none" for glass block windows.
   .. [#] BlindsSummerClosedOrOpen choices are "closed", "open", or "half open".
   .. [#] BlindsWinterClosedOrOpen choices are "closed", "open", or "half open".
   .. [#] If SummerFractionCovered not provided, defaults to 1.0 for blinds and 0.5 for shades/curtains/other.

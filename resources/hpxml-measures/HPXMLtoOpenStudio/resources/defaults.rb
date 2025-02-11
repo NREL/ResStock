@@ -1512,34 +1512,36 @@ module Defaults
 
     hpxml_bldg.windows.each do |window|
       if window.ufactor.nil? || window.shgc.nil?
-        # Frame/Glass provided instead, fill in more defaults as needed
-        if window.glass_type.nil?
-          window.glass_type = HPXML::WindowGlassTypeClear
-          window.glass_type_isdefaulted = true
-        end
-        if window.thermal_break.nil? && [HPXML::WindowFrameTypeAluminum, HPXML::WindowFrameTypeMetal].include?(window.frame_type)
-          if window.glass_layers == HPXML::WindowLayersSinglePane
-            window.thermal_break = false
-            window.thermal_break_isdefaulted = true
-          elsif window.glass_layers == HPXML::WindowLayersDoublePane
-            window.thermal_break = true
-            window.thermal_break_isdefaulted = true
+        if window.glass_layers != HPXML::WindowLayersGlassBlock
+          # Frame/Glass provided instead, fill in more defaults as needed
+          if window.glass_type.nil?
+            window.glass_type = HPXML::WindowGlassTypeClear
+            window.glass_type_isdefaulted = true
           end
-        end
-        if window.gas_fill.nil?
-          if window.glass_layers == HPXML::WindowLayersDoublePane
-            if [HPXML::WindowGlassTypeLowE,
-                HPXML::WindowGlassTypeLowEHighSolarGain,
-                HPXML::WindowGlassTypeLowELowSolarGain].include? window.glass_type
+          if window.thermal_break.nil? && [HPXML::WindowFrameTypeAluminum, HPXML::WindowFrameTypeMetal].include?(window.frame_type)
+            if window.glass_layers == HPXML::WindowLayersSinglePane
+              window.thermal_break = false
+              window.thermal_break_isdefaulted = true
+            elsif window.glass_layers == HPXML::WindowLayersDoublePane
+              window.thermal_break = true
+              window.thermal_break_isdefaulted = true
+            end
+          end
+          if window.gas_fill.nil?
+            if window.glass_layers == HPXML::WindowLayersDoublePane
+              if [HPXML::WindowGlassTypeLowE,
+                  HPXML::WindowGlassTypeLowEHighSolarGain,
+                  HPXML::WindowGlassTypeLowELowSolarGain].include? window.glass_type
+                window.gas_fill = HPXML::WindowGasArgon
+                window.gas_fill_isdefaulted = true
+              else
+                window.gas_fill = HPXML::WindowGasAir
+                window.gas_fill_isdefaulted = true
+              end
+            elsif window.glass_layers == HPXML::WindowLayersTriplePane
               window.gas_fill = HPXML::WindowGasArgon
               window.gas_fill_isdefaulted = true
-            else
-              window.gas_fill = HPXML::WindowGasAir
-              window.gas_fill_isdefaulted = true
             end
-          elsif window.glass_layers == HPXML::WindowLayersTriplePane
-            window.gas_fill = HPXML::WindowGasArgon
-            window.gas_fill_isdefaulted = true
           end
         end
         # Now lookup U/SHGC based on properties
@@ -1563,7 +1565,11 @@ module Defaults
       end
       if window.interior_shading_factor_winter.nil? || window.interior_shading_factor_summer.nil?
         if window.interior_shading_type.nil?
-          window.interior_shading_type = HPXML::InteriorShadingTypeLightCurtains # ANSI/RESNET/ICC 301-2022
+          if window.glass_layers == HPXML::WindowLayersGlassBlock
+            window.interior_shading_type = HPXML::InteriorShadingTypeNone
+          else
+            window.interior_shading_type = HPXML::InteriorShadingTypeLightCurtains # ANSI/RESNET/ICC 301-2022
+          end
           window.interior_shading_type_isdefaulted = true
         end
         if window.interior_shading_coverage_summer.nil? && window.interior_shading_type != HPXML::InteriorShadingTypeNone
@@ -1713,34 +1719,36 @@ module Defaults
       end
       next unless skylight.ufactor.nil? || skylight.shgc.nil?
 
-      # Frame/Glass provided instead, fill in more defaults as needed
-      if skylight.glass_type.nil?
-        skylight.glass_type = HPXML::WindowGlassTypeClear
-        skylight.glass_type_isdefaulted = true
-      end
-      if skylight.thermal_break.nil? && [HPXML::WindowFrameTypeAluminum, HPXML::WindowFrameTypeMetal].include?(skylight.frame_type)
-        if skylight.glass_layers == HPXML::WindowLayersSinglePane
-          skylight.thermal_break = false
-          skylight.thermal_break_isdefaulted = true
-        elsif skylight.glass_layers == HPXML::WindowLayersDoublePane
-          skylight.thermal_break = true
-          skylight.thermal_break_isdefaulted = true
+      if skylight.glass_layers != HPXML::WindowLayersGlassBlock
+        # Frame/Glass provided instead, fill in more defaults as needed
+        if skylight.glass_type.nil?
+          skylight.glass_type = HPXML::WindowGlassTypeClear
+          skylight.glass_type_isdefaulted = true
         end
-      end
-      if skylight.gas_fill.nil?
-        if skylight.glass_layers == HPXML::WindowLayersDoublePane
-          if [HPXML::WindowGlassTypeLowE,
-              HPXML::WindowGlassTypeLowEHighSolarGain,
-              HPXML::WindowGlassTypeLowELowSolarGain].include? skylight.glass_type
+        if skylight.thermal_break.nil? && [HPXML::WindowFrameTypeAluminum, HPXML::WindowFrameTypeMetal].include?(skylight.frame_type)
+          if skylight.glass_layers == HPXML::WindowLayersSinglePane
+            skylight.thermal_break = false
+            skylight.thermal_break_isdefaulted = true
+          elsif skylight.glass_layers == HPXML::WindowLayersDoublePane
+            skylight.thermal_break = true
+            skylight.thermal_break_isdefaulted = true
+          end
+        end
+        if skylight.gas_fill.nil?
+          if skylight.glass_layers == HPXML::WindowLayersDoublePane
+            if [HPXML::WindowGlassTypeLowE,
+                HPXML::WindowGlassTypeLowEHighSolarGain,
+                HPXML::WindowGlassTypeLowELowSolarGain].include? skylight.glass_type
+              skylight.gas_fill = HPXML::WindowGasArgon
+              skylight.gas_fill_isdefaulted = true
+            else
+              skylight.gas_fill = HPXML::WindowGasAir
+              skylight.gas_fill_isdefaulted = true
+            end
+          elsif skylight.glass_layers == HPXML::WindowLayersTriplePane
             skylight.gas_fill = HPXML::WindowGasArgon
             skylight.gas_fill_isdefaulted = true
-          else
-            skylight.gas_fill = HPXML::WindowGasAir
-            skylight.gas_fill_isdefaulted = true
           end
-        elsif skylight.glass_layers == HPXML::WindowLayersTriplePane
-          skylight.gas_fill = HPXML::WindowGasArgon
-          skylight.gas_fill_isdefaulted = true
         end
       end
       # Now lookup U/SHGC based on properties
