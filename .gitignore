@@ -18,6 +18,10 @@
 .vscode/
 .DS_Store
 buildstockbatch_crash_details.log
+
+## Hawaii-specific 
 **/.ipynb_checkpoints/*
 **/data/*
 !/resources/data/dictionary/outputs.csv
+env
+**/.bsq_cache
