@@ -9,9 +9,9 @@ ResStock provides a wide range of geographic inputs and outputs. These fields al
 
 All the geography fields are compiled into a geography lookup table that contains census block-level resolution. For reference, the Geography Hierarchy Diagram for Census geographies can be found on the \href{https://www2.census.gov/geo/pdfs/reference/geodiagram.pdf}{Geography Hierarchy Diagram} U.S.~Census website. This diagram shows that the fundamental geography is a census block. All other census geographies stem from this definition. This hierarchy is used to create a lookup table for all geography characteristics in ResStock. 
 
-Added to this table are occupied and vacant unit counts for each census block from the \href{https://www.census.gov/programs-surveys/decennial-census/about/rdo.html}{2020 U.S.~Census Redistricting Data} and ACS 5-yr 2016. The ACS number of units is specified by census tract and downscaled to the census block level using the 2020 Redistricting data. The 2020 census block data are converted to 2010 census blocks using the National Historical Geographic Information System (NHGIS) \href{https://www.nhgis.org/geographic-crosswalks}{Geographic Crosswalks}. All the characteristics and distributions of housing characteristics are pivoted from this lookup table relating the geography definitions and housing unit counts. Also in this lookup file is the NHGIS GISJOIN codes that help join this file to other geography fields not in the lookup table or the ResStock outputs.
+Added to this table are occupied and vacant unit counts for each census block from the \href{https://www.census.gov/programs-surveys/decennial-census/about/rdo.html}{2020 U.S.~Census Redistricting Data} and ACS 5-year 2016 data. The ACS number of units is specified by census tract and downscaled to the census block level using the 2020 Redistricting data. The 2020 census block data are converted to 2010 census blocks using the National Historical Geographic Information System (NHGIS) \href{https://www.nhgis.org/geographic-crosswalks}{Geographic Crosswalks}. All the characteristics and distributions of housing characteristics are pivoted from this lookup table relating the geography definitions and housing unit counts. Also in this lookup file is the NHGIS GISJOIN codes that help join this file to other geography fields not in the lookup table or the ResStock outputs.
 
-The ACS housing unit data are typically used by ResStock to specify in the project file the number of housing units in the United States. The ACS data are a 5-yr average compared to the single-year 2020 Redistricting data. Consistency for using ACS for unit counts at the census geographies is also achieved except for the ``City'' characteristic. The City characteristic uses the downscaled data from the ACS to census block, because City boundaries are specified by census blocks. 
+The ACS housing unit data are typically used by ResStock to specify in the project file the number of housing units in the United States. The ACS data are a 5-year average compared to the single-year 2020 Redistricting data. Consistency for using ACS for unit counts at the census geographies is also achieved except for the ``City'' characteristic. The City characteristic uses the downscaled data from the ACS to census block, because City boundaries are specified by census blocks. 
 
 The census geographies are set to be consistent with the U.S.~Census Bureau's definitions as of July 1, 2015. The 2010 Census geography definitions and changes between the 2010 Census and July 1, 2015, can be found on the \href{https://www.census.gov/programs-surveys/decennial-census/decade.html}{U.S.~Census Bureau Decennial Census} website.
 
@@ -46,7 +46,7 @@ The U.S.~Census Region where the sample is located. The regions are a collection
   Spatial definitions are from the U.S.~Census Bureau as of July 1,
   2015.
 \item
-  Unit counts are from the American Community Survey 5-yr 2016.
+  Unit counts are from the American Community Survey 5-year 2016.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -70,7 +70,7 @@ The U.S.~Census Division where the sample is located. The regions are a collecti
   Spatial definitions are from the U.S.~Census Bureau as of July 1,
   2015.
 \item
-  Unit counts are from the American Community Survey 5-yr 2016.
+  Unit counts are from the American Community Survey 5-year 2016.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -94,7 +94,7 @@ The U.S.~state where the sample is located. In ResStock, States are defined by a
   Spatial definitions are from the U.S.~Census Bureau as of July 1,
   2015.
 \item
-  Unit counts are from the American Community Survey 5-yr 2016.
+  Unit counts are from the American Community Survey 5-year 2016.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -134,7 +134,7 @@ The U.S.~County where the sample is located.
   Spatial definitions are from the U.S.~Census Bureau as of July 1,
   2015.
 \item
-  Unit counts are from the American Community Survey 5-yr 2016.
+  Unit counts are from the American Community Survey 5-year 2016.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -194,7 +194,7 @@ The Public Use Microdata Area (PUMA) from 2010 U.S.~Census that the sample is lo
   Spatial definitions are from the U.S.~Census Bureau as of July 1,
   2015.
 \item
-  Unit counts are from the American Community Survey 5-yr 2016.
+  Unit counts are from the American Community Survey 5-year 2016.
 \end{itemize}
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
@@ -239,7 +239,7 @@ The GISJOIN identifier for the County and the PUMA where the sample is located. 
   Spatial definitions are from the U.S.~Census Bureau as of July 1,
   2015.
 \item
-  Unit counts are from the American Community Survey 5-yr 2016.
+  Unit counts are from the American Community Survey 5-year 2016.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -263,12 +263,12 @@ The U.S.~Metropolitan Statistical Area (MSA) or Micropolitan Statistical Area (M
   Spatial definitions are from the U.S.~Census Bureau as of July 1,
   2015.
 \item
-  Unit counts are from the American Community Survey 5-yr 2016.
+  Unit counts are from the American Community Survey 5-year 2016.
 \item
   County-MSA crosswalk comes from the Quarterly Census of Employment and
   Wages NAICS-based data between 2013 and 2022 by the U.S.~Bureau of Labor
-  Statistics.
-  (\url{https://www.bls.gov/cew/classifications/areas/county-msa-csa-crosswalk.htm})
+  Statistics
+  (\url{https://www.bls.gov/cew/classifications/areas/county-msa-csa-crosswalk.htm}).
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -296,7 +296,7 @@ The City where the sample is located.
   Cities are defined by Census blocks by their Census Place in the 2010
   Census.
 \item
-  Unit counts are from the American Community Survey 5-yr 2016.
+  Unit counts are from the American Community Survey 5-year 2016.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -332,9 +332,9 @@ address. \\
 \item
   The threshold for including a Census Place in the City characteristic is 15,000 housing units.
 \item
-  The value ``In another census Place'' designates the fraction of housing units in a Census Place with fewer total housing units than the threshold.
+  The value ``In Another Census Place'' designates the fraction of housing units in a Census Place with fewer total housing units than the threshold.
 \item
-  The value ``Not in a census Place''
+  The value ``Not in a Census Place''
   designates the fraction of housing units not in a Census Place
   according to the 2010 Census.
 \end{itemize}
@@ -356,7 +356,7 @@ American Indian/Alaska Native/Native Hawaiian (AIANNH) Area where the sample is 
 \begin{itemize}
     \item 2010 Census Tract to American Indian Area (AIA) Relationship File provides the percent housing units in the census tract that belong to AIA. 
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
-    \item Unit counts are from the American Community Survey 5-yr 2016.
+    \item Unit counts are from the American Community Survey 5-year 2016.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -379,8 +379,8 @@ The Metro Status of the county where the sample is located and is based on MSA a
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
-    \item Unit counts are from the American Community Survey 5-yr 2016.
-    \item County-MSA crosswalk comes from the Quarterly Census of Employment and Wages NAICS-based data between 2013 and 2022 by the U.S.~Bureau of Labor Statistics \href{https://www.bls.gov/cew/classifications/areas/county-msa-csa-crosswalk.htm}{U.S.~Bureau of Labor Statistics}.
+    \item Unit counts are from the American Community Survey 5-year 2016.
+    \item County-MSA crosswalk comes from the Quarterly Census of Employment and Wages NAICS-based data between 2013 and 2022 by the  \href{https://www.bls.gov/cew/classifications/areas/county-msa-csa-crosswalk.htm}{U.S.~Bureau of Labor Statistics}.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -401,7 +401,7 @@ The PUMA metropolitan status where the housing unit is located.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item 2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University of Minnesota, www.ipums.org.
+    \item 2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -418,7 +418,7 @@ The options are either (1) In metro area, not/partially in principal city, (2) I
 \end{itemize}
 
 \subsection{Climate Zones}
-This section of ResStock characteristics is a set of Climate Zone definitions. There are five input files to ResStock that specify climate zones:
+This section of ResStock characteristics is a set of climate zone definitions. There are five input files to ResStock that specify climate zones:
 \begin{itemize}
     \item ASHRAE IECC Climate Zone 2004
     \item ASHRAE IECC Climate Zone 2004---2A Split
@@ -440,7 +440,7 @@ Climate zone according to ASHRAE 169 in 2004 and IECC in 2012 where the sample i
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
-    \item Unit counts are from the American Community Survey 5-yr 2016.
+    \item Unit counts are from the American Community Survey 5-year 2016.
     \item Climate zone data are from ASHRAE 169 2004, IECC 2012, and \href{https://www.energy.gov/sites/prod/files/2015/10/f27/ba_climate_region_guide_7.3.pdf}{M.C. Baechler 2015}.
 \end{itemize}
 
@@ -473,7 +473,7 @@ The climate zone, according to ASHRAE 169 in 2004 and IECC in 2012, where the sa
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
-    \item Unit counts are from the American Community Survey 5-yr 2016.
+    \item Unit counts are from the American Community Survey 5-year 2016.
     \item Climate zone data are from ASHRAE 169 2004, IECC 2012, and \href{https://www.energy.gov/sites/prod/files/2015/10/f27/ba_climate_region_guide_7.3.pdf}{M.C. Baechler 2015}.
 \end{itemize}
 
@@ -492,7 +492,7 @@ A set of counties defines each climate and moisture zone. Climate zones range fr
 
 \subsubsection{Building America Climate Zones}
 \paragraph{Description}
-The Building America Climate Zone where the sample is located. See Figure \ref{fig:building_america_cz} for a map of the climate zones. \footnote{The Subarctic climate zone is not shown and is only found in Alaska.}
+The Building America Climate Zone where the sample is located. See Figure \ref{fig:building_america_cz} for a map of the climate zones.\footnote{The Subarctic climate zone is not shown and is only found in Alaska.}
 
 \begin{figure}
     \centering
@@ -503,7 +503,7 @@ The Building America Climate Zone where the sample is located. See Figure \ref{f
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item Unit counts are from the American Community Survey 5-yr 2016.
+    \item Unit counts are from the American Community Survey 5-year 2016.
     \item Spatial definitions are from U.S.~Census 2010.
     \item Climate zone data are from ASHRAE 169 2004, IECC 2012, and \href{https://www.energy.gov/sites/prod/files/2015/10/f27/ba_climate_region_guide_7.3.pdf}{M.C. Baechler 2015}.
 \end{itemize}
@@ -534,7 +534,7 @@ The CEC Climate Zone where the sample is located. See Figure \ref{fig:cec_cz} fo
 \begin{itemize}
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
     \item Zip code definitions are from the end of Q2 2020.
-    \item The climate zone to zip codes in California is from the CEC Website.
+    \item The climate zone to zip codes in California are from the CEC website.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -547,9 +547,9 @@ The options range from 1--16 in California. For other states, the option is set 
 
 \paragraph{Distribution Assumption(s)}
 \begin{itemize}
-    \item CEC Climate zones are defined by Zip Codes.
+    \item CEC Climate zones are defined by zip codes.
     \item The dependency selected is County and PUMA as zip codes are not modeled in ResStock.
-    \item The mapping between Census Tracts and Zip Codes is approximate and some discrepancies may exist.
+    \item The mapping between Census Tracts and zip codes is approximate and some discrepancies may exist.
 \end{itemize}
 
 \subsubsection{ENERGY STAR Climate Zone 2023}
@@ -574,7 +574,7 @@ Climate zones for windows, doors, and skylights per ENERGY STAR guidelines as of
 \end{itemize}
 
 \paragraph{Options}
-The options for the ENERGY STAR climate Zone 2023 characteristic are the same as climate zones: North-Central, Northern, South-Central, and Southern. 
+The options for the ENERGY STAR Climate Zone 2023 characteristic are the same as climate zones: North-Central, Northern, South-Central, and Southern. 
 
 \paragraph{Distribution Assumption(s)}
 \begin{itemize}
@@ -605,13 +605,15 @@ The Regional Energy Deployment System Model (ReEDS) balancing area where the sam
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
-    \item Unit counts are from the American Community Survey 5-yr 2016.
-    \item Brown, Maxwell, Wesley Cole, Kelly Eurek, Jon Becker, David Bielen, Ilya Chernyakhovskiy, Stuart Cohen et al. 2020. Regional Energy Deployment System (ReEDS) Model Documentation: Version 2019. Golden, CO: National Renewable Energy Laboratory. NREL/TP-6A20-74111. https://www.nrel.gov/docs/fy20osti/74111.pdf.
+    \item Unit counts are from the American Community Survey 5-year 2016.
+    \item Regional Energy Deployment System (ReEDS) Model Documentation: Version 2019 (\cite{Brown2019})
+    
+
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
-    \item County
+    \item County.
 \end{itemize}
 \paragraph{Options}
 The options for the ReEDS Balancing Area characteristic is a set of integers 1-134 based on Figure \ref{fig:reeds_ba_map}. Alaska and Hawaii do not have a ReEDS balancing area and are labeled with the None option.
@@ -625,18 +627,19 @@ The 2021 Cambium generation and carbon emissions assessment region where the sam
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{images/Cambium_GEAs_2021.png}
-    \caption{ Map of the \href{https://www.nrel.gov/analysis/cambium.html}{Cambium} 2021 Generation and Emission Assessment Regions.}
+    \caption{ Map of the \href{https://www.nrel.gov/analysis/cambium.html}{Cambium} 2021 Generation and Emission Assessment Regions}
     \label{fig:cambium_gea_map}
 \end{figure}
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item Pieter Gagnon, Will Frazier, Wesley Cole, and Elaine Hale. 2021. Cambium Documentation: Version 2021. Golden, CO.: National Renewable Energy Laboratory. NREL/TP-6A40-81611. https://www.nrel.gov/docs/fy22osti/81611.pdf
+    \item Cambium Documentation: Version 2021 (\cite{Gagnon2021}).
+
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
-    \item REEDS Balancing Area
+    \item REEDS Balancing Area.
 \end{itemize}
 
 \paragraph{Options}
@@ -652,7 +655,7 @@ The independent system operator (ISO) or regional transmission organization (RTO
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
-    \item Unit counts are from the American Community Survey 5-yr 2016.
+    \item Unit counts are from the American Community Survey 5-year 2016.
     \item ISO and RTO regions are from EIA Form 861, 2018.
 \end{itemize}
 
@@ -670,7 +673,7 @@ The options are a list of options that represent ISOs and RTOs:
     \item California ISO (CAISO)
     \item New York ISO (NYISO)
     \item Southwest Power Pool (SPP)
-    \item ISO New England (NEISO)
+    \item ISO New England (NEISO).
 \end{itemize}
 If the county is not in any of these regions, the option is listed as the None option.
 
@@ -684,7 +687,7 @@ In this section, we cover other miscellaneous geographies in ResStock. This incl
     \item Census Division RECS
     \item Custom State
     \item Location Region
-    \item American Housing Survey Region
+    \item American Housing Survey Region.
 \end{itemize}
 
 \subsubsection{Census Division RECS}
@@ -694,13 +697,13 @@ Census Division as used in RECS 2015 where the sample is located.
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
-    \item Unit counts are from the American Community Survey 5-yr 2016.
-    \item U.S.~EIA 2015 Residential Energy Consumption Survey (RECS) codebook.
+    \item Unit counts are from the American Community Survey 5-year 2016.
+    \item U.S.~EIA 2015 RECS codebook.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
-    \item State
+    \item State.
 \end{itemize}
 
 \paragraph{Options}
@@ -718,10 +721,10 @@ No data sources were used.
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
-    \item State
+    \item State.
 \end{itemize}
 \paragraph{Options}
-The options for the Custom State characteristic are "AK" and "Others". The characteristic was added during the calibration of Alaska to integrate the Alaska Retrofit Information System data.
+The options for the Custom State characteristic are ``AK'' and ``Others.'' The characteristic was added during the calibration of Alaska to integrate the Alaska Retrofit Information System data.
 
 \paragraph{Distribution Assumption(s)}
 No assumptions were made.
@@ -741,17 +744,17 @@ A custom ResStock region constructed of EIA RECS 2009 reportable domains where t
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
-    \item Unit counts are from the American Community Survey 5-yr 2016.
-    \item U.S.~EIA 2009 Residential Energy Consumption Survey (RECS) microdata.
+    \item Unit counts are from the American Community Survey 5-year 2016.
+    \item U.S.~EIA 2009 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
-    \item State
+    \item State.
 \end{itemize}
 
 \paragraph{Options}
-A list of custom regions (CRs) that range from CR02 - CR11. These numbered CRs are the historical options of the contiguous United States. When Alaska and Hawaii were added, CRAK and CRHI options were added, respectively.
+A list of custom regions (CRs) that range from CR02--CR11. These numbered CRs are the historical options of the contiguous United States. When Alaska and Hawaii were added, CRAK and CRHI options were added, respectively.
 
 \paragraph{Distribution Assumption(s)}
 No assumptions are made.
@@ -763,14 +766,14 @@ The American Housing Survey region where the sample is located.
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
     \item Spatial definitions are from the U.S.~Census Bureau as of July 1, 2015.
-    \item Unit counts are from the American Community Survey 5-yr 2016.
+    \item Unit counts are from the American Community Survey 5-year 2016.
     \item Core Based Statistical Area (CBSA) data based on the Feb 2013 CBSA delineation file.
     \item 2013 American Housing Survey microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
 \begin{itemize}
-    \item County
+    \item County.
 \end{itemize}
 
 \paragraph{Options}
@@ -789,12 +792,12 @@ AMY weather files overcome the location misalignment issue by using real weather
 
 \subsubsection{Weather File Development}
 
-Since ResStock is a composite model of many EnergyPlus models, it employs the standard EnergyPlus Weather (EPW) files (\cite{BigLadderSoftware2015}). The EPW weather format provides a timeseries dataset of a wide array of weather variables across all 8,760 hours of a non-leap year. These weather variables provide the climatic inputs for simulating heat transfer at each time step for each model within ResStock. For the TMY files, we use the most recent release, TMY3 from \citet{Wilcox2008}.~\footnote{In review of the TMY3 data, we have identified some outliers in the initially published TMY3 data (e.g., erroneous temperature spikes). We have corrected those for ResStock use and published our corrected versions \citep{Bianchi2021}. }  For AMY,  we construct our own EPW files for internal use that are not available to the public. Some of the weather variables needed to construct an EPW are available on the \href{https://data.openei.org/submissions/4520}{Load Profiles OEDI submission}. 
+Since ResStock is a composite model of many EnergyPlus models, it employs the standard EnergyPlus Weather (EPW) files (\cite{BigLadderSoftware2015}). The EPW weather format provides a timeseries dataset of a wide array of weather variables across all 8,760 hours of a non-leap year. These weather variables provide the climatic inputs for simulating heat transfer at each time step for each model within ResStock. For the TMY files, we use the most recent release, TMY3 from \citet{Wilcox2008}.\footnote{In review of the TMY3 data, we have identified some outliers in the initially published TMY3 data (e.g., erroneous temperature spikes). We have corrected those for ResStock use and published our corrected versions \citep{Bianchi2021}. }  For AMY,  we construct our own EPW files for internal use that are not available to the public. Some of the weather variables needed to construct an EPW are available on the \href{https://data.openei.org/submissions/4520}{Load Profiles OEDI submission}. 
 
 We develop custom AMY weather data files by pulling historic hourly temperature, humidity, wind speed/direction, and atmospheric pressure from the \href{https://www.ncei.noaa.gov/products/land-based-station/integrated-surface-database}{Integrated Surface Database}, developed by the National Oceanic and Atmospheric Administration's National Climatic Data Center. Additionally, we add in satellite-derived solar radiation data from NREL’s National Solar Radiation Database~\citep{nsrdb}. Ground-based solar radiation data are not widely collected, so using satellite-derived solar radiation data is standard practice for both the solar industry and building energy modelers using historical weather data. Caveats and further information on the data compilation and gap filling of this custom AMY approach can be found in Section 2.4 of \citet{Wilson2022}. 
 
 \subsubsection{Mapping Weather Files to ResStock Samples}
-To produce weather files for ResStock, we develop AMY EPWs for approximately 1,200 weather stations pulling data from the year 2018---with the 2018 AMY roughly mapping to the locations of the TMY3 data.~\footnote{Occasionally nearby stations are used if data are missing from the target weather station.} In ResStock, each county is assigned one of these available 1,200  weather stations. Each county will receive a weather station that is located in the county if one is available; if not, the county will be assigned a weather station closest to the county's population centroid, with prioritization of stations in the same climate zone. Timestamps are shifted if the chosen weather file is in a different time zone. All housing units within a given county will use the assigned weather data for that county for simulations. Within the model, actual weather file assignment occurs in the options\_lookup.tsv as a parameter input into the ResStockArguments script. 
+To produce weather files for ResStock, we develop AMY EPWs for approximately 1,200 weather stations pulling data from the year 2018---with the 2018 AMY roughly mapping to the locations of the TMY3 data.\footnote{Occasionally nearby stations are used if data are missing from the target weather station.} In ResStock, each county is assigned one of these available 1,200  weather stations. Each county will receive a weather station that is located in the county if one is available; if not, the county will be assigned a weather station closest to the county's population centroid, with prioritization of stations in the same climate zone. Timestamps are shifted if the chosen weather file is in a different time zone. All housing units within a given county will use the assigned weather data for that county for simulations. Within the model, actual weather file assignment occurs in the options\_lookup.tsv as a parameter input into the ResStockArguments script. 
 
 \subsubsection{Weather Files and Equipment Sizing}
 In addition to the 8,760 timeseries of weather variables in the timeseries energy simulation, EPW files also provide a header with basic information on the weather location. ResStock uses some of this header information for sizing HVAC equipment---see Table \ref{Tab:Packages}. 
@@ -892,7 +895,7 @@ Name & Required & Units & Type & Description \\
 \bottomrule\noalign{}
 \endlastfoot
 \texttt{geometry\_unit\_orientation} & true & degrees & Double & The
-unit\textquotesingle s orientation is measured clockwise from north
+unit's orientation is measured clockwise from north
 (e.g., North=0, East=90, South=180, West=270). \\
 \end{longtable}
 
@@ -905,7 +908,7 @@ The number of stories in the building in which the housing unit is located.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item U.S.~EIA 2009 Residential Energy Consumption Survey (RECS) microdata.
+    \item U.S.~EIA 2009 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -977,7 +980,7 @@ Tags the building in which the housing unit is located as having more than 8 sto
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item U.S.~EIA 2009 Residential Energy Consumption Survey (RECS) microdata.
+    \item U.S.~EIA 2009 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -1008,7 +1011,7 @@ Option name & Stock saturation \\
 
 \subsubsection{Geometry Building Type Height}
 \paragraph{Description}
-The 2009 U.S.~EIA Residential Energy Consumption Survey building type with multifamily buildings split out by low-rise, mid-rise, and high-rise.
+The 2009 U.S.~EIA RECS building type with multifamily buildings split out by low-rise, mid-rise, and high-rise.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
@@ -1070,7 +1073,7 @@ The number of housing units in the multifamily building.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item U.S.~EIA 2009 Residential Energy Consumption Survey (RECS) microdata.
+    \item U.S.~EIA 2009 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -1118,7 +1121,7 @@ Option name & Stock saturation &
 116 & 1.2\% & 116 \\ \hline
 183 & 0.62\% & 183 \\ \hline
 326 & 1\% & 326 \\ \hline
-None & 74\% & \\ \hline
+None & 74\% & \\ 
 \end{longtable}
 
 For the argument definitions, see Table~\ref{table:hc_arg_def_geom_build_units_mf}. See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#whole-sfa-mf-buildings}{Whole-SFA-MF-Buildings} documentation for the available HPXML schema elements, default values, and constraints.
@@ -1138,7 +1141,7 @@ apartment units. \\
 
 \paragraph{Distribution Assumption(s)}
 \begin{itemize}
-    \item Uses NUMAPTS field in EIA RECS 2009
+    \item Uses NUMAPTS (number of apartments) field in EIA RECS 2009
     \item EIA RECS 2009 does not report NUMAPTS for Multifamily 2--4 units, so assumptions are made based on the number of stories
     \item Data were sampled from the following bins of Geometry Stories: 1, 2, 3, 4-7, 8+.
 \end{itemize}
@@ -1150,7 +1153,7 @@ The number of housing units in the single-family attached (SFA) building.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item U.S.~EIA 2009 Residential Energy Consumption Survey (RECS) microdata.
+    \item U.S.~EIA 2009 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -1494,7 +1497,7 @@ The building type classification according to the U.S.~Census American Community
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item 2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University of Minnesota, www.ipums.org.
+    \item 2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -1525,11 +1528,11 @@ None.
 
 \subsubsection{Geometry Building Type RECS}
 \paragraph{Description}
-The building type classification according to the U.S.~EIA Residential Energy Consumption Survey.
+The building type classification according to the U.S.~EIA RECS.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item 2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University of Minnesota, www.ipums.org.
+    \item 2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -1601,7 +1604,7 @@ Time period in which the building was originally constructed.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item 2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University of Minnesota, www.ipums.org.
+    \item 2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -1663,7 +1666,7 @@ Time period in which the housing unit was constructed as defined by the U.S.~Cen
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item 2019-5yrs Public Use Microdata Samples (PUMS). IPUMS USA, University of Minnesota, www.ipums.org.
+    \item 2019 5-year PUMS from the University of Minnesota.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -1674,21 +1677,16 @@ Time period in which the housing unit was constructed as defined by the U.S.~Cen
 \paragraph{Options}
 The options for Vintage ACS are the same vintage bins as ACS, \ref{table:hc_vintage_acs}. They are roughly 20-year bins. No arguments are set based on this input file.
 
-\begin{longtable}[]{ |p{4.cm}|p{4cm}|p{4cm}| }
-\caption{Option and saturation for Vintage ACS} \label{table:hc_vintage_acs} \\
-\toprule\noalign{}
-Option name & Stock saturation \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textless1940 & 13\% \\
-1940--59 & 15\% \\
-1960--79 & 26\% \\
-1980--99 & 27\% \\
-2000--09 & 14\% \\
+\begin{customLongTable}{ |p{4.cm}|p{4cm}|p{4cm}| }
+{Option and saturation for Vintage ACS} {table:hc_vintage_acs} 
+{Option name & Stock saturation} 
+\textless1940 & 13\% \\ \hline
+1940--59 & 15\% \\ \hline
+1960--79 & 26\% \\ \hline
+1980--99 & 27\% \\ \hline
+2000--09 & 14\% \\ \hline
 2010s & 5.1\% \\
-\end{longtable}
+\end{customLongTable}
 
 \paragraph{Distribution Assumption(s)}
 \begin{itemize}
@@ -1786,18 +1784,18 @@ Only applies to single-family detached units. \\
 \item
   Due to low sample count, the characteristic distributions are constructed by downscaling a core
   input file with 4 sub-input files of different dependencies.
-\item Sub-input file 1 has dependencies : \textquotesingle Census
+\item Sub-input file 1 has dependencies: \textquotesingle Census
   Division\textquotesingle, \textquotesingle PUMA Metro
   Status\textquotesingle, \textquotesingle Geometry Building Type
   RECS\textquotesingle, \textquotesingle Income
   RECS2020\textquotesingle{}
 \item
-  Sub-input file 2 has dependencies : \textquotesingle Census Division\textquotesingle,
+  Sub-input file 2 has dependencies: \textquotesingle Census Division\textquotesingle,
   \textquotesingle PUMA Metro Status\textquotesingle,
   \textquotesingle Geometry Building Type RECS\textquotesingle,
   \textquotesingle Tenure\textquotesingle{}
 \item
-  Sub-input file 3 has dependencies : \textquotesingle Census Division\textquotesingle,
+  Sub-input file 3 has dependencies: \textquotesingle Census Division\textquotesingle,
   \textquotesingle PUMA Metro Status\textquotesingle,
   \textquotesingle Geometry Building Type RECS\textquotesingle,
   \textquotesingle Vintage ACS\textquotesingle{}
@@ -1844,7 +1842,7 @@ The number of bedrooms in the housing unit.
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
     \item 2017 and 2019 American Housing Survey microdata.
-    \item Building type categorization based on U.S.~EIA 2009 Residential Energy Consumption Survey (RECS).
+    \item Building type categorization based on U.S.~EIA 2009 RECS.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -1902,7 +1900,7 @@ The housing unit attic type.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item U.S.~EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+    \item U.S.~EIA 2020 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -1967,7 +1965,7 @@ The type of foundation.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item The sample counts and sample weights are constructed using U.S.~EIA 2009 Residential Energy Consumption Survey (RECS) microdata.
+    \item The sample counts and sample weights are constructed using U.S.~EIA 2009 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -2047,7 +2045,7 @@ The presence and size of an attached garage.
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item U.S.~EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+    \item U.S.~EIA 2020 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -2125,7 +2123,7 @@ Valid combinations of building type, building level mf, attic, foundation, and g
 
 \paragraph{Distribution Data Source(s)}
 \begin{itemize}
-    \item U.S.~EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+    \item U.S.~EIA 2020 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -2232,7 +2230,7 @@ Shingle, Composition, Medium & composite shingle siding & medium
 Stucco, Light & stucco & light & 0.2 \\\hline
 Stucco, Medium/Dark & stucco & medium dark & 0.2 \\\hline
 Vinyl, Light & vinyl siding & light & 0.6 \\\hline
-Wood, Medium/Dark & wood siding & medium dark & 1.4 \\\hline
+Wood, Medium/Dark & wood siding & medium dark & 1.4 \\
 \end{longtable}
 
 For the argument definitions, see Table \ref{table:hc_arg_def_ext_finish}. See the OpenStudio-HPXML \href{https://openstudio-hpxml.readthedocs.io/en/v1.8.1/workflow_inputs.html#hpxml-walls}{Walls} documentation for the available HPXML schema elements, default values, and constraints.
@@ -2280,17 +2278,13 @@ Wall construction type and insulation level. Provides the main R-value for the w
 \begin{itemize}
  
 \item
-  Ritschard et al. Single-Family Heating and Cooling Requirements:
-  Assumptions, Methods, and Summary Results 1992
+  \textit{Single-Family Heating and Cooling Requirements: Assumptions, Methods, and Summary Results} (\cite{Ritschard1992}).
 \item
-  Nettleton, G.
   
-  \item Edwards, J. (2012). Data Collection-Data Characterization Summary,
-  NorthernSTAR Building America Partnership, Building Technologies
-  Program. Washington, D.C.: U.S.~Department of Energy, as described in
-  Roberts et al., \textquotesingle Assessment of the U.S.~Department of
-  Energy\textquotesingle s Home Energy Score Tool\textquotesingle, 2012,
-  and Merket Building America Field Data Repository, Webinar, 2014
+  \textit{Data Collection-Data Characterization Summary} from the NorthernSTAR Building America Partnership (\cite{Nettleton2012}), as described in 
+  Roberts et al., \textit{Assessment of the U.S.~Department of
+  Energy's Home Energy Score Tool} (2012),
+  and Merket et al., \textit{Building America Field Data Repository} webinar (2014).
 \end{itemize}
 \paragraph{Direct Conditional Dependencies}
  
@@ -2436,7 +2430,7 @@ ResStock).
 \paragraph{Direct Conditional Dependencies}
  
 \begin{itemize}
-    \item Geometry Building Type RECS
+    \item Geometry Building Type RECS.
 \end{itemize}
 \paragraph{Option(s)}
 Three options for radiant barriers are available in ResStock: ``Yes,'' ``No,'' and ``None''; see Table \ref{table:hc_opt_rad_bar}. ``No'' is assigned to homes with attics but without radiant barriers, while ``None'' is assigned to homes without attics. No homes in ResStock currently have the ``Yes'' option assigned.
@@ -2483,7 +2477,7 @@ Roof material and color.
 \begin{itemize}
  
 \item
-  U.S.~EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+  U.S.~EIA 2020 RECS microdata.
 \end{itemize}
 \paragraph{Direct Conditional Dependencies}
  
@@ -2499,14 +2493,14 @@ Seven roof material options are used in the ResStock baseline; see Table \ref{ta
 {Roof Material options and arguments that vary for each option}
 {table:hc_opt_roof_mat}
 {Option name & \texttt{roof\_material\_type} &
-\texttt{roof\_color}} \\
+\texttt{roof\_color}} 
 Asphalt Shingles, Medium & asphalt or fiberglass shingles &
-medium \\
-Composition Shingles & asphalt or fiberglass shingles & medium \\
-Metal, Dark & metal surfacing & dark \\
-Slate & slate or tile shingles & medium \\
-Tile, Clay or Ceramic & slate or tile shingles & medium \\
-Tile, Concrete & slate or tile shingles & medium \\
+medium \\ \hline
+Composition Shingles & asphalt or fiberglass shingles & medium \\ \hline
+Metal, Dark & metal surfacing & dark \\ \hline
+Slate & slate or tile shingles & medium \\ \hline
+Tile, Clay or Ceramic & slate or tile shingles & medium \\ \hline
+Tile, Concrete & slate or tile shingles & medium \\ \hline
 Wood Shingles & wood shingles or shakes & medium \\
 \end{customLongTable}
 
@@ -2534,8 +2528,8 @@ medium dark, reflective & The color of the roof \\
 \begin{itemize}
  
 \item
-  Multifamily with 5+ Units is assigned \textquotesingle Asphalt
-  Shingles, Medium\textquotesingle{} only.
+  Multifamily with 5+ Units is assigned `Asphalt
+  Shingles, Medium' only.
 \item
   Due to low samples, Vintage ACS is progressively grouped into:
   pre-1960, 1960--1999, and 2000+.
@@ -2554,19 +2548,15 @@ This characteristic in ResStock specifies the insulation level of the ceiling on
 \begin{itemize}
  
 \item
-  NEEA Residential Building Stock Assessment, 2012
+  NEEA Residential Building Stock Assessment, 2012.
 \item
-  Nettleton, G.
+  \textit{Data Collection-Data Characterization Summary} from the NorthernSTAR Building America Partnership (\cite{Nettleton2012}), as described in
+  Roberts et al., \textit{Assessment of the U.S.~Department of
+  Energy's Home Energy Score Tool} (2012)
+  and Merket et al., \textit{Building America Field Data
+  Repository} webinar, 2014.
 \item
-  Edwards, J. (2012). Data Collection-Data Characterization Summary,
-  NorthernSTAR Building America Partnership, Building Technologies
-  Program. Washington, D.C.: U.S.~Department of Energy, as described in
-  Roberts et al., \textquotesingle Assessment of the U.S.~Department of
-  Energy\textquotesingle s Home Energy Score Tool\textquotesingle, 2012,
-  and Merket \textquotesingle Building America Field Data
-  Repository\textquotesingle, Webinar, 2014
-\item
-  Derived from Home Innovation Research Labs 1982-2007 Data
+  Derived from Home Innovation Research Labs 1982-2007 Data.
 \end{itemize}
 \paragraph{Direct Conditional Dependencies}
 
@@ -2645,7 +2635,7 @@ Sets the insulation levels of all foundation types except for slab-on-grade.
 \item
   Derived from Home Innovation Research Labs 1982--2007 Data
 \item
-  (pre-1980) Engineering judgment.
+  Pre-1980 uses engineering judgment.
 \end{itemize}
 \paragraph{Direct Conditional Dependencies}
 
@@ -2709,7 +2699,7 @@ Defines the insulation level for all slab-on-grade foundation types.
 \item
   Derived from Home Innovation Research Labs 1982--2007 Data
 \item
-  (pre-1980) Engineering judgment.
+  Pre-1980 uses engineering judgment.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -2728,13 +2718,13 @@ ResStock uses eight different options for Insulation Slab, plus a ``None'' flag 
 {Option name & \texttt{slab\_perimeter\_insulation\_r}
 & \texttt{slab\_perimeter\_depth} & \texttt{slab\_under\_insulation\_r}
 & \texttt{slab\_under\_width}}
-None & 0 & 0 & 0 & 0  \\
-Uninsulated & 0 & 0 & 0 & 0 \\
-2ft R5 Under, Horizontal & 0 & 0 & 5 & 2 \\
-2ft R10 Under, Horizontal & 0 & 0 & 10 & 2  \\
-4ft R5 Under, Horizontal & 0 & 0 & 5 & 4  \\
-2ft R5 Perimeter, Vertical & 5 & 2 & 0 & 0 \\
-2ft R10 Perimeter, Vertical & 10 & 2 & 0 & 0  \\
+None & 0 & 0 & 0 & 0  \\ \hline
+Uninsulated & 0 & 0 & 0 & 0 \\ \hline
+2ft R5 Under, Horizontal & 0 & 0 & 5 & 2 \\ \hline
+2ft R10 Under, Horizontal & 0 & 0 & 10 & 2  \\ \hline
+4ft R5 Under, Horizontal & 0 & 0 & 5 & 4  \\ \hline
+2ft R5 Perimeter, Vertical & 5 & 2 & 0 & 0 \\ \hline
+2ft R10 Perimeter, Vertical & 10 & 2 & 0 & 0  \\ \hline
 R10 Whole Slab, Horizontal & 0 & 0 & 10 & 999  \\
 \end{customLongTable}
 % Template starting-place header swap: %
@@ -2745,22 +2735,22 @@ Slabs} documentation for the available HPXML schema elements, default values, an
 {Name & Required & Units & Type & Choices & Description} 
 \texttt{slab\_perimeter\_insulation\_r} & true & h-ft\textsuperscript{2}-R/Btu &
 Double & & Nominal R-value of the vertical slab perimeter insulation.
-Applies to slab-on-grade foundations and basement/crawlspace floors. \\
+Applies to slab-on-grade foundations and basement/crawlspace floors. \\ \hline
 \texttt{slab\_perimeter\_depth} & true & ft & Double & & Depth from
 grade to bottom of vertical slab perimeter insulation. Applies to
-slab-on-grade foundations and basement/crawlspace floors. \\
+slab-on-grade foundations and basement/crawlspace floors. \\ \hline
 \texttt{slab\_under\_insulation\_r} & true & h-ft\textsuperscript{2}-R/Btu & Double &
 & Nominal R-value of the horizontal under slab insulation. Applies to
-slab-on-grade foundations and basement/crawlspace floors. \\
+slab-on-grade foundations and basement/crawlspace floors. \\ \hline
 \texttt{slab\_under\_width} & true & ft & Double & & Width from slab
 edge inward of horizontal under-slab insulation. Enter 999 to specify
 that the under slab insulation spans the entire slab. Applies to
-slab-on-grade foundations and basement/crawlspace floors. \\
+slab-on-grade foundations and basement/crawlspace floors. \\ \hline
 \texttt{slab\_thickness} & false & in & Double & auto & The thickness of
 the slab. Zero can be entered if there is a dirt floor instead of a
-slab.  \\
+slab.  \\ \hline
 \texttt{slab\_carpet\_fraction} & false & Frac & Double & auto &
-Fraction of the slab floor area that is carpeted.  \\
+Fraction of the slab floor area that is carpeted.  \\ \hline
 \texttt{slab\_carpet\_r} & false & h-ft\textsuperscript{2}-R/Btu & Double & auto &
 R-value of the slab carpet. \\
 \end{customLongTable}
@@ -2786,7 +2776,7 @@ Specifies the insulation level of foundation types with foundation walls (i.e., 
 \item
   Derived from Home Innovation Research Labs 1982--2007 Data
 \item
-  (pre-1980) Engineering judgment.
+  Pre-1980 uses engineering judgment.
 \end{itemize}
 \paragraph{Direct Conditional Dependencies}
 
@@ -2958,7 +2948,7 @@ foundation and geothermal heat pump heat transfer calculations.
 \begin{itemize}
  
 \item
-  Data from the Southern Methodist University Geothermal Laboratory. The data are from the Thermal Conductivity Observation in Content Model Format dataset. The data are available at \url{http://geothermal.smu.edu/static/DownloadFilesButtonPage.htm}.
+  Data from the Southern Methodist University Geothermal Laboratory. The data are from the Thermal Conductivity Observation in Content Model Format dataset. The data are available at \url{https://www.smu.edu/dedman/academics/departments/earth-sciences/research/geothermallab/datamaps/ngds-project}.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -3008,10 +2998,10 @@ clay, dry, clay, mixed, clay, wet, gravel, dry, gravel, mixed, gravel,
 wet, loam, dry, loam, mixed, loam, wet, sand, dry, sand, mixed, sand,
 wet, silt, dry, silt, mixed, silt, wet, unknown, dry, unknown, mixed,
 unknown, wet & Type of soil and moisture. This is used to inform ground
-conductivity and diffusivity.  \\
+conductivity and diffusivity.  \\ \hline
 \texttt{site\_ground\_conductivity} & false & Btu/hr-ft-F & Double & &
 Conductivity of the ground soil. If provided, overrides the previous
-soil and moisture type input. \\
+soil and moisture type input. \\ \hline
 \texttt{site\_ground\_diffusivity} & false & ft\textsuperscript{2}/hr & Double & &
 Diffusivity of the ground soil. If provided, overrides the previous soil
 and moisture type input. \\
@@ -3158,7 +3148,7 @@ Construction type and efficiency levels of windows.
 \begin{itemize}
  
 \item
-  U.S.~EIA 2020 Residential Energy Consumption Survey (RECS) microdata.
+  U.S.~EIA 2020 RECS microdata.
 \end{itemize}
 
 \paragraph{Direct Conditional Dependencies}
@@ -3185,19 +3175,19 @@ and \texttt{skylight\_shgc} is always 0.3.
 {Windows options and arguments that vary for each option} {table:hc_opt_window}   
 {Option name & \texttt{window\_ufactor} & \texttt{window\_shgc}} 
 
-Single, Clear, Metal & 1.16 & 0.76 \\
+Single, Clear, Metal & 1.16 & 0.76 \\ \hline
 Single, Clear, Metal, Exterior Clear Storm & 0.67 & 0.56
-  \\
-Single, Clear, Non-metal & 0.84 & 0.63   \\
+  \\ \hline
+Single, Clear, Non-metal & 0.84 & 0.63   \\ \hline
 Single, Clear, Non-metal, Exterior Clear Storm & 0.47 &
-0.54  \\
-Double, Clear, Metal, Air & 0.76 & 0.67 \\
+0.54  \\ \hline
+Double, Clear, Metal, Air & 0.76 & 0.67 \\ \hline
 Double, Clear, Metal, Air, Exterior Clear Storm & 0.55 &
-0.51\\
-Double, Clear, Non-metal, Air & 0.49 & 0.56  \\
+0.51\\ \hline
+Double, Clear, Non-metal, Air & 0.49 & 0.56  \\ \hline
 Double, Clear, Non-metal, Air, Exterior Clear Storm &
-0.34 & 0.49 \\
-Double, Low-E, Non-metal, Air, M-Gain & 0.38 & 0.44 \\
+0.34 & 0.49 \\ \hline
+Double, Low-E, Non-metal, Air, M-Gain & 0.38 & 0.44 \\ \hline
 Triple, Low-E, Non-metal, Air, L-Gain & 0.29 & 0.26  \\
 
 \end{customLongTable}
@@ -3216,7 +3206,7 @@ heat gain coefficient. \\
 \hline
 \texttt{window\_exterior\_shading\_winter} & false & Frac & Double &
 auto & Exterior shading coefficient for the winter season. 1.0 indicates
-no reduction in solar gain, 0.85 indicates 15\% reduction, etc \\
+no reduction in solar gain, 0.85 indicates 15\% reduction, etc. \\
 \hline
 \texttt{window\_exterior\_shading\_summer} & false & Frac & Double &
 auto & Exterior shading coefficient for the summer season. 1.0 indicates
@@ -3257,7 +3247,7 @@ storm. \\
    
   \item
     Vintage data are grouped into: (1) \textless1960, (2) 1960--79,
-    (3) 1980--99, 4) 2000s, 5) 2010s.
+    (3) 1980--99, (4) 2000s, (5) 2010s.
   \item
     Building Type data are grouped into: (1) Single-Family
     Detached, Single-Family Attached, and Mobile homes, and (2)
@@ -3285,11 +3275,9 @@ storm. \\
     bins are combined.
   \end{itemize}
 \item
-  Storm window saturations are based on D\&R International, Ltd.
-  \textquotesingle Residential Windows and Window Coverings: A Detailed
-  View of the Installed Base and User Behavior\textquotesingle{} 2013.
-  \url{https://www.energy.gov/sites/prod/files/2013/11/f5/residential_windows_coverings.pdf}.
-  Cut the \% storm windows by factor of 55\% because only 55\% of storms
+  Storm window saturations are based on D\&R International, Ltd. \href{https://www.energy.gov/sites/prod/files/2013/11/f5/residential_windows_coverings.pdf}{2013}.
+ \textit{Residential Windows and Window Coverings: A Detailed
+  View of the Installed Base and User Behavior}. Cut the \% storm windows by factor of 55\% because only 55\% of storms
   are installed year-round.
 \item
   Due to lack of performance data, Triple-Pane windows with storms are
@@ -3413,7 +3401,7 @@ facade (when viewed from the front). \\
 \begin{itemize}
  
 \item
-  The window-to-wall ratios (WWR) are exponential weibull distributed.
+  The window-to-wall ratios (WWR) are exponential weibull distributed
 \item
   Multifamily with 2--4 Units distributions are independent of Geometry
   Stories
@@ -3431,7 +3419,9 @@ facade (when viewed from the front). \\
 \paragraph{Description}
 Presence, depth, and location of window overhangs (not currently used in ResStock baseline).
 \paragraph{Distribution Data Source(s)}
-Not applicable.
+\begin{itemize}
+\item Not applicable.
+\end{itemize}
 \paragraph{Direct Conditional Dependencies}
 
 \begin{itemize}
@@ -3515,8 +3505,7 @@ Depth of roof eaves.
 \begin{itemize}
  
 \item
-  Wilson et al. \textquotesingle Building America House Simulation
-  Protocols\textquotesingle{} 2014
+  Building America House Simulation Protocols (\cite{Wilson2014}). 
 \end{itemize}
 \paragraph{Direct Conditional Dependencies}
 
@@ -3603,8 +3592,7 @@ Air leakage rates for the living and garage spaces.
  
 \item
   Distributions are based on the cumulative distribution functions from
-  the Residential Diagnostics Database (ResDB)
-  \url{http://resdb.lbl.gov/}.
+  the \href{http://resdb.lbl.gov/}{Residential Diagnostics Database (ResDB)}.
 \item
   Alaska-specific distribution is based on Alaska Retrofit Information
   System (2008 to 2022), maintained by Alaska Housing Finance
@@ -3699,7 +3687,7 @@ is single-family attached or apartment unit. \\
 \item
   For Alaska, we are using a field in ARIS that lumps multifamily 2--4
   units and multifamily 5+ units buildings together. Data from the
-  American Community Survey are used to distribute the between these two
+  American Community Survey are used to distribute proportionally between these two
   building types.
 \item
   For Alaska, Infiltration ACH50 values are calculated based on CFM50

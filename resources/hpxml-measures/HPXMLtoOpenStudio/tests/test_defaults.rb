@@ -1168,6 +1168,27 @@ class HPXMLtoOpenStudioDefaultsTest < Minitest::Test
     assert_equal(HPXML::WindowGlassTypeLowE, default_hpxml_bldg.windows[0].glass_type)
     assert_equal(HPXML::WindowGasArgon, default_hpxml_bldg.windows[0].gas_fill)
 
+    # Test defaults w/ glass block
+    hpxml, hpxml_bldg = _create_hpxml('base.xml')
+    hpxml_bldg.windows[0].ufactor = nil
+    hpxml_bldg.windows[0].shgc = nil
+    hpxml_bldg.windows[0].glass_layers = HPXML::WindowLayersGlassBlock
+    hpxml_bldg.windows[0].interior_shading_factor_summer = nil
+    hpxml_bldg.windows[0].interior_shading_factor_winter = nil
+    XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
+    _default_hpxml, default_hpxml_bldg = _test_measure()
+    assert_nil(default_hpxml_bldg.windows[0].thermal_break)
+    assert_nil(default_hpxml_bldg.windows[0].glass_type)
+    assert_nil(default_hpxml_bldg.windows[0].gas_fill)
+
+    # Test defaults w/ glass block and interior shading type
+    hpxml_bldg.windows[0].interior_shading_type = HPXML::InteriorShadingTypeDarkShades
+    XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
+    _default_hpxml, default_hpxml_bldg = _test_measure()
+    assert_nil(default_hpxml_bldg.windows[0].thermal_break)
+    assert_nil(default_hpxml_bldg.windows[0].glass_type)
+    assert_nil(default_hpxml_bldg.windows[0].gas_fill)
+
     # Test U/SHGC lookups [frame_type, thermal_break, glass_layers, glass_type, gas_fill] => [ufactor, shgc]
     tests = { [HPXML::WindowFrameTypeAluminum, false, HPXML::WindowLayersSinglePane, nil, nil] => [1.27, 0.75],
               [HPXML::WindowFrameTypeWood, nil, HPXML::WindowLayersSinglePane, HPXML::WindowGlassTypeReflective, nil] => [0.89, 0.64],
@@ -1415,6 +1436,27 @@ class HPXMLtoOpenStudioDefaultsTest < Minitest::Test
     assert_nil(default_hpxml_bldg.skylights[0].thermal_break)
     assert_equal(HPXML::WindowGlassTypeLowE, default_hpxml_bldg.skylights[0].glass_type)
     assert_equal(HPXML::WindowGasArgon, default_hpxml_bldg.skylights[0].gas_fill)
+
+    # Test defaults w/ glass block
+    hpxml, hpxml_bldg = _create_hpxml('base-enclosure-skylights.xml')
+    hpxml_bldg.skylights[0].ufactor = nil
+    hpxml_bldg.skylights[0].shgc = nil
+    hpxml_bldg.skylights[0].glass_layers = HPXML::WindowLayersGlassBlock
+    hpxml_bldg.skylights[0].interior_shading_factor_summer = nil
+    hpxml_bldg.skylights[0].interior_shading_factor_winter = nil
+    XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
+    _default_hpxml, default_hpxml_bldg = _test_measure()
+    assert_nil(default_hpxml_bldg.skylights[0].thermal_break)
+    assert_nil(default_hpxml_bldg.skylights[0].glass_type)
+    assert_nil(default_hpxml_bldg.skylights[0].gas_fill)
+
+    # Test defaults w/ glass block and interior shading type
+    hpxml_bldg.skylights[0].interior_shading_type = HPXML::InteriorShadingTypeDarkShades
+    XMLHelper.write_file(hpxml.to_doc, @tmp_hpxml_path)
+    _default_hpxml, default_hpxml_bldg = _test_measure()
+    assert_nil(default_hpxml_bldg.skylights[0].thermal_break)
+    assert_nil(default_hpxml_bldg.skylights[0].glass_type)
+    assert_nil(default_hpxml_bldg.skylights[0].gas_fill)
 
     # Test U/SHGC lookups [frame_type, thermal_break, glass_layers, glass_type, gas_fill] => [ufactor, shgc]
     tests = { [HPXML::WindowFrameTypeAluminum, false, HPXML::WindowLayersSinglePane, nil, nil] => [1.98, 0.75],

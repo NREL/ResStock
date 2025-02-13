@@ -174,7 +174,7 @@ OptionParser.new do |opts|
   end
 
   options[:master_seed] = nil
-  opts.on('--master-seed SEED', Integer, 'Master seed for random number generation') do |t|
+  opts.on('--master-seed SEED', Integer, 'Master seed for stochastic occupancy schedule random number generator') do |t|
     options[:master_seed] = t
   end
 

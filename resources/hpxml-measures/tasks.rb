@@ -77,7 +77,7 @@ def create_hpxmls
       build_residential_hpxml['existing_hpxml_path'] = hpxml_path if i > 1
       if hpxml_path.include?('base-bldgtype-mf-whole-building.xml')
         suffix = "_#{i}" if i > 1
-        build_residential_hpxml['schedules_filepaths'] = "../../HPXMLtoOpenStudio/resources/schedule_files/occupancy-stochastic_mf#{suffix}.csv"
+        build_residential_hpxml['schedules_filepaths'] = "../../HPXMLtoOpenStudio/resources/schedule_files/#{stochastic_sched_basename}-mf-unit#{suffix}.csv"
         build_residential_hpxml['geometry_foundation_type'] = (i <= 2 ? 'UnconditionedBasement' : 'AboveApartment')
         build_residential_hpxml['geometry_attic_type'] = (i >= 5 ? 'VentedAttic' : 'BelowApartment')
         build_residential_hpxml['geometry_unit_height_above_grade'] = { 1 => 0.0, 2 => 0.0, 3 => 10.0, 4 => 10.0, 5 => 20.0, 6 => 20.0 }[i]

@@ -83,6 +83,14 @@ if ARGV[0].to_sym == :update_measures
   puts 'Applying rubocop auto-correct to measures...'
   system(command)
 
+  # Update a ResStockArguments/resources file when the BuildResidentialHPXML measure changes.
+  # This will ensure that the ResStockArguments measure.xml is appropriately updated.
+  # Without this, the ResStockArguments measure has no differences and so OpenStudio
+  # would skip updating it.
+  measure_rb_path = File.join(File.dirname(__FILE__), 'resources/hpxml-measures/BuildResidentialHPXML/measure.rb')
+  measure_txt_path = File.join(File.dirname(__FILE__), 'measures/ResStockArguments/resources/measure.txt')
+  File.write(measure_txt_path, Digest::MD5.file(measure_rb_path).hexdigest)
+
   # Update measures XMLs
   puts 'Updating measure.xmls...'
   Dir['measures/**/measure.xml'].each do |measure_xml|

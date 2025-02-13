@@ -159,7 +159,7 @@ class ScheduleGenerator
     sink_activity_sch = generate_sink_schedule(mkc_activity_schedules)
     shower_activity_sch, bath_activity_sch = generate_bath_shower_schedules(mkc_activity_schedules)
 
-    # Apply random offset to schdules to avoid synchronization
+    # Apply random offset to schedules to avoid synchronization
     offset_range = 30 # +- 30 minutes offset
     random_offset = (@prngs[:main].rand * 2 * offset_range).to_i - offset_range
     if !@hpxml_bldg.dishwashers.to_a.empty?
@@ -562,14 +562,14 @@ class ScheduleGenerator
     mkc_activity_schedules.size.times do |i|
       occupant_away_hours_per_year[i] = mkc_activity_schedules[i].column(5).sum() / 4
     end
-    # Only keep occupants whose 80% (the portion available for driving) away hours are sufficent to meet hours_per_year
+    # Only keep occupants whose 80% (the portion available for driving) away hours are sufficient to meet hours_per_year
     elligible_occupant = occupant_away_hours_per_year.each_with_index.filter { |value, _| value * 0.8 > hours_per_year }
     if elligible_occupant.empty?
       # if nobody has enough away hours, find the index of the occupant with the highest away hours
       _, ev_occupant = occupant_away_hours_per_year.each_with_index.max_by { |value, _| value }
       return ev_occupant
     else
-      # return the index of a random elligible occupant
+      # return the index of a random eligible occupant
       _, ev_occupant = elligible_occupant.sample(random: @prngs[:ev])
       return ev_occupant
     end
@@ -817,7 +817,7 @@ class ScheduleGenerator
     # both occur in a timestep, we don't want them to cancel out and draw no power from the building. So, whenever there
     # is discharging, we use the full discharge in that timestep (without subtracting the charging).
     combined_schedule = agg_charging_schedule.zip(agg_discharging_schedule).map { |charging, discharging| discharging > 0 ? -discharging : charging }
-    @schedules[SchedulesFile::Columns[:EVOccupant].name] = ev_occupant_presence
+    @schedules[SchedulesFile::Columns[:EVOccupant].name] = ev_occupant_presence if @debug
     @schedules[SchedulesFile::Columns[:ElectricVehicle].name] = combined_schedule
   end
 
@@ -1410,7 +1410,7 @@ class ScheduleGenerator
   # Apply random time shift and normalize schedule values.
   #
   # @param schedule [Array<Float>] Array of minute-level schedule values
-  # @param random_offset [Integer] Random offset in minutesto apply to the schedule
+  # @param random_offset [Integer] Random offset in minutes to apply to the schedule
   # @return [Array<Float>] Normalized schedule with random time shift applied
   def random_shift_and_normalize(schedule, random_offset)
     schedule = schedule.rotate(random_offset)

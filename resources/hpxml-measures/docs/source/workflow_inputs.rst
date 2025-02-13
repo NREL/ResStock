@@ -717,7 +717,7 @@ The column names available in the schedule CSV files are:
   ``water_heater_setpoint``         F        Water heater setpoint schedule.                                                                No
   ``water_heater_operating_mode``   0/1      Heat pump water heater operating mode schedule. 0=hybrid/auto, 1=heat pump only.               No
   ``battery``                       -1 to 1  Battery availability schedule. Positive for charging, negative for discharging.                No
-  ``electric_vehicle``              -1 to 1  Electric vehicle schedule. Positive for charging, negative for discharging. [#]_               No
+  ``electric_vehicle``              -1 to 1  Electric vehicle schedule. Positive for charging, negative for discharging. [#]_               Yes
   ================================  =======  =============================================================================================  ===============================
 
   .. [#] A detailed stochastic occupancy schedule CSV file can also be automatically generated for these columns; see the :ref:`usage_instructions` for the commands.
@@ -1687,7 +1687,7 @@ Either winter/summer shading coefficients can be directly provided, or they can 
   ============================  ======  =====  ===========  ========  =========  =============================================================
 
   .. [#] Type choices are "light blinds", "medium blinds", "dark blinds", "light shades", "medium shades", "dark shades", "light curtains", "medium curtains", "dark curtains", "other", or "none".
-  .. [#] If Type not provided, and either SummerShadingCoefficient or WinterShadingCoefficient not provided, defaults to "light curtains".
+  .. [#] If Type not provided, and either SummerShadingCoefficient or WinterShadingCoefficient not provided, defaults to "light curtains" if not glass block windows and "none" for glass block windows.
   .. [#] BlindsSummerClosedOrOpen choices are "closed", "open", or "half open".
   .. [#] BlindsWinterClosedOrOpen choices are "closed", "open", or "half open".
   .. [#] If SummerFractionCovered not provided, defaults to 1.0 for blinds and 0.5 for shades/curtains/other.
@@ -4654,25 +4654,27 @@ If not entered, the simulation will not include a detailed electric vehicle mode
   ``VehicleType/BatteryElectricVehicle/Battery/NominalCapacity[Units="kWh" or Units="Ah"]/Value``  double  kWh or Ah  >= 0                     No        See [#]_       Nominal (total) capacity
   ``VehicleType/BatteryElectricVehicle/Battery/UsableCapacity[Units="kWh" or Units="Ah"]/Value``   double  kWh or Ah  >= 0, < NominalCapacity  No        See [#]_       Usable capacity
   ``VehicleType/BatteryElectricVehicle/Battery/NominalVoltage``                                    double  V          >= 0                     No                       Nominal voltage
-  ``VehicleType/BatteryElectricVehicle/FractionChargedLocation[Location="Home"]/Percentage``       double  frac       >= 0                     No        0.8            Fraction of EV charging energy provided by home charger
+  ``VehicleType/BatteryElectricVehicle/FractionChargedLocation[Location="Home"]/Percentage``       double  frac       >= 0                     No        See [#]_       Fraction of EV charging energy provided by home charger
   ``VehicleType/BatteryElectricVehicle/ConnectedCharger``                                          idref              See [#]_                 No                       ID of connected EV charger [#]_
   ``VehicleType/BatteryElectricVehicle/extension/WeekdayScheduleFractions``                        array                                       No        See [#]_       24 comma-separated weekday fractions
   ``VehicleType/BatteryElectricVehicle/extension/WeekendScheduleFractions``                        array                                       No                       24 comma-separated weekday fractions
   ``VehicleType/BatteryElectricVehicle/extension/MonthlyScheduleMultipliers``                      array                                       No        See [#]_       12 comma-separated monthly multipliers
   ``MilesDrivenPerYear``                                                                           double  miles      >= 0                     No        See [#]_       Number of miles driven per year
   ``HoursDrivenPerWeek``                                                                           double  hours      >= 0                     No        See [#]_       Number of hours driven per week
-  ``FuelEconomyCombined[Units="kWh/mile" or Units="mile/kWh" or Units="mpge"]/Value``              double             > 0                      No        0.22 kWh/mile  The vehicle combined city and highway fuel economy
+  ``FuelEconomyCombined[Units="kWh/mile" or Units="mile/kWh" or Units="mpge"]/Value``              double             > 0                      No        See [#]_       The vehicle combined city and highway fuel economy
   ===============================================================================================  ======  =========  =======================  ========  =============  =======================================================
 
+  .. [#] Only the "Li-ion" battery type is supported.
+  .. [#] If NominalCapacity not provided, defaults to UsableCapacity / 0.8 if UsableCapacity provided, else 63 kWh per `2022 Autonomie release <https://vms.taps.anl.gov/tools/autonomie/>`_.
+  .. [#] If UsableCapacity not provided, defaults to 0.8 * NominalCapacity.
+  .. [#] If FractionChargedLocation[Location="Home"] not provided, defaults to 0.8 per `Levelized Cost of Charging Electric Vehicles in the United States <https://www.sciencedirect.com/science/article/pii/S2542435120302312?via%3Dihub#bib28>`_.
   .. [#] ConnectedCharger must reference an ``ElectricVehicleCharger``.
   .. [#] If a connected charger is not provided, home electric vehicle charging will not be modeled.
-  .. [#] Only the "Li-ion" battery type is supported.
-  .. [#] If NominalCapacity not provided, defaults to UsableCapacity / 0.8 if UsableCapacity provided, else 63 kWh.
-  .. [#] If UsableCapacity not provided, defaults to 0.8 * NominalCapacity.
   .. [#] If WeekdayScheduleFractions or WeekendScheduleFractions are not provided (and :ref:`schedules_detailed` not used), then :ref:`schedules_default` are used.
   .. [#] If MonthlyScheduleMultipliers are not provided (and :ref:`schedules_detailed` not used), then :ref:`schedules_default` are used.
-  .. [#] If MilesDrivenPerYear not provided, defaults to HoursDrivenPerWeek * 1227.5, else 10900 miles.
-  .. [#] If HoursDrivenPerWeek not provided, defaults to MilesDrivenPerYear / 1227.5, else 8.88 hours/week.
+  .. [#] If MilesDrivenPerYear not provided, defaults to HoursDrivenPerWeek * 1227.5, else 10900 miles per `2017 National Household Travel Survey data <https://nhts.ornl.gov/>`_.
+  .. [#] If HoursDrivenPerWeek not provided, defaults to MilesDrivenPerYear / 1227.5, else 8.88 hours/week per `2017 National Household Travel Survey data <https://nhts.ornl.gov/>`_.
+  .. [#] If FuelEconomyCombined not provided, defaults to 0.22 kWh/mile per `2022 Autonomie release <https://vms.taps.anl.gov/tools/autonomie/>`_.
 
  .. note::
  
@@ -4700,7 +4702,7 @@ A single electric vehicle charger can be entered as a ``/HPXML/Building/Building
   .. [#] Location choices are "garage" or "outside".
   .. [#] If Location not provided, defaults to "garage" if a garage is present, otherwise "outside".
   .. [#] If neither ChargingLevel nor ChargingPower provided, defaults to level 2.
-  .. [#] If ChargingPower not provided, defaults to 1600 W if a level 1 charger, otherwise 5690 W (based on EVWatts).
+  .. [#] If ChargingPower not provided, defaults to 1600 W if a level 1 charger, otherwise 5690 W per `EV Watts Public Database <https://www.osti.gov/biblio/1970735>`_.
 
 HPXML Generators
 ****************

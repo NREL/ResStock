@@ -9,7 +9,7 @@ This file is then committed in the "Latest results" commit in the `Commit latest
 These actions will help keep the document up to date with any changes and fail in the tests if the document does not compile.
 
 ## Building Technical Reference Guide Locally
-To compile the ResStock Technical Reference Guide locally it is recommended to use the same environment as the GitHub Action (currently ubuntu 22.04). To get this enviornment install [Docker](https://www.docker.com/) and follow the steps below. After the first time running through this process, where docker container is built and texlive is installed steps #2 and #4 can be skipped.
+Docker can be used to compile the ResStock Technical Reference Guide locally. First install [Docker](https://www.docker.com/) and follow the steps below.
 
 1. With the terminal/command prompt navigate to the resstock repository technical reference guide directory.
 
@@ -17,32 +17,36 @@ To compile the ResStock Technical Reference Guide locally it is recommended to u
 cd <RESSTOCK_DIR>/docs/technical_reference_guide
 ```
 
-2. Build an ubuntu container similar to GitHub Actions ubuntu 22.04 (only needs to be done the first time)
+2. Pull a docker container with the full version of textlive (this might take several minutes, but only needs to be done once. If you have issues, get off the VPN during the pull)
 
 ```
-docker build -t github-actions-ubuntu22 .
+$ docker pull mfisherman/texlive-full
 ```
 
-3. Run the newly built container and mount the current directory contents in the workspace directory of the container.
+3. Run the container and mount the current directory contents in the workspace directory of the container. Use /bin/bash as the default shell.
 
 ```
-docker run -it -v $(pwd):/workspace github-actions-ubuntu22
+docker run --rm -it -v $(pwd):/workspace mfisherman/texlive-full /bin/bash
 ```
 
-4. Install the full texlive package (only needs to be done the first time and might take a few minutes)
+4. The container should start running immediately. Once in the container, your CLI looks something like this: `19603f1794b0:/data#`, with `19603f1794b0` likely being different. Go to the workspace folder where the Technical Reference Guide directory is located.
 
 ```
-apt-get install texlive-full
+cd ../workspace
 ```
 
-5. Go to the workspace
-
+5. Create a _build directory for the output of `pdflatex` to be stored.
 ```
-cd workspace
+mkdir _build
 ```
 
 6. Compile the documentation (this command may need to be run two times for some parts of the documentation to show up in the output pdf)
 
 ```
-pdflatex ResStockTechnicalReferenceGuide.tex -file-line-error -interaction=nonstopmode
+latexmk -pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode -output-directory=_build -halt-on-error ResStockTechnicalReferenceGuide.tex 
 ```
+
+7. All of the pdf and log files from the compile will be located in docs/technical_reference_guide/_build (Note: this won't show up as modified files in git because _build is in .gitignore)
+
+8. If the pdf does not compile successfully, look for fatal errors in the .log file, apply fixes, and recompile as needed by repeating step 5. To stop the workflow and exit out of the container, type exit in the CLI or hit Ctrl + D on your keyword.
+

@@ -5,8 +5,9 @@ To allow more options per upgrade, increase the value returned by the following 
 
 .. code::
 
-  def self.NumApplyUpgradeOptions
-    return 25
-  end
+  module Constants
+    NumApplyUpgradeOptions = 100
+    NumApplyUpgradesCostsPerOption = 2
+  ...
   
-Then run ``openstudio tasks.rb update_measures``. See :doc:`running_tasks` for instructions on how to run tasks.
+Then run ``openstudio tasks.rb update_measures``. See :doc:`running_task_commands` for instructions on how to run tasks.
