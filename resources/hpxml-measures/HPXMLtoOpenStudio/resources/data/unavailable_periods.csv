@@ -1,7 +1,5 @@
 Schedule Name,Vacancy,Power Outage,No Space Heating,No Space Cooling
 occupants,1,0,0,0
-ev_occupant,1,0,0,0
-present_occupants,1,0,0,0
 lighting_interior,1,1,0,0
 lighting_exterior,1,1,0,0
 lighting_garage,1,1,0,0
