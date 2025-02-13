@@ -8,7 +8,6 @@ require_relative '../measure.rb'
 require 'csv'
 require_relative '../resources/xmlhelper.rb'
 require_relative '../resources/xmlvalidator.rb'
-
 class HPXMLtoOpenStudioValidationTest < Minitest::Test
   def setup
     @root_path = File.absolute_path(File.join(File.dirname(__FILE__), '..', '..'))
@@ -1223,13 +1222,13 @@ class HPXMLtoOpenStudioValidationTest < Minitest::Test
       when 'battery-bad-values-max-greater-than-one'
         hpxml, hpxml_bldg = _create_hpxml('base-battery-scheduled.xml')
         csv_data = CSV.read(File.join(File.dirname(hpxml.hpxml_path), hpxml_bldg.header.schedules_filepaths[0]))
-        csv_data[1][0] = 1.1
+        csv_data[1][csv_data[0].index('battery')] = 1.1
         File.write(@tmp_csv_path, csv_data.map(&:to_csv).join)
         hpxml_bldg.header.schedules_filepaths = [@tmp_csv_path]
       when 'battery-bad-values-min-less-than-neg-one'
         hpxml, hpxml_bldg = _create_hpxml('base-battery-scheduled.xml')
         csv_data = CSV.read(File.join(File.dirname(hpxml.hpxml_path), hpxml_bldg.header.schedules_filepaths[0]))
-        csv_data[1][0] = -1.1
+        csv_data[1][csv_data[0].index('battery')] = -1.1
         File.write(@tmp_csv_path, csv_data.map(&:to_csv).join)
         hpxml_bldg.header.schedules_filepaths = [@tmp_csv_path]
       when 'cfis-with-hydronic-distribution'
@@ -1565,19 +1564,19 @@ class HPXMLtoOpenStudioValidationTest < Minitest::Test
       when 'schedule-detailed-bad-values-max-not-one'
         hpxml, hpxml_bldg = _create_hpxml('base-schedules-detailed-occupancy-stochastic.xml')
         csv_data = CSV.read(File.join(File.dirname(hpxml.hpxml_path), hpxml_bldg.header.schedules_filepaths[0]))
-        csv_data[1][1] = 1.1
+        csv_data[1][csv_data[0].index('lighting_interior')] = 1.1
         File.write(@tmp_csv_path, csv_data.map(&:to_csv).join)
         hpxml_bldg.header.schedules_filepaths = [@tmp_csv_path]
       when 'schedule-detailed-bad-values-negative'
         hpxml, hpxml_bldg = _create_hpxml('base-schedules-detailed-occupancy-stochastic.xml')
         csv_data = CSV.read(File.join(File.dirname(hpxml.hpxml_path), hpxml_bldg.header.schedules_filepaths[0]))
-        csv_data[1][1] = -0.5
+        csv_data[1][csv_data[0].index('lighting_interior')] = -0.5
         File.write(@tmp_csv_path, csv_data.map(&:to_csv).join)
         hpxml_bldg.header.schedules_filepaths = [@tmp_csv_path]
       when 'schedule-detailed-bad-values-non-numeric'
         hpxml, hpxml_bldg = _create_hpxml('base-schedules-detailed-occupancy-stochastic.xml')
         csv_data = CSV.read(File.join(File.dirname(hpxml.hpxml_path), hpxml_bldg.header.schedules_filepaths[0]))
-        csv_data[1][1] = 'NA'
+        csv_data[1][csv_data[0].index('lighting_interior')] = 'NA'
         File.write(@tmp_csv_path, csv_data.map(&:to_csv).join)
         hpxml_bldg.header.schedules_filepaths = [@tmp_csv_path]
       when 'schedule-detailed-bad-values-mode-negative'

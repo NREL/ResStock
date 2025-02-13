@@ -144,7 +144,6 @@ class BuildResidentialScheduleFile < OpenStudio::Measure::ModelMeasure
         epw_path = Location.get_epw_path(hpxml_bldg, hpxml_path)
         weather = WeatherFile.new(epw_path: epw_path, runner: runner, hpxml: hpxml)
       end
-
       # deterministically vary schedules across building units
       args[:random_seed] *= (i + 1)
 
@@ -205,7 +204,7 @@ class BuildResidentialScheduleFile < OpenStudio::Measure::ModelMeasure
     get_generator_inputs(hpxml_bldg, weather, args)
 
     args[:resources_path] = File.join(File.dirname(__FILE__), 'resources')
-    schedule_generator = ScheduleGenerator.new(runner: runner, **args)
+    schedule_generator = ScheduleGenerator.new(runner: runner, hpxml_bldg: hpxml_bldg, **args)
 
     success = schedule_generator.create(args: args, weather: weather)
     return false if not success
@@ -244,8 +243,6 @@ class BuildResidentialScheduleFile < OpenStudio::Measure::ModelMeasure
       args[:minutes_per_step] = hpxml.header.timestep
     end
     args[:steps_in_day] = 24 * 60 / args[:minutes_per_step]
-    args[:mkc_ts_per_day] = 96
-    args[:mkc_ts_per_hour] = args[:mkc_ts_per_day] / 24
 
     calendar_year = Location.get_sim_calendar_year(hpxml.header.sim_calendar_year, weather)
     args[:sim_year] = calendar_year
