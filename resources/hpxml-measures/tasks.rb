@@ -11,10 +11,10 @@ end
 def create_hpxmls
   this_dir = File.dirname(__FILE__)
   workflow_dir = File.join(this_dir, 'workflow')
-  hpxml_inputs_tsv_path = File.join(workflow_dir, 'hpxml_inputs.json')
+  hpxml_inputs_json_path = File.join(workflow_dir, 'hpxml_inputs.json')
 
   require 'json'
-  json_inputs = JSON.parse(File.read(hpxml_inputs_tsv_path))
+  json_inputs = JSON.parse(File.read(hpxml_inputs_json_path))
   abs_hpxml_files = []
   dirs = json_inputs.keys.map { |file_path| File.dirname(file_path) }.uniq
 
@@ -77,7 +77,7 @@ def create_hpxmls
       build_residential_hpxml['existing_hpxml_path'] = hpxml_path if i > 1
       if hpxml_path.include?('base-bldgtype-mf-whole-building.xml')
         suffix = "_#{i}" if i > 1
-        build_residential_hpxml['schedules_filepaths'] = "../../HPXMLtoOpenStudio/resources/schedule_files/#{stochastic_sched_basename}-mf-unit#{suffix}.csv"
+        build_residential_hpxml['schedules_filepaths'] = "../../HPXMLtoOpenStudio/resources/schedule_files/occupancy-stochastic#{suffix}.csv"
         build_residential_hpxml['geometry_foundation_type'] = (i <= 2 ? 'UnconditionedBasement' : 'AboveApartment')
         build_residential_hpxml['geometry_attic_type'] = (i >= 5 ? 'VentedAttic' : 'BelowApartment')
         build_residential_hpxml['geometry_unit_height_above_grade'] = { 1 => 0.0, 2 => 0.0, 3 => 10.0, 4 => 10.0, 5 => 20.0, 6 => 20.0 }[i]

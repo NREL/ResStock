@@ -1,0 +1,13 @@
+Option Name	roof_material_type	roof_color
+"Asphalt/Fiberglass Shingles, Dark"	asphalt or fiberglass shingles	dark
+"Asphalt/Fiberglass Shingles, Medium"	asphalt or fiberglass shingles	medium
+"Asphalt/Fiberglass Shingles, Light"	asphalt or fiberglass shingles	light
+"Asphalt/Fiberglass Shingles, Reflective"	asphalt or fiberglass shingles	reflective
+"Tile/Slate, Dark"	slate or tile shingles	dark
+"Tile/Slate, Medium"	slate or tile shingles	medium
+"Tile/Slate, Light"	slate or tile shingles	light
+"Tile/Slate, Reflective"	slate or tile shingles	reflective
+"Metal, Dark"	metal surfacing	dark
+"Metal, Medium"	metal surfacing	medium
+"Metal, Light"	metal surfacing	light
+"Metal, Reflective"	metal surfacing	reflective

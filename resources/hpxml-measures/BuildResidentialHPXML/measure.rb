@@ -696,32 +696,11 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
     arg.setDefaultValue(31.6)
     args << arg
 
-    roof_material_type_choices = OpenStudio::StringVector.new
-    roof_material_type_choices << HPXML::RoofTypeAsphaltShingles
-    roof_material_type_choices << HPXML::RoofTypeConcrete
-    roof_material_type_choices << HPXML::RoofTypeCool
-    roof_material_type_choices << HPXML::RoofTypeClayTile
-    roof_material_type_choices << HPXML::RoofTypeEPS
-    roof_material_type_choices << HPXML::RoofTypeMetal
-    roof_material_type_choices << HPXML::RoofTypePlasticRubber
-    roof_material_type_choices << HPXML::RoofTypeShingles
-    roof_material_type_choices << HPXML::RoofTypeWoodShingles
+    enclosure_roof_material_choices = get_option_names('roof_material.tsv')
 
-    arg = OpenStudio::Measure::OSArgument::makeChoiceArgument('roof_material_type', roof_material_type_choices, false)
-    arg.setDisplayName('Roof: Material Type')
-    arg.setDescription("The material type of the roof. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-roofs'>HPXML Roofs</a>) is used.")
-    args << arg
-
-    color_choices = OpenStudio::StringVector.new
-    color_choices << HPXML::ColorDark
-    color_choices << HPXML::ColorLight
-    color_choices << HPXML::ColorMedium
-    color_choices << HPXML::ColorMediumDark
-    color_choices << HPXML::ColorReflective
-
-    arg = OpenStudio::Measure::OSArgument::makeChoiceArgument('roof_color', color_choices, false)
-    arg.setDisplayName('Roof: Color')
-    arg.setDescription("The color of the roof. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-roofs'>HPXML Roofs</a>) is used.")
+    arg = OpenStudio::Measure::OSArgument::makeChoiceArgument('enclosure_roof_material', enclosure_roof_material_choices, false)
+    arg.setDisplayName('Enclosure: Roof Material')
+    arg.setDescription("The material type/color of the roof. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-roofs'>HPXML Roofs</a>) is used.")
     args << arg
 
     arg = OpenStudio::Measure::OSArgument::makeDoubleArgument('roof_assembly_r', true)
@@ -788,6 +767,13 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
     arg.setDisplayName('Wall: Siding Type')
     arg.setDescription("The siding type of the walls. Also applies to rim joists. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-walls'>HPXML Walls</a>) is used.")
     args << arg
+
+    color_choices = OpenStudio::StringVector.new
+    color_choices << HPXML::ColorDark
+    color_choices << HPXML::ColorLight
+    color_choices << HPXML::ColorMedium
+    color_choices << HPXML::ColorMediumDark
+    color_choices << HPXML::ColorReflective
 
     arg = OpenStudio::Measure::OSArgument::makeChoiceArgument('wall_color', color_choices, false)
     arg.setDisplayName('Wall: Color')
@@ -3956,6 +3942,20 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
 
     return errors
   end
+
+  # Returns the list of option names specified in the given TSV resource file.
+  #
+  # @param tsv_file_name [String] Name of the TSV resource file
+  # @return [OpenStudio::StringVector] List of option names
+  def get_option_names(tsv_file_name)
+    tsv_dir = File.join(File.dirname(__FILE__), 'resources', 'options')
+    data = CSV.read(File.join(tsv_dir, tsv_file_name), col_sep: "\t", headers: true)
+    option_names = OpenStudio::StringVector.new
+    data.map { |row| row['Option Name'] }.each do |option_name|
+      option_names << option_name
+    end
+    return option_names
+  end
 end
 
 # Collection of methods for creating the HPXML file and setting properties based on user arguments
@@ -4924,6 +4924,8 @@ module HPXMLFile
     if (args[:geometry_attic_type] == HPXML::AtticTypeFlatRoof) || (args[:geometry_attic_type] == HPXML::AtticTypeBelowApartment)
       args[:geometry_roof_pitch] = 0.0
     end
+
+    get_option_properties(args, 'roof_material.tsv', args[:enclosure_roof_material])
 
     sorted_surfaces.each do |surface|
       next if surface.outsideBoundaryCondition != EPlus::BoundaryConditionOutdoors
@@ -7592,6 +7594,32 @@ module HPXMLFile
         surf.under_slab_insulation_id = "#{surf_name}#{indexes[surf_name]}UnderSlabInsulation"
       end
     end
+  end
+
+  # Updates the args hash with key-value detailed properties for the
+  # given option name and TSV resource file.
+  #
+  # @param args [Hash] Map of :argument_name => value
+  # @param tsv_file_name [String] Name of the TSV resource file
+  # @param option_name [String] Name of the option in the TSV resource file
+  # @return [nil]
+  def self.get_option_properties(args, tsv_file_name, option_name)
+    return if option_name.nil?
+
+    tsv_dir = File.join(File.dirname(__FILE__), 'resources', 'options')
+    CSV.foreach(File.join(tsv_dir, tsv_file_name), col_sep: "\t", headers: true) do |row|
+      next if row['Option Name'] != option_name
+
+      # Match, add detailed properties to args hash
+      row.each do |key, value|
+        next if key == 'Option Name'
+
+        args[key.to_sym] = value
+      end
+      return
+    end
+
+    fail "Unexpected error: Could not look up #{option_name} in #{tsv_file_name}."
   end
 end
 
