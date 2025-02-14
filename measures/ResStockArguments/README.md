@@ -3863,6 +3863,98 @@ The round trip efficiency of the lithium ion battery. If not provided, the OS-HP
 
 <br/>
 
+**Vehicle: Type**
+
+The type of vehicle present at the home.
+
+- **Name:** ``vehicle_type``
+- **Type:** ``String``
+
+- **Required:** ``false``
+
+<br/>
+
+**Vehicle: EV Battery Usable Capacity**
+
+The usable capacity of the vehicle battery, only applies to electric vehicles. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
+
+- **Name:** ``vehicle_battery_usable_capacity``
+- **Type:** ``String``
+
+- **Required:** ``false``
+
+<br/>
+
+**Vehicle: Combined Fuel Economy**
+
+The combined fuel economy of the vehicle. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
+
+- **Name:** ``vehicle_fuel_economy_combined``
+- **Type:** ``String``
+
+- **Required:** ``false``
+
+<br/>
+
+**Vehicle: Miles Driven Per Year**
+
+The annual miles the vehicle is driven. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
+
+- **Name:** ``vehicle_miles_driven_per_year``
+- **Type:** ``String``
+
+- **Required:** ``false``
+
+<br/>
+
+**Vehicle: Fraction Charged at Home**
+
+The fraction of charging energy provided by the at-home charger to the vehicle, only applies to electric vehicles. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-vehicles'>HPXML Vehicles</a>) is used.
+
+- **Name:** ``vehicle_fraction_charged_home``
+- **Type:** ``String``
+
+- **Required:** ``false``
+
+<br/>
+
+**Electric Vehicle Charger: Present**
+
+Whether there is an electric vehicle charger present.
+
+- **Name:** ``ev_charger_present``
+- **Type:** ``Choice``
+
+- **Required:** ``false``
+
+- **Choices:** `auto`, `true`, `false`
+
+<br/>
+
+**Electric Vehicle Charger: Rated Charging Power**
+
+The rated power output of the EV charger. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-electric-vehicle-chargers'>HPXML Electric Vehicle Chargers</a>) is used.
+
+- **Name:** ``ev_charger_power``
+- **Type:** ``String``
+
+- **Required:** ``false``
+
+<br/>
+
+**Electric Vehicle Charger: Location**
+
+The space type for the EV charger. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-electric-vehicle-chargers'>HPXML Electric Vehicle Chargers</a>) is used.
+
+- **Name:** ``ev_charger_location``
+- **Type:** ``Choice``
+
+- **Required:** ``false``
+
+- **Choices:** `auto`, `garage`, `outside`
+
+<br/>
+
 **Lighting: Present**
 
 Whether there is lighting energy use.
