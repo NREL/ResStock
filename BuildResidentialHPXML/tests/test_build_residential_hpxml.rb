@@ -445,8 +445,7 @@ class BuildResidentialHPXMLTest < Minitest::Test
       args['slab_carpet_fraction'] = 0.0
       args['slab_carpet_r'] = 0.0
       args['ceiling_assembly_r'] = 39.3
-      args['roof_material_type'] = HPXML::RoofTypeAsphaltShingles
-      args['roof_color'] = HPXML::ColorMedium
+      args['enclosure_roof_material'] = 'Asphalt/Fiberglass Shingles, Medium'
       args['roof_assembly_r'] = 2.3
       args['radiant_barrier_attic_location'] = Constants::None
       args['radiant_barrier_grade'] = 1

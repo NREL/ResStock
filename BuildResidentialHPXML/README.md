@@ -1150,29 +1150,16 @@ Assembly R-value for the ceiling (attic floor).
 
 <br/>
 
-**Roof: Material Type**
+**Enclosure: Roof Material**
 
-The material type of the roof. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-roofs'>HPXML Roofs</a>) is used.
+The material type/color of the roof. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-roofs'>HPXML Roofs</a>) is used.
 
-- **Name:** ``roof_material_type``
+- **Name:** ``enclosure_roof_material``
 - **Type:** ``Choice``
 
 - **Required:** ``false``
 
-- **Choices:** `asphalt or fiberglass shingles`, `concrete`, `cool roof`, `slate or tile shingles`, `expanded polystyrene sheathing`, `metal surfacing`, `plastic/rubber/synthetic sheeting`, `shingles`, `wood shingles or shakes`
-
-<br/>
-
-**Roof: Color**
-
-The color of the roof. If not provided, the OS-HPXML default (see <a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-roofs'>HPXML Roofs</a>) is used.
-
-- **Name:** ``roof_color``
-- **Type:** ``Choice``
-
-- **Required:** ``false``
-
-- **Choices:** `dark`, `light`, `medium`, `medium dark`, `reflective`
+- **Choices:** `Asphalt/Fiberglass Shingles, Dark`, `Asphalt/Fiberglass Shingles, Medium`, `Asphalt/Fiberglass Shingles, Light`, `Asphalt/Fiberglass Shingles, Reflective`, `Tile/Slate, Dark`, `Tile/Slate, Medium`, `Tile/Slate, Light`, `Tile/Slate, Reflective`, `Metal, Dark`, `Metal, Medium`, `Metal, Light`, `Metal, Reflective`
 
 <br/>
 

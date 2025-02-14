@@ -42,8 +42,7 @@
     "slab_carpet_fraction": 0,
     "slab_carpet_r": 0,
     "ceiling_assembly_r": 18.45,
-    "roof_material_type": "asphalt or fiberglass shingles",
-    "roof_color": "medium",
+    "enclosure_roof_material": "Asphalt/Fiberglass Shingles, Medium",
     "roof_assembly_r": 1.99,
     "radiant_barrier_grade": 2,
     "radiant_barrier_attic_location": "none",
@@ -268,7 +267,7 @@
   },
   "tests/ASHRAE_Standard_140/L202AC.xml": {
     "parent_hpxml": "tests/ASHRAE_Standard_140/L200AC.xml",
-    "roof_color": "reflective",
+    "enclosure_roof_material": "Asphalt/Fiberglass Shingles, Reflective",
     "wall_color": "reflective"
   },
   "tests/ASHRAE_Standard_140/L302XC.xml": {
@@ -357,7 +356,7 @@
   },
   "tests/ASHRAE_Standard_140/L202AL.xml": {
     "parent_hpxml": "tests/ASHRAE_Standard_140/L200AL.xml",
-    "roof_color": "reflective",
+    "enclosure_roof_material": "Asphalt/Fiberglass Shingles, Reflective",
     "wall_color": "reflective"
   },
   "tests/HERS_HVAC/HVAC1a.xml": {
@@ -648,8 +647,7 @@
     "slab_carpet_fraction": 0,
     "slab_carpet_r": 0,
     "ceiling_assembly_r": 39.3,
-    "roof_material_type": "asphalt or fiberglass shingles",
-    "roof_color": "medium",
+    "enclosure_roof_material": "Asphalt/Fiberglass Shingles, Medium",
     "roof_assembly_r": 2.3,
     "radiant_barrier_grade": 2,
     "radiant_barrier_attic_location": "none",
@@ -1057,10 +1055,6 @@
   },
   "sample_files/base-vehicle-multiple.xml": {
     "parent_hpxml": "sample_files/base-vehicle-ev-charger.xml"
-  },
-  "sample_files/base-vehicle-ev-charger-occupancy-stochastic.xml": {
-    "parent_hpxml": "sample_files/base-vehicle-ev-charger.xml",
-    "schedules_filepaths": "../../HPXMLtoOpenStudio/resources/schedule_files/occupancy-stochastic-ev-charger.csv"
   },
   "sample_files/base-pv-battery-and-vehicle-ev.xml": {
     "parent_hpxml": "sample_files/base-pv-battery.xml",
@@ -3423,8 +3417,7 @@
     "foundation_wall_insulation_distance_to_bottom": null,
     "slab_thickness": null,
     "slab_carpet_fraction": null,
-    "roof_material_type": null,
-    "roof_color": "light",
+    "enclosure_roof_material": null,
     "wall_siding_type": null,
     "window_fraction_operable": null,
     "window_interior_shading_winter": null,
