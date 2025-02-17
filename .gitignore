@@ -21,7 +21,7 @@ buildstockbatch_crash_details.log
 
 ## Hawaii-specific 
 **/.ipynb_checkpoints/*
-**/data/*
+**/data/baseline_runs/
 !/resources/data/dictionary/outputs.csv
 env
 **/.bsq_cache
