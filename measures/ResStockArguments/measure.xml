@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments</name>
   <uid>c984bb9e-4ac4-4930-a399-9d23f8f6936a</uid>
-  <version_id>c09018f1-362a-4973-b32b-49f7b5577c18</version_id>
-  <version_modified>2025-02-12T16:22:04Z</version_modified>
+  <version_id>5cf15ad5-bf5f-4eda-861a-a65c691fe0d2</version_id>
+  <version_modified>2025-02-14T22:39:21Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArguments</class_name>
   <display_name>ResStock Arguments</display_name>
@@ -1274,9 +1274,9 @@
       <default_value>31.6</default_value>
     </argument>
     <argument>
-      <name>roof_material_type</name>
-      <display_name>Roof: Material Type</display_name>
-      <description>The material type of the roof. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-roofs'&gt;HPXML Roofs&lt;/a&gt;) is used.</description>
+      <name>enclosure_roof_material</name>
+      <display_name>Enclosure: Roof Material</display_name>
+      <description>The material type/color of the roof. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-roofs'&gt;HPXML Roofs&lt;/a&gt;) is used.</description>
       <type>Choice</type>
       <units></units>
       <required>false</required>
@@ -1287,75 +1287,52 @@
           <display_name>auto</display_name>
         </choice>
         <choice>
-          <value>asphalt or fiberglass shingles</value>
-          <display_name>asphalt or fiberglass shingles</display_name>
+          <value>Asphalt/Fiberglass Shingles, Dark</value>
+          <display_name>Asphalt/Fiberglass Shingles, Dark</display_name>
         </choice>
         <choice>
-          <value>concrete</value>
-          <display_name>concrete</display_name>
+          <value>Asphalt/Fiberglass Shingles, Medium</value>
+          <display_name>Asphalt/Fiberglass Shingles, Medium</display_name>
         </choice>
         <choice>
-          <value>cool roof</value>
-          <display_name>cool roof</display_name>
+          <value>Asphalt/Fiberglass Shingles, Light</value>
+          <display_name>Asphalt/Fiberglass Shingles, Light</display_name>
         </choice>
         <choice>
-          <value>slate or tile shingles</value>
-          <display_name>slate or tile shingles</display_name>
+          <value>Asphalt/Fiberglass Shingles, Reflective</value>
+          <display_name>Asphalt/Fiberglass Shingles, Reflective</display_name>
         </choice>
         <choice>
-          <value>expanded polystyrene sheathing</value>
-          <display_name>expanded polystyrene sheathing</display_name>
+          <value>Tile/Slate, Dark</value>
+          <display_name>Tile/Slate, Dark</display_name>
         </choice>
         <choice>
-          <value>metal surfacing</value>
-          <display_name>metal surfacing</display_name>
+          <value>Tile/Slate, Medium</value>
+          <display_name>Tile/Slate, Medium</display_name>
         </choice>
         <choice>
-          <value>plastic/rubber/synthetic sheeting</value>
-          <display_name>plastic/rubber/synthetic sheeting</display_name>
+          <value>Tile/Slate, Light</value>
+          <display_name>Tile/Slate, Light</display_name>
         </choice>
         <choice>
-          <value>shingles</value>
-          <display_name>shingles</display_name>
+          <value>Tile/Slate, Reflective</value>
+          <display_name>Tile/Slate, Reflective</display_name>
         </choice>
         <choice>
-          <value>wood shingles or shakes</value>
-          <display_name>wood shingles or shakes</display_name>
-        </choice>
-      </choices>
-    </argument>
-    <argument>
-      <name>roof_color</name>
-      <display_name>Roof: Color</display_name>
-      <description>The color of the roof. If not provided, the OS-HPXML default (see &lt;a href='https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-roofs'&gt;HPXML Roofs&lt;/a&gt;) is used.</description>
-      <type>Choice</type>
-      <units></units>
-      <required>false</required>
-      <model_dependent>false</model_dependent>
-      <choices>
-        <choice>
-          <value>auto</value>
-          <display_name>auto</display_name>
+          <value>Metal, Dark</value>
+          <display_name>Metal, Dark</display_name>
         </choice>
         <choice>
-          <value>dark</value>
-          <display_name>dark</display_name>
+          <value>Metal, Medium</value>
+          <display_name>Metal, Medium</display_name>
         </choice>
         <choice>
-          <value>light</value>
-          <display_name>light</display_name>
+          <value>Metal, Light</value>
+          <display_name>Metal, Light</display_name>
         </choice>
         <choice>
-          <value>medium</value>
-          <display_name>medium</display_name>
-        </choice>
-        <choice>
-          <value>medium dark</value>
-          <display_name>medium dark</display_name>
-        </choice>
-        <choice>
-          <value>reflective</value>
-          <display_name>reflective</display_name>
+          <value>Metal, Reflective</value>
+          <display_name>Metal, Reflective</display_name>
         </choice>
       </choices>
     </argument>
@@ -7684,7 +7661,7 @@
       <filename>README.md</filename>
       <filetype>md</filetype>
       <usage_type>readme</usage_type>
-      <checksum>39109EF9</checksum>
+      <checksum>8E3DCEB0</checksum>
     </file>
     <file>
       <filename>README.md.erb</filename>
@@ -7713,7 +7690,7 @@
       <filename>measure.txt</filename>
       <filetype>txt</filetype>
       <usage_type>resource</usage_type>
-      <checksum>232F0A3A</checksum>
+      <checksum>03E81BCB</checksum>
     </file>
     <file>
       <filename>resstock_arguments_test.rb</filename>
