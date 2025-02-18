@@ -194,7 +194,7 @@ class ScheduleGenerator
     sinks = random_shift_and_normalize(sink_activity_sch, random_offset)
     baths = random_shift_and_normalize(bath_activity_sch, random_offset)
     fixtures = [showers, sinks, baths].transpose.map(&:sum)
-    @schedules[SchedulesFile::Columns[:HotWaterFixtures].name] = fixtures.map { |flow| flow / fixtures.max }
+    @schedules[SchedulesFile::Columns[:HotWaterFixtures].name] = normalize(fixtures)
     fill_ev_schedules(mkc_activity_schedules, occupancy_schedules[:ev_occupant_presence])
     if @debug
       @schedules[SchedulesFile::Columns[:PresentOccupants].name] = occupancy_schedules[:present_occupants]
@@ -203,6 +203,9 @@ class ScheduleGenerator
     return true
   end
 
+  # TODO
+  #
+  # @return [TODO] TODO
   def simulate_occupant_activities()
     mkc_activity_schedules = [] # holds the markov-chain state for each of the seven simulated states for each occupant.
     # States are: 'sleeping', 'shower', 'laundry', 'cooking', 'dishwashing', 'absent', 'nothingAtHome'
@@ -533,8 +536,7 @@ class ScheduleGenerator
   #
   # @param mkc_activity_schedules [Array<Matrix>] Array of matrices containing Markov chain activity states for each occupant
   # @param time_index [int] time index in the array
-  # @return [int] The integer whose binary representation indicates the presence of occupants. Bit 0
-  # is presence of the first occupant, bit 1 is the presence of the second occupant, etc.
+  # @return [int] The integer whose binary representation indicates the presence of occupants. Bit 0 is presence of the first occupant, bit 1 is the presence of the second occupant, etc.
   def get_present_occupants(mkc_activity_schedules, time_index)
     sum = 0
     multiplier = 1
@@ -776,15 +778,15 @@ class ScheduleGenerator
         first_half_driving = (actual_driving_time / 2.0).ceil
         second_half_driving = actual_driving_time - first_half_driving
 
-        discharging_schedule += [1] * first_half_driving  # Start driving
-        discharging_schedule += [0] * idle_time           # Idle in the middle
-        discharging_schedule += [1] * second_half_driving # End driving
-        charging_schedule += [0] * activity_minutes
+        discharging_schedule.concat([1] * first_half_driving)  # Start driving
+        discharging_schedule.concat([0] * idle_time)           # Idle in the middle
+        discharging_schedule.concat([1] * second_half_driving) # End driving
+        charging_schedule.concat([0] * activity_minutes)
 
         driving_minutes_used += actual_driving_time
       else
-        charging_schedule += [1] * activity_minutes
-        discharging_schedule += [0] * activity_minutes
+        charging_schedule.concat([1] * activity_minutes)
+        discharging_schedule.concat([0] * activity_minutes)
       end
     end
     if driving_minutes_used < total_driving_minutes_per_year
@@ -799,7 +801,7 @@ class ScheduleGenerator
   # Fill EV battery charging and discharging schedules based on Markov chain simulation results
   #
   # @param markov_chain_simulation_result [Array<Matrix>] Array of matrices containing Markov chain simulation results for each occupant
-  # @return [void] Updates @schedules with EV battery charging and discharging schedules
+  # @return [nil] Updates @schedules with EV battery charging and discharging schedules
   def fill_ev_schedules(markov_chain_simulation_result, ev_occupant_presence)
     if @hpxml_bldg.vehicles.to_a.empty?
       return
@@ -891,9 +893,8 @@ class ScheduleGenerator
       interior_lighting_schedule << sch[month] * num_days_in_months[month]
     end
 
-    interior_lighting_schedule = interior_lighting_schedule.flatten
-    max_value = interior_lighting_schedule.max
-    interior_lighting_schedule.map { |s| s / max_value }
+    interior_lighting_schedule.flatten!
+    return normalize(interior_lighting_schedule)
   end
 
   # Generate occupancy schedules for sleeping, away, idle, EV presence and total occupancy.
@@ -949,6 +950,12 @@ class ScheduleGenerator
     end
   end
 
+  # TODO
+  #
+  # @param mkc_activity_schedules [TODO] TODO
+  # @param daily_schedules [TODO] TODO
+  # @param schedule_type [TODO] TODO
+  # @return [TODO]
   def generate_plug_load_schedule(mkc_activity_schedules, daily_schedules, schedule_type)
     schedule = Array.new(@total_days_in_year * @steps_in_day, 0.0)
     @total_days_in_year.times do |day|
@@ -988,6 +995,7 @@ class ScheduleGenerator
   #
   # @param mkc_activity_schedules [Array] Array of occupant activity schedules
   # @param args [Hash] Map of :argument_name => value
+  # @return [nil]
   def fill_lighting_schedule(mkc_activity_schedules, args)
     # Initialize base lighting schedule
     interior_lighting_schedule = initialize_interior_lighting_schedule(args)
@@ -1421,8 +1429,6 @@ class ScheduleGenerator
                                      weekend_monthly_shift_dict: @weekend_monthly_shift_dict)
     schedule = aggregate_array(schedule, @minutes_per_step)
 
-    # Normalize by peak value
-    peak_value = schedule.max
-    schedule.map { |value| value / peak_value }
+    return normalize(schedule)
   end
 end

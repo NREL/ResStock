@@ -3814,7 +3814,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
                                               args[:schedules_unavailable_period_dates].count(',')]
 
       if !args[:schedules_unavailable_period_window_natvent_availabilities].nil?
-        schedules_unavailable_period_lengths += [args[:schedules_unavailable_period_window_natvent_availabilities].count(',')]
+        schedules_unavailable_period_lengths.concat([args[:schedules_unavailable_period_window_natvent_availabilities].count(',')])
       end
 
       error = (schedules_unavailable_period_lengths.uniq.size != 1)
@@ -3891,13 +3891,13 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
                                     args[:emissions_electricity_units].count(','),
                                     args[:emissions_electricity_values_or_filepaths].count(',')]
 
-      emissions_scenario_lengths += [args[:emissions_electricity_number_of_header_rows].count(',')] unless args[:emissions_electricity_number_of_header_rows].nil?
-      emissions_scenario_lengths += [args[:emissions_electricity_column_numbers].count(',')] unless args[:emissions_electricity_column_numbers].nil?
+      emissions_scenario_lengths.concat([args[:emissions_electricity_number_of_header_rows].count(',')]) unless args[:emissions_electricity_number_of_header_rows].nil?
+      emissions_scenario_lengths.concat([args[:emissions_electricity_column_numbers].count(',')]) unless args[:emissions_electricity_column_numbers].nil?
 
       HPXML::fossil_fuels.each do |fossil_fuel|
         underscore_case = OpenStudio::toUnderscoreCase(fossil_fuel)
 
-        emissions_scenario_lengths += [args["emissions_#{underscore_case}_values".to_sym].count(',')] unless args["emissions_#{underscore_case}_values".to_sym].nil?
+        emissions_scenario_lengths.concat([args["emissions_#{underscore_case}_values".to_sym].count(',')]) unless args["emissions_#{underscore_case}_values".to_sym].nil?
       end
 
       error = (emissions_scenario_lengths.uniq.size != 1)
@@ -3910,8 +3910,8 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
       HPXML::all_fuels.each do |fuel|
         underscore_case = OpenStudio::toUnderscoreCase(fuel)
 
-        bills_scenario_lengths += [args["utility_bill_#{underscore_case}_fixed_charges".to_sym].count(',')] unless args["utility_bill_#{underscore_case}_fixed_charges".to_sym].nil?
-        bills_scenario_lengths += [args["utility_bill_#{underscore_case}_marginal_rates".to_sym].count(',')] unless args["utility_bill_#{underscore_case}_marginal_rates".to_sym].nil?
+        bills_scenario_lengths.concat([args["utility_bill_#{underscore_case}_fixed_charges".to_sym].count(',')]) unless args["utility_bill_#{underscore_case}_fixed_charges".to_sym].nil?
+        bills_scenario_lengths.concat([args["utility_bill_#{underscore_case}_marginal_rates".to_sym].count(',')]) unless args["utility_bill_#{underscore_case}_marginal_rates".to_sym].nil?
       end
 
       error = (bills_scenario_lengths.uniq.size != 1)
