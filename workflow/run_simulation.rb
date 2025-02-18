@@ -18,7 +18,7 @@ $timeseries_types = ['ALL', 'total', 'fuels', 'enduses', 'systemuses', 'emission
 def run_workflow(basedir, rundir, hpxml, debug, skip_validation, add_comp_loads,
                  output_format, building_id, ep_input_format, stochastic_schedules,
                  hourly_outputs, daily_outputs, monthly_outputs, timestep_outputs,
-                 skip_simulation)
+                 skip_simulation, master_seed)
 
   measures_dir = File.join(basedir, '..')
   measures = {}
@@ -32,6 +32,7 @@ def run_workflow(basedir, rundir, hpxml, debug, skip_validation, add_comp_loads,
     args['output_csv_path'] = File.join(rundir, 'stochastic.csv')
     args['debug'] = debug
     args['building_id'] = building_id
+    args['schedules_random_seed'] = master_seed
     measures[measure_subdir] = [args]
   end
 
@@ -172,6 +173,11 @@ OptionParser.new do |opts|
     options[:stochastic_schedules] = true
   end
 
+  options[:master_seed] = nil
+  opts.on('--master-seed SEED', Integer, 'Master seed for stochastic occupancy schedule random number generator') do |t|
+    options[:master_seed] = t
+  end
+
   options[:ep_input_format] = 'idf'
   opts.on('--ep-input-format TYPE', 'EnergyPlus input file format (idf, epjson)') do |t|
     options[:ep_input_format] = t
@@ -236,7 +242,7 @@ else
   success = run_workflow(basedir, rundir, options[:hpxml], options[:debug], options[:skip_validation], options[:add_comp_loads],
                          options[:output_format], options[:building_id], options[:ep_input_format], options[:stochastic_schedules],
                          options[:hourly_outputs], options[:daily_outputs], options[:monthly_outputs], options[:timestep_outputs],
-                         options[:skip_simulation])
+                         options[:skip_simulation], options[:master_seed])
 
   if not success
     exit! 1

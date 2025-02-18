@@ -97,13 +97,13 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
 
     arg = OpenStudio::Measure::OSArgument::makeBoolArgument('include_annual_unmet_hours', false)
     arg.setDisplayName('Generate Annual Output: Unmet Hours')
-    arg.setDescription('Generates annual unmet hours for heating and cooling.')
+    arg.setDescription('Generates annual unmet hours for heating, cooling, and EV driving.')
     arg.setDefaultValue(true)
     args << arg
 
     arg = OpenStudio::Measure::OSArgument::makeBoolArgument('include_annual_peak_fuels', false)
     arg.setDisplayName('Generate Annual Output: Peak Fuels')
-    arg.setDescription('Generates annual electricity peaks for summer/winter.')
+    arg.setDescription('Generates annual/summer/winter electricity peaks.')
     arg.setDefaultValue(true)
     args << arg
 
@@ -211,7 +211,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
 
     arg = OpenStudio::Measure::OSArgument::makeBoolArgument('include_timeseries_unmet_hours', false)
     arg.setDisplayName('Generate Timeseries Output: Unmet Hours')
-    arg.setDescription('Generates timeseries unmet hours for heating and cooling.')
+    arg.setDescription('Generates timeseries unmet hours for heating, cooling, and EV driving.')
     arg.setDefaultValue(false)
     args << arg
 
@@ -381,12 +381,12 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     end
 
     # Fuel outputs
-    @fuels.each do |_fuel_type, fuel|
-      fuel.meters.each do |meter|
-        result << OpenStudio::IdfObject.load("Output:Meter,#{meter},runperiod;").get
-        if args[:include_timeseries_fuel_consumptions]
-          result << OpenStudio::IdfObject.load("Output:Meter,#{meter},#{args[:timeseries_frequency]};").get
-        end
+    @fuels.each do |(_fuel_type, _total_or_net), fuel|
+      next if fuel.meter.nil?
+
+      result << OpenStudio::IdfObject.load("Output:Meter,#{fuel.meter},runperiod;").get
+      if args[:include_timeseries_fuel_consumptions]
+        result << OpenStudio::IdfObject.load("Output:Meter,#{fuel.meter},#{args[:timeseries_frequency]};").get
       end
     end
 
@@ -449,7 +449,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
 
     # Peak Fuel outputs (annual only)
     @peak_fuels.values.each do |peak_fuel|
-      result << OpenStudio::IdfObject.load("Output:Table:Monthly,#{peak_fuel.report},2,Electricity:FacilityEVCharging,Maximum;").get
+      result << OpenStudio::IdfObject.load("Output:Table:Monthly,#{peak_fuel.report},2,#{peak_fuel.meter},Maximum;").get
     end
 
     # Peak Load outputs (annual only)
@@ -628,15 +628,15 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     end
 
     # Retrieve outputs
-    outputs = get_outputs(runner, args)
+    get_outputs(runner, args)
 
-    if not check_for_errors(runner, outputs)
+    if not check_for_errors(runner)
       return false
     end
 
     # Write/report results
-    report_runperiod_output_results(runner, outputs, args, annual_output_path)
-    report_timeseries_output_results(runner, outputs, timeseries_output_path, args, timestamps_dst, timestamps_utc)
+    report_runperiod_output_results(runner, args, annual_output_path)
+    report_timeseries_output_results(runner, timeseries_output_path, args, timestamps_dst, timestamps_utc)
 
     return true
   end
@@ -645,7 +645,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   #
   # @param msgpackDataTimeseries [TODO] TODO
   # @param msgpackData [TODO] TODO
-  # @param hpxml_header [TODO] TODO
+  # @param hpxml_header [HPXML::Header] HPXML Header object (one per HPXML file)
   # @param hpxml_bldgs [TODO] TODO
   # @param args [Hash] Map of :argument_name => value
   # @return [TODO] TODO
@@ -743,7 +743,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   #
   # @param timeseries_output [TODO] TODO
   # @param timeseries_frequency [TODO] TODO
-  # @param average [TODO] TODO
+  # @param average [Boolean] TODO
   # @return [TODO] TODO
   def rollup_timeseries_output_to_daily_or_monthly(timeseries_output, timeseries_frequency, average = false)
     year = @hpxml_header.sim_calendar_year
@@ -768,23 +768,21 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   # @param args [Hash] Map of :argument_name => value
   # @return [TODO] TODO
   def get_outputs(runner, args)
-    outputs = {}
-
     args = setup_timeseries_includes(@emissions, args)
 
     # Fuel Uses
-    @fuels.each do |_fuel_type, fuel|
-      fuel.annual_output = get_report_meter_data_annual(fuel.meters)
+    @fuels.each do |(_fuel_type, _total_or_net), fuel|
+      fuel.annual_output = get_report_meter_data_annual([fuel.meter])
       next unless args[:include_timeseries_fuel_consumptions]
 
-      fuel.timeseries_output = get_report_meter_data_timeseries(fuel.meters, UnitConversions.convert(1.0, 'J', fuel.timeseries_units), 0, args[:timeseries_frequency])
+      fuel.timeseries_output = get_report_meter_data_timeseries([fuel.meter], UnitConversions.convert(1.0, 'J', fuel.timeseries_units), 0, args[:timeseries_frequency])
     end
 
     # Peak Electricity Consumption
     is_southern_hemisphere = @model.getBuilding.additionalProperties.getFeatureAsBoolean('is_southern_hemisphere').get
     is_northern_hemisphere = !is_southern_hemisphere
     @peak_fuels.each do |key, peak_fuel|
-      _fuel, season = key
+      _fuel, _total_or_net, season = key
       if (season == PFT::Summer && is_northern_hemisphere) || (season == PFT::Winter && is_southern_hemisphere)
         months = ['June', 'July', 'August']
       elsif (season == PFT::Winter && is_northern_hemisphere) || (season == PFT::Summer && is_southern_hemisphere)
@@ -793,7 +791,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
         months = ['Maximum of Months']
       end
       for month in months
-        val = get_tabular_data_value(peak_fuel.report.upcase, 'Meter', 'Custom Monthly Report', [month], 'ELECTRICITY:FACILITYEVCHARGING {Maximum}', peak_fuel.annual_units)
+        val = get_tabular_data_value(peak_fuel.report.upcase, 'Meter', 'Custom Monthly Report', [month], "#{peak_fuel.meter.upcase} {Maximum}", peak_fuel.annual_units)
         peak_fuel.annual_output = [peak_fuel.annual_output.to_f, val].max
       end
     end
@@ -903,7 +901,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
       [htg_fan_pump_end_use, backup_htg_fan_pump_end_use, clg_fan_pump_end_use].each do |end_use|
         next if end_use.annual_output_by_system[sys_id].nil?
 
-        apply_multiplier_to_output(end_use, nil, sys_id, energy_multiplier)
+        apply_multiplier_to_output(end_use, [], sys_id, energy_multiplier)
       end
     end
     @end_uses.delete([FT::Elec, 'TempGSHPSharedPump'])
@@ -921,6 +919,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
       end
     end
 
+    fuel_types = @fuels.keys.map { |fuel_type, _total_or_net| fuel_type }.uniq
     @hpxml_bldgs.each do |hpxml_bldg|
       # Apply Heating/Cooling DSEs
       (hpxml_bldg.heating_systems + hpxml_bldg.heat_pumps).each do |htg_system|
@@ -930,13 +929,14 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
         next if htg_system.distribution_system.annual_heating_dse.nil?
 
         dse = htg_system.distribution_system.annual_heating_dse
-        @fuels.each do |fuel_type, fuel|
+        fuel_types.each do |fuel_type|
           [EUT::Heating, EUT::HeatingHeatPumpBackup, EUT::HeatingFanPump, EUT::HeatingHeatPumpBackupFanPump].each do |end_use_type|
             end_use = @end_uses[[fuel_type, end_use_type]]
             next if end_use.nil?
             next if end_use.annual_output_by_system[htg_system.id].nil?
 
-            apply_multiplier_to_output(end_use, fuel, htg_system.id, 1.0 / dse)
+            fuels = @fuels.select { |k, _v| k[0] == fuel_type }.values
+            apply_multiplier_to_output(end_use, fuels, htg_system.id, 1.0 / dse)
           end
         end
       end
@@ -947,13 +947,14 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
         next if clg_system.distribution_system.annual_cooling_dse.nil?
 
         dse = clg_system.distribution_system.annual_cooling_dse
-        @fuels.each do |fuel_type, fuel|
+        fuel_types.each do |fuel_type|
           [EUT::Cooling, EUT::CoolingFanPump].each do |end_use_type|
             end_use = @end_uses[[fuel_type, end_use_type]]
             next if end_use.nil?
             next if end_use.annual_output_by_system[clg_system.id].nil?
 
-            apply_multiplier_to_output(end_use, fuel, clg_system.id, 1.0 / dse)
+            fuels = @fuels.select { |k, _v| k[0] == fuel_type }.values
+            apply_multiplier_to_output(end_use, fuels, clg_system.id, 1.0 / dse)
           end
         end
       end
@@ -971,7 +972,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
           dhw_ids = hpxml_bldg.water_heating_systems.map { |dhw| dhw.id }
         end
         dhw_ids.each do |dhw_id|
-          apply_multiplier_to_output(@loads[LT::HotWaterDelivered], @loads[LT::HotWaterSolarThermal], dhw_id, 1.0 / (1.0 - solar_system.solar_fraction))
+          apply_multiplier_to_output(@loads[LT::HotWaterDelivered], [@loads[LT::HotWaterSolarThermal]], dhw_id, 1.0 / (1.0 - solar_system.solar_fraction))
         end
       end
     end
@@ -1022,30 +1023,26 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
       obj.hourly_output = obj.hourly_output_by_system.values.transpose.map(&:sum)
     end
 
-    # Total/Net Electricity (Net includes, e.g., PV and generators)
-    outputs[:elec_prod_annual] = @end_uses.select { |k, eu| k[0] == FT::Elec && eu.is_negative }.map { |_k, eu| eu.annual_output.to_f }.sum(0.0) # Negative value
-    outputs[:elec_net_annual] = @fuels[FT::Elec].annual_output.to_f + outputs[:elec_prod_annual]
-    if args[:include_timeseries_fuel_consumptions]
-      prod_end_uses = @end_uses.select { |k, eu| k[0] == FT::Elec && eu.is_negative && eu.timeseries_output.size > 0 }.map { |_k, v| v.timeseries_output }
-      outputs[:elec_prod_timeseries] = prod_end_uses.transpose.map(&:sum)
-      outputs[:elec_prod_timeseries] = [0.0] * @timestamps.size if outputs[:elec_prod_timeseries].empty?
-      outputs[:elec_net_timeseries] = @fuels[FT::Elec].timeseries_output.zip(outputs[:elec_prod_timeseries]).map { |x, y| x + y }
-    end
-
-    # Total/Net Energy (Net includes, e.g., PV and generators)
+    # Total/Net Energy
     @totals[TE::Total].annual_output = 0.0
-    @fuels.each do |_fuel_type, fuel|
-      @totals[TE::Total].annual_output += fuel.annual_output
+    @totals[TE::Net].annual_output = 0.0
+    @fuels.each do |(fuel_type, total_or_net), fuel|
+      if fuel_type == FT::Elec
+        te_types = [total_or_net]
+      else
+        te_types = [TE::Total, TE::Net]
+      end
+
+      te_types.each do |te_type|
+        @totals[te_type].annual_output += fuel.annual_output
+      end
       next unless args[:include_timeseries_total_consumptions] && fuel.timeseries_output.sum != 0.0
 
-      @totals[TE::Total].timeseries_output = [0.0] * @timestamps.size if @totals[TE::Total].timeseries_output.empty?
-      unit_conv = UnitConversions.convert(1.0, fuel.timeseries_units, @totals[TE::Total].timeseries_units)
-      @totals[TE::Total].timeseries_output = @totals[TE::Total].timeseries_output.zip(fuel.timeseries_output).map { |x, y| x + y * unit_conv }
-    end
-    @totals[TE::Net].annual_output = @totals[TE::Total].annual_output + outputs[:elec_prod_annual]
-    if args[:include_timeseries_total_consumptions]
-      unit_conv = UnitConversions.convert(1.0, get_timeseries_units_from_fuel_type(FT::Elec), @totals[TE::Total].timeseries_units)
-      @totals[TE::Net].timeseries_output = @totals[TE::Total].timeseries_output.zip(outputs[:elec_prod_timeseries]).map { |x, y| x + y * unit_conv }
+      te_types.each do |te_type|
+        @totals[te_type].timeseries_output = [0.0] * @timestamps.size if @totals[te_type].timeseries_output.empty?
+        unit_conv = UnitConversions.convert(1.0, fuel.timeseries_units, @totals[te_type].timeseries_units)
+        @totals[te_type].timeseries_output = @totals[te_type].timeseries_output.zip(fuel.timeseries_output).map { |x, y| x + y * unit_conv }
+      end
     end
 
     # Resilience
@@ -1221,7 +1218,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
       end
 
       key_values.each do |key_value|
-        @output_variables[[output_variable_name, key_value]] = OutputVariable.new
+        @output_variables[[output_variable_name, key_value]] = OutputVariableOrMeter.new
         @output_variables[[output_variable_name, key_value]].name = "#{output_variable_name}: #{key_value.split.map(&:capitalize).join(' ')}"
         @output_variables[[output_variable_name, key_value]].timeseries_units = units
         @output_variables[[output_variable_name, key_value]].timeseries_output = get_report_variable_data_timeseries([key_value], [output_variable_name], 1, 0, args[:timeseries_frequency])
@@ -1237,7 +1234,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
         next
       end
 
-      @output_meters[output_meter_name] = OutputMeter.new
+      @output_meters[output_meter_name] = OutputVariableOrMeter.new
       @output_meters[output_meter_name].name = output_meter_name
       @output_meters[output_meter_name].timeseries_units = units
       @output_meters[output_meter_name].timeseries_output = get_report_meter_data_timeseries([output_meter_name], 1, 0, args[:timeseries_frequency])
@@ -1362,27 +1359,20 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
         end
 
         # Roll up end use emissions to fuel emissions
-        @fuels.each do |fuel_type, _fuel|
-          if fuel_type == FT::Elec
-            emission_types = [TE::Total, TE::Net]
-          else
-            emission_types = [TE::Total]
-          end
-          emission_types.each do |emission_type|
-            fuel_key = [fuel_type, emission_type]
-            @emissions[key].annual_output_by_fuel[fuel_key] = 0.0
-            @emissions[key].annual_output_by_end_use.keys.each do |eu_key|
-              next unless eu_key[0] == fuel_type
-              next if emission_type == TE::Total && @end_uses[eu_key].is_negative # Generation not included in total
-              next if @emissions[key].annual_output_by_end_use[eu_key] == 0
+        @fuels.each do |(fuel_type, total_or_net), _fuel|
+          fuel_key = [fuel_type, total_or_net]
+          @emissions[key].annual_output_by_fuel[fuel_key] = 0.0
+          @emissions[key].annual_output_by_end_use.keys.each do |eu_key|
+            next unless eu_key[0] == fuel_type
+            next if total_or_net == TE::Total && @end_uses[eu_key].is_negative # Generation not included in total
+            next if @emissions[key].annual_output_by_end_use[eu_key] == 0
 
-              @emissions[key].annual_output_by_fuel[fuel_key] += @emissions[key].annual_output_by_end_use[eu_key]
+            @emissions[key].annual_output_by_fuel[fuel_key] += @emissions[key].annual_output_by_end_use[eu_key]
 
-              next unless args[:include_timeseries_emissions] || args[:include_timeseries_emission_fuels]
+            next unless args[:include_timeseries_emissions] || args[:include_timeseries_emission_fuels]
 
-              @emissions[key].timeseries_output_by_fuel[fuel_key] = [0.0] * @emissions[key].timeseries_output_by_end_use[eu_key].size if @emissions[key].timeseries_output_by_fuel[fuel_key].nil?
-              @emissions[key].timeseries_output_by_fuel[fuel_key] = @emissions[key].timeseries_output_by_fuel[fuel_key].zip(@emissions[key].timeseries_output_by_end_use[eu_key]).map { |x, y| x + y }
-            end
+            @emissions[key].timeseries_output_by_fuel[fuel_key] = [0.0] * @emissions[key].timeseries_output_by_end_use[eu_key].size if @emissions[key].timeseries_output_by_fuel[fuel_key].nil?
+            @emissions[key].timeseries_output_by_fuel[fuel_key] = @emissions[key].timeseries_output_by_fuel[fuel_key].zip(@emissions[key].timeseries_output_by_end_use[eu_key]).map { |x, y| x + y }
           end
         end
 
@@ -1397,8 +1387,6 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
         end
       end
     end
-
-    return outputs
   end
 
   # TODO
@@ -1415,12 +1403,9 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
 
   # TODO
   #
-  # @param timeseries_frequency [TODO] TODO
-  # @param sim_start_day [TODO] TODO
-  # @param sim_end_day [TODO] TODO
-  # @param year [Integer] the calendar year
+  # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
   # @return [TODO] TODO
-  def check_for_errors(runner, outputs)
+  def check_for_errors(runner)
     tol = 0.1
 
     # ElectricityProduced:Facility contains:
@@ -1449,18 +1434,18 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     end
 
     # Check sum of electricity produced end use outputs match total output from meter
-    if (outputs[:elec_prod_annual] - meter_elec_produced).abs > tol
-      runner.registerError("#{FT::Elec} produced category end uses (#{outputs[:elec_prod_annual].round(3)}) do not sum to total (#{meter_elec_produced.round(3)}).")
+    sum_elec_prod_annual = @end_uses.select { |k, eu| k[0] == FT::Elec && eu.is_negative }.map { |_k, eu| eu.annual_output.to_f }.sum(0.0) # Negative value
+    if (sum_elec_prod_annual - meter_elec_produced).abs > tol
+      runner.registerError("#{FT::Elec} produced category end uses (#{sum_elec_prod_annual.round(3)}) do not sum to total (#{meter_elec_produced.round(3)}).")
       return false
     end
 
     # Check sum of end use outputs match fuel outputs from meters
-    @fuels.keys.each do |fuel_type|
+    @fuels.keys.each do |fuel_type, total_or_net|
+      next if fuel_type == FT::Elec && total_or_net == TE::Total # Use net electricity, not total electricity
+
       sum_categories = @end_uses.select { |k, _eu| k[0] == fuel_type }.map { |_k, eu| eu.annual_output.to_f }.sum(0.0)
-      meter_fuel_total = @fuels[fuel_type].annual_output.to_f
-      if fuel_type == FT::Elec
-        meter_fuel_total += meter_elec_produced
-      end
+      meter_fuel_total = @fuels[[fuel_type, total_or_net]].annual_output.to_f
 
       next unless (sum_categories - meter_fuel_total).abs > tol
 
@@ -1509,11 +1494,10 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   # TODO
   #
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-  # @param outputs [TODO] TODO
   # @param args [Hash] Map of :argument_name => value
   # @param annual_output_path [TODO] TODO
   # @return [TODO] TODO
-  def report_runperiod_output_results(runner, outputs, args, annual_output_path)
+  def report_runperiod_output_results(runner, args, annual_output_path)
     # Set rounding precision for run period (e.g., annual) outputs.
     if args[:output_format] == 'msgpack'
       # No need to round; no file size penalty to storing full precision
@@ -1544,11 +1528,8 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
 
     # Fuels
     if args[:include_annual_fuel_consumptions]
-      @fuels.each do |fuel_type, fuel|
+      @fuels.each do |(_fuel_type, _total_or_net), fuel|
         results_out << ["#{fuel.name} (#{fuel.annual_units})", fuel.annual_output.to_f.round(n_digits)]
-        if fuel_type == FT::Elec
-          results_out << ['Fuel Use: Electricity: Net (MBtu)', outputs[:elec_net_annual].round(n_digits)]
-        end
       end
       results_out << [line_break]
     end
@@ -1597,7 +1578,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     if args[:include_annual_emission_end_uses]
       if not @emissions.empty?
         @emissions.each do |_scenario_key, emission|
-          @fuels.keys.each do |fuel|
+          @fuels.keys.each do |fuel, _total_or_net|
             @end_uses.keys.each do |key|
               fuel_type, end_use_type = key
               next unless fuel_type == fuel
@@ -1689,12 +1670,12 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   # TODO
   #
   # @param runner [OpenStudio::Measure::OSRunner] Object typically used to display warnings
-  # @param outputs [TODO] TODO
+  # @param timeseries_output_path [TODO] TODO
   # @param args [Hash] Map of :argument_name => value
   # @param timestamps_dst [TODO] TODO
   # @param timestamps_utc [TODO] TODO
   # @return [TODO] TODO
-  def report_timeseries_output_results(runner, outputs, timeseries_output_path, args, timestamps_dst, timestamps_utc)
+  def report_timeseries_output_results(runner, timeseries_output_path, args, timestamps_dst, timestamps_utc)
     return if @timestamps.nil?
 
     if not ['timestep', 'hourly', 'daily', 'monthly'].include? args[:timeseries_frequency]
@@ -1744,11 +1725,6 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     end
     if args[:include_timeseries_fuel_consumptions]
       fuel_data = @fuels.values.select { |x| x.timeseries_output.sum(0.0) != 0 }.map { |x| [x.name, x.timeseries_units] + x.timeseries_output.map { |v| v.round(n_digits) } }
-
-      if outputs[:elec_net_timeseries].sum != 0
-        # Also add Net Electricity
-        fuel_data.insert(1, ['Fuel Use: Electricity: Net', get_timeseries_units_from_fuel_type(FT::Elec)] + outputs[:elec_net_timeseries].map { |v| v.round(n_digits) })
-      end
     else
       fuel_data = []
     end
@@ -2233,15 +2209,15 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   # TODO
   #
   # @param obj [TODO] TODO
-  # @param sync_obj [TODO] TODO
+  # @param sync_objs [TODO] TODO
   # @param sys_id [TODO] TODO
   # @param mult [TODO] TODO
   # @return [TODO] TODO
-  def apply_multiplier_to_output(obj, sync_obj, sys_id, mult)
+  def apply_multiplier_to_output(obj, sync_objs, sys_id, mult)
     # Annual
     orig_value = obj.annual_output_by_system[sys_id]
     obj.annual_output_by_system[sys_id] = orig_value * mult
-    if not sync_obj.nil?
+    sync_objs.each do |sync_obj|
       sync_obj.annual_output += (orig_value * mult - orig_value)
     end
 
@@ -2249,8 +2225,8 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     if not obj.timeseries_output_by_system.empty?
       orig_values = obj.timeseries_output_by_system[sys_id]
       obj.timeseries_output_by_system[sys_id] = obj.timeseries_output_by_system[sys_id].map { |x| x * mult }
-      if not sync_obj.nil?
-        diffs = obj.timeseries_output_by_system[sys_id].zip(orig_values).map { |x, y| x - y }
+      diffs = obj.timeseries_output_by_system[sys_id].zip(orig_values).map { |x, y| x - y }
+      sync_objs.each do |sync_obj|
         sync_obj.timeseries_output = sync_obj.timeseries_output.zip(diffs).map { |x, y| x + y }
       end
     end
@@ -2326,13 +2302,13 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
 
   # TODO
   class Fuel < BaseOutput
-    # @param meters [TODO] TODO
-    def initialize(meters: [])
+    # @param meter [TODO] TODO
+    def initialize(meter:)
       super()
-      @meters = meters
+      @meter = meter
       @timeseries_output_by_system = {}
     end
-    attr_accessor(:meters, :timeseries_output_by_system)
+    attr_accessor(:meter, :timeseries_output_by_system)
   end
 
   # TODO
@@ -2340,7 +2316,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     # @param outputs [TODO] TODO
     # @param is_negative [TODO] TODO
     # @param is_storage [TODO] TODO
-    def initialize(outputs: [], is_negative: false, is_storage: false)
+    def initialize(outputs:, is_negative: false, is_storage: false)
       super()
       @variables = outputs.select { |o| !o[2].include?(':') }
       @meters = outputs.select { |o| o[2].include?(':') }
@@ -2374,7 +2350,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   # TODO
   class HotWater < BaseOutput
     # @param outputs [TODO] TODO
-    def initialize(outputs: [])
+    def initialize(outputs:)
       super()
       @variables = outputs.select { |o| !o[2].include?(':') }
       @meters = outputs.select { |o| o[2].include?(':') }
@@ -2387,7 +2363,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   # TODO
   class Resilience < BaseOutput
     # @param variables [TODO] TODO
-    def initialize(variables: [])
+    def initialize(variables:)
       super()
       @variables = variables
     end
@@ -2397,11 +2373,13 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   # TODO
   class PeakFuel < BaseOutput
     # @param report [TODO] TODO
-    def initialize(report:)
+    # @param meter [TODO] TODO
+    def initialize(report:, meter:)
       super()
       @report = report
+      @meter = meter
     end
-    attr_accessor(:report)
+    attr_accessor(:report, :meter)
   end
 
   # TODO
@@ -2438,16 +2416,6 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
       @ems_variable = ems_variable
     end
     attr_accessor(:ems_variable)
-  end
-
-  # TODO
-  class IdealLoad < BaseOutput
-    # @param variables [TODO] TODO
-    def initialize(variables: [])
-      super()
-      @variables = variables
-    end
-    attr_accessor(:variables)
   end
 
   # TODO
@@ -2495,15 +2463,7 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
   end
 
   # TODO
-  class OutputVariable < BaseOutput
-    def initialize
-      super()
-    end
-    attr_accessor()
-  end
-
-  # TODO
-  class OutputMeter < BaseOutput
+  class OutputVariableOrMeter < BaseOutput
     def initialize
       super()
     end
@@ -2648,20 +2608,25 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
     # Fuels
 
     @fuels = {}
-    @fuels[FT::Elec] = Fuel.new(meters: ['Electricity:FacilityEVCharging'.upcase]) # Total Electricity; PV is subtracted later for Net Electricity output
-    @fuels[FT::Gas] = Fuel.new(meters: ["#{EPlus::FuelTypeNaturalGas}:Facility"])
-    @fuels[FT::Oil] = Fuel.new(meters: ["#{EPlus::FuelTypeOil}:Facility"])
-    @fuels[FT::Propane] = Fuel.new(meters: ["#{EPlus::FuelTypePropane}:Facility"])
-    @fuels[FT::WoodCord] = Fuel.new(meters: ["#{EPlus::FuelTypeWoodCord}:Facility"])
-    @fuels[FT::WoodPellets] = Fuel.new(meters: ["#{EPlus::FuelTypeWoodPellets}:Facility"])
-    @fuels[FT::Coal] = Fuel.new(meters: ["#{EPlus::FuelTypeCoal}:Facility"])
+    @fuels[[FT::Elec, TE::Total]] = Fuel.new(meter: Outputs::MeterCustomElectricityTotal.upcase)
+    @fuels[[FT::Elec, TE::Net]] = Fuel.new(meter: Outputs::MeterCustomElectricityNet.upcase)
+    @fuels[[FT::Gas, TE::Total]] = Fuel.new(meter: "#{EPlus::FuelTypeNaturalGas}:Facility")
+    @fuels[[FT::Oil, TE::Total]] = Fuel.new(meter: "#{EPlus::FuelTypeOil}:Facility")
+    @fuels[[FT::Propane, TE::Total]] = Fuel.new(meter: "#{EPlus::FuelTypePropane}:Facility")
+    @fuels[[FT::WoodCord, TE::Total]] = Fuel.new(meter: "#{EPlus::FuelTypeWoodCord}:Facility")
+    @fuels[[FT::WoodPellets, TE::Total]] = Fuel.new(meter: "#{EPlus::FuelTypeWoodPellets}:Facility")
+    @fuels[[FT::Coal, TE::Total]] = Fuel.new(meter: "#{EPlus::FuelTypeCoal}:Facility")
 
-    @fuels.each do |fuel_type, fuel|
-      fuel.name = "Fuel Use: #{fuel_type}: Total"
+    @fuels.each do |(fuel_type, total_or_net), fuel|
+      if total_or_net == TE::Net
+        fuel.name = "Fuel Use: #{fuel_type}: Net"
+      elsif total_or_net == TE::Total
+        fuel.name = "Fuel Use: #{fuel_type}: Total"
+      end
       fuel.annual_units = 'MBtu'
       fuel.timeseries_units = get_timeseries_units_from_fuel_type(fuel_type)
       if @end_uses.count { |key, end_use| key[0] == fuel_type && end_use.variables.size + end_use.meters.size > 0 } == 0
-        fuel.meters = []
+        fuel.meter = nil
       end
     end
 
@@ -2715,13 +2680,20 @@ class ReportSimulationOutput < OpenStudio::Measure::ReportingMeasure
 
     # Peak Fuels
     @peak_fuels = {}
-    @peak_fuels[[FT::Elec, PFT::Winter]] = PeakFuel.new(report: 'Peak Electricity Total')
-    @peak_fuels[[FT::Elec, PFT::Summer]] = PeakFuel.new(report: 'Peak Electricity Total')
-    @peak_fuels[[FT::Elec, PFT::Annual]] = PeakFuel.new(report: 'Peak Electricity Total')
+    @peak_fuels[[FT::Elec, TE::Total, PFT::Winter]] = PeakFuel.new(report: 'Peak Electricity Total', meter: Outputs::MeterCustomElectricityTotal)
+    @peak_fuels[[FT::Elec, TE::Total, PFT::Summer]] = PeakFuel.new(report: 'Peak Electricity Total', meter: Outputs::MeterCustomElectricityTotal)
+    @peak_fuels[[FT::Elec, TE::Total, PFT::Annual]] = PeakFuel.new(report: 'Peak Electricity Total', meter: Outputs::MeterCustomElectricityTotal)
+    @peak_fuels[[FT::Elec, TE::Net, PFT::Winter]] = PeakFuel.new(report: 'Peak Electricity Net', meter: Outputs::MeterCustomElectricityNet)
+    @peak_fuels[[FT::Elec, TE::Net, PFT::Summer]] = PeakFuel.new(report: 'Peak Electricity Net', meter: Outputs::MeterCustomElectricityNet)
+    @peak_fuels[[FT::Elec, TE::Net, PFT::Annual]] = PeakFuel.new(report: 'Peak Electricity Net', meter: Outputs::MeterCustomElectricityNet)
 
     @peak_fuels.each do |key, peak_fuel|
-      fuel_type, peak_fuel_type = key
-      peak_fuel.name = "Peak #{fuel_type}: #{peak_fuel_type} Total"
+      fuel_type, total_or_net, peak_fuel_type = key
+      if total_or_net == TE::Net
+        peak_fuel.name = "Peak #{fuel_type}: #{peak_fuel_type} Net"
+      elsif total_or_net == TE::Total
+        peak_fuel.name = "Peak #{fuel_type}: #{peak_fuel_type} Total"
+      end
       peak_fuel.annual_units = 'W'
     end
 

@@ -750,6 +750,15 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
     arg.setDefaultValue(HPXML::WallTypeWoodStud)
     args << arg
 
+    # TODO: wall color + wall siding type --> enclosure_wall_siding
+
+    # enclosure_wall_siding_choices = get_option_names('wall_siding.tsv')
+
+    # arg = OpenStudio::Measure::OSArgument::makeChoiceArgument('enclosure_wall_siding', enclosure_wall_siding_choices, false)
+    # arg.setDisplayName('Enclosure: Wall Siding')
+    # arg.setDescription("The siding type/color of the walls. Also applies to rim joists. If not provided, the OS-HPXML default (see <a href='#{docs_base_url}#hpxml-walls'>HPXML Walls</a>) is used.")
+    # args << arg
+
     wall_siding_type_choices = OpenStudio::StringVector.new
     wall_siding_type_choices << HPXML::SidingTypeAluminum
     wall_siding_type_choices << HPXML::SidingTypeAsbestos
@@ -3800,7 +3809,7 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
                                               args[:schedules_unavailable_period_dates].count(',')]
 
       if !args[:schedules_unavailable_period_window_natvent_availabilities].nil?
-        schedules_unavailable_period_lengths += [args[:schedules_unavailable_period_window_natvent_availabilities].count(',')]
+        schedules_unavailable_period_lengths.concat([args[:schedules_unavailable_period_window_natvent_availabilities].count(',')])
       end
 
       error = (schedules_unavailable_period_lengths.uniq.size != 1)
@@ -3877,13 +3886,13 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
                                     args[:emissions_electricity_units].count(','),
                                     args[:emissions_electricity_values_or_filepaths].count(',')]
 
-      emissions_scenario_lengths += [args[:emissions_electricity_number_of_header_rows].count(',')] unless args[:emissions_electricity_number_of_header_rows].nil?
-      emissions_scenario_lengths += [args[:emissions_electricity_column_numbers].count(',')] unless args[:emissions_electricity_column_numbers].nil?
+      emissions_scenario_lengths.concat([args[:emissions_electricity_number_of_header_rows].count(',')]) unless args[:emissions_electricity_number_of_header_rows].nil?
+      emissions_scenario_lengths.concat([args[:emissions_electricity_column_numbers].count(',')]) unless args[:emissions_electricity_column_numbers].nil?
 
       HPXML::fossil_fuels.each do |fossil_fuel|
         underscore_case = OpenStudio::toUnderscoreCase(fossil_fuel)
 
-        emissions_scenario_lengths += [args["emissions_#{underscore_case}_values".to_sym].count(',')] unless args["emissions_#{underscore_case}_values".to_sym].nil?
+        emissions_scenario_lengths.concat([args["emissions_#{underscore_case}_values".to_sym].count(',')]) unless args["emissions_#{underscore_case}_values".to_sym].nil?
       end
 
       error = (emissions_scenario_lengths.uniq.size != 1)
@@ -3896,8 +3905,8 @@ class BuildResidentialHPXML < OpenStudio::Measure::ModelMeasure
       HPXML::all_fuels.each do |fuel|
         underscore_case = OpenStudio::toUnderscoreCase(fuel)
 
-        bills_scenario_lengths += [args["utility_bill_#{underscore_case}_fixed_charges".to_sym].count(',')] unless args["utility_bill_#{underscore_case}_fixed_charges".to_sym].nil?
-        bills_scenario_lengths += [args["utility_bill_#{underscore_case}_marginal_rates".to_sym].count(',')] unless args["utility_bill_#{underscore_case}_marginal_rates".to_sym].nil?
+        bills_scenario_lengths.concat([args["utility_bill_#{underscore_case}_fixed_charges".to_sym].count(',')]) unless args["utility_bill_#{underscore_case}_fixed_charges".to_sym].nil?
+        bills_scenario_lengths.concat([args["utility_bill_#{underscore_case}_marginal_rates".to_sym].count(',')]) unless args["utility_bill_#{underscore_case}_marginal_rates".to_sym].nil?
       end
 
       error = (bills_scenario_lengths.uniq.size != 1)
@@ -4925,8 +4934,6 @@ module HPXMLFile
       args[:geometry_roof_pitch] = 0.0
     end
 
-    get_option_properties(args, 'roof_material.tsv', args[:enclosure_roof_material])
-
     sorted_surfaces.each do |surface|
       next if surface.outsideBoundaryCondition != EPlus::BoundaryConditionOutdoors
       next if surface.surfaceType != EPlus::SurfaceTypeRoofCeiling
@@ -4939,6 +4946,8 @@ module HPXMLFile
       else
         azimuth = Geometry.get_surface_azimuth(surface, args[:geometry_unit_orientation])
       end
+
+      get_option_properties(args, 'roof_material.tsv', args[:enclosure_roof_material])
 
       hpxml_bldg.roofs.add(id: "Roof#{hpxml_bldg.roofs.size + 1}",
                            interior_adjacent_to: Geometry.get_surface_adjacent_to(surface),
@@ -4997,6 +5006,9 @@ module HPXMLFile
           exterior_adjacent_to = Geometry.get_surface_adjacent_to(adjacent_surface)
         end
       end
+
+      # TODO: wall color + wall siding type --> enclosure_wall_siding
+      # get_option_properties(args, 'wall_siding.tsv', args[:enclosure_wall_siding])
 
       if exterior_adjacent_to == HPXML::LocationOutside
         siding = args[:wall_siding_type]
@@ -5068,6 +5080,9 @@ module HPXMLFile
       if attic_locations.include? interior_adjacent_to
         wall_type = HPXML::WallTypeWoodStud
       end
+
+      # wall color + wall siding type --> enclosure_wall_siding
+      # get_option_properties(args, 'wall_siding.tsv', args[:enclosure_wall_siding])
 
       if exterior_adjacent_to == HPXML::LocationOutside && (not args[:wall_siding_type].nil?)
         if (attic_locations.include? interior_adjacent_to) && (args[:wall_siding_type] == HPXML::SidingTypeNone)
