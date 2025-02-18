@@ -13818,7 +13818,7 @@ Refrigerator Usage Level	95% Usage	ResStockArguments	refrigerator_usage_multipli
 Roof Material	"Asphalt Shingles, Dark"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Dark"																																									
 Roof Material	"Asphalt Shingles, Light"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Light"																																									
 Roof Material	"Asphalt Shingles, Medium"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Medium"																																									
-Roof Material	"Asphalt Shingles, White or cool colors"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Reflective"																																									
+Roof Material	"Asphalt Shingles, White or Cool Colors"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Reflective"																																									
 Roof Material	"Composition Shingles, White or Cool Colors"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Reflective"																																									
 Roof Material	"Metal, Cool Colors"	ResStockArguments	"enclosure_roof_material=Metal, Reflective"																																									
 Roof Material	"Metal, Dark"	ResStockArguments	"enclosure_roof_material=Metal, Dark"																																									
