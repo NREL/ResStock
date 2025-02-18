@@ -93,8 +93,8 @@ Annual energy outputs are listed below.
   ====================================  ===========================
   Type                                  Notes
   ====================================  ===========================
-  Energy Use: Total (MBtu)              Total energy consumption; includes any home battery charging/discharging and EV charging
-  Energy Use: Net (MBtu)                Subtracts any power produced by PV or generators
+  Energy Use: Total (MBtu)              Total energy consumption
+  Energy Use: Net (MBtu)                Total energy consumption minus power produced by PV
   ====================================  ===========================
 
 Annual Energy by Fuel Use
@@ -105,8 +105,8 @@ Fuel uses are listed below.
   ====================================  ===========================
   Type                                  Notes
   ====================================  ===========================
-  Fuel Use: Electricity: Total (MBtu)   Total electricity consumption, includes any home battery charging/discharging and EV charging
-  Fuel Use: Electricity: Net (MBtu)     Subtracts any power produced by PV or generators
+  Fuel Use: Electricity: Total (MBtu)   Total electricity consumption
+  Fuel Use: Electricity: Net (MBtu)     Total energy consumption minus power produced by PV
   Fuel Use: Natural Gas: Total (MBtu)
   Fuel Use: Fuel Oil: Total (MBtu)      Includes "fuel oil", "fuel oil 1", "fuel oil 2", "fuel oil 4", "fuel oil 5/6", "kerosene", and "diesel"
   Fuel Use: Propane: Total (MBtu)
@@ -251,8 +251,8 @@ Results for each emissions scenario defined in the HPXML file are listed as show
   =======================================================================  ==================================================================
   Type                                                                     Notes
   =======================================================================  ==================================================================
-  Emissions: <EmissionsType>: <ScenarioName>: Total (lb)                   Scenario total emissions, includes any home battery charging/discharging and EV charging
-  Emissions: <EmissionsType>: <ScenarioName>: Net (lb)                     Subtracts any power produced by PV or generators
+  Emissions: <EmissionsType>: <ScenarioName>: Total (lb)                   Scenario total emissions
+  Emissions: <EmissionsType>: <ScenarioName>: Net (lb)                     Scenario total emissions minus power produced by PV
   =======================================================================  ==================================================================
 
 Annual Emissions by Fuel Use
@@ -263,8 +263,8 @@ Results for each emissions scenario defined in the HPXML file are listed as show
   =======================================================================  ==================================================================
   Type                                                                     Notes
   =======================================================================  ==================================================================
-  Emissions: <EmissionsType>: <ScenarioName>: Electricity: Total (lb)      Scenario total emissions for Electricity only, includes any home battery charging/discharging and EV charging
-  Emissions: <EmissionsType>: <ScenarioName>: Electricity: Net (lb)        Subtracts any power produced by PV or generators
+  Emissions: <EmissionsType>: <ScenarioName>: Electricity: Total (lb)      Scenario total emissions for Electricity only
+  Emissions: <EmissionsType>: <ScenarioName>: Electricity: Net (lb)        Scenario total emissions for Electricity only minus power produced by PV
   Emissions: <EmissionsType>: <ScenarioName>: Natural Gas: Total (lb)      Scenario emissions for Natural Gas only
   Emissions: <EmissionsType>: <ScenarioName>: Fuel Oil: Total (lb)         Scenario emissions for Fuel Oil only
   Emissions: <EmissionsType>: <ScenarioName>: Propane: Total (lb)          Scenario emissions for Propane only
@@ -336,15 +336,20 @@ Peak Building Electricity
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Peak building electricity outputs are listed below.
-Values include any home battery charging/discharging and EV charging.
 
   ==================================  =============================================================
   Type                                Notes
   ==================================  =============================================================
-  Peak Electricity: Winter Total (W)  Maximum value in Dec/Jan/Feb (or Jun/Jul/Aug in the southern hemisphere)
-  Peak Electricity: Summer Total (W)  Maximum value in Jun/Jul/Aug (or Dec/Jan/Feb in the southern hemisphere)
-  Peak Electricity: Annual Total (W)  Maximum value in any month
+  Peak Electricity: Winter Total (W)  Winter maximum for total electricity consumption [#]_
+  Peak Electricity: Summer Total (W)  Summer maximum for total electricity consumption [#]_
+  Peak Electricity: Annual Total (W)  Annual maximum for total electricity consumption
+  Peak Electricity: Winter Net (W)    Winter maximum for total electricity consumption minus power produced by PV
+  Peak Electricity: Summer Net (W)    Summer maximum for total electricity consumption minus power produced by PV
+  Peak Electricity: Annual Net (W)    Annual maximum for total electricity consumption minus power produced by PV
   ==================================  =============================================================
+  
+  .. [#] Winter is Dec/Jan/Feb (or Jun/Jul/Aug in the southern hemisphere).
+  .. [#] Summer is Jun/Jul/Aug (or Dec/Jan/Feb in the southern hemisphere).
 
 Peak Building Loads
 ~~~~~~~~~~~~~~~~~~~
@@ -630,7 +635,7 @@ Depending on the outputs requested, the file may include:
   ==================================  ===================  ==================================================================================================================================
   Type                                Argument [#]_        Notes
   ==================================  ===================  ==================================================================================================================================
-  Total Consumptions                  ``total``            Energy use for building total and net (i.e., subtracts any power produced by PV or generators).
+  Total Consumptions                  ``total``            Energy use for building total and net (i.e., subtracts any power produced by PV).
   Fuel Consumptions                   ``fuels``            Energy use for each fuel type (in kBtu for fossil fuels and kWh for electricity).
   End Use Consumptions                ``enduses``          Energy use for each end use type (in kBtu for fossil fuels and kWh for electricity).
   System Use Consumptions             ``systemuses``       Energy use for each HVAC and water heating system (in kBtu).
@@ -640,7 +645,7 @@ Depending on the outputs requested, the file may include:
   Hot Water Uses                      ``hotwater``         Water use for each end use type (in gallons).
   Total Loads                         ``loads``            Heating, cooling, and hot water loads (in kBtu).
   Component Loads                     ``componentloads``   Heating and cooling loads (in kBtu) disaggregated by component (e.g., Walls, Windows, Infiltration, Ducts, etc.).
-  Unmet Hours                         ``unmethours``       Heating, cooling, and/or EV driving unmet hours.
+  Unmet Hours                         ``unmethours``       Heating, cooling, and EV driving unmet hours.
   Zone Temperatures                   ``temperatures``     Zone temperatures (in deg-F) for each space (e.g., conditioned space, attic, garage, basement, crawlspace, etc.) plus heating/cooling setpoints.
   Airflows                            ``airflows``         Airflow rates (in cfm) for infiltration, mechanical ventilation (including clothes dryer exhaust), natural ventilation, whole house fans.
   Weather                             ``weather``          Weather file data including outdoor temperatures, relative humidity, wind speed, and solar.
