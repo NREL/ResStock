@@ -717,7 +717,7 @@ The column names available in the schedule CSV files are:
   ``water_heater_setpoint``         F        Water heater setpoint schedule.                                                                No
   ``water_heater_operating_mode``   0/1      Heat pump water heater operating mode schedule. 0=hybrid/auto, 1=heat pump only.               No
   ``battery``                       -1 to 1  Battery availability schedule. Positive for charging, negative for discharging.                No
-  ``electric_vehicle``              -1 to 1  Electric vehicle schedule. Positive for charging, negative for discharging. [#]_               No
+  ``electric_vehicle``              -1 to 1  Electric vehicle schedule. Positive for charging, negative for discharging. [#]_               Yes
   ================================  =======  =============================================================================================  ===============================
 
   .. [#] A detailed stochastic occupancy schedule CSV file can also be automatically generated for these columns; see the :ref:`usage_instructions` for the commands.
