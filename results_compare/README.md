@@ -13,16 +13,16 @@ source env/bin/activate
 ```
 
 2. Install a full installation of [buildstock-query](https://github.com/NREL/buildstock-query), as
-well as matplotlib
+well as some packages
 ```
 pip install git+https://github.com/NREL/buildstock-query#egg=buildstock-query
-pip install matplotlib
+pip install matplotlib openpyxl
 
 ```
 
 3. For those using VSCode, you may need to install ipykernel
 ```
-pip install ipykernel
+pip install ipykernel 
 ```
 
 4. To deactivate the environment:
