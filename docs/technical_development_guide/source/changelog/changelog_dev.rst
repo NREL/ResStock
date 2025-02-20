@@ -7,6 +7,24 @@ Development Changelog
     :released: pending
 
     .. change::
+        :tags: workflow, feature, outputs
+        :pullreq: 1347
+
+        **Date**: 2025-02-19
+
+        Title:
+        Latest OS-HPXML
+
+        Description:
+        Allows requesting timeseries EnergyPlus output meters (e.g., --hourly "MainsWater:Facility"), similar to requesting EnergyPlus output variables.
+        Adds new *net* peak electricity outputs that include PV.
+
+        OpenStudio-HPXML: `pull request 1918 <https://github.com/NREL/OpenStudio-HPXML/pull/1918>`_, `pull request 1930 <https://github.com/NREL/OpenStudio-HPXML/pull/1930>`_
+
+        Assignees: Joe Robertson, Scott Horowitz
+
+
+    .. change::
         :tags: workflow, feature
         :pullreq: 929
         :tickets: 927

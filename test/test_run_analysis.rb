@@ -486,7 +486,7 @@ class TestRunAnalysis < Minitest::Test
       next if _expected_warning_message(message, 'The garage pitch was changed to accommodate garage ridge >= house ridge')
       next if _expected_warning_message(message, 'Could not find County=') # we intentionally leave some fields blank in resources/data/simple_rates/County.tsv
       next if _expected_warning_message(message, 'Battery without PV specified, and no charging/discharging schedule provided; battery is assumed to operate as backup and will not be modeled.')
-      next if _expected_warning_message(message, "Request for output variable 'Zone People Occupant Count' returned no key values.")
+      next if _expected_warning_message(message, "Request for output variable 'Zone People Occupant Count' returned no results.")
       next if _expected_warning_message(message, 'No windows specified, the model will not include window heat transfer. [context: /HPXML/Building/BuildingDetails, id: "MyBuilding"]')
       next if _expected_warning_message(message, 'No interior lighting specified, the model will not include interior lighting energy use. [context: /HPXML/Building/BuildingDetails, id: "MyBuilding"]')
       next if _expected_warning_message(message, 'No exterior lighting specified, the model will not include exterior lighting energy use. [context: /HPXML/Building/BuildingDetails, id: "MyBuilding"]')
