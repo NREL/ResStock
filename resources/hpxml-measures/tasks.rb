@@ -11,10 +11,10 @@ end
 def create_hpxmls
   this_dir = File.dirname(__FILE__)
   workflow_dir = File.join(this_dir, 'workflow')
-  hpxml_inputs_tsv_path = File.join(workflow_dir, 'hpxml_inputs.json')
+  hpxml_inputs_json_path = File.join(workflow_dir, 'hpxml_inputs.json')
 
   require 'json'
-  json_inputs = JSON.parse(File.read(hpxml_inputs_tsv_path))
+  json_inputs = JSON.parse(File.read(hpxml_inputs_json_path))
   abs_hpxml_files = []
   dirs = json_inputs.keys.map { |file_path| File.dirname(file_path) }.uniq
 

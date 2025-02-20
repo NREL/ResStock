@@ -13815,28 +13815,28 @@ Refrigerator	Void
 Refrigerator Usage Level	100% Usage	ResStockArguments	refrigerator_usage_multiplier=1.0
 Refrigerator Usage Level	105% Usage	ResStockArguments	refrigerator_usage_multiplier=1.05
 Refrigerator Usage Level	95% Usage	ResStockArguments	refrigerator_usage_multiplier=0.95
-Roof Material	"Asphalt Shingles, Dark"	ResStockArguments	roof_material_type=asphalt or fiberglass shingles	roof_color=dark
-Roof Material	"Asphalt Shingles, Light"	ResStockArguments	roof_material_type=asphalt or fiberglass shingles	roof_color=light
-Roof Material	"Asphalt Shingles, Medium"	ResStockArguments	roof_material_type=asphalt or fiberglass shingles	roof_color=medium
-Roof Material	"Asphalt Shingles, White or cool colors"	ResStockArguments	roof_material_type=asphalt or fiberglass shingles	roof_color=reflective
-Roof Material	"Composition Shingles, White or Cool Colors"	ResStockArguments	roof_material_type=asphalt or fiberglass shingles	roof_color=reflective
-Roof Material	"Metal, Cool Colors"	ResStockArguments	roof_material_type=metal surfacing	roof_color=reflective
-Roof Material	"Metal, Dark"	ResStockArguments	roof_material_type=metal surfacing	roof_color=dark
-Roof Material	"Metal, Light"	ResStockArguments	roof_material_type=metal surfacing	roof_color=light
-Roof Material	"Metal, Medium"	ResStockArguments	roof_material_type=metal surfacing	roof_color=medium
-Roof Material	"Metal, White"	ResStockArguments	roof_material_type=metal surfacing	roof_color=reflective
-Roof Material	"Tile, Clay or Ceramic"	ResStockArguments	roof_material_type=slate or tile shingles	roof_color=medium
-Roof Material	"Tile, Clay or Ceramic, White or Cool Colors"	ResStockArguments	roof_material_type=slate or tile shingles	roof_color=reflective
-Roof Material	"Tile, Concrete"	ResStockArguments	roof_material_type=slate or tile shingles	roof_color=medium
-Roof Material	"Tile, Concrete, White or Cool Colors"	ResStockArguments	roof_material_type=slate or tile shingles	roof_color=reflective
-Roof Material	"Tile, Dark"	ResStockArguments	roof_material_type=slate or tile shingles	roof_color=dark
-Roof Material	"Tile, Light"	ResStockArguments	roof_material_type=slate or tile shingles	roof_color=light
-Roof Material	"Tile, Medium"	ResStockArguments	roof_material_type=slate or tile shingles	roof_color=medium
-Roof Material	"Tile, White"	ResStockArguments	roof_material_type=slate or tile shingles	roof_color=reflective
-Roof Material	Composition Shingles	ResStockArguments	roof_material_type=asphalt or fiberglass shingles	roof_color=medium
-Roof Material	Galvanized Steel	ResStockArguments	roof_material_type=metal surfacing	roof_color=medium
-Roof Material	Slate	ResStockArguments	roof_material_type=slate or tile shingles	roof_color=medium
-Roof Material	Wood Shingles	ResStockArguments	roof_material_type=wood shingles or shakes	roof_color=medium
+Roof Material	"Asphalt Shingles, Dark"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Dark"
+Roof Material	"Asphalt Shingles, Light"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Light"
+Roof Material	"Asphalt Shingles, Medium"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Medium"
+Roof Material	"Asphalt Shingles, White or Cool Colors"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Reflective"
+Roof Material	"Composition Shingles, White or Cool Colors"	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Reflective"
+Roof Material	"Metal, Cool Colors"	ResStockArguments	"enclosure_roof_material=Metal, Reflective"
+Roof Material	"Metal, Dark"	ResStockArguments	"enclosure_roof_material=Metal, Dark"
+Roof Material	"Metal, Light"	ResStockArguments	"enclosure_roof_material=Metal, Light"
+Roof Material	"Metal, Medium"	ResStockArguments	"enclosure_roof_material=Metal, Medium"
+Roof Material	"Metal, White"	ResStockArguments	"enclosure_roof_material=Metal, Reflective"
+Roof Material	"Tile, Clay or Ceramic"	ResStockArguments	"enclosure_roof_material=Tile/Slate, Medium"
+Roof Material	"Tile, Clay or Ceramic, White or Cool Colors"	ResStockArguments	"enclosure_roof_material=Tile/Slate, Reflective"
+Roof Material	"Tile, Concrete"	ResStockArguments	"enclosure_roof_material=Tile/Slate, Medium"
+Roof Material	"Tile, Concrete, White or Cool Colors"	ResStockArguments	"enclosure_roof_material=Tile/Slate, Reflective"
+Roof Material	"Tile, Dark"	ResStockArguments	"enclosure_roof_material=Tile/Slate, Dark"
+Roof Material	"Tile, Light"	ResStockArguments	"enclosure_roof_material=Tile/Slate, Light"
+Roof Material	"Tile, Medium"	ResStockArguments	"enclosure_roof_material=Tile/Slate, Medium"
+Roof Material	"Tile, White"	ResStockArguments	"enclosure_roof_material=Tile/Slate, Reflective"
+Roof Material	Composition Shingles	ResStockArguments	"enclosure_roof_material=Asphalt/Fiberglass Shingles, Medium"
+Roof Material	Galvanized Steel	ResStockArguments	"enclosure_roof_material=Metal, Medium"
+Roof Material	Slate	ResStockArguments	"enclosure_roof_material=Tile/Slate, Medium"
+Roof Material	Wood Shingles	ResStockArguments	"enclosure_roof_material=Wood Shingles/Shakes, Medium"
 Solar Hot Water	"40 sqft, South, 10 degrees"	ResStockArguments	solar_thermal_system_type=hot water	solar_thermal_collector_area=40	solar_thermal_collector_loop_type=liquid indirect	solar_thermal_collector_type=single glazing black	solar_thermal_collector_azimuth=180	solar_thermal_collector_tilt=10	solar_thermal_collector_rated_optical_efficiency=0.77	solar_thermal_collector_rated_thermal_losses=0.793	solar_thermal_storage_volume=auto	solar_thermal_solar_fraction=0
 Solar Hot Water	"40 sqft, South, Latitude - 15 degrees"	ResStockArguments	solar_thermal_system_type=hot water	solar_thermal_collector_area=40	solar_thermal_collector_loop_type=liquid indirect	solar_thermal_collector_type=single glazing black	solar_thermal_collector_azimuth=180	solar_thermal_collector_tilt=latitude-15	solar_thermal_collector_rated_optical_efficiency=0.77	solar_thermal_collector_rated_thermal_losses=0.793	solar_thermal_storage_volume=auto	solar_thermal_solar_fraction=0
 Solar Hot Water	"40 sqft, South, Roof Pitch"	ResStockArguments	solar_thermal_system_type=hot water	solar_thermal_collector_area=40	solar_thermal_collector_loop_type=liquid indirect	solar_thermal_collector_type=single glazing black	solar_thermal_collector_azimuth=180	solar_thermal_collector_tilt=roofpitch	solar_thermal_collector_rated_optical_efficiency=0.77	solar_thermal_collector_rated_thermal_losses=0.793	solar_thermal_storage_volume=auto	solar_thermal_solar_fraction=0

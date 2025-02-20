@@ -61949,18 +61949,12 @@ Arguments
      - Type
      - Choices
      - Description
-   * - ``roof_material_type``
+   * - ``enclosure_roof_material``
      - false
      - 
      - Choice
-     - auto, asphalt or fiberglass shingles, concrete, cool roof, slate or tile shingles, expanded polystyrene sheathing, metal surfacing, plastic/rubber/synthetic sheeting, shingles, wood shingles or shakes
-     - The material type of the roof. If not provided, the OS-HPXML default (see `HPXML Roofs <https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-roofs>`_) is used.
-   * - ``roof_color``
-     - false
-     - 
-     - Choice
-     - auto, dark, light, medium, medium dark, reflective
-     - The color of the roof. If not provided, the OS-HPXML default (see `HPXML Roofs <https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-roofs>`_) is used.
+     - auto, Asphalt/Fiberglass Shingles, Dark, Asphalt/Fiberglass Shingles, Medium Dark, Asphalt/Fiberglass Shingles, Medium, Asphalt/Fiberglass Shingles, Light, Asphalt/Fiberglass Shingles, Reflective, Tile/Slate, Dark, Tile/Slate, Medium Dark, Tile/Slate, Medium, Tile/Slate, Light, Tile/Slate, Reflective, Metal, Dark, Metal, Medium Dark, Metal, Medium, Metal, Light, Metal, Reflective, Wood Shingles/Shakes, Dark, Wood Shingles/Shakes, Medium Dark, Wood Shingles/Shakes, Medium, Wood Shingles/Shakes, Light, Wood Shingles/Shakes, Reflective, Shingles, Dark, Shingles, Medium Dark, Shingles, Medium, Shingles, Light, Shingles, Reflective, Synthetic Sheeting, Dark, Synthetic Sheeting, Medium Dark, Synthetic Sheeting, Medium, Synthetic Sheeting, Light, Synthetic Sheeting, Reflective, EPS Sheathing, Dark, EPS Sheathing, Medium Dark, EPS Sheathing, Medium, EPS Sheathing, Light, EPS Sheathing, Reflective, Concrete, Dark, Concrete, Medium Dark, Concrete, Medium, Concrete, Light, Concrete, Reflective, Cool Roof
+     - The material type/color of the roof. If not provided, the OS-HPXML default (see `HPXML Roofs <https://openstudio-hpxml.readthedocs.io/en/v1.10.0/workflow_inputs.html#hpxml-roofs>`_) is used.
 
 Options
 *******
@@ -61974,37 +61968,29 @@ From ``project_national`` the list of options, option stock sturation, and optio
 
    * - Option name
      - Stock saturation
-     - ``roof_material_type``
-     - ``roof_color``
+     - ``enclosure_roof_material``
 
    * - Asphalt Shingles, Medium
      - 45%
-     - asphalt or fiberglass shingles
-     - medium
+     - Asphalt/Fiberglass Shingles, Medium
    * - Composition Shingles
      - 36%
-     - asphalt or fiberglass shingles
-     - medium
+     - Asphalt/Fiberglass Shingles, Medium
    * - Metal, Dark
      - 8.4%
-     - metal surfacing
-     - dark
+     - Metal, Dark
    * - Slate
      - 1.2%
-     - slate or tile shingles
-     - medium
+     - Tile/Slate, Medium
    * - Tile, Clay or Ceramic
      - 3.8%
-     - slate or tile shingles
-     - medium
+     - Tile/Slate, Medium
    * - Tile, Concrete
      - 1.7%
-     - slate or tile shingles
-     - medium
+     - Tile/Slate, Medium
    * - Wood Shingles
      - 4.2%
-     - wood shingles or shakes
-     - medium
+     - Wood Shingles/Shakes, Medium
 
 .. _solar_hot_water:
 

@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>hpxm_lto_openstudio</name>
   <uid>b1543b30-9465-45ff-ba04-1d1f85e763bc</uid>
-  <version_id>9cdacdbb-7289-4d0f-a517-3922cf3a30fa</version_id>
-  <version_modified>2025-02-18T17:48:09Z</version_modified>
+  <version_id>e79a0e55-5697-4376-832e-7edcbac48134</version_id>
+  <version_modified>2025-02-12T22:51:45Z</version_modified>
   <xml_checksum>D8922A73</xml_checksum>
   <class_name>HPXMLtoOpenStudio</class_name>
   <display_name>HPXML to OpenStudio Translator</display_name>
@@ -490,66 +490,6 @@
       <filetype>csv</filetype>
       <usage_type>resource</usage_type>
       <checksum>FA81E518</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic-10-mins.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>D9B181A4</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic-30-mins.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>D9B181A4</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic-ev-charger.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>188BC7F1</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic-mf-unit.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>308CB2EE</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic-mf-unit_2.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>DB7B62B3</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic-mf-unit_3.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>7452D495</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic-mf-unit_4.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>AEB1502E</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic-mf-unit_5.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>D10757F1</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic-mf-unit_6.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>9B96E690</checksum>
-    </file>
-    <file>
-      <filename>schedule_files/occupancy-stochastic.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>703EC57D</checksum>
     </file>
     <file>
       <filename>schedule_files/setpoints-10-mins.csv</filename>
