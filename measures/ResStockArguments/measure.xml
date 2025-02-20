@@ -3,8 +3,8 @@
   <schema_version>3.1</schema_version>
   <name>res_stock_arguments</name>
   <uid>c984bb9e-4ac4-4930-a399-9d23f8f6936a</uid>
-  <version_id>1c26828c-9742-44a8-961c-1c3e9859c72a</version_id>
-  <version_modified>2025-02-14T17:59:54Z</version_modified>
+  <version_id>5b377465-f72d-4058-96f6-2d59a3b96fb1</version_id>
+  <version_modified>2025-02-20T22:49:03Z</version_modified>
   <xml_checksum>2C38F48B</xml_checksum>
   <class_name>ResStockArguments</class_name>
   <display_name>ResStock Arguments</display_name>
@@ -7785,7 +7785,7 @@
       <filename>measure.txt</filename>
       <filetype>txt</filetype>
       <usage_type>resource</usage_type>
-      <checksum>232F0A3A</checksum>
+      <checksum>0AF10F44</checksum>
     </file>
     <file>
       <filename>resstock_arguments_test.rb</filename>
