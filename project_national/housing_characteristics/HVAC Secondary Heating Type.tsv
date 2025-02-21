@@ -1,4 +1,13 @@
 Dependency=Custom State	Dependency=Geometry Building Type RECS	Dependency=HVAC Secondary Heating Fuel	Dependency=Vintage	Option=Ducted Heating	Option=Non-Ducted Heating	Option=None	source_count	source_weight	sampling_probability
+AK	Mobile Home	Electricity	1940s	0	0	1	0	0	0
+AK	Mobile Home	Electricity	1950s	0	0	1	0	0	0
+AK	Mobile Home	Electricity	1960s	0	0	1	0	0	0
+AK	Mobile Home	Electricity	1970s	0	0	1	0	0	0
+AK	Mobile Home	Electricity	1980s	0	0	1	0	0	0
+AK	Mobile Home	Electricity	1990s	0	0	1	0	0	0
+AK	Mobile Home	Electricity	2000s	0	0	1	0	0	0
+AK	Mobile Home	Electricity	2010s	0	0	1	0	0	0
+AK	Mobile Home	Electricity	<1940	0	0	1	0	0	0
 AK	Mobile Home	Fuel Oil	1940s	0.51875	0.48125	0	160	0	7.48276e-08
 AK	Mobile Home	Fuel Oil	1950s	0.51875	0.48125	0	160	5	2.36049e-07
 AK	Mobile Home	Fuel Oil	1960s	0.444444	0.555556	0	27	27	9.10022e-07
@@ -53,6 +62,15 @@ AK	Mobile Home	Wood	1990s	0	1	0	171	2	7.69671e-07
 AK	Mobile Home	Wood	2000s	0	1	0	171	2	4.18901e-07
 AK	Mobile Home	Wood	2010s	0	1	0	171	2	2.81087e-07
 AK	Mobile Home	Wood	<1940	0	1	0	171	0	7.91629e-08
+AK	Multi-Family with 2 - 4 Units	Electricity	1940s	0	0	1	0	0	0
+AK	Multi-Family with 2 - 4 Units	Electricity	1950s	0	0	1	0	0	0
+AK	Multi-Family with 2 - 4 Units	Electricity	1960s	0	0	1	0	0	0
+AK	Multi-Family with 2 - 4 Units	Electricity	1970s	0	0	1	0	0	0
+AK	Multi-Family with 2 - 4 Units	Electricity	1980s	0	0	1	0	0	0
+AK	Multi-Family with 2 - 4 Units	Electricity	1990s	0	0	1	0	0	0
+AK	Multi-Family with 2 - 4 Units	Electricity	2000s	0	0	1	0	0	0
+AK	Multi-Family with 2 - 4 Units	Electricity	2010s	0	0	1	0	0	0
+AK	Multi-Family with 2 - 4 Units	Electricity	<1940	0	0	1	0	0	0
 AK	Multi-Family with 2 - 4 Units	Fuel Oil	1940s	0.157143	0.842857	0	70	0	1.34783e-07
 AK	Multi-Family with 2 - 4 Units	Fuel Oil	1950s	0.157143	0.842857	0	70	2.1	8.73729e-07
 AK	Multi-Family with 2 - 4 Units	Fuel Oil	1960s	0.157143	0.842857	0	70	2.1	3.71459e-07
@@ -107,6 +125,15 @@ AK	Multi-Family with 2 - 4 Units	Wood	1990s	0	1	0	142	2.4	1.68018e-06
 AK	Multi-Family with 2 - 4 Units	Wood	2000s	0	1	0	142	0.3	9.90383e-07
 AK	Multi-Family with 2 - 4 Units	Wood	2010s	0	1	0	14	4.2	6.34776e-07
 AK	Multi-Family with 2 - 4 Units	Wood	<1940	0	1	0	142	1.5	4.01447e-07
+AK	Multi-Family with 5+ Units	Electricity	1940s	0	0	1	0	0	0
+AK	Multi-Family with 5+ Units	Electricity	1950s	0	0	1	0	0	0
+AK	Multi-Family with 5+ Units	Electricity	1960s	0	0	1	0	0	0
+AK	Multi-Family with 5+ Units	Electricity	1970s	0	0	1	0	0	0
+AK	Multi-Family with 5+ Units	Electricity	1980s	0	0	1	0	0	0
+AK	Multi-Family with 5+ Units	Electricity	1990s	0	0	1	0	0	0
+AK	Multi-Family with 5+ Units	Electricity	2000s	0	0	1	0	0	0
+AK	Multi-Family with 5+ Units	Electricity	2010s	0	0	1	0	0	0
+AK	Multi-Family with 5+ Units	Electricity	<1940	0	0	1	0	0	0
 AK	Multi-Family with 5+ Units	Fuel Oil	1940s	0.157143	0.842857	0	70	0	1.16078e-07
 AK	Multi-Family with 5+ Units	Fuel Oil	1950s	0.157143	0.842857	0	70	4.9	7.42768e-07
 AK	Multi-Family with 5+ Units	Fuel Oil	1960s	0.157143	0.842857	0	70	4.9	4.84987e-07
@@ -161,6 +188,15 @@ AK	Multi-Family with 5+ Units	Wood	1990s	0	1	0	142	5.6	1.56721e-06
 AK	Multi-Family with 5+ Units	Wood	2000s	0	1	0	142	0.7	5.46062e-07
 AK	Multi-Family with 5+ Units	Wood	2010s	0	1	0	14	9.8	5.0095e-07
 AK	Multi-Family with 5+ Units	Wood	<1940	0	1	0	142	3.5	3.24098e-07
+AK	Single-Family Attached	Electricity	1940s	0	0	1	0	0	0
+AK	Single-Family Attached	Electricity	1950s	0	0	1	0	0	0
+AK	Single-Family Attached	Electricity	1960s	0	0	1	0	0	0
+AK	Single-Family Attached	Electricity	1970s	0	0	1	0	0	0
+AK	Single-Family Attached	Electricity	1980s	0	0	1	0	0	0
+AK	Single-Family Attached	Electricity	1990s	0	0	1	0	0	0
+AK	Single-Family Attached	Electricity	2000s	0	0	1	0	0	0
+AK	Single-Family Attached	Electricity	2010s	0	0	1	0	0	0
+AK	Single-Family Attached	Electricity	<1940	0	0	1	0	0	0
 AK	Single-Family Attached	Fuel Oil	1940s	0.0191083	0.980892	0	157	2	3.46383e-08
 AK	Single-Family Attached	Fuel Oil	1950s	0.0191083	0.980892	0	157	3	7.50222e-08
 AK	Single-Family Attached	Fuel Oil	1960s	0.0191083	0.980892	0	157	5	1.86564e-07
@@ -215,6 +251,15 @@ AK	Single-Family Attached	Wood	1990s	0	1	0	10	10	7.90633e-07
 AK	Single-Family Attached	Wood	2000s	0	1	0	362	5	5.49149e-07
 AK	Single-Family Attached	Wood	2010s	0	1	0	362	6	8.25781e-08
 AK	Single-Family Attached	Wood	<1940	0	1	0	12	12	6.12119e-08
+AK	Single-Family Detached	Electricity	1940s	0	0	1	0	0	0
+AK	Single-Family Detached	Electricity	1950s	0	0	1	0	0	0
+AK	Single-Family Detached	Electricity	1960s	0	0	1	0	0	0
+AK	Single-Family Detached	Electricity	1970s	0	0	1	0	0	0
+AK	Single-Family Detached	Electricity	1980s	0	0	1	0	0	0
+AK	Single-Family Detached	Electricity	1990s	0	0	1	0	0	0
+AK	Single-Family Detached	Electricity	2000s	0	0	1	0	0	0
+AK	Single-Family Detached	Electricity	2010s	0	0	1	0	0	0
+AK	Single-Family Detached	Electricity	<1940	0	0	1	0	0	0
 AK	Single-Family Detached	Fuel Oil	1940s	0.190476	0.809524	0	84	84	2.04184e-06
 AK	Single-Family Detached	Fuel Oil	1950s	0.241071	0.758929	0	112	112	3.11998e-06
 AK	Single-Family Detached	Fuel Oil	1960s	0.110599	0.889401	0	217	217	6.15532e-06
@@ -269,6 +314,15 @@ AK	Single-Family Detached	Wood	1990s	0.00133333	0.998667	0	750	750	2.79659e-05
 AK	Single-Family Detached	Wood	2000s	0	1	0	620	620	2.80433e-05
 AK	Single-Family Detached	Wood	2010s	0	1	0	519	519	4.46152e-06
 AK	Single-Family Detached	Wood	<1940	0.0027933	0.997207	0	358	358	4.80167e-06
+Others	Mobile Home	Electricity	1940s	0	0	1	0	0	0
+Others	Mobile Home	Electricity	1950s	0	0	1	0	0	0
+Others	Mobile Home	Electricity	1960s	0	0	1	0	0	0
+Others	Mobile Home	Electricity	1970s	0	0	1	0	0	0
+Others	Mobile Home	Electricity	1980s	0	0	1	0	0	0
+Others	Mobile Home	Electricity	1990s	0	0	1	0	0	0
+Others	Mobile Home	Electricity	2000s	0	0	1	0	0	0
+Others	Mobile Home	Electricity	2010s	0	0	1	0	0	0
+Others	Mobile Home	Electricity	<1940	0	0	1	0	0	0
 Others	Mobile Home	Fuel Oil	1940s	0	0	1	0	0	0
 Others	Mobile Home	Fuel Oil	1950s	0	0	1	0	0	0
 Others	Mobile Home	Fuel Oil	1960s	0	0	1	0	0	0
@@ -323,6 +377,15 @@ Others	Mobile Home	Wood	1990s	0	0	1	0	0	0
 Others	Mobile Home	Wood	2000s	0	0	1	0	0	0
 Others	Mobile Home	Wood	2010s	0	0	1	0	0	0
 Others	Mobile Home	Wood	<1940	0	0	1	0	0	0
+Others	Multi-Family with 2 - 4 Units	Electricity	1940s	0	0	1	0	0	0
+Others	Multi-Family with 2 - 4 Units	Electricity	1950s	0	0	1	0	0	0
+Others	Multi-Family with 2 - 4 Units	Electricity	1960s	0	0	1	0	0	0
+Others	Multi-Family with 2 - 4 Units	Electricity	1970s	0	0	1	0	0	0
+Others	Multi-Family with 2 - 4 Units	Electricity	1980s	0	0	1	0	0	0
+Others	Multi-Family with 2 - 4 Units	Electricity	1990s	0	0	1	0	0	0
+Others	Multi-Family with 2 - 4 Units	Electricity	2000s	0	0	1	0	0	0
+Others	Multi-Family with 2 - 4 Units	Electricity	2010s	0	0	1	0	0	0
+Others	Multi-Family with 2 - 4 Units	Electricity	<1940	0	0	1	0	0	0
 Others	Multi-Family with 2 - 4 Units	Fuel Oil	1940s	0	0	1	0	0	0
 Others	Multi-Family with 2 - 4 Units	Fuel Oil	1950s	0	0	1	0	0	0
 Others	Multi-Family with 2 - 4 Units	Fuel Oil	1960s	0	0	1	0	0	0
@@ -377,6 +440,15 @@ Others	Multi-Family with 2 - 4 Units	Wood	1990s	0	0	1	0	0	0
 Others	Multi-Family with 2 - 4 Units	Wood	2000s	0	0	1	0	0	0
 Others	Multi-Family with 2 - 4 Units	Wood	2010s	0	0	1	0	0	0
 Others	Multi-Family with 2 - 4 Units	Wood	<1940	0	0	1	0	0	0
+Others	Multi-Family with 5+ Units	Electricity	1940s	0	0	1	0	0	0
+Others	Multi-Family with 5+ Units	Electricity	1950s	0	0	1	0	0	0
+Others	Multi-Family with 5+ Units	Electricity	1960s	0	0	1	0	0	0
+Others	Multi-Family with 5+ Units	Electricity	1970s	0	0	1	0	0	0
+Others	Multi-Family with 5+ Units	Electricity	1980s	0	0	1	0	0	0
+Others	Multi-Family with 5+ Units	Electricity	1990s	0	0	1	0	0	0
+Others	Multi-Family with 5+ Units	Electricity	2000s	0	0	1	0	0	0
+Others	Multi-Family with 5+ Units	Electricity	2010s	0	0	1	0	0	0
+Others	Multi-Family with 5+ Units	Electricity	<1940	0	0	1	0	0	0
 Others	Multi-Family with 5+ Units	Fuel Oil	1940s	0	0	1	0	0	0
 Others	Multi-Family with 5+ Units	Fuel Oil	1950s	0	0	1	0	0	0
 Others	Multi-Family with 5+ Units	Fuel Oil	1960s	0	0	1	0	0	0
@@ -431,6 +503,15 @@ Others	Multi-Family with 5+ Units	Wood	1990s	0	0	1	0	0	0
 Others	Multi-Family with 5+ Units	Wood	2000s	0	0	1	0	0	0
 Others	Multi-Family with 5+ Units	Wood	2010s	0	0	1	0	0	0
 Others	Multi-Family with 5+ Units	Wood	<1940	0	0	1	0	0	0
+Others	Single-Family Attached	Electricity	1940s	0	0	1	0	0	0
+Others	Single-Family Attached	Electricity	1950s	0	0	1	0	0	0
+Others	Single-Family Attached	Electricity	1960s	0	0	1	0	0	0
+Others	Single-Family Attached	Electricity	1970s	0	0	1	0	0	0
+Others	Single-Family Attached	Electricity	1980s	0	0	1	0	0	0
+Others	Single-Family Attached	Electricity	1990s	0	0	1	0	0	0
+Others	Single-Family Attached	Electricity	2000s	0	0	1	0	0	0
+Others	Single-Family Attached	Electricity	2010s	0	0	1	0	0	0
+Others	Single-Family Attached	Electricity	<1940	0	0	1	0	0	0
 Others	Single-Family Attached	Fuel Oil	1940s	0	0	1	0	0	0
 Others	Single-Family Attached	Fuel Oil	1950s	0	0	1	0	0	0
 Others	Single-Family Attached	Fuel Oil	1960s	0	0	1	0	0	0
@@ -485,6 +566,15 @@ Others	Single-Family Attached	Wood	1990s	0	0	1	0	0	0
 Others	Single-Family Attached	Wood	2000s	0	0	1	0	0	0
 Others	Single-Family Attached	Wood	2010s	0	0	1	0	0	0
 Others	Single-Family Attached	Wood	<1940	0	0	1	0	0	0
+Others	Single-Family Detached	Electricity	1940s	0	0	1	0	0	0
+Others	Single-Family Detached	Electricity	1950s	0	0	1	0	0	0
+Others	Single-Family Detached	Electricity	1960s	0	0	1	0	0	0
+Others	Single-Family Detached	Electricity	1970s	0	0	1	0	0	0
+Others	Single-Family Detached	Electricity	1980s	0	0	1	0	0	0
+Others	Single-Family Detached	Electricity	1990s	0	0	1	0	0	0
+Others	Single-Family Detached	Electricity	2000s	0	0	1	0	0	0
+Others	Single-Family Detached	Electricity	2010s	0	0	1	0	0	0
+Others	Single-Family Detached	Electricity	<1940	0	0	1	0	0	0
 Others	Single-Family Detached	Fuel Oil	1940s	0	0	1	0	0	0
 Others	Single-Family Detached	Fuel Oil	1950s	0	0	1	0	0	0
 Others	Single-Family Detached	Fuel Oil	1960s	0	0	1	0	0	0
