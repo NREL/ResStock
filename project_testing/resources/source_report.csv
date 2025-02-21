@@ -66,7 +66,7 @@ HVAC Heating Efficiency,21.0,3.0,sources\recs\recs2020\tsv_maker.py,The presence
 HVAC Heating Type,5.0,1.0,sources\recs\recs2020\tsv_maker.py,The presence and type of the primary heating system in the dwelling unit.
 HVAC Heating Type And Fuel,25.0,2.0,sources\recs\recs2020\tsv_maker.py,"The presence, type, and fuel of primary heating system."
 HVAC Secondary Heating Efficiency,10.0,3.0,sources\aris\tsv_maker.py,The efficiency and type of the heating system.
-HVAC Secondary Heating Fuel,7.0,0.0,sources\aris\tsv_maker.py,Secondary Heating Fuel for the dwelling unit
+HVAC Secondary Heating Fuel,7.0,2.0,sources\aris\tsv_maker.py,Secondary Heating Fuel for the dwelling unit
 HVAC Secondary Heating Partial Space Conditioning,7.0,3.0,sources\aris\tsv_maker.py,The fraction of heating load served by secondary heating system
 HVAC Secondary Heating Type,3.0,2.0,sources\aris\tsv_maker.py,The efficiency and type of the heating system.
 HVAC Shared Efficiencies,7.0,2.0,sources\recs\recs2020\tsv_maker.py,The presence and efficiency of the shared HVAC system.
